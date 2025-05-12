@@ -18,6 +18,7 @@ from uqlm.utils.dataloader import load_dataset, load_example_dataset
 from uqlm.utils.postprocessors import math_postprocessor
 from uqlm.utils.response_generator import ResponseGenerator
 from uqlm.utils.tuner import Tuner
+from uqlm.utils.metrics import accuracy_score, balanced_accuracy_score, fbeta_score, log_loss, roc_auc_score
 
 __all__ = [
     "plot_model_accuracies",
@@ -27,4 +28,9 @@ __all__ = [
     "math_postprocessor",
     "ResponseGenerator",
     "Tuner",
+    "accuracy_score",
+    "balanced_accuracy_score",
+    "fbeta_score",
+    "log_loss",
+    "roc_auc_score",
 ]
