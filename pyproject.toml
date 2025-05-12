@@ -25,7 +25,6 @@ packages = [
 python = ">=3.9,<3.13"
 langchain = "^0.3.7"
 transformers = "^4.45.2"
-scikit-learn = "^1.5.2"
 numpy = "^1.26.4"
 matplotlib = "^3.9.2"
 optuna = "^4.0.0"
