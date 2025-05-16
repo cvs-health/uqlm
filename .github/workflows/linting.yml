@@ -3,7 +3,7 @@ name: Linting with Ruff
 on:
     push:
         branches:
-        - master
+        - main
         - develop
     workflow_dispatch:
 
