@@ -14,6 +14,7 @@
 
 
 import numpy as np
+import warnings
 
 
 def accuracy_score(y_true: list, y_pred: list) -> float:
@@ -87,12 +88,7 @@ def f1_score(y_true: list, y_pred: list):
     float
         F1-score.
     """
-    precision = precision_score(y_true=y_true, y_pred=y_pred)
-    recall = recall_score(y_true=y_true, y_pred=y_pred)
-    
-    if (precision + recall) == 0:
-        return 0.0
-    return 2 * (precision * recall) / (precision + recall)
+    return fbeta_score(y_true=y_true, y_pred=y_pred, beta=1)
 
 
 def fbeta_score(y_true: list, y_pred: list, beta: float = 0.5) -> float:
@@ -113,27 +109,29 @@ def fbeta_score(y_true: list, y_pred: list, beta: float = 0.5) -> float:
     float
         F-beta score.
     """
-    _check_lists(list1=y_true, list2=y_pred)
+    precision = precision_score(y_true=y_true, y_pred=y_pred)
+    recall = recall_score(y_true=y_true, y_pred=y_pred)
+#     _check_lists(list1=y_true, list2=y_pred)
     
-    # Ensure inputs are numpy arrays
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
+#     # Ensure inputs are numpy arrays
+#     y_true = np.array(y_true)
+#     y_pred = np.array(y_pred)
 
-    # Calculate confusion matrix elements
-    tp = np.sum((y_true == 1) & (y_pred == 1))
-    fp = np.sum((y_true == 0) & (y_pred == 1))
-    fn = np.sum((y_true == 1) & (y_pred == 0))
+#     # Calculate confusion matrix elements
+#     tp = np.sum((y_true == 1) & (y_pred == 1))
+#     fp = np.sum((y_true == 0) & (y_pred == 1))
+#     fn = np.sum((y_true == 1) & (y_pred == 0))
 
-    # Calculate precision and recall
-    if (tp + fp) == 0:
-        precision = 0
-    else:
-        precision = tp / (tp + fp)
+#     # Calculate precision and recall
+#     if (tp + fp) == 0:
+#         precision = 0
+#     else:
+#         precision = tp / (tp + fp)
 
-    if (tp + fn) == 0:
-        recall = 0
-    else:
-        recall = tp / (tp + fn)
+#     if (tp + fn) == 0:
+#         recall = 0
+#     else:
+#         recall = tp / (tp + fn)
     
     # Calculate F-beta score
     if (precision + recall) == 0:
@@ -203,7 +201,8 @@ def precision_score(y_true: list, y_pred: list):
                 true_positives += 1
     
     if num_positive_preds == 0:
-        return 0.0
+        warning.warn("No predicted positives in the sample; precision cannot be computed. Returning np.nan.")
+        return np.nan
     
     return true_positives / num_positive_preds
 
@@ -236,12 +235,13 @@ def recall_score(y_true: list, y_pred: list):
                 true_positives += 1
 
     if num_actual_positives == 0:
-        return 0  # Avoid division by zero
+        warning.warn("No actual positives in the sample; recall cannot be computed. Returning np.nan.")
+        return np.nan
     
     return true_positives / num_actual_positives
 
 
-def roc_auc_score(y_true, y_score):
+def roc_auc_score(y_true: list, y_score: list):
     """
     Compute Area Under the Receiver Operating Characteristic Curve (ROC AUC).
 
