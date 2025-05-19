@@ -251,7 +251,7 @@ class UQEnsemble(UncertaintyQuantifier):
             A list of boolean indicators of whether self.responses are correct.
 
         weights_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss'}, default='roc_auc'
-            Objective function for optimization of alpha and beta. Must match thresh_objective if one of 'fbeta_score',
+            Objective function for weight optimization. Must match thresh_objective if one of 'fbeta_score',
             'accuracy_score', 'balanced_accuracy_score'. If same as thresh_objective, joint optimization will be done.
 
         thresh_bounds : tuple of floats, default=(0,1)
@@ -323,7 +323,7 @@ class UQEnsemble(UncertaintyQuantifier):
             The number of sampled responses used to compute consistency.
 
         weights_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss'}, default='roc_auc'
-            Objective function for optimization of alpha and beta. Must match thresh_objective if one of 'fbeta_score',
+            Objective function for weight optimization. Must match thresh_objective if one of 'fbeta_score',
             'accuracy_score', 'balanced_accuracy_score'. If same as thresh_objective, joint optimization will be done.
 
         thresh_bounds : tuple of floats, default=(0,1)
@@ -360,7 +360,7 @@ class UQEnsemble(UncertaintyQuantifier):
             correct_indicators=correct_indicators,
             weights_objective=weights_objective,
             thresh_bounds=thresh_bounds,
-            thresh_objective = thresh_objective,
+            thresh_objective=thresh_objective,
             n_trials=n_trials,
             step_size=step_size,
             fscore_beta=fscore_beta,            
