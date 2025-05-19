@@ -32,8 +32,7 @@ def accuracy_score(y_true: list, y_pred: list) -> float:
     float
         Accuracy score or the number of correct predictions.
     """
-    if len(y_true) != len(y_pred):
-        raise ValueError("y_true and y_pred must have the same length.")
+    _check_lists(list1=y_true, list2=y_pred)
 
     return sum(true == pred for true, pred in zip(y_true, y_pred))/len(y_true)
 
@@ -54,6 +53,8 @@ def balanced_accuracy_score(y_true: list, y_pred: list) -> float:
     float
         Balanced accuracy score.
     """
+    _check_lists(list1=y_true, list2=y_pred)
+    
     classes = np.unique(y_true)
     recall_scores = []
     for cls in classes:
@@ -68,6 +69,30 @@ def balanced_accuracy_score(y_true: list, y_pred: list) -> float:
             recall = 0.0
         recall_scores.append(recall)
     return np.mean(recall_scores)
+
+
+def f1_score(y_true: list, y_pred: list):
+    """
+    Computes the F1-score.
+
+    Parameters
+    ----------
+    y_true : list
+        A list of True labels.
+    y_pred : list
+        A list of Predicted labels.
+
+    Returns
+    -------
+    float
+        F1-score.
+    """
+    precision = precision_score(y_true=y_true, y_pred=y_pred)
+    recall = recall_score(y_true=y_true, y_pred=y_pred)
+    
+    if (precision + recall) == 0:
+        return 0.0
+    return 2 * (precision * recall) / (precision + recall)
 
 
 def fbeta_score(y_true: list, y_pred: list, beta: float = 0.5) -> float:
@@ -88,6 +113,7 @@ def fbeta_score(y_true: list, y_pred: list, beta: float = 0.5) -> float:
     float
         F-beta score.
     """
+    _check_lists(list1=y_true, list2=y_pred)
     
     # Ensure inputs are numpy arrays
     y_true = np.array(y_true)
@@ -118,7 +144,7 @@ def fbeta_score(y_true: list, y_pred: list, beta: float = 0.5) -> float:
     return fbeta
 
 
-def log_loss(y_true, y_pred, eps=1e-15):
+def log_loss(y_true: list, y_pred: list, eps: float=1e-15):
     """
     Compute log loss (cross-entropy loss) between true labels and predicted probabilities.
 
@@ -136,6 +162,8 @@ def log_loss(y_true, y_pred, eps=1e-15):
     float
         Log loss value.
     """
+    _check_lists(list1=y_true, list2=y_pred)
+    
     # Clip probabilities to avoid log(0) errors
     y_true = np.array(y_true)
     y_pred = np.clip(y_pred, eps, 1 - eps)
@@ -145,6 +173,72 @@ def log_loss(y_true, y_pred, eps=1e-15):
 
     # Return the average log loss
     return np.mean(log_loss_values)
+
+
+def precision_score(y_true: list, y_pred: list):
+    """
+    Calculate precision score.
+
+    Parameters
+    ----------
+    y_true : list
+        A list of True labels.
+    y_pred : list
+        A list of Predicted labels.
+
+    Returns
+    -------
+    float
+        Precision score.
+    """
+    _check_lists(list1=y_true, list2=y_pred)
+    
+    true_positives = 0
+    num_positive_preds = 0
+
+    for true, pred in zip(y_true, y_pred):
+        if pred == 1:
+            num_positive_preds += 1
+            if true == pred:
+                true_positives += 1
+    
+    if num_positive_preds == 0:
+        return 0.0
+    
+    return true_positives / num_positive_preds
+
+
+def recall_score(y_true: list, y_pred: list):
+    """
+    Calculates the recall score.
+
+    Parameters
+    ----------
+    y_true : list
+        A list of True labels.
+    y_pred : list
+        A list of Predicted labels.
+
+    Returns
+    -------
+    float 
+        Recall score.
+    """
+    _check_lists(list1=y_true, list2=y_pred)
+    
+    true_positives = 0
+    num_actual_positives = 0
+
+    for true, pred in zip(y_true, y_pred):
+        if true == 1:
+            num_actual_positives += 1
+            if true == pred:
+                true_positives += 1
+
+    if num_actual_positives == 0:
+        return 0  # Avoid division by zero
+    
+    return true_positives / num_actual_positives
 
 
 def roc_auc_score(y_true, y_score):
@@ -163,6 +257,8 @@ def roc_auc_score(y_true, y_score):
     float
         ROC AUC score.
     """
+    _check_lists(list1=y_true, list2=y_score, list2_name="y_score")
+    
     # Combine true labels and scores, then sort by scores in descending order
     data = sorted(zip(y_score, y_true), reverse=True)
     
@@ -186,3 +282,8 @@ def roc_auc_score(y_true, y_score):
         auc += (fpr_list[i] - fpr_list[i-1]) * (tpr_list[i] + tpr_list[i-1]) / 2
     
     return auc
+
+
+def _check_lists(list1: list, list2: list, list2_name:str = "y_pred"):
+    if len(list1) != len(list2):
+        raise ValueError(f"y_true and {list2_name} must have the same length.")
