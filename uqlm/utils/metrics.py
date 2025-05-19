@@ -38,7 +38,7 @@ def accuracy_score(y_true: list, y_pred: list) -> float:
     return sum(true == pred for true, pred in zip(y_true, y_pred))/len(y_true)
 
 
-def balanced_accuracy_score(y_true: list, y_pred: list) -> float:
+def balanced_accuracy_score(y_true: list, y_pred: list, value_if_undefined: float=0.0) -> float:
     """
     Computes the balanced accuracy score.
 
@@ -48,6 +48,8 @@ def balanced_accuracy_score(y_true: list, y_pred: list) -> float:
         A list of True labels.
     y_pred : list
         A list of Predicted labels.
+    value_if_undefined : float
+        Value to return if no actual positives are present in the sample.
 
     Returns
     -------
@@ -65,15 +67,15 @@ def balanced_accuracy_score(y_true: list, y_pred: list) -> float:
         actual_positives = np.sum(y_true_cls)
         
         if actual_positives == 0:
-            warnings.warn(f"No actual positives in the class {cls}; recall cannot be computed. Instead using np.nan.")
-            recall = np.nan
+            warnings.warn(f"No actual positives in the class {cls}; recall cannot be computed. Instead using {value_if_undefined}.")
+            recall = value_if_undefined
         else:
             recall = true_positives / actual_positives
         recall_scores.append(recall)
     return np.mean(recall_scores)
 
 
-def f1_score(y_true: list, y_pred: list):
+def f1_score(y_true: list, y_pred: list) -> float:
     """
     Computes the F1-score.
 
@@ -119,7 +121,7 @@ def fbeta_score(y_true: list, y_pred: list, beta: float = 1.0) -> float:
     return (1 + beta**2) * (precision * recall) / ((beta**2 * precision) + recall)
 
 
-def log_loss(y_true: list, y_pred: list, eps: float=1e-15):
+def log_loss(y_true: list, y_pred: list, eps: float=1e-15) -> float:
     """
     Compute log loss (cross-entropy loss) between true labels and predicted probabilities.
 
@@ -150,7 +152,7 @@ def log_loss(y_true: list, y_pred: list, eps: float=1e-15):
     return np.mean(log_loss_values)
 
 
-def precision_score(y_true: list, y_pred: list):
+def precision_score(y_true: list, y_pred: list, value_if_undefined: float=0.0) -> float:
     """
     Calculate precision score.
 
@@ -160,6 +162,8 @@ def precision_score(y_true: list, y_pred: list):
         A list of True labels.
     y_pred : list
         A list of Predicted labels.
+    value_if_undefined : float
+        Value to return if no predicted positives are present in the sample.
 
     Returns
     -------
@@ -178,13 +182,13 @@ def precision_score(y_true: list, y_pred: list):
                 true_positives += 1
     
     if num_positive_preds == 0:
-        warnings.warn("No predicted positives in the sample; precision cannot be computed. Returning np.nan.")
-        return np.nan
+        warnings.warn(f"No predicted positives in the sample; precision cannot be computed. Returning {value_if_undefined}.")
+        return value_if_undefined
     
     return true_positives / num_positive_preds
 
 
-def recall_score(y_true: list, y_pred: list):
+def recall_score(y_true: list, y_pred: list, value_if_undefined: float=0.0) -> float:
     """
     Calculates the recall score.
 
@@ -194,6 +198,8 @@ def recall_score(y_true: list, y_pred: list):
         A list of True labels.
     y_pred : list
         A list of Predicted labels.
+    value_if_undefined : float
+        Value to return if no actual positives are present in the sample.
 
     Returns
     -------
@@ -212,13 +218,13 @@ def recall_score(y_true: list, y_pred: list):
                 true_positives += 1
 
     if num_actual_positives == 0:
-        warnings.warn("No actual positives in the sample; recall cannot be computed. Returning np.nan.")
-        return np.nan
+        warnings.warn(f"No actual positives in the sample; recall cannot be computed. Returning {value_if_undefined}.")
+        return value_if_undefined
     
     return true_positives / num_actual_positives
 
 
-def roc_auc_score(y_true: list, y_score: list):
+def roc_auc_score(y_true: list, y_score: list) -> float:
     """
     Compute Area Under the Receiver Operating Characteristic Curve (ROC AUC).
 
@@ -261,6 +267,6 @@ def roc_auc_score(y_true: list, y_score: list):
     return auc
 
 
-def _check_lists(list1: list, list2: list, list2_name:str = "y_pred"):
+def _check_lists(list1: list, list2: list, list2_name:str = "y_pred") -> None:
     if len(list1) != len(list2):
         raise ValueError(f"y_true and {list2_name} must have the same length.")
