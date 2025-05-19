@@ -18,8 +18,11 @@ import random
 from uqlm.utils.metrics import (
     accuracy_score,
     balanced_accuracy_score,
+    f1_score,
     fbeta_score,
     log_loss,
+    precision_score,
+    recall_score,
     roc_auc_score,
 )
 
@@ -49,6 +52,10 @@ def test_accuracy_score(y_true, y_pred):
 def test_balanced_accuracy_score(y_true, y_pred):
     assert balanced_accuracy_score(y_true, y_pred) == 0.6000000000000001
     
+
+def test_f1_score(y_true, y_pred):
+    assert f1_score(y_true, y_pred) == 0.6666666666666666
+
     
 def test_fbeta_score(y_true, y_pred):
     assert fbeta_score(y_true, y_pred, beta=0.5) == 0.6060606060606061
@@ -56,6 +63,14 @@ def test_fbeta_score(y_true, y_pred):
     
 def test_log_loss(y_true, y_score):
     assert log_loss(y_true, y_score) == 0.8691546801559589
+
+
+def test_precision_score(y_true, y_pred):
+    assert precision_score(y_true, y_pred) == 0.5714285714285714
+
+
+def test_recall_score(y_true, y_pred):
+    assert recall_score(y_true, y_pred) == 0.8
 
 
 def test_roc_auc_score(y_true, y_score):
