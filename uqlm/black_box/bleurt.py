@@ -45,7 +45,7 @@ class BLEURTScorer(SimilarityScorer):
             raise ImportError(
             """
             The bleurt package is required to use BLEURTScorer but is not installed. Please install it using:\n
-            `pip install pip install --user git+https://github.com/google-research/bleurt.git`
+            `pip install git+https://github.com/google-research/bleurt.git`
             """
             )
         try:
