@@ -17,7 +17,7 @@ import numpy as np
 import optuna
 from typing import Any, Dict, List, Tuple
 
-from sklearn.metrics import (
+from uqlm.utils.metrics import (
     fbeta_score,
     balanced_accuracy_score,
     accuracy_score,
