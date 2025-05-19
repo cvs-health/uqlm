@@ -64,10 +64,11 @@ def balanced_accuracy_score(y_true: list, y_pred: list) -> float:
         true_positives = np.sum(y_true_cls * y_pred_cls)
         actual_positives = np.sum(y_true_cls)
         
-        if actual_positives > 0:
-             recall = true_positives / actual_positives
+        if actual_positives == 0:
+            warnings.warn(f"No actual positives in the class {cls}; recall cannot be computed. Instead using np.nan.")
+            recall = np.nan
         else:
-            recall = 0.0
+            recall = true_positives / actual_positives
         recall_scores.append(recall)
     return np.mean(recall_scores)
 
@@ -88,10 +89,10 @@ def f1_score(y_true: list, y_pred: list):
     float
         F1-score.
     """
-    return fbeta_score(y_true=y_true, y_pred=y_pred, beta=1)
+    return fbeta_score(y_true=y_true, y_pred=y_pred, beta=1.0)
 
 
-def fbeta_score(y_true: list, y_pred: list, beta: float = 0.5) -> float:
+def fbeta_score(y_true: list, y_pred: list, beta: float = 1.0) -> float:
     """
     Computes the F-beta score.
 
@@ -101,7 +102,7 @@ def fbeta_score(y_true: list, y_pred: list, beta: float = 0.5) -> float:
         A list of True labels.
     y_pred : list
         A list of Predicted labels.
-    beta : float, default = 0.5
+    beta : float, default = 1
         Beta value for weighting precision and recall.
 
     Returns
@@ -111,35 +112,11 @@ def fbeta_score(y_true: list, y_pred: list, beta: float = 0.5) -> float:
     """
     precision = precision_score(y_true=y_true, y_pred=y_pred)
     recall = recall_score(y_true=y_true, y_pred=y_pred)
-#     _check_lists(list1=y_true, list2=y_pred)
-    
-#     # Ensure inputs are numpy arrays
-#     y_true = np.array(y_true)
-#     y_pred = np.array(y_pred)
-
-#     # Calculate confusion matrix elements
-#     tp = np.sum((y_true == 1) & (y_pred == 1))
-#     fp = np.sum((y_true == 0) & (y_pred == 1))
-#     fn = np.sum((y_true == 1) & (y_pred == 0))
-
-#     # Calculate precision and recall
-#     if (tp + fp) == 0:
-#         precision = 0
-#     else:
-#         precision = tp / (tp + fp)
-
-#     if (tp + fn) == 0:
-#         recall = 0
-#     else:
-#         recall = tp / (tp + fn)
     
     # Calculate F-beta score
     if (precision + recall) == 0:
-        fbeta = 0
-    else:
-        fbeta = (1 + beta**2) * (precision * recall) / ((beta**2 * precision) + recall)
-
-    return fbeta
+        return 0.0
+    return (1 + beta**2) * (precision * recall) / ((beta**2 * precision) + recall)
 
 
 def log_loss(y_true: list, y_pred: list, eps: float=1e-15):
@@ -201,7 +178,7 @@ def precision_score(y_true: list, y_pred: list):
                 true_positives += 1
     
     if num_positive_preds == 0:
-        warning.warn("No predicted positives in the sample; precision cannot be computed. Returning np.nan.")
+        warnings.warn("No predicted positives in the sample; precision cannot be computed. Returning np.nan.")
         return np.nan
     
     return true_positives / num_positive_preds
@@ -235,7 +212,7 @@ def recall_score(y_true: list, y_pred: list):
                 true_positives += 1
 
     if num_actual_positives == 0:
-        warning.warn("No actual positives in the sample; recall cannot be computed. Returning np.nan.")
+        warnings.warn("No actual positives in the sample; recall cannot be computed. Returning np.nan.")
         return np.nan
     
     return true_positives / num_actual_positives
