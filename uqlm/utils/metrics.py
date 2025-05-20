@@ -67,7 +67,7 @@ def balanced_accuracy_score(y_true: list, y_pred: list, value_if_undefined: floa
         actual_positives = np.sum(y_true_cls)
         
         if actual_positives == 0:
-            warnings.warn(f"No actual positives in the class {cls}; recall cannot be computed. Instead using {value_if_undefined}.")
+            warnings.warn(f"No actual positives in the class {cls}; recall cannot be computed. Instead using {value_if_undefined}. To modify this behavior, use `value_if_undefined` parameter.")
             recall = value_if_undefined
         else:
             recall = true_positives / actual_positives
@@ -182,7 +182,7 @@ def precision_score(y_true: list, y_pred: list, value_if_undefined: float=0.0) -
                 true_positives += 1
     
     if num_positive_preds == 0:
-        warnings.warn(f"No predicted positives in the sample; precision cannot be computed. Returning {value_if_undefined}.")
+        warnings.warn(f"No predicted positives in the sample; precision cannot be computed. A value of {value_if_undefined} will be returned. To modify this behavior, use `value_if_undefined` parameter.")
         return value_if_undefined
     
     return true_positives / num_positive_preds
@@ -218,7 +218,7 @@ def recall_score(y_true: list, y_pred: list, value_if_undefined: float=0.0) -> f
                 true_positives += 1
 
     if num_actual_positives == 0:
-        warnings.warn(f"No actual positives in the sample; recall cannot be computed. Returning {value_if_undefined}.")
+        warnings.warn(f"No actual positives in the sample; recall cannot be computed. A value of {value_if_undefined} will be returned. To modify this behavior, use `value_if_undefined` parameter.")
         return value_if_undefined
     
     return true_positives / num_actual_positives
