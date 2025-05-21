@@ -14,8 +14,10 @@
 
 
 import numpy as np
+from numpy.typing import ArrayLike
 import optuna
 from typing import Any, Dict, List, Tuple
+import warnings
 
 from uqlm.utils.metrics import (
     fbeta_score,
@@ -29,16 +31,25 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 
 class Tuner:
-    def __init__(self) -> None:
+    def __init__(self, warn_zero_division: bool = False) -> None:
         """
         Class for tuning weights and threshold for BSDetector and UQEnsemble
+        
+        Parameters
+        ----------
+        warn_zero_division : bool, default = False
+            Specifies whether to warn if zero division is encountered during optimization
+        
         """
+        self.warn_zero_division = warn_zero_division
+        if not self.warn_zero_division:
+            warnings.filterwarnings("ignore", category=UserWarning)
         self.objective_to_func = {
             "fbeta_score": self._f_score,
-            "accuracy_score": accuracy_score,
-            "balanced_accuracy_score": balanced_accuracy_score,
-            "log_loss": log_loss,
-            "roc_auc": roc_auc_score,
+            "accuracy_score": self._accuracy_score,
+            "balanced_accuracy_score": self._balanced_accuracy_score,
+            "log_loss": self._log_loss,
+            "roc_auc": self._roc_auc_score,
         }
 
     def tune_threshold(
@@ -86,7 +97,7 @@ class Tuner:
         y_pred_matrix = (y_scores_array[:, np.newaxis] > threshold_values).astype(int)
         values = -np.array(
             [
-                threshold_tuning_objective(correct_indicators, y_pred)
+                threshold_tuning_objective(np.array(correct_indicators), y_pred)
                 for y_pred in y_pred_matrix.T
             ]
         )
@@ -141,9 +152,9 @@ class Tuner:
         Dict
             Dictionary containing optimized weights and threshold
         """
-        self.score_lists = score_lists
+        self.score_lists = np.stack([np.array(sl) for sl in score_lists])
         self.k = len(score_lists)
-        self.correct_indicators = correct_indicators
+        self.correct_indicators = np.array(correct_indicators)
         self.weights_objective = weights_objective
         self.thresh_bounds = thresh_bounds
         self.thresh_objective = thresh_objective
@@ -188,7 +199,7 @@ class Tuner:
                 best_weights = self._grid_search_weights()
             
             print("Optimizing threshold with grid search...")
-            new_scores = self._update_scores(best_weights)
+            new_scores = self._update_scores(np.array(best_weights))
             best_threshold = self.tune_threshold(
                 y_scores=new_scores,
                 correct_indicators=self.correct_indicators,
@@ -198,8 +209,8 @@ class Tuner:
             return tuple(best_weights) + (best_threshold,)
 
     def _f_score(self, y_true, y_pred):
-        """Helper function to compute f-beta score"""
-        return fbeta_score(y_true, y_pred, beta=self.fscore_beta)
+        """Helper function to compute f-beta score without checks"""
+        return fbeta_score(y_true, y_pred, beta=self.fscore_beta, check_inputs=False)
 
     def _validate_tuning_inputs(self):
         """Helper function to validate tuning inputs"""
@@ -250,7 +261,7 @@ class Tuner:
             thresh = trial.suggest_float(
                 "thresh", self.thresh_bounds[0], self.thresh_bounds[1]
             )
-        ensemble_scores = self._compute_ensemble_scores(weights=weights, score_lists=self.score_lists)
+        ensemble_scores = self._compute_ensemble_scores(weights=np.array(weights), score_lists=self.score_lists)
         return self._evaluate_objective(
             y_true=self.correct_indicators, y_pred=ensemble_scores, thresh=thresh
         )
@@ -258,7 +269,7 @@ class Tuner:
     def _evaluate_objective(self, y_true, y_pred, thresh=None):
         """Helper function to define evaluate objective function for weights"""
         if thresh is not None:
-            y_pred = [(y_pred_i > thresh) * 1 for y_pred_i in y_pred]
+            y_pred = (y_pred > thresh)
         return self.obj_multiplier * self.weights_tuning_objective(y_true, y_pred)
 
     def _update_scores(self, weights: List[float]) -> List[float]:
@@ -269,19 +280,11 @@ class Tuner:
         self, weights: List[float], score_lists: List[List[float]]
     ) -> List[float]:
         """Helper function to compute dot product for getting ensemble scores"""
-        final_scores = []
-        for scores_i in zip(*score_lists):
-            filtered_scores_weights = [
-                (si, w) for si, w in zip(scores_i, weights) if not np.isnan(si)
-            ]
-            filtered_scores, filtered_weights = zip(*filtered_scores_weights)
-            normalized_weights = self._normalize_weights(filtered_weights)
-
-            weighted_sum = sum(
-                si * nw for si, nw in zip(filtered_scores, normalized_weights)
-            )
-            final_scores.append(weighted_sum)
-        return final_scores
+        valid_mask = ~np.isnan(score_lists)
+        adjusted_weights = weights[:, None] * valid_mask
+        normalized_weights = adjusted_weights / np.sum(adjusted_weights, axis=0, keepdims=True)
+        stacked_nonan = np.nan_to_num(score_lists, nan=0.0)
+        return np.sum(stacked_nonan * normalized_weights, axis=0)
     
     def _grid_search_weights_thresh(self):
         """
@@ -349,4 +352,24 @@ class Tuner:
     @staticmethod
     def _normalize_weights(weights: List[float]) -> List[float]:
         """Helper function to ensure weights sum to 1"""
-        return [w / np.sum(weights) for w in weights]
+        return weights / np.sum(weights)
+    
+    @staticmethod
+    def _accuracy_score(y_true: ArrayLike, y_pred: ArrayLike) -> float:
+        """Helper function to compute accuracy score without checks"""
+        return accuracy_score(y_true, y_pred, check_inputs=False)
+
+    @staticmethod
+    def _balanced_accuracy_score(y_true: ArrayLike, y_pred: ArrayLike) -> float:
+        """Helper function to compute balanced accuracy score without checks"""
+        return balanced_accuracy_score(y_true, y_pred, check_inputs=False)
+    
+    @staticmethod
+    def _log_loss(y_true: ArrayLike, y_pred: ArrayLike) -> float:
+        """Helper function to compute log loss score without checks"""
+        return log_loss(y_true, y_pred, check_inputs=False)
+    
+    @staticmethod
+    def _roc_auc_score(y_true: ArrayLike, y_score: ArrayLike) -> float:
+        """Helper function to compute ROC-AUC score"""
+        return roc_auc_score(y_true, y_score, check_inputs=False)
