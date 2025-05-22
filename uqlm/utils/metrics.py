@@ -37,9 +37,9 @@ def accuracy_score(y_true: ArrayLike, y_pred: ArrayLike, check_inputs: bool=True
         Accuracy score or the number of correct predictions.
     """
     if check_inputs:
-        y_true, y_pred = _check_lists(list1=y_true, list2=y_pred)
+        y_true, y_pred = _check_arrays(array1=y_true, array2=y_pred)
 
-    return sum(y_true == y_pred)/len(y_true)
+    return np.sum(y_true == y_pred)/len(y_true)
 
 
 def balanced_accuracy_score(y_true: ArrayLike, y_pred: ArrayLike, check_inputs: bool=True, value_if_undefined: float=0.0) -> float:
@@ -63,26 +63,29 @@ def balanced_accuracy_score(y_true: ArrayLike, y_pred: ArrayLike, check_inputs: 
         Balanced accuracy score.
     """
     if check_inputs:
-        y_true, y_pred = _check_lists(list1=y_true, list2=y_pred)
+        y_true, y_pred = _check_arrays(array1=y_true, array2=y_pred)
+
+    classes = np.array([0, 1])
     
-    classes = np.unique(y_true)
-    recall_scores = []
-    for class_ in classes:
-        y_true_cls = (y_true == class_)
-        y_pred_cls = (y_pred == class_)
-        true_positives = np.sum(y_true_cls * y_pred_cls)
-        actual_positives = np.sum(y_true_cls)
-        
-        if actual_positives == 0:
-            warnings.warn(f"No actual positives in the class {class_}; recall cannot be computed. Instead using {value_if_undefined}. To modify this behavior, use `value_if_undefined` parameter.")
-            recall = value_if_undefined
-        else:
-            recall = true_positives / actual_positives
-        recall_scores.append(recall)
+    # Create binary masks for each class
+    y_true_masks = y_true == classes[:, np.newaxis]  # Shape: (n_classes, n_samples)
+    y_pred_masks = y_pred == classes[:, np.newaxis]  # Shape: (n_classes, n_samples)
+
+    # Calculate true positives and actual positives for all classes at once
+    true_positives = np.sum(y_true_masks * y_pred_masks, axis=1)
+    actual_positives = np.sum(y_true_masks, axis=1)
+    
+    # # Handle cases where there are no actual positives
+    recall_scores = np.divide(true_positives, actual_positives, out=np.array([value_if_undefined]*len(classes)), where=actual_positives!=0)
+    
+    undefined_ind = actual_positives == 0
+    if np.count_nonzero(undefined_ind) > 0:
+        warnings.warn(f"No actual positives in the class {classes[undefined_ind]}; recall cannot be computed. Instead using {value_if_undefined}. To modify this behavior, use `value_if_undefined` parameter.")
+
     return np.mean(recall_scores)
 
 
-def f1_score(y_true: ArrayLike, y_pred: ArrayLike, check_inputs: bool=True) -> float:
+def f1_score(y_true: ArrayLike, y_pred: ArrayLike) -> float:
     """
     Computes the F1-score.
 
@@ -92,8 +95,6 @@ def f1_score(y_true: ArrayLike, y_pred: ArrayLike, check_inputs: bool=True) -> f
         A list or numpy.ndarray of True labels.
     y_pred : ArrayLike
         A list of Predicted labels.
-    check_inputs : bool
-        Whether to validate the input arrays.
 
     Returns
     -------
@@ -124,7 +125,7 @@ def fbeta_score(y_true: ArrayLike, y_pred: ArrayLike, check_inputs: bool=True, b
         F-beta score.
     """
     if check_inputs:
-        y_true, y_pred = _check_lists(list1=y_true, list2=y_pred)
+        y_true, y_pred = _check_arrays(array1=y_true, array2=y_pred)
 
     precision = precision_score(y_true=y_true, y_pred=y_pred, check_inputs=False)
     recall = recall_score(y_true=y_true, y_pred=y_pred, check_inputs=False)
@@ -156,7 +157,7 @@ def log_loss(y_true: ArrayLike, y_pred: ArrayLike, check_inputs: bool=True, eps:
         Log loss value.
     """
     if check_inputs:
-        y_true, y_pred = _check_lists(list1=y_true, list2=y_pred, list2_name="y_score")
+        y_true, y_pred = _check_arrays(array1=y_true, array2=y_pred, array2_name="y_score")
     
     # Clip probabilities to avoid log(0) errors
     y_pred = np.clip(y_pred, eps, 1 - eps)
@@ -189,7 +190,7 @@ def precision_score(y_true: ArrayLike, y_pred: ArrayLike, check_inputs: bool=Tru
         Precision score.
     """
     if check_inputs:
-        y_true, y_pred = _check_lists(list1=y_true, list2=y_pred)
+        y_true, y_pred = _check_arrays(array1=y_true, array2=y_pred)
         
     true_positives = np.count_nonzero((y_true == 1) & (y_pred == 1))
     predicted_positives = np.count_nonzero(y_pred == 1)
@@ -222,7 +223,7 @@ def recall_score(y_true: ArrayLike, y_pred: ArrayLike, check_inputs: bool=True, 
         Recall score.
     """
     if check_inputs:
-        y_true, y_pred = _check_lists(list1=y_true, list2=y_pred)
+        y_true, y_pred = _check_arrays(array1=y_true, array2=y_pred)
     
     true_positives = np.count_nonzero((y_true == 1) & (y_pred == 1))
     actual_positives = np.count_nonzero(y_true == 1)
@@ -253,7 +254,7 @@ def roc_auc_score(y_true: ArrayLike, y_score: ArrayLike, check_inputs: bool=True
         ROC AUC score.
     """
     if check_inputs:
-        y_true, y_score = _check_lists(list1=y_true, list2=y_score, list2_name="y_score")
+        y_true, y_score = _check_arrays(array1=y_true, array2=y_score, array2_name="y_score")
         
     # Sort indices by predicted scores in descending order
     desc_score_indices = np.argsort(y_score, kind="mergesort")[::-1]
@@ -263,7 +264,8 @@ def roc_auc_score(y_true: ArrayLike, y_score: ArrayLike, check_inputs: bool=True
     cumulative_tp = np.cumsum(y_true)
     cumulative_fp = np.cumsum(1 - y_true)
 
-    num_tp, num_fp = sum(y_true), len(y_true) - sum(y_true)
+    num_tp = np.count_nonzero(y_true) 
+    num_fp = len(y_true) - num_tp
     # Calculate true positive rates and false positive rates
     tpr = np.concatenate([[0], cumulative_tp / num_tp]) if num_tp > 0 else np.array([0, 0])
     fpr = np.concatenate([[0], cumulative_fp / num_fp]) if num_fp > 0 else np.array([0, 0])
@@ -272,20 +274,17 @@ def roc_auc_score(y_true: ArrayLike, y_score: ArrayLike, check_inputs: bool=True
     return np.trapz(tpr, fpr)
 
 
-def _check_lists(list1: list, list2: list, list2_name:str = "y_pred") -> None:
-    if len(list1) != len(list2):
-        raise ValueError(f"y_true and {list2_name} must have the same length.")
+def _check_arrays(array1: ArrayLike, array2: ArrayLike, array2_name:str = "y_pred") -> None:
+    if len(array1) != len(array2):
+        raise ValueError(f"y_true and {array2_name} must have the same length.")
     
-    if not isinstance(list1, np.ndarray):
-        list1 = np.array(list1)
-    
-    if not isinstance(list2, np.ndarray):
-        list2 = np.array(list2)
+    array1 = np.asarray(array1)
+    array2 = np.asarray(array2)
         
-    lists_to_check_elements = [list1, list2] if list2_name=="y_pred" else [list1]
-    for list_ in lists_to_check_elements:
-        unique_values = np.unique(list_)
+    arrays_to_check_elements = [array1, array2] if array2_name=="y_pred" else [array1]
+    for array_ in arrays_to_check_elements:
+        unique_values = np.unique(array_)
         if not np.all(np.isin(unique_values, [0, 1])) or not np.all(np.isin(unique_values, [True, False])):
             raise AssertionError("Array contains values other than [0, 1] or [True, False].")
             
-    return list1, list2
+    return array1, array2
