@@ -66,3 +66,59 @@ markers = [
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+# Core settings
+line-length = 400
+
+[tool.ruff.lint]
+#What rules to enable
+select = ["E", "F"]
+# E = pycodestyle errors
+# F = pyflakes
+# I = isort (import sorting)
+# B = bugbear (best practices)
+# UP = pyupgrade (modernization)
+# D = pydocstyle (docstring rules)
+# S = bandit (security)
+
+#What rules to ignore
+ignore = []
+
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = true
+line-ending = "lf"
+docstring-code-format = true
