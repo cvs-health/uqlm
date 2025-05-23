@@ -14,6 +14,7 @@
 
 
 import inspect
+import numpy as np
 from langchain_core.language_models.chat_models import BaseChatModel
 from typing import Any, Dict, List, Optional, Union, Tuple
 
@@ -400,10 +401,10 @@ class UQEnsemble(UncertaintyQuantifier):
         self, score_dict: Dict[str, List[float]], weights: List[float]
     ):
         """Compute dot product of component scores and weights"""
-        score_lists = [score_dict[key] for key in score_dict.keys()]
+        score_lists = [np.array(score_dict[key]) for key in score_dict.keys()]
         return self.tuner._compute_ensemble_scores(
-            weights=weights, score_lists=score_lists
-        )
+            weights=np.array(weights), score_lists=score_lists
+        ).tolist()
 
     def _validate_components(self, components: List[Any]) -> None:
         "Validate components and construct applicable scorer attributes"
