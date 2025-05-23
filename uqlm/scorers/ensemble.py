@@ -458,11 +458,11 @@ class UQEnsemble(UncertaintyQuantifier):
     def _validate_weights(self) -> None:
         """Validate ensemble weights"""
         if self.weights:
+            if len(self.weights) != len(self.components):
+                raise ValueError("Must have same number of weights as components")
             self.weights = self._normalize_weights(self.weights)
         else:
             self.weights = [1 / len(self.components)] * len(self.components)
-        if len(self.weights) != len(self.components):
-            raise ValueError("Must have same number of weights as components")
 
     def _normalize_weights(self, weights: List[float]) -> List[float]:
         """Normalize weights to sum to 1."""

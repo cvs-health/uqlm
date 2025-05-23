@@ -34,7 +34,7 @@ class Tuner:
     def __init__(self) -> None:
         """
         Class for tuning weights and threshold for UQEnsemble class.
-        """ 
+        """
         self.objective_to_func = {
             "fbeta_score": self._f_score,
             "accuracy_score": accuracy_score,
@@ -342,6 +342,7 @@ class Tuner:
         return tuple(best_weights)
 
     @staticmethod
-    def _normalize_weights(weights: List[float]) -> List[float]:
+    def _normalize_weights(weights: ArrayLike) -> ArrayLike:
         """Helper function to ensure weights sum to 1."""
-        return weights / np.sum(weights)
+        weights_array = np.asarray(weights)
+        return weights_array / np.sum(weights_array)
