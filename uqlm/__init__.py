@@ -17,8 +17,12 @@ from uqlm.scorers.entropy import SemanticEntropy
 from uqlm.scorers.panel import LLMPanel
 from uqlm.scorers.white_box import WhiteBoxUQ
 from uqlm.scorers.black_box import BlackBoxUQ
+from .orchestrator_agent import OrchestratorTroubleshootingAgent
+from . import uipath_llms
 
 __all__ = [
+    "OrchestratorTroubleshootingAgent",
+    "uipath_llms",
     "UQEnsemble",
     "SemanticEntropy",
     "LLMPanel",
