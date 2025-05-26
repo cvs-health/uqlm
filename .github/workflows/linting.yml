@@ -5,8 +5,8 @@ on:
         types:
           - opened
         branches:
-        - main
-        - develop
+          - main
+          - develop
     workflow_dispatch:
 
 concurrency:
