@@ -1,7 +1,9 @@
 name: Linting with Ruff
 
 on:
-    push:
+    pull_request:
+        types:
+          - opened
         branches:
         - main
         - develop
@@ -26,3 +28,6 @@ jobs:
         - name: Lint with Ruff
           run: |
             ruff check uqlm/
+        - name: Check for unformatted files
+          run: |
+            ruff format --check uqlm/
