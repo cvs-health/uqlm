@@ -258,12 +258,12 @@ class UQEnsemble(UncertaintyQuantifier):
 
         weights_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss', 'average_precision', 'brier_score'}, default='roc_auc'
             Objective function for weight optimization. Must match thresh_objective if one of 'fbeta_score',
-            'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss', 'brier_score'. If same as thresh_objective, joint optimization will be done.
+            'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss', 'average_precision'. If same as thresh_objective, joint optimization will be done.
 
         thresh_bounds : tuple of floats, default=(0,1)
             Bounds to search for threshold
 
-        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'brier_score'}, default='fbeta_score'
+        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'average_precision'}, default='fbeta_score'
             Objective function for threshold optimization via grid search.
 
         n_trials : int, default=100
@@ -330,12 +330,12 @@ class UQEnsemble(UncertaintyQuantifier):
 
         weights_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss', 'average_precision', 'brier_score'}, default='roc_auc'
             Objective function for weight optimization. Must match thresh_objective if one of 'fbeta_score',
-            'accuracy_score', 'balanced_accuracy_score', 'brier_score'. If same as thresh_objective, joint optimization will be done.
+            'accuracy_score', 'balanced_accuracy_score', 'average_precision'. If same as thresh_objective, joint optimization will be done.
 
         thresh_bounds : tuple of floats, default=(0,1)
             Bounds to search for threshold
 
-        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss', 'brier_score'}, default='fbeta_score'
+        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss', 'average_precision'}, default='fbeta_score'
             Objective function for threshold optimization via grid search.
 
         n_trials : int, default=100

@@ -125,7 +125,7 @@ class Tuner:
             Objective function for optimization of weights. Must match thresh_objective if one of 'fbeta_score',
             'accuracy_score', 'balanced_accuracy_score'. If same as thresh_objective, joint optimization will be done.
 
-        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss'}, default='fbeta_score'
+        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss', 'average_precision'}, default='fbeta_score'
             Objective function for threshold optimization via grid search.
 
         thresh_bounds : tuple of floats, default=(0,1)
@@ -230,7 +230,7 @@ class Tuner:
             "fbeta_score",
             "accuracy_score",
             "balanced_accuracy_score",
-            "brier_score",
+            "average_precision",
         ]:
             raise ValueError(
                 """
