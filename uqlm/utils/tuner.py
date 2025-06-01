@@ -230,6 +230,7 @@ class Tuner:
             "fbeta_score",
             "accuracy_score",
             "balanced_accuracy_score",
+            "brier_score",
         ]:
             raise ValueError(
                 """
@@ -240,6 +241,8 @@ class Tuner:
             "fbeta_score",
             "accuracy_score",
             "balanced_accuracy_score",
+            "average_precision",
+            "brier_score",
         ]:
             if not self.optimize_jointly:
                 raise ValueError(
