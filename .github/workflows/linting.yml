@@ -26,7 +26,7 @@ jobs:
         - name: Get Ruff version and install
           run: |
               pip install poetry
-              RUFF_VERSION=$(poetry show --only=dev | grep '^ruff ' | awk '{print $2}')
+              RUFF_VERSION=$(poetry show --only=dev | grep '^ruff ' | awk '{print $3}')
               echo "Installing ruff==$RUFF_VERSION"
               pip install ruff==$RUFF_VERSION
         - name: Lint with Ruff
