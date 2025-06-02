@@ -23,8 +23,12 @@ jobs:
           with:
             python-version: "3.9"
             cache: 'pip'
-        - name: Install Ruff
-          run: pip install ruff==0.9.7
+        - name: Get Ruff version and install
+          run: |
+              pip install poetry
+              RUFF_VERSION=$(poetry show --only=dev | grep '^ruff ' | awk '{print $2}')
+              echo "Installing ruff==$RUFF_VERSION"
+              pip install ruff==$RUFF_VERSION
         - name: Lint with Ruff
           run: |
             ruff check uqlm/
