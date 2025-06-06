@@ -25,14 +25,7 @@ def scale(values, upper, lower):
     return [lower + (val - min_v) * (upper - lower) / (max_v - min_v) for val in values]
 
 
-def plot_model_accuracies(
-    scores: ArrayLike,
-    correct_indicators: ArrayLike,
-    thresholds: ArrayLike = np.linspace(0, 0.9, num=10),
-    axis_buffer: float = 0.1,
-    title: str = "LLM Accuracy by Confidence Score Threshold",
-    write_path: Optional[str] = None,
-):
+def plot_model_accuracies(scores: ArrayLike, correct_indicators: ArrayLike, thresholds: ArrayLike = np.linspace(0, 0.9, num=10), axis_buffer: float = 0.1, title: str = "LLM Accuracy by Confidence Score Threshold", write_path: Optional[str] = None):
     """
     Parameters
     ----------
@@ -63,9 +56,7 @@ def plot_model_accuracies(
 
     accuracies, sample_sizes = [], []
     for t in thresholds:
-        grades_t = [
-            correct_indicators[i] for i in range(0, len(scores)) if scores[i] >= t
-        ]
+        grades_t = [correct_indicators[i] for i in range(0, len(scores)) if scores[i] >= t]
         accuracies.append(np.mean(grades_t))
         sample_sizes.append(len(grades_t))
 
@@ -87,26 +78,13 @@ def plot_model_accuracies(
 
     # Adjust x positions for the first dataset
     bar_positions = np.array(thresholds) - bar_width / 2
-    pps1 = ax.bar(
-        bar_positions,
-        normalized_sample_1,
-        label="Sample Size",
-        alpha=0.2,
-        width=bar_width,
-    )
+    pps1 = ax.bar(bar_positions, normalized_sample_1, label="Sample Size", alpha=0.2, width=bar_width)
 
     # Annotate the bars for the first dataset
     count = 0
     for p in pps1:
         height = p.get_height()
-        ax.text(
-            x=p.get_x() + p.get_width() / 2,
-            y=height - 0.015,
-            s="{}".format(sample_sizes[count]),
-            ha="center",
-            fontsize=8,
-            rotation=90,
-        )
+        ax.text(x=p.get_x() + p.get_width() / 2, y=height - 0.015, s="{}".format(sample_sizes[count]), ha="center", fontsize=8, rotation=90)
         count += 1
 
     # Set x and y ticks, limits, labels, and title

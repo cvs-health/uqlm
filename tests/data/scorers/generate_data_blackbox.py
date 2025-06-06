@@ -21,20 +21,13 @@ from uqlm.utils.dataloader import load_example_dataset
 from uqlm.scorers import BlackBoxUQ
 from langchain_openai import AzureChatOpenAI
 
+
 async def main():
     # svamp dataset to be used as a prod dataset
-    svamp = (
-        load_example_dataset("svamp")
-        .rename(columns={"question_concat": "question", "Answer": "answer"})[
-            ["question", "answer"]
-        ]
-        .tail(5)
-    )
+    svamp = load_example_dataset("svamp").rename(columns={"question_concat": "question", "Answer": "answer"})[["question", "answer"]].tail(5)
 
     # Define prompts
-    MATH_INSTRUCTION = (
-        "When you solve this math problem only return the answer with no additional text.\n"
-    )
+    MATH_INSTRUCTION = "When you solve this math problem only return the answer with no additional text.\n"
     prompts = [MATH_INSTRUCTION + prompt for prompt in svamp.question]
 
     # User to populate .env file with API credentials
@@ -56,10 +49,7 @@ async def main():
         temperature=1,  # User to set temperature
     )
 
-    bbuq = BlackBoxUQ(
-        llm=gpt,
-        scorers=['noncontradiction', 'exact_match', 'semantic_negentropy'],
-    )
+    bbuq = BlackBoxUQ(llm=gpt, scorers=["noncontradiction", "exact_match", "semantic_negentropy"])
 
     results = await bbuq.generate_and_score(prompts=prompts, num_responses=5)
 
@@ -67,5 +57,6 @@ async def main():
     with open(results_file, "w") as f:
         json.dump(results.to_dict(), f)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

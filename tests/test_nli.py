@@ -18,9 +18,7 @@ from uqlm.black_box.nli import NLIScorer
 
 def test_nli():
     text1 = "Question: What is captial of France, Answer: Paris"
-    text2 = (
-        "Question: What is captial of France, Answer: Capital of France is Paris city."
-    )
+    text2 = "Question: What is captial of France, Answer: Capital of France is Paris city."
 
     nli_model = NLIScorer()
     probabilities = nli_model.predict(text1, text2)

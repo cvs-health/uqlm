@@ -23,11 +23,7 @@ from langchain_openai import AzureChatOpenAI
 
 async def main():
     # This notebook generate results based on these input & using "exai-gpt-35-turbo-16k" model
-    prompts = [
-        "Which part of the human body produces insulin?",
-        "What color are the two stars on the national flag of Syria",
-        "How many 'm's are there in the word strawberry",
-    ]
+    prompts = ["Which part of the human body produces insulin?", "What color are the two stars on the national flag of Syria", "How many 'm's are there in the word strawberry"]
 
     # User to populate .env file with API credentials
     load_dotenv(find_dotenv())
@@ -46,7 +42,7 @@ async def main():
         openai_api_version=API_VERSION,
         temperature=1,  # User to set temperature
     )
-    
+
     rg = ResponseGenerator(llm=original_llm, max_calls_per_min=250)
     generations = await rg.generate_responses(prompts=prompts, count=1)
     responses = generations["data"]["response"]
@@ -56,28 +52,26 @@ async def main():
     judge_result = await judge.judge_responses(prompts=prompts, responses=responses)
 
     extract_answer = judge._extract_answers(responses=judge_result["judge_responses"])
-    
+
     # Generate data for all templates
     templates = ["true_false_uncertain", "true_false", "continuous", "likert"]
     # Structure: one file with all template data
     all_results = {
-       "prompts": prompts,
-       "responses": responses,
-       "templates": {}  # This will hold data for each template
+        "prompts": prompts,
+        "responses": responses,
+        "templates": {},  # This will hold data for each template
     }
     for template in templates:
-       judge = LLMJudge(llm=original_llm, max_calls_per_min=250, scoring_template=template)
-       judge_result = await judge.judge_responses(prompts=prompts, responses=responses)
-       extract_answer = judge._extract_answers(responses=judge_result["judge_responses"])
-       # Store results for this template
-       all_results["templates"][template] = {
-           "judge_result": judge_result,
-           "extract_answer": extract_answer,
-       }
+        judge = LLMJudge(llm=original_llm, max_calls_per_min=250, scoring_template=template)
+        judge_result = await judge.judge_responses(prompts=prompts, responses=responses)
+        extract_answer = judge._extract_answers(responses=judge_result["judge_responses"])
+        # Store results for this template
+        all_results["templates"][template] = {"judge_result": judge_result, "extract_answer": extract_answer}
     # Save single comprehensive file
     results_file = "llmjudge_results_file.json"
     with open(results_file, "w") as f:
         json.dump(all_results, f)
-   
-if __name__ == '__main__':
-   asyncio.run(main())    
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

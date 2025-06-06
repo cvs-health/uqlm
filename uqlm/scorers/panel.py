@@ -22,14 +22,7 @@ from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
 
 
 class LLMPanel(UncertaintyQuantifier):
-    def __init__(
-        self,
-        judges: List[Union[LLMJudge, BaseChatModel]],
-        llm: Optional[BaseChatModel] = None,
-        system_prompt: str = "You are a helpful assistant.",
-        max_calls_per_min: Optional[int] = None,
-        scoring_templates: Optional[List[str]] = None,
-    ) -> None:
+    def __init__(self, judges: List[Union[LLMJudge, BaseChatModel]], llm: Optional[BaseChatModel] = None, system_prompt: str = "You are a helpful assistant.", max_calls_per_min: Optional[int] = None, scoring_templates: Optional[List[str]] = None) -> None:
         """
         Class for aggregating multiple instances of LLMJudge using min, max, or majority voting
 
@@ -48,7 +41,7 @@ class LLMPanel(UncertaintyQuantifier):
 
         system_prompt : str or None, default="You are a helpful assistant."
             Optional argument for user to provide custom system prompt
-            
+
         scoring_templates : List[str], default=None
              Specifies which off-the-shelf template to use for each judge. Four off-the-shelf templates offered:
              incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), continuous score (0 to 1), and likert scale score ( 1-5 scale, normalized to 0/0.25/0.5/0.75/1).
@@ -56,11 +49,7 @@ class LLMPanel(UncertaintyQuantifier):
              If specified, must be of equal length to `judges` list. Defaults to 'true_false_uncertain' template
              used by Chen and Mueller (2023) :footcite:`chen2023quantifyinguncertaintyanswerslanguage` for each judge.
         """
-        super().__init__(
-            llm=llm,
-            max_calls_per_min=max_calls_per_min,
-            system_prompt=system_prompt,
-        )
+        super().__init__(llm=llm, max_calls_per_min=max_calls_per_min, system_prompt=system_prompt)
         self.scoring_templates = scoring_templates
         if self.scoring_templates:
             if len(self.scoring_templates) != len(judges):
@@ -70,19 +59,12 @@ class LLMPanel(UncertaintyQuantifier):
         self.judges = []
         for judge, template in zip(judges, self.scoring_templates):
             if isinstance(judge, BaseChatModel):
-                judge = LLMJudge(
-                    llm=judge, max_calls_per_min=max_calls_per_min, scoring_template=template
-                )
+                judge = LLMJudge(llm=judge, max_calls_per_min=max_calls_per_min, scoring_template=template)
             elif not isinstance(judge, LLMJudge):
-                raise ValueError(
-                    "judges must be a list containing instances of either LLMJudge or BaseChatModel"
-                )
+                raise ValueError("judges must be a list containing instances of either LLMJudge or BaseChatModel")
             self.judges.append(judge)
 
-    async def generate_and_score(
-        self,
-        prompts: List[str],
-    ) -> UQResult:
+    async def generate_and_score(self, prompts: List[str]) -> UQResult:
         """
         Generate LLM responses to provided prompts and use panel of judges to score responses for correctness.
 
@@ -98,12 +80,8 @@ class LLMPanel(UncertaintyQuantifier):
         """
         responses = await self.generate_original_responses(prompts)
         return await self.score(prompts=prompts, responses=responses)
-    
-    async def score(
-        self,
-        prompts: List[str],
-        responses: Optional[List[str]] = None,
-    ) -> UQResult:
+
+    async def score(self, prompts: List[str], responses: Optional[List[str]] = None) -> UQResult:
         """
         Use panel to of judges to score provided responses for correctness. Use if responses are already generated. Otherwise,
         use generate_and_score.
@@ -114,7 +92,7 @@ class LLMPanel(UncertaintyQuantifier):
             A list of input prompts for the model.
 
         responses: list of str, default = None
-            A list of LLM responses for the corresponding to the provided prompts. 
+            A list of LLM responses for the corresponding to the provided prompts.
 
         Returns
         -------
@@ -123,11 +101,8 @@ class LLMPanel(UncertaintyQuantifier):
         """
         self.prompts = prompts
         self.responses = responses
-        data = {
-            "prompts": prompts,
-            "responses": responses,
-        }
-        
+        data = {"prompts": prompts, "responses": responses}
+
         judge_count = 1
         scores_lists = []
         for judge in self.judges:
@@ -136,18 +111,7 @@ class LLMPanel(UncertaintyQuantifier):
             data[f"judge_{judge_count}"] = tmp["scores"]
             judge_count += 1
 
-        scores_dict = {
-            "avg": [np.mean(scores) for scores in zip(*scores_lists)],
-            "max": [np.max(scores) for scores in zip(*scores_lists)],
-            "min": [np.min(scores) for scores in zip(*scores_lists)],
-            "median": [np.median(scores) for scores in zip(*scores_lists)],
-        }
+        scores_dict = {"avg": [np.mean(scores) for scores in zip(*scores_lists)], "max": [np.max(scores) for scores in zip(*scores_lists)], "min": [np.min(scores) for scores in zip(*scores_lists)], "median": [np.median(scores) for scores in zip(*scores_lists)]}
         data.update(scores_dict)
-        result = {
-            "data": data,
-            "metadata": {
-                "num_judges": len(self.judges),
-                "temperature": None if not self.llm else self.llm.temperature,
-            },
-        }
+        result = {"data": data, "metadata": {"num_judges": len(self.judges), "temperature": None if not self.llm else self.llm.temperature}}
         return UQResult(result)

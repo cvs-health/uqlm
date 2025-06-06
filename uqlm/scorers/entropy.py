@@ -19,21 +19,7 @@ from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
 
 
 class SemanticEntropy(UncertaintyQuantifier):
-    def __init__(
-        self,
-        llm=None,
-        postprocessor: Any = None,
-        device: Any = None,
-        use_best: bool = True,
-        system_prompt: str = "You are a helpful assistant.",
-        max_calls_per_min: Optional[int] = None,
-        use_n_param: bool = False,
-        sampling_temperature: float = 1.0,
-        verbose: bool = False,
-        nli_model_name: str = "microsoft/deberta-large-mnli",
-        max_length: int = 2000,
-        discrete: bool = True,
-    ) -> None:
+    def __init__(self, llm=None, postprocessor: Any = None, device: Any = None, use_best: bool = True, system_prompt: str = "You are a helpful assistant.", max_calls_per_min: Optional[int] = None, use_n_param: bool = False, sampling_temperature: float = 1.0, verbose: bool = False, nli_model_name: str = "microsoft/deberta-large-mnli", max_length: int = 2000, discrete: bool = True) -> None:
         """
         Class for computing Discrete Semantic Entropy-based confidence scores. For more on semantic entropy,
         refer to Farquhar et al.(2024) :footcite:`farquhar2024detectinghallucinations`.
@@ -49,9 +35,9 @@ class SemanticEntropy(UncertaintyQuantifier):
             outputs.
 
         device: str or torch.device input or torch.device object, default="cpu"
-            Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction' 
+            Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction'
             scorers. Pass a torch.device to leverage GPU.
-            
+
         use_best : bool, default=True
             Specifies whether to swap the original response for the uncertainty-minimized response
             based on semantic entropy clusters.
@@ -62,7 +48,7 @@ class SemanticEntropy(UncertaintyQuantifier):
         max_calls_per_min : int, default=None
             Specifies how many api calls to make per minute to avoid a rate limit error. By default, no
             limit is specified.
-            
+
         sampling_temperature : float, default=1.0
             The 'temperature' parameter for llm model to generate sampled LLM responses. Must be greater than 0.
 
@@ -74,21 +60,14 @@ class SemanticEntropy(UncertaintyQuantifier):
             Specifies whether to print the index of response currently being scored.
 
         nli_model_name : str, default="microsoft/deberta-large-mnli"
-            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and 
+            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
-            
+
         max_length : int, default=2000
-            Specifies the maximum allowed string length. Responses longer than this value will be truncated to 
+            Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
         """
-        super().__init__(
-            llm=llm,
-            device=device,
-            system_prompt=system_prompt,
-            max_calls_per_min=max_calls_per_min,
-            use_n_param=use_n_param,
-            postprocessor=postprocessor,
-        )
+        super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor)
         self.nli_model_name = nli_model_name
         self.max_length = max_length
         self.verbose = verbose
@@ -97,12 +76,8 @@ class SemanticEntropy(UncertaintyQuantifier):
         self.prompts = None
         self._setup_nli(nli_model_name)
         self.nli_scorer.discrete = discrete
-        
-    async def generate_and_score(
-        self,
-        prompts: List[str],
-        num_responses: int = 5,
-    ) -> UQResult:
+
+    async def generate_and_score(self, prompts: List[str], num_responses: int = 5) -> UQResult:
         """
         Evaluate discrete semantic entropy score on LLM responses for the provided prompts.
 
@@ -125,15 +100,9 @@ class SemanticEntropy(UncertaintyQuantifier):
 
         responses = await self.generate_original_responses(prompts)
         sampled_responses = await self.generate_candidate_responses(prompts)
-        return self.score(
-            responses = responses, sampled_responses = sampled_responses,
-        )
-    
-    def score(
-        self,
-        responses: List[str] = None,
-        sampled_responses: List[List[str]] = None,
-    ) -> UQResult:
+        return self.score(responses=responses, sampled_responses=sampled_responses)
+
+    def score(self, responses: List[str] = None, sampled_responses: List[List[str]] = None) -> UQResult:
         """
         Evaluate discrete semantic entropy score on LLM responses for the provided prompts.
 
@@ -143,7 +112,7 @@ class SemanticEntropy(UncertaintyQuantifier):
             A list of model responses for the prompts. If not provided, responses will be generated with the provided LLM.
 
         sampled_responses : list of list of str, default=None
-            A list of lists of sampled model responses for each prompt. These will be used to compute consistency scores by comparing to 
+            A list of lists of sampled model responses for each prompt. These will be used to compute consistency scores by comparing to
             the corresponding response from `responses`. If not provided, sampled_responses will be generated with the provided LLM.
 
         Returns
@@ -151,7 +120,7 @@ class SemanticEntropy(UncertaintyQuantifier):
         UQResult
             UQResult, containing data (responses, sampled responses, and semantic entropy scores) and metadata
         """
-        self.responses = responses 
+        self.responses = responses
         self.sampled_responses = sampled_responses
         self.num_responses = len(self.sampled_responses[0])
         self.nli_scorer.num_responses = self.num_responses
@@ -166,26 +135,11 @@ class SemanticEntropy(UncertaintyQuantifier):
             tmp = self.nli_scorer._semantic_entropy_process(candidates=candidates, i=i)
             best_responses[i], semantic_entropy[i], scores = tmp
 
-        confidence_scores = [
-            1 - ne for ne in self.nli_scorer._normalize_entropy(semantic_entropy)
-        ]
+        confidence_scores = [1 - ne for ne in self.nli_scorer._normalize_entropy(semantic_entropy)]
 
         result = {
-            "data": {
-                "responses": best_responses if self.use_best else self.responses,
-                "entropy_values": semantic_entropy,
-                "confidence_scores": confidence_scores,
-                "sampled_responses": self.sampled_responses,
-            },
-            "metadata": {
-                "parameters": {
-                    "temperature": None if not self.llm else self.llm.temperature,
-                    "sampling_temperature": None
-                    if not self.sampling_temperature
-                    else self.sampling_temperature,
-                    "num_responses": self.num_responses,
-                },
-            },
+            "data": {"responses": best_responses if self.use_best else self.responses, "entropy_values": semantic_entropy, "confidence_scores": confidence_scores, "sampled_responses": self.sampled_responses},
+            "metadata": {"parameters": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses}},
         }
         if self.prompts:
             result["data"]["prompts"] = self.prompts

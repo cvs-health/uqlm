@@ -18,10 +18,4 @@ from uqlm.scorers.panel import LLMPanel
 from uqlm.scorers.white_box import WhiteBoxUQ
 from uqlm.scorers.black_box import BlackBoxUQ
 
-__all__ = [
-    "UQEnsemble",
-    "SemanticEntropy",
-    "LLMPanel",
-    "WhiteBoxUQ",
-    "BlackBoxUQ",
-]
+__all__ = ["UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ"]
