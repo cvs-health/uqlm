@@ -278,7 +278,7 @@ def _dataset_processing(
         for rfilter in regex_filters:
             if rfilter["operation"] == "search":
                 if not rfilter.get("group", None):
-                    rfilter["group"] == 0
+                    rfilter["group"] = 0
                 df[rfilter["col"]] = df[rfilter["col"]].apply(
                     lambda x: re.search(rfilter["pattern"], x).group(rfilter["group"])
                     if re.search(rfilter["pattern"], x)

@@ -52,11 +52,7 @@ async def main():
     responses = generations["data"]["response"]
 
     judge = LLMJudge(llm=original_llm, max_calls_per_min=250)
-
-    judge_result = await judge.judge_responses(prompts=prompts, responses=responses)
-
-    extract_answer = judge._extract_answers(responses=judge_result["judge_responses"])
-    
+        
     # Generate data for all templates
     templates = ["true_false_uncertain", "true_false", "continuous", "likert"]
     # Structure: one file with all template data
