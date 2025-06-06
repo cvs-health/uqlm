@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-
+import asyncio
 import json
 from dotenv import load_dotenv, find_dotenv
 from uqlm.judges import LLMJudge
@@ -38,7 +38,6 @@ async def main():
     API_VERSION = os.getenv("API_VERSION")
     DEPLOYMENT_NAME = os.getenv("DEPLOYMENT_NAME")
 
-
     original_llm = AzureChatOpenAI(
         deployment_name=DEPLOYMENT_NAME,
         openai_api_key=API_KEY,
@@ -48,25 +47,37 @@ async def main():
         temperature=1,  # User to set temperature
     )
     
-    rg = ResponseGenerator(langchain_llm=original_llm, max_calls_per_min=250)
+    rg = ResponseGenerator(llm=original_llm, max_calls_per_min=250)
     generations = await rg.generate_responses(prompts=prompts, count=1)
     responses = generations["data"]["response"]
 
-    judge = LLMJudge(langchain_llm=original_llm, max_calls_per_min=250)
+    judge = LLMJudge(llm=original_llm, max_calls_per_min=250)
 
     judge_result = await judge.judge_responses(prompts=prompts, responses=responses)
 
     extract_answer = judge._extract_answers(responses=judge_result["judge_responses"])
-
-    store_results = {
-    "prompts": prompts,
-    "responses": responses,
-    "judge_result": judge_result,
-    "extract_answer": extract_answer,
+    
+    # Generate data for all templates
+    templates = ["true_false_uncertain", "true_false", "continuous", "likert"]
+    # Structure: one file with all template data
+    all_results = {
+       "prompts": prompts,
+       "responses": responses,
+       "templates": {}  # This will hold data for each template
     }
+    for template in templates:
+       judge = LLMJudge(llm=original_llm, max_calls_per_min=250, scoring_template=template)
+       judge_result = await judge.judge_responses(prompts=prompts, responses=responses)
+       extract_answer = judge._extract_answers(responses=judge_result["judge_responses"])
+       # Store results for this template
+       all_results["templates"][template] = {
+           "judge_result": judge_result,
+           "extract_answer": extract_answer,
+       }
+    # Save single comprehensive file
     results_file = "llmjudge_results_file.json"
     with open(results_file, "w") as f:
-        json.dump(store_results, f)
-
+        json.dump(all_results, f)
+   
 if __name__ == '__main__':
-    main()
+   asyncio.run(main())    

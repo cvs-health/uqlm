@@ -1,0 +1,37 @@
+name: Linting with Ruff
+
+on:
+    pull_request:
+        types:
+          - opened
+        branches:
+          - main
+          - develop
+    workflow_dispatch:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    ruff-formatting:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.9"
+            cache: 'pip'
+        - name: Get Ruff version and install
+          run: |
+              pip install poetry
+              RUFF_VERSION=$(poetry show --only=dev | grep '^ruff ' | awk '{print $3}')
+              echo "Installing ruff==$RUFF_VERSION"
+              pip install ruff==$RUFF_VERSION
+        - name: Lint with Ruff
+          run: |
+            ruff check uqlm/
+        - name: Check for unformatted files
+          run: |
+            ruff format --check uqlm/
