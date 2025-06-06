@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import asyncio
 import os
 import json
 from dotenv import load_dotenv, find_dotenv
@@ -78,10 +78,21 @@ async def main():
     )
 
     results = await uqe.generate_and_score(prompts=prompts, num_responses=5)
+    store_results = {"ensemble": results.to_dict()}
+
+    uqe = UQEnsemble(
+        llm=gpt,
+        max_calls_per_min=250,
+        postprocessor=math_postprocessor,
+        use_n_param=False,  # Set True if using AzureChatOpenAI for faster generation
+    )
+
+    results = await uqe.generate_and_score(prompts=prompts, num_responses=5)
+    store_results["bsdetector"] = results.to_dict()
 
     results_file = "ensemble_results_file.json"
     with open(results_file, "w") as f:
-        json.dump(results.to_dict(), f)
+        json.dump(store_results, f)
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
