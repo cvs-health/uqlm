@@ -14,8 +14,10 @@
 
 
 import numpy as np
+from numpy.typing import ArrayLike
 import optuna
 from typing import Any, Dict, List, Tuple
+import warnings
 
 from sklearn.metrics import (
     fbeta_score,
@@ -31,7 +33,7 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 class Tuner:
     def __init__(self) -> None:
         """
-        Class for tuning weights and threshold for BSDetector and UQEnsemble
+        Class for tuning weights and threshold for UQEnsemble class.
         """
         self.objective_to_func = {
             "fbeta_score": self._f_score,
@@ -50,12 +52,13 @@ class Tuner:
         bounds: Tuple[float, float] = (0, 1),
         step_size: int = 0.01,
     ) -> float:
-        """Conducts 1-dimensional grid search for threshold
+        """
+        Conducts 1-dimensional grid search for threshold.
 
         Parameters
         ----------
         y_scores : list of floats
-            List of confidence scores
+            List of confidence scores.
 
         correct_indicators : list of bool
             A list of boolean indicators of whether self.original_responses are correct.
@@ -64,18 +67,18 @@ class Tuner:
             Objective function for threshold optimization via grid search.
 
         fscore_beta : float, default=1
-            Value of beta in fbeta_score
+            Value of beta in fbeta_score.
 
         bounds : tuple of floats, default=(0,1)
-            Bounds to search for threshold
+            Bounds to search for threshold.
 
         step_size : float, default=0.01
-            Indicates step size in grid search, if used
+            Indicates step size in grid search, if used.
 
         Returns
         -------
         float
-            Optimized threshold
+            Optimized threshold.
         """
 
         self.fscore_beta = fscore_beta
@@ -86,7 +89,7 @@ class Tuner:
         y_pred_matrix = (y_scores_array[:, np.newaxis] > threshold_values).astype(int)
         values = -np.array(
             [
-                threshold_tuning_objective(correct_indicators, y_pred)
+                threshold_tuning_objective(np.array(correct_indicators), y_pred)
                 for y_pred in y_pred_matrix.T
             ]
         )
@@ -112,7 +115,7 @@ class Tuner:
         Parameters
         ----------
         score_lists : list of lists of floats
-            A list of lists of floats. Each interior list is a list of component-specific scores
+            A list of lists of floats. Each interior list is a list of component-specific scores.
 
         correct_indicators : list of bool
             A list of boolean indicators of whether self.original_responses are correct.
@@ -125,25 +128,25 @@ class Tuner:
             Objective function for threshold optimization via grid search.
 
         thresh_bounds : tuple of floats, default=(0,1)
-            Bounds to search for threshold
+            Bounds to search for threshold.
 
         n_trials : int, default=100
-            Indicates how many candidates to search over with optuna optimizer
+            Indicates how many candidates to search over with optuna optimizer.
 
         step_size : float, default=0.01
-            Indicates step size in grid search, if used
+            Indicates step size in grid search, if used.
 
         fscore_beta : float, default=1
-            Value of beta in fbeta_score
+            Value of beta in fbeta_score.
 
         Returns
         -------
         Dict
-            Dictionary containing optimized weights and threshold
+            Dictionary containing optimized weights and threshold.
         """
-        self.score_lists = score_lists
+        self.score_lists = np.stack([np.array(sl) for sl in score_lists])
         self.k = len(score_lists)
-        self.correct_indicators = correct_indicators
+        self.correct_indicators = np.array(correct_indicators)
         self.weights_objective = weights_objective
         self.thresh_bounds = thresh_bounds
         self.thresh_objective = thresh_objective
@@ -188,7 +191,7 @@ class Tuner:
                 best_weights = self._grid_search_weights()
             
             print("Optimizing threshold with grid search...")
-            new_scores = self._update_scores(best_weights)
+            new_scores = self._update_scores(np.array(best_weights))
             best_threshold = self.tune_threshold(
                 y_scores=new_scores,
                 correct_indicators=self.correct_indicators,
@@ -198,11 +201,11 @@ class Tuner:
             return tuple(best_weights) + (best_threshold,)
 
     def _f_score(self, y_true, y_pred):
-        """Helper function to compute f-beta score"""
+        """Helper function to compute f-beta score."""
         return fbeta_score(y_true, y_pred, beta=self.fscore_beta)
 
     def _validate_tuning_inputs(self):
-        """Helper function to validate tuning inputs"""
+        """Helper function to validate tuning inputs."""
         if self.k == 1:
             raise ValueError(
                 """Tuning only applies if more than scorer component is present."""
@@ -237,7 +240,7 @@ class Tuner:
                 )
 
     def _optuna_objective(self, trial) -> float:
-        """Helper function to define optuna objective"""
+        """Helper function to define optuna objective."""
         thresh = None
         raw_weights = [
             trial.suggest_float(
@@ -250,15 +253,15 @@ class Tuner:
             thresh = trial.suggest_float(
                 "thresh", self.thresh_bounds[0], self.thresh_bounds[1]
             )
-        ensemble_scores = self._compute_ensemble_scores(weights=weights, score_lists=self.score_lists)
+        ensemble_scores = self._compute_ensemble_scores(weights=np.array(weights), score_lists=self.score_lists)
         return self._evaluate_objective(
             y_true=self.correct_indicators, y_pred=ensemble_scores, thresh=thresh
         )
 
     def _evaluate_objective(self, y_true, y_pred, thresh=None):
-        """Helper function to define evaluate objective function for weights"""
+        """Helper function to define evaluate objective function for weights."""
         if thresh is not None:
-            y_pred = [(y_pred_i > thresh) * 1 for y_pred_i in y_pred]
+            y_pred = (y_pred > thresh)
         return self.obj_multiplier * self.weights_tuning_objective(y_true, y_pred)
 
     def _update_scores(self, weights: List[float]) -> List[float]:
@@ -268,25 +271,17 @@ class Tuner:
     def _compute_ensemble_scores(
         self, weights: List[float], score_lists: List[List[float]]
     ) -> List[float]:
-        """Helper function to compute dot product for getting ensemble scores"""
-        final_scores = []
-        for scores_i in zip(*score_lists):
-            filtered_scores_weights = [
-                (si, w) for si, w in zip(scores_i, weights) if not np.isnan(si)
-            ]
-            filtered_scores, filtered_weights = zip(*filtered_scores_weights)
-            normalized_weights = self._normalize_weights(filtered_weights)
-
-            weighted_sum = sum(
-                si * nw for si, nw in zip(filtered_scores, normalized_weights)
-            )
-            final_scores.append(weighted_sum)
-        return final_scores
+        """Helper function to compute dot product for getting ensemble scores."""
+        valid_mask = ~np.isnan(score_lists)
+        adjusted_weights = weights[:, None] * valid_mask
+        normalized_weights = adjusted_weights / np.sum(adjusted_weights, axis=0, keepdims=True)
+        stacked_nonan = np.nan_to_num(score_lists, nan=0.0)
+        return np.sum(stacked_nonan * normalized_weights, axis=0)
     
     def _grid_search_weights_thresh(self):
         """
         Joint grid search optimization for k weights and threshold.
-        Use only if k==2, only one weight is free (the second is 1 - w1)    
+        Use only if k==2, only one weight is free (the second is 1 - w1).
         """        
         weight_grid = np.linspace(0, 1, int(1 / self.step_size))
         threshold_grid = np.linspace(
@@ -313,7 +308,7 @@ class Tuner:
         """
         Grid search for weights only.
         For k==2: one free weight.
-        For k==3: two free weights where the third is 1 - (w1+w2)
+        For k==3: two free weights where the third is 1 - (w1+w2).
         Only consider feasible regions (weights are non-negative and sum to 1).   
         """
         best_cost = np.inf
@@ -347,6 +342,7 @@ class Tuner:
         return tuple(best_weights)
 
     @staticmethod
-    def _normalize_weights(weights: List[float]) -> List[float]:
-        """Helper function to ensure weights sum to 1"""
-        return [w / np.sum(weights) for w in weights]
+    def _normalize_weights(weights: ArrayLike) -> ArrayLike:
+        """Helper function to ensure weights sum to 1."""
+        weights_array = np.asarray(weights)
+        return weights_array / np.sum(weights_array)

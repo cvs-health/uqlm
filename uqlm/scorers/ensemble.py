@@ -14,6 +14,7 @@
 
 
 import inspect
+import numpy as np
 from langchain_core.language_models.chat_models import BaseChatModel
 from typing import Any, Dict, List, Optional, Union, Tuple
 
@@ -165,6 +166,7 @@ class UQEnsemble(UncertaintyQuantifier):
         responses: List[str], 
         sampled_responses: Optional[List[List[str]]] = None,
         logprobs_results: Optional[List[List[Dict[str, Any]]]] = None,
+        num_responses: int = 5,
     ):
         """
         Generate LLM responses from provided prompts and compute confidence scores.
@@ -183,6 +185,9 @@ class UQEnsemble(UncertaintyQuantifier):
             
         logprobs_results : list of logprobs_result, default=None
             List of lists of dictionaries, each returned by BaseChatModel.agenerate. Must be provided if using white box scorers.
+            
+        num_responses : int, default=5
+            The number of sampled responses used to compute consistency. Not value will not be used if sampled_responses is provided
 
         Returns
         -------
@@ -198,7 +203,7 @@ class UQEnsemble(UncertaintyQuantifier):
         self.prompts = prompts
         self.responses = responses
         self.sampled_responses = sampled_responses
-        self.num_responses = len(sampled_responses[0])
+        self.num_responses = num_responses if not sampled_responses else len(sampled_responses[0]) 
         if not logprobs_results:
             self.logprobs = [None] * len(prompts)
             self.multiple_logprobs = [[None] * self.num_responses] * len(prompts)
@@ -400,10 +405,10 @@ class UQEnsemble(UncertaintyQuantifier):
         self, score_dict: Dict[str, List[float]], weights: List[float]
     ):
         """Compute dot product of component scores and weights"""
-        score_lists = [score_dict[key] for key in score_dict.keys()]
+        score_lists = [np.array(score_dict[key]) for key in score_dict.keys()]
         return self.tuner._compute_ensemble_scores(
-            weights=weights, score_lists=score_lists
-        )
+            weights=np.array(weights), score_lists=score_lists
+        ).tolist()
 
     def _validate_components(self, components: List[Any]) -> None:
         "Validate components and construct applicable scorer attributes"
@@ -457,11 +462,11 @@ class UQEnsemble(UncertaintyQuantifier):
     def _validate_weights(self) -> None:
         """Validate ensemble weights"""
         if self.weights:
+            if len(self.weights) != len(self.components):
+                raise ValueError("Must have same number of weights as components")
             self.weights = self._normalize_weights(self.weights)
         else:
             self.weights = [1 / len(self.components)] * len(self.components)
-        if len(self.weights) != len(self.components):
-            raise ValueError("Must have same number of weights as components")
 
     def _normalize_weights(self, weights: List[float]) -> List[float]:
         """Normalize weights to sum to 1."""

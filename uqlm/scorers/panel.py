@@ -50,9 +50,9 @@ class LLMPanel(UncertaintyQuantifier):
             Optional argument for user to provide custom system prompt
             
         scoring_templates : List[str], default=None
-             Specifies which off-the-shelf template to use for each judge. Three off-the-shelf templates offered:
-             incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), and continuous score (0 to 1).
-             These templates are respectively specified as 'true_false_uncertain', 'true_false', and 'continuous'. 
+             Specifies which off-the-shelf template to use for each judge. Four off-the-shelf templates offered:
+             incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), continuous score (0 to 1), and likert scale score ( 1-5 scale, normalized to 0/0.25/0.5/0.75/1).
+             These templates are respectively specified as 'true_false_uncertain', 'true_false', 'continuous', and 'likert'
              If specified, must be of equal length to `judges` list. Defaults to 'true_false_uncertain' template
              used by Chen and Mueller (2023) :footcite:`chen2023quantifyinguncertaintyanswerslanguage` for each judge.
         """
