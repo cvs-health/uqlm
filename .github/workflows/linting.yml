@@ -3,7 +3,7 @@ name: Linting with Ruff
 on:
     pull_request:
         types:
-          - opened
+          - synchronize
         branches:
           - main
           - develop
