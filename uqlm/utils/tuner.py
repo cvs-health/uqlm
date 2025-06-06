@@ -17,7 +17,6 @@ import numpy as np
 from numpy.typing import ArrayLike
 import optuna
 from typing import Any, Dict, List, Tuple
-import warnings
 
 from sklearn.metrics import (
     fbeta_score,
