@@ -263,7 +263,7 @@ class UQEnsemble(UncertaintyQuantifier):
         thresh_bounds : tuple of floats, default=(0,1)
             Bounds to search for threshold
 
-        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'average_precision'}, default='fbeta_score'
+        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score'}, default='fbeta_score'
             Objective function for threshold optimization via grid search.
 
         n_trials : int, default=100
