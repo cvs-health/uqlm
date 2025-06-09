@@ -125,7 +125,7 @@ class Tuner:
             Objective function for optimization of weights. Must match thresh_objective if one of 'fbeta_score',
             'accuracy_score', 'balanced_accuracy_score'. If same as thresh_objective, joint optimization will be done.
 
-        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss', 'average_precision'}, default='fbeta_score'
+        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score'}, default='fbeta_score'
             Objective function for threshold optimization via grid search.
 
         thresh_bounds : tuple of floats, default=(0,1)
@@ -207,12 +207,6 @@ class Tuner:
         """Helper function to compute f-beta score"""
         return fbeta_score(y_true, y_pred, beta=self.fscore_beta)
 
-    def _average_precision(self, y_true, y_score):
-        return average_precision_score(y_true, y_score)
-
-    def _brier_score(self, y_true, y_prob):
-        return -brier_score_loss(y_true, y_prob)  # Note the negative sign!
-
     def _validate_tuning_inputs(self):
         """Helper function to validate tuning inputs"""
         if self.k == 1:
@@ -230,7 +224,6 @@ class Tuner:
             "fbeta_score",
             "accuracy_score",
             "balanced_accuracy_score",
-            "average_precision",
         ]:
             raise ValueError(
                 """
@@ -362,3 +355,13 @@ class Tuner:
     def _normalize_weights(weights: List[float]) -> List[float]:
         """Helper function to ensure weights sum to 1"""
         return [w / np.sum(weights) for w in weights]
+
+    @staticmethod
+    def _brier_score(y_true, y_score):
+        """Computes brier score loss"""
+        return brier_score_loss(y_true=y_true, y_proba=y_score)
+
+    @staticmethod
+    def _average_precision(y_true, y_score):
+        """Computes average precision score"""
+        return average_precision_score(y_true, y_score)
