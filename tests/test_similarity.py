@@ -28,31 +28,15 @@ sampled_responses = data["sampled_responses"]
 
 def test_bert():
     bert = BertScorer()
-    bert_result = bert.evaluate(
-        responses=responses, sampled_responses=sampled_responses
-    )
-    assert all(
-        [
-            abs(bert_result[i] - data["bert_result"][i]) < 1e-5
-            for i in range(len(bert_result))
-        ]
-    )
+    bert_result = bert.evaluate(responses=responses, sampled_responses=sampled_responses)
+    assert all([abs(bert_result[i] - data["bert_result"][i]) < 1e-5 for i in range(len(bert_result))])
 
-@unittest.skipIf(
-    (os.getenv("CI") == "true"),
-    "Skipping test in CI due to dependency on GitHub repository.",
-)
+
+@unittest.skipIf((os.getenv("CI") == "true"), "Skipping test in CI due to dependency on GitHub repository.")
 def test_bluert():
     bluert = BLEURTScorer()
-    bluert_result = bluert.evaluate(
-        responses=responses, sampled_responses=sampled_responses
-    )
-    assert all(
-        [
-            abs(bluert_result[i] - data["bluert_result"][i]) < 1e-5
-            for i in range(len(bluert_result))
-        ]
-    )
+    bluert_result = bluert.evaluate(responses=responses, sampled_responses=sampled_responses)
+    assert all([abs(bluert_result[i] - data["bluert_result"][i]) < 1e-5 for i in range(len(bluert_result))])
 
 
 def test_cosine(monkeypatch):
@@ -68,25 +52,11 @@ def test_cosine(monkeypatch):
 
     monkeypatch.setattr(cosine.model, "encode", mock_encode)
 
-    cosine_result = cosine.evaluate(
-        responses=responses, sampled_responses=sampled_responses
-    )
-    assert all(
-        [
-            abs(cosine_result[i] - data["cosine_result"][i]) < 1e-5
-            for i in range(len(cosine_result))
-        ]
-    )
+    cosine_result = cosine.evaluate(responses=responses, sampled_responses=sampled_responses)
+    assert all([abs(cosine_result[i] - data["cosine_result"][i]) < 1e-5 for i in range(len(cosine_result))])
 
 
 def test_exact_match():
     match = MatchScorer()
-    match_result = match.evaluate(
-        responses=responses, sampled_responses=sampled_responses
-    )
-    assert all(
-        [
-            abs(match_result[i] - data["match_result"][i]) < 1e-5
-            for i in range(len(match_result))
-        ]
-    )
+    match_result = match.evaluate(responses=responses, sampled_responses=sampled_responses)
+    assert all([abs(match_result[i] - data["match_result"][i]) < 1e-5 for i in range(len(match_result))])

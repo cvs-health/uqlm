@@ -41,34 +41,14 @@ _dataset_default_params = {
             "split": "test",
         },  # HF Hub dataset split
         "extra_processing": {
-            "rename_columns": {
-                "answerKey": "answer"
-            },  # renaming is always the first operation
-            "strip_whitespace": [
-                "answer"
-            ],  # notice we're referencing the renamed col name
+            "rename_columns": {"answerKey": "answer"},  # renaming is always the first operation
+            "strip_whitespace": ["answer"],  # notice we're referencing the renamed col name
             "to_upper": ["answer"],
-            "combine_question_and_choices": {
-                "question_col": "question",
-                "choice_col": "choices",
-                "choice_text_col": "text",
-                "choice_label_col": "label",
-            },
+            "combine_question_and_choices": {"question_col": "question", "choice_col": "choices", "choice_text_col": "text", "choice_label_col": "label"},
             "subset_columns": ["question", "answer"],
         },
     },
-    "csqa": {
-        "load_params": {"path": "skrishna/CSQA_preprocessed", "split": "train"},
-        "extra_processing": {
-            "rename_columns": {
-                "question": "q_only",
-                "answerKey": "answer",
-                "inputs": "question",
-            },
-            "to_upper": ["answer"],
-            "subset_columns": ["question", "answer"],
-        },
-    },
+    "csqa": {"load_params": {"path": "skrishna/CSQA_preprocessed", "split": "train"}, "extra_processing": {"rename_columns": {"question": "q_only", "answerKey": "answer", "inputs": "question"}, "to_upper": ["answer"], "subset_columns": ["question", "answer"]}},
     "gsm8k": {
         "load_params": {"path": "openai/gsm8k", "name": "main", "split": "train"},
         "extra_processing": {
@@ -83,24 +63,8 @@ _dataset_default_params = {
             "subset_columns": ["question", "answer"],
         },
     },
-    "nq_open": {
-        "load_params": {
-            "path": "google-research-datasets/nq_open",
-            "split": "validation",
-        },
-        "extra_processing": {
-            "to_lower": ["answer"],
-            "subset_columns": ["question", "answer"],
-        },
-    },
-    "popqa": {
-        "load_params": {"path": "akariasai/PopQA", "split": "test"},
-        "extra_processing": {
-            "rename_columns": {"possible_answers": "answer"},
-            "to_lower": ["answer"],
-            "subset_columns": ["question", "answer"],
-        },
-    },
+    "nq_open": {"load_params": {"path": "google-research-datasets/nq_open", "split": "validation"}, "extra_processing": {"to_lower": ["answer"], "subset_columns": ["question", "answer"]}},
+    "popqa": {"load_params": {"path": "akariasai/PopQA", "split": "test"}, "extra_processing": {"rename_columns": {"possible_answers": "answer"}, "to_lower": ["answer"], "subset_columns": ["question", "answer"]}},
     "svamp": {
         "load_params": {"path": "Chilled/SVAMP"},
         "extra_processing": {
@@ -138,9 +102,7 @@ def list_dataset_names() -> list:
     return list(_dataset_default_params.keys())
 
 
-def load_example_dataset(
-    name: str, n: int = None, cols: Optional[Union[list, str]] = None
-) -> pd.DataFrame:
+def load_example_dataset(name: str, n: int = None, cols: Optional[Union[list, str]] = None) -> pd.DataFrame:
     """
     Load a dataset for testing purposes.
 
@@ -149,7 +111,7 @@ def load_example_dataset(
     name : str
         The name of the dataset to load. Must be one of "svamp", "gsm8k", "ai2_arc",
         "csqa", "nq_open", "popqa"
-        
+
     n : int, optional
         Number of rows to load from the dataset.
 
@@ -188,22 +150,10 @@ def load_example_dataset(
         print("Dataset ready!")
         return df
     else:
-        raise FileNotFoundError(
-            f"uqlm could not find the dataset '{name}'.\nPlease use `uqlm.utils.dataloader.list_dataset_names()` for available sample datasets."
-        )
+        raise FileNotFoundError(f"uqlm could not find the dataset '{name}'.\nPlease use `uqlm.utils.dataloader.list_dataset_names()` for available sample datasets.")
 
 
-def _dataset_processing(
-    df: pd.DataFrame,
-    rename_columns: dict = None,
-    subset_columns: list = None,
-    to_upper: list = None,
-    to_lower: list = None,
-    combine_question_and_choices: dict = None,
-    strip_non_numeric: list = None,
-    strip_whitespace: list = None,
-    regex_filters: list[dict] = None,
-) -> pd.DataFrame:
+def _dataset_processing(df: pd.DataFrame, rename_columns: dict = None, subset_columns: list = None, to_upper: list = None, to_lower: list = None, combine_question_and_choices: dict = None, strip_non_numeric: list = None, strip_whitespace: list = None, regex_filters: list[dict] = None) -> pd.DataFrame:
     """
     Process a dataset with various operations.
 
@@ -239,8 +189,8 @@ def _dataset_processing(
 
     Example
     -------
-    >>> df = pd.DataFrame({'A': ['a', 'b', 'c'], 'B': ['1', '2', '3']})
-    >>> _dataset_processing(df, rename_columns={'A': 'a'}, to_upper=['a'])
+    >>> df = pd.DataFrame({"A": ["a", "b", "c"], "B": ["1", "2", "3"]})
+    >>> _dataset_processing(df, rename_columns={"A": "a"}, to_upper=["a"])
        a  B
     0  A  1
     1  B  2
@@ -248,9 +198,7 @@ def _dataset_processing(
     """
 
     if not isinstance(df, pd.DataFrame):
-        raise TypeError(
-            f"Dataset processing requires 'pd.DataFrame' but received '{type(df)}'"
-        )
+        raise TypeError(f"Dataset processing requires 'pd.DataFrame' but received '{type(df)}'")
 
     if rename_columns:
         df = df.rename(columns=rename_columns)
@@ -279,11 +227,7 @@ def _dataset_processing(
             if rfilter["operation"] == "search":
                 if not rfilter.get("group", None):
                     rfilter["group"] == 0
-                df[rfilter["col"]] = df[rfilter["col"]].apply(
-                    lambda x: re.search(rfilter["pattern"], x).group(rfilter["group"])
-                    if re.search(rfilter["pattern"], x)
-                    else x
-                )
+                df[rfilter["col"]] = df[rfilter["col"]].apply(lambda x: re.search(rfilter["pattern"], x).group(rfilter["group"]) if re.search(rfilter["pattern"], x) else x)
     if subset_columns:
         cols = subset_columns
         if isinstance(cols, (list, str)):
@@ -297,14 +241,7 @@ def _dataset_processing(
     return df
 
 
-def _combine_question_and_choices(
-    df: pd.DataFrame,
-    question_col: str,
-    choice_col: Union[str, list] = None,
-    choice_text_col: str = None,
-    choice_label_col: str = None,
-    save_original_question: bool = False,
-) -> pd.DataFrame:
+def _combine_question_and_choices(df: pd.DataFrame, question_col: str, choice_col: Union[str, list] = None, choice_text_col: str = None, choice_label_col: str = None, save_original_question: bool = False) -> pd.DataFrame:
     """
     Combine question and choices columns in a dataframe.
 
@@ -336,11 +273,8 @@ def _combine_question_and_choices(
 
     Example
     -------
-    >>> df = pd.DataFrame({
-    ...     'question': ['What is the capital of France?', 'What is 2+2?'],
-    ...     'choices': [{'text': ['Paris', 'London'], 'label': ['A', 'B']}, {'text': ['3', '4'], 'label': ['A', 'B']}]
-    ... })
-    >>> _combine_question_and_choices(df, question_col='question', choice_col='choices', choice_text_col='text', choice_label_col='label')
+    >>> df = pd.DataFrame({"question": ["What is the capital of France?", "What is 2+2?"], "choices": [{"text": ["Paris", "London"], "label": ["A", "B"]}, {"text": ["3", "4"], "label": ["A", "B"]}]})
+    >>> _combine_question_and_choices(df, question_col="question", choice_col="choices", choice_text_col="text", choice_label_col="label")
     >>> df
                                question
     0  What is the capital of France? A) Paris B) London
@@ -349,28 +283,11 @@ def _combine_question_and_choices(
     if save_original_question and question_col == "question":
         df["original_question"] = df["question"].copy()
     if isinstance(choice_col, str):
-        if isinstance(
-            df[choice_col][0], dict
-        ):  # example of this format is allenai/ai2_arc
-            df["question"] = (
-                df[question_col]
-                + " "
-                + df[choice_col].apply(
-                    lambda x: " ".join(
-                        [
-                            f"{label}) {text}"
-                            for text, label in zip(
-                                x[choice_text_col], x[choice_label_col]
-                            )
-                        ]
-                    )
-                )
-            )
+        if isinstance(df[choice_col][0], dict):  # example of this format is allenai/ai2_arc
+            df["question"] = df[question_col] + " " + df[choice_col].apply(lambda x: " ".join([f"{label}) {text}" for text, label in zip(x[choice_text_col], x[choice_label_col])]))
     elif isinstance(choice_col, list):
         # TODO when a dataset needs this... ex would be where cols are like answerA, answerB
         pass
     else:
-        raise TypeError(
-            f"'choice_col' must be str or list, but received '{type(choice_col)}'"
-        )
+        raise TypeError(f"'choice_col' must be str or list, but received '{type(choice_col)}'")
     return df

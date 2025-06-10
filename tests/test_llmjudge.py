@@ -18,42 +18,39 @@ import json
 from uqlm.judges import LLMJudge
 from langchain_openai import AzureChatOpenAI
 
+
 @pytest.fixture
 def mock_llm():
     """Extract judge object using pytest.fixture."""
-    return AzureChatOpenAI(
-        deployment_name="YOUR-DEPLOYMENT",
-        temperature=1,
-        api_key="SECRET_API_KEY",
-        api_version="2024-05-01-preview",
-        azure_endpoint="https://mocked.endpoint.com",
-    )
+    return AzureChatOpenAI(deployment_name="YOUR-DEPLOYMENT", temperature=1, api_key="SECRET_API_KEY", api_version="2024-05-01-preview", azure_endpoint="https://mocked.endpoint.com")
 
-@pytest.fixture  
+
+@pytest.fixture
 def test_data():
     """Load test data for all templates."""
     datafile_path = "tests/data/scorers/llmjudge_results_file.json"
     with open(datafile_path, "r") as f:
         return json.load(f)
-   
+
+
 @pytest.mark.asyncio
 async def test_judge_responses(monkeypatch, mock_llm, test_data):
     likert_data = test_data["templates"]["likert"]
-    tmp = {"data": {"prompt": likert_data["judge_result"]["judge_prompts"],
-                    "response": likert_data["judge_result"]["judge_responses"].copy()}}
+    tmp = {"data": {"prompt": likert_data["judge_result"]["judge_prompts"], "response": likert_data["judge_result"]["judge_responses"].copy()}}
     tmp["data"]["response"][2] = np.nan
     tmp1 = [tmp, {"data": {"response": [likert_data["judge_result"]["judge_responses"][2]]}}]
 
     async def mock_generate_responses(*args, **kwargs):
         return tmp1.pop(0)
-   
+
     judge = LLMJudge(llm=mock_llm, scoring_template="likert")
     monkeypatch.setattr(judge, "generate_responses", mock_generate_responses)
     data = await judge.judge_responses(prompts=test_data["prompts"], responses=test_data["responses"])
     assert data["scores"] == likert_data["judge_result"]["scores"]
-   
+
+
 def test_extract_single_answer_likert(mock_llm, test_data):
-    """Test Likert score extraction """
+    """Test Likert score extraction"""
     judge = LLMJudge(llm=mock_llm, scoring_template="likert")
     # Access Likert-specific data
     likert_data = test_data["templates"]["likert"]
@@ -70,6 +67,7 @@ def test_extract_single_answer_likert(mock_llm, test_data):
     assert judge._extract_single_answer("1") == 0.0
     assert judge._extract_single_answer("partially correct") == 0.5
 
+
 def test_extract_single_answer_continuous(mock_llm, test_data):
     """Test continuous score extraction"""
     judge = LLMJudge(llm=mock_llm, scoring_template="continuous")
@@ -84,6 +82,7 @@ def test_extract_single_answer_continuous(mock_llm, test_data):
     assert judge._extract_single_answer("95") == 0.95
     assert judge._extract_single_answer("50") == 0.5
     assert judge._extract_single_answer("0") == 0.0
+
 
 def test_extract_single_answer_true_false(mock_llm, test_data):
     """Test true/false score extraction"""
@@ -101,6 +100,7 @@ def test_extract_single_answer_true_false(mock_llm, test_data):
     # Should not have uncertain option
     assert 0.5 not in judge.keywords_to_scores_dict.keys()
 
+
 def test_extract_single_answer_true_false_uncertain(mock_llm, test_data):
     """Test true/false/uncertain score extraction"""
     judge = LLMJudge(llm=mock_llm, scoring_template="true_false_uncertain")
@@ -115,7 +115,8 @@ def test_extract_single_answer_true_false_uncertain(mock_llm, test_data):
     assert judge._extract_single_answer("correct") == 1.0
     assert judge._extract_single_answer("uncertain") == 0.5
     assert judge._extract_single_answer("incorrect") == 0.0
-   
+
+
 def test_extract_answers_batch(mock_llm, test_data):
     """Test batch extraction using  data for all templates"""
     templates = ["true_false_uncertain", "true_false", "continuous", "likert"]
@@ -132,15 +133,18 @@ def test_extract_answers_batch(mock_llm, test_data):
         for i, (actual, expected) in enumerate(zip(extracted_scores, expected_scores)):
             assert actual == expected, f"Batch extraction failed for {template_name} item {i}: Expected {expected}, got {actual}"
 
+
 def test_custom_validate_inputs1(mock_llm):
     with pytest.raises(ValueError) as value_error:
         LLMJudge(llm=mock_llm, template_ques_ans="template{}{}", keywords_to_scores_dict={"1": ["1"]})
     assert "keys in keywords_to_scores_dict must be floats" == str(value_error.value)
 
+
 def test_custom_validate_inputs2(mock_llm):
     with pytest.raises(ValueError) as value_error:
         LLMJudge(llm=mock_llm, template_ques_ans="template{}{}", keywords_to_scores_dict={1.0: 1})
     assert "values in keywords_to_scores_dict must be lists of strings" == str(value_error.value)
+
 
 def test_custom_validate_inputs3(mock_llm):
     with pytest.raises(ValueError) as value_error:

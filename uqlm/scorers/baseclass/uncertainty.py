@@ -21,34 +21,15 @@ from uqlm.utils.response_generator import ResponseGenerator
 from uqlm.black_box.nli import NLIScorer
 from uqlm.judges.judge import LLMJudge
 
-DEFAULT_BLACK_BOX_SCORERS = [
-    "semantic_negentropy",
-    "noncontradiction",
-    "exact_match",
-    "cosine_sim",
-]
+DEFAULT_BLACK_BOX_SCORERS = ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"]
 
-BLACK_BOX_SCORERS = DEFAULT_BLACK_BOX_SCORERS + [
-    "bert_score",
-    "bleurt",
-]
+BLACK_BOX_SCORERS = DEFAULT_BLACK_BOX_SCORERS + ["bert_score", "bleurt"]
 
-WHITE_BOX_SCORERS = [
-    "normalized_probability",
-    "min_probability",
-]
+WHITE_BOX_SCORERS = ["normalized_probability", "min_probability"]
 
 
 class UncertaintyQuantifier:
-    def __init__(
-        self,
-        llm: Any = None,
-        device: Any = None,
-        system_prompt: str = "You are a helpful assistant",
-        max_calls_per_min: Optional[int] = None,
-        use_n_param: bool = False,
-        postprocessor: Optional[Any] = None,
-    ) -> None:
+    def __init__(self, llm: Any = None, device: Any = None, system_prompt: str = "You are a helpful assistant", max_calls_per_min: Optional[int] = None, use_n_param: bool = False, postprocessor: Optional[Any] = None) -> None:
         """
         Parent class for uncertainty quantification of LLM responses
 
@@ -59,7 +40,7 @@ class UncertaintyQuantifier:
             temperature and other relevant parameters to the constructor of their `llm` object.
 
         device: str or torch.device input or torch.device object, default="cpu"
-            Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction' 
+            Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction'
             scorers. Pass a torch.device to leverage GPU.
 
         system_prompt : str or None, default="You are a helpful assistant."
@@ -100,7 +81,7 @@ class UncertaintyQuantifier:
         if self.postprocessor:
             responses = [self.postprocessor(r) for r in responses]
         return responses
-            
+
     async def generate_candidate_responses(self, prompts: List[str]) -> List[List[str]]:
         """
         This method generates multiple responses for uncertainty
@@ -109,51 +90,30 @@ class UncertaintyQuantifier:
         """
         llm_temperature = self.llm.temperature
         print("Generating candidate responses...")
-        generations = await self._generate_responses(
-            prompts=prompts, count=self.num_responses, temperature=self.sampling_temperature
-        )
+        generations = await self._generate_responses(prompts=prompts, count=self.num_responses, temperature=self.sampling_temperature)
         tmp_mr, tmp_lp = generations["responses"], generations["logprobs"]
         sampled_responses, self.multiple_logprobs = [], []
         for i in range(len(prompts)):
-            sampled_responses.append(
-                tmp_mr[i * self.num_responses : (i + 1) * self.num_responses]
-            )
+            sampled_responses.append(tmp_mr[i * self.num_responses : (i + 1) * self.num_responses])
             if len(tmp_lp) == len(tmp_mr):
-                self.multiple_logprobs.append(
-                    tmp_lp[i * self.num_responses : (i + 1) * self.num_responses]
-                )
+                self.multiple_logprobs.append(tmp_lp[i * self.num_responses : (i + 1) * self.num_responses])
         if self.postprocessor:
-            sampled_responses = [
-                [self.postprocessor(r) for r in m] for m in sampled_responses
-            ]
+            sampled_responses = [[self.postprocessor(r) for r in m] for m in sampled_responses]
         self.llm.temperature = llm_temperature
         return sampled_responses
 
-    async def _generate_responses(
-        self, prompts: List[str], count: int, temperature: float = None
-    ) -> List[str]:
+    async def _generate_responses(self, prompts: List[str], count: int, temperature: float = None) -> List[str]:
         """Helper function to generate responses with LLM"""
         if self.llm is None:
-            raise ValueError(
-                """llm must be provided to generate responses."""
-            )
+            raise ValueError("""llm must be provided to generate responses.""")
         llm_temperature = self.llm.temperature
         if temperature:
             self.llm.temperature = temperature
-        generator_object = ResponseGenerator(
-            llm=self.llm,
-            max_calls_per_min=self.max_calls_per_min,
-            use_n_param=self.use_n_param,
-        )
+        generator_object = ResponseGenerator(llm=self.llm, max_calls_per_min=self.max_calls_per_min, use_n_param=self.use_n_param)
         with contextlib.redirect_stdout(io.StringIO()):
-            generations = await generator_object.generate_responses(
-                prompts=prompts, count=count, system_prompt=self.system_prompt
-            )
+            generations = await generator_object.generate_responses(prompts=prompts, count=count, system_prompt=self.system_prompt)
         self.llm.temperature = llm_temperature
-        return {
-            "responses": generations["data"]["response"],
-            "logprobs": generations["metadata"]["logprobs"],
-        }
+        return {"responses": generations["data"]["response"], "logprobs": generations["metadata"]["logprobs"]}
 
     def _construct_judge(self, llm: Any = None) -> LLMJudge:
         """
@@ -162,10 +122,7 @@ class UncertaintyQuantifier:
         if llm is None:
             llm_temperature = self.llm.temperature
             self.llm.temperature = 0
-            self_judge = LLMJudge(
-                llm=self.llm,
-                max_calls_per_min=self.max_calls_per_min,
-            )
+            self_judge = LLMJudge(llm=self.llm, max_calls_per_min=self.max_calls_per_min)
             self.llm.temperature = llm_temperature
             return self_judge
         else:
@@ -173,12 +130,7 @@ class UncertaintyQuantifier:
 
     def _setup_nli(self, nli_model_name: Any) -> None:
         """Set up NLI scorer"""
-        self.nli_scorer = NLIScorer(
-            nli_model_name=self.nli_model_name, 
-            device=self.device,
-            max_length=self.max_length,
-            verbose=self.verbose
-        )
+        self.nli_scorer = NLIScorer(nli_model_name=self.nli_model_name, device=self.device, max_length=self.max_length, verbose=self.verbose)
 
     def _update_best(self, best_responses: List[str]) -> None:
         """Updates best"""
@@ -212,9 +164,7 @@ class UQResult:
         self.parameters = result.get("parameters")
         self.confidence_scores = self.data.get("confidence_scores")
         self.responses = self.data.get("responses")
-        self.sampled_responses = (
-            None if not self.data.get("responses") else self.data.get("responses")
-        )
+        self.sampled_responses = None if not self.data.get("responses") else self.data.get("responses")
         self.result_dict = result
 
     def to_dict(self) -> Dict[str, Any]:
@@ -227,10 +177,6 @@ class UQResult:
         """
         Returns result in pd.DataFrame
         """
-        rename_dict = {
-            col: col[:-1]
-            for col in self.result_dict["data"].keys()
-            if col.endswith("s") and col != "sampled_responses"
-        }
+        rename_dict = {col: col[:-1] for col in self.result_dict["data"].keys() if col.endswith("s") and col != "sampled_responses"}
 
         return pd.DataFrame(self.result_dict["data"]).rename(columns=rename_dict)

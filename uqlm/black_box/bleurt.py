@@ -41,9 +41,9 @@ class BLEURTScorer(SimilarityScorer):
         """
         try:
             from bleurt.score import BleurtScorer
-        except ImportError:    
+        except ImportError:
             raise ImportError(
-            """
+                """
             The bleurt package is required to use BLEURTScorer but is not installed. Please install it using:\n
             `pip install git+https://github.com/google-research/bleurt.git`
             """
@@ -52,13 +52,9 @@ class BLEURTScorer(SimilarityScorer):
             checkpoint = self._set_bleurt_checkpoint()
             self.bleurt_scorer = BleurtScorer(checkpoint)
         except Exception as e:
-            raise RuntimeError(
-                f"Failed to initialize BLEURT scorer. Error: {str(e)}"
-            ) from e
+            raise RuntimeError(f"Failed to initialize BLEURT scorer. Error: {str(e)}") from e
 
-    def evaluate(
-        self, responses: List[str], sampled_responses: List[List[str]]
-    ) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]]) -> List[float]:
         """
         This method computes model-based text similarity metrics values for the provided pairs of texts.
 
@@ -75,28 +71,18 @@ class BLEURTScorer(SimilarityScorer):
         List of float
             Mean BLEURT scores
         """
-        return [
-            self._compute_score(response=responses[i], candidates=sampled_responses[i])
-            for i in range(len(responses))
-        ]
+        return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in range(len(responses))]
 
     def _compute_score(self, response: str, candidates: List[str]) -> float:
         """Compute BLEURT scores between a response and candidate responses"""
         duplicated_response = [response] * len(candidates)
-        return np.mean(
-            self.bleurt_scorer.score(
-                references=duplicated_response, candidates=candidates
-            )
-        )
+        return np.mean(self.bleurt_scorer.score(references=duplicated_response, candidates=candidates))
 
     def _set_bleurt_checkpoint(self):
-        """Sets up checkpoint"""        
+        """Sets up checkpoint"""
         resource_path = resources.files("uqlm.resources").joinpath("BLEURT-20")
         if not resource_path.is_dir():
-            self._download_and_unzip(
-                url="https://storage.googleapis.com/bleurt-oss-21/BLEURT-20.zip",
-                my_file_path=resources.files("uqlm.resources"),
-            )
+            self._download_and_unzip(url="https://storage.googleapis.com/bleurt-oss-21/BLEURT-20.zip", my_file_path=resources.files("uqlm.resources"))
         return resource_path
 
     @staticmethod
