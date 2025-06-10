@@ -471,7 +471,7 @@ class UQEnsemble(UncertaintyQuantifier):
     def _normalize_weights(self, weights: List[float]) -> List[float]:
         """Normalize weights to sum to 1."""
         weights = weights if weights else [1] * len(self.components)
-        return self.tuner._normalize_weights(weights)
+        return list(self.tuner._normalize_weights(weights))
     
     def _construct_hhem(self):
         from transformers import AutoModelForSequenceClassification
