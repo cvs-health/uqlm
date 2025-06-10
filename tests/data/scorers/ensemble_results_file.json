@@ -1,1 +1,435 @@
-{"ensemble": {"data": {"prompts": ["When you solve this math problem only return the answer with no additional text.\n7 red peaches, 15 yellow peaches and 8 green peaches are in the basket. How many peaches are in the basket?", "When you solve this math problem only return the answer with no additional text.\nJack received 3 emails and 64 letters in the morning. He then received 5 emails and 54 letters in the afternoon. How many emails did jack receive in the day?", "When you solve this math problem only return the answer with no additional text.\nEd had 2 more marbles than Doug. Doug lost some of his marbles at the playground. Now Ed has 19 more marbles than doug. How many marbles did Doug lose?", "When you solve this math problem only return the answer with no additional text.\nDan has $ 3 left with him after he bought a candy bar for $ 2. How much money did he have initially?", "When you solve this math problem only return the answer with no additional text.\nJake has 13 fewer peaches and 3 more apples than Steven. Steven has 9 peaches and 8 apples. How many apples does Jake have?"], "responses": ["30", "8", "17", "5", "11"], "sampled_responses": [["30", "30", "30", "30", "30"], ["8", "8", "8", "8", "8"], ["17", "17", "17", "17", "17"], ["5", "5", "5", "5", "5"], ["11", "11", "11", "11", "11"]], "ensemble_scores": [0.9999998323932312, 0.9999991767743804, 0.7496269786419987, 0.9603380625188817, 0.9999998919950234], "exact_match": [1.0, 1.0, 1.0, 1.0, 1.0], "noncontradiction": [1.0, 1.0, 1.0, 1.0, 1.0], "min_probability": [0.9999993295729247, 0.9999967070975216, 0.9985079145679948, 0.8413522500755267, 0.9999995679800934], "judge_1": [1.0, 1.0, 0.0, 1.0, 1.0]}, "metadata": {"temperature": 1.0, "sampling_temperature": 1.0, "num_responses": 5, "thresh": 0.5, "weights": [0.25, 0.25, 0.25, 0.25], "logprobs": [[{"token": "30", "bytes": [51, 48], "logprob": -6.704273e-07, "top_logprobs": []}], [{"token": "8", "bytes": [56], "logprob": -3.2929079e-06, "top_logprobs": []}], [{"token": "17", "bytes": [49, 55], "logprob": -0.0014931997, "top_logprobs": []}], [{"token": "$", "bytes": [36], "logprob": -0.17274486, "top_logprobs": []}, {"token": "5", "bytes": [53], "logprob": -0.00014001218, "top_logprobs": []}], [{"token": "11", "bytes": [49, 49], "logprob": -4.3202e-07, "top_logprobs": []}]]}}, "bsdetector": {"data": {"prompts": ["When you solve this math problem only return the answer with no additional text.\n7 red peaches, 15 yellow peaches and 8 green peaches are in the basket. How many peaches are in the basket?", "When you solve this math problem only return the answer with no additional text.\nJack received 3 emails and 64 letters in the morning. He then received 5 emails and 54 letters in the afternoon. How many emails did jack receive in the day?", "When you solve this math problem only return the answer with no additional text.\nEd had 2 more marbles than Doug. Doug lost some of his marbles at the playground. Now Ed has 19 more marbles than doug. How many marbles did Doug lose?", "When you solve this math problem only return the answer with no additional text.\nDan has $ 3 left with him after he bought a candy bar for $ 2. How much money did he have initially?", "When you solve this math problem only return the answer with no additional text.\nJake has 13 fewer peaches and 3 more apples than Steven. Steven has 9 peaches and 8 apples. How many apples does Jake have?"], "responses": ["30", "8", "17", "5", "11"], "sampled_responses": [["30", "30", "30", "30", "30"], ["8", "8", "8", "8", "8"], ["17", "17", "19", "17", "17"], ["5", "5", "5", "5", "5"], ["11", "11", "11", "11", "11"]], "ensemble_scores": [1.0, 1.0, 0.8613152070045471, 1.0, 1.0], "noncontradiction": [1.0, 1.0, 0.8023485839366913, 1.0, 1.0], "exact_match": [1.0, 1.0, 0.8, 1.0, 1.0], "judge_1": [1.0, 1.0, 1.0, 1.0, 1.0]}, "metadata": {"temperature": 1.0, "sampling_temperature": 1.0, "num_responses": 5, "thresh": 0.5, "weights": [0.5599999999999999, 0.13999999999999999, 0.3], "logprobs": [[{"token": "30", "bytes": [51, 48], "logprob": -6.704273e-07, "top_logprobs": []}], [{"token": "8", "bytes": [56], "logprob": -4.00813e-06, "top_logprobs": []}], [{"token": "17", "bytes": [49, 55], "logprob": -0.0010523385, "top_logprobs": []}], [{"token": "$", "bytes": [36], "logprob": -0.17274486, "top_logprobs": []}, {"token": "5", "bytes": [53], "logprob": -0.00014001218, "top_logprobs": []}], [{"token": "11", "bytes": [49, 49], "logprob": -4.3202e-07, "top_logprobs": []}]]}}}
+{
+    "ensemble1": {
+        "data": {
+            "prompts": [
+                "When you solve this math problem only return the answer with no additional text.\n7 red peaches, 15 yellow peaches and 8 green peaches are in the basket. How many peaches are in the basket?",
+                "When you solve this math problem only return the answer with no additional text.\nJack received 3 emails and 64 letters in the morning. He then received 5 emails and 54 letters in the afternoon. How many emails did jack receive in the day?",
+                "When you solve this math problem only return the answer with no additional text.\nEd had 2 more marbles than Doug. Doug lost some of his marbles at the playground. Now Ed has 19 more marbles than doug. How many marbles did Doug lose?",
+                "When you solve this math problem only return the answer with no additional text.\nDan has $ 3 left with him after he bought a candy bar for $ 2. How much money did he have initially?",
+                "When you solve this math problem only return the answer with no additional text.\nJake has 13 fewer peaches and 3 more apples than Steven. Steven has 9 peaches and 8 apples. How many apples does Jake have?"
+            ],
+            "responses": [
+                "30",
+                "8",
+                "17",
+                "5",
+                "11"
+            ],
+            "sampled_responses": [
+                [
+                    "30",
+                    "30",
+                    "30",
+                    "30",
+                    "30"
+                ],
+                [
+                    "8",
+                    "8",
+                    "8",
+                    "8",
+                    "8"
+                ],
+                [
+                    "17",
+                    "17",
+                    "17",
+                    "17",
+                    "17"
+                ],
+                [
+                    "5",
+                    "5",
+                    "5",
+                    "5",
+                    "5"
+                ],
+                [
+                    "11",
+                    "11",
+                    "11",
+                    "11",
+                    "11"
+                ]
+            ],
+            "ensemble_scores": [
+                0.999999653587915,
+                0.9999993853802055,
+                0.9991957581908197,
+                0.9791576576122112,
+                0.9999998621941255
+            ],
+            "exact_match": [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "noncontradiction": [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "min_probability": [
+                0.99999861435166,
+                0.9999975415208221,
+                0.9967830327632791,
+                0.9166306304488447,
+                0.9999994487765019
+            ],
+            "judge_1": [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "metadata": {
+            "temperature": 1.0,
+            "sampling_temperature": 1.0,
+            "num_responses": 5,
+            "thresh": 0.5,
+            "weights": [
+                0.25,
+                0.25,
+                0.25,
+                0.25
+            ],
+            "logprobs": [
+                [
+                    {
+                        "token": "30",
+                        "bytes": [
+                            51,
+                            48
+                        ],
+                        "logprob": -1.3856493e-06,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "8",
+                        "bytes": [
+                            56
+                        ],
+                        "logprob": -2.4584822e-06,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "17",
+                        "bytes": [
+                            49,
+                            55
+                        ],
+                        "logprob": -0.0032221528,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "$",
+                        "bytes": [
+                            36
+                        ],
+                        "logprob": -0.08705069,
+                        "top_logprobs": []
+                    },
+                    {
+                        "token": "5",
+                        "bytes": [
+                            53
+                        ],
+                        "logprob": -0.000911702,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "11",
+                        "bytes": [
+                            49,
+                            49
+                        ],
+                        "logprob": -5.5122365e-07,
+                        "top_logprobs": []
+                    }
+                ]
+            ]
+        }
+    },
+    "bsdetector": {
+        "data": {
+            "prompts": [
+                "When you solve this math problem only return the answer with no additional text.\n7 red peaches, 15 yellow peaches and 8 green peaches are in the basket. How many peaches are in the basket?",
+                "When you solve this math problem only return the answer with no additional text.\nJack received 3 emails and 64 letters in the morning. He then received 5 emails and 54 letters in the afternoon. How many emails did jack receive in the day?",
+                "When you solve this math problem only return the answer with no additional text.\nEd had 2 more marbles than Doug. Doug lost some of his marbles at the playground. Now Ed has 19 more marbles than doug. How many marbles did Doug lose?",
+                "When you solve this math problem only return the answer with no additional text.\nDan has $ 3 left with him after he bought a candy bar for $ 2. How much money did he have initially?",
+                "When you solve this math problem only return the answer with no additional text.\nJake has 13 fewer peaches and 3 more apples than Steven. Steven has 9 peaches and 8 apples. How many apples does Jake have?"
+            ],
+            "responses": [
+                "30",
+                "8",
+                "17",
+                "5",
+                "11"
+            ],
+            "sampled_responses": [
+                [
+                    "30",
+                    "30",
+                    "30",
+                    "30",
+                    "30"
+                ],
+                [
+                    "8",
+                    "8",
+                    "8",
+                    "8",
+                    "8"
+                ],
+                [
+                    "17",
+                    "17",
+                    "17",
+                    "17",
+                    "17"
+                ],
+                [
+                    "5",
+                    "5",
+                    "5",
+                    "5",
+                    "5"
+                ],
+                [
+                    "11",
+                    "11",
+                    "11",
+                    "11",
+                    "11"
+                ]
+            ],
+            "ensemble_scores": [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "noncontradiction": [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "exact_match": [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "judge_1": [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "metadata": {
+            "temperature": 1.0,
+            "sampling_temperature": 1.0,
+            "num_responses": 5,
+            "thresh": 0.5,
+            "weights": [
+                0.5599999999999999,
+                0.13999999999999999,
+                0.3
+            ],
+            "logprobs": [
+                [
+                    {
+                        "token": "30",
+                        "bytes": [
+                            51,
+                            48
+                        ],
+                        "logprob": -6.704273e-07,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "8",
+                        "bytes": [
+                            56
+                        ],
+                        "logprob": -3.2929079e-06,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "17",
+                        "bytes": [
+                            49,
+                            55
+                        ],
+                        "logprob": -0.0009161015,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "$",
+                        "bytes": [
+                            36
+                        ],
+                        "logprob": -0.08705069,
+                        "top_logprobs": []
+                    },
+                    {
+                        "token": "5",
+                        "bytes": [
+                            53
+                        ],
+                        "logprob": -0.000911702,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "11",
+                        "bytes": [
+                            49,
+                            49
+                        ],
+                        "logprob": -6.704273e-07,
+                        "top_logprobs": []
+                    }
+                ]
+            ]
+        }
+    },
+    "ensemble2": {
+        "data": {
+            "prompts": [
+                "When you solve this math problem only return the answer with no additional text.\n7 red peaches, 15 yellow peaches and 8 green peaches are in the basket. How many peaches are in the basket?",
+                "When you solve this math problem only return the answer with no additional text.\nJack received 3 emails and 64 letters in the morning. He then received 5 emails and 54 letters in the afternoon. How many emails did jack receive in the day?",
+                "When you solve this math problem only return the answer with no additional text.\nEd had 2 more marbles than Doug. Doug lost some of his marbles at the playground. Now Ed has 19 more marbles than doug. How many marbles did Doug lose?",
+                "When you solve this math problem only return the answer with no additional text.\nDan has $ 3 left with him after he bought a candy bar for $ 2. How much money did he have initially?",
+                "When you solve this math problem only return the answer with no additional text.\nJake has 13 fewer peaches and 3 more apples than Steven. Steven has 9 peaches and 8 apples. How many apples does Jake have?"
+            ],
+            "responses": [
+                "30",
+                "8",
+                "17",
+                "5",
+                "11"
+            ],
+            "sampled_responses": [
+                null,
+                null,
+                null,
+                null,
+                null
+            ],
+            "ensemble_scores": [
+                0.9999996051846558,
+                0.9999996051846558,
+                0.9993517914877761,
+                0.5237012810262818,
+                0.999999724388251
+            ],
+            "min_probability": [
+                0.9999992103693117,
+                0.9999992103693117,
+                0.9987035829755523,
+                0.04740256205256365,
+                0.9999994487765019
+            ],
+            "judge_1": [
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        "metadata": {
+            "temperature": 1.0,
+            "sampling_temperature": 1.0,
+            "num_responses": 5,
+            "thresh": 0.5,
+            "weights": [
+                0.5,
+                0.5
+            ],
+            "logprobs": [
+                [
+                    {
+                        "token": "30",
+                        "bytes": [
+                            51,
+                            48
+                        ],
+                        "logprob": -7.89631e-07,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "8",
+                        "bytes": [
+                            56
+                        ],
+                        "logprob": -7.89631e-07,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "17",
+                        "bytes": [
+                            49,
+                            55
+                        ],
+                        "logprob": -0.0012972581,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "5",
+                        "bytes": [
+                            53
+                        ],
+                        "logprob": -3.049079,
+                        "top_logprobs": []
+                    }
+                ],
+                [
+                    {
+                        "token": "11",
+                        "bytes": [
+                            49,
+                            49
+                        ],
+                        "logprob": -5.5122365e-07,
+                        "top_logprobs": []
+                    }
+                ]
+            ]
+        }
+    }
+}

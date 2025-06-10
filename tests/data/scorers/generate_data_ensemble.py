@@ -78,7 +78,7 @@ async def main():
     )
 
     results = await uqe.generate_and_score(prompts=prompts, num_responses=5)
-    store_results = {"ensemble": results.to_dict()}
+    store_results = {"ensemble1": results.to_dict()}
 
     uqe = UQEnsemble(
         llm=gpt,
@@ -89,6 +89,22 @@ async def main():
 
     results = await uqe.generate_and_score(prompts=prompts, num_responses=5)
     store_results["bsdetector"] = results.to_dict()
+
+    components1 = [
+        "min_probability",  # measures semantic volatility
+        gpt,  # Using same LLM as external judge for testing
+    ]
+
+    uqe1 = UQEnsemble(
+        llm=gpt,
+        max_calls_per_min=250,
+        postprocessor=math_postprocessor,
+        use_n_param=False,  # Set True if using AzureChatOpenAI for faster generation
+        scorers=components1,
+    )
+
+    results1 = await uqe1.generate_and_score(prompts=prompts)
+    store_results["ensemble2"] = results1.to_dict()
 
     results_file = "ensemble_results_file.json"
     with open(results_file, "w") as f:
