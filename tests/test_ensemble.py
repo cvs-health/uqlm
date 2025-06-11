@@ -43,7 +43,7 @@ def test_validate_grader(mock_llm):
 
     with pytest.raises(ValueError) as value_error:
         uqe._validate_grader(lambda res, ans: res == ans)
-    assert "grader_function must have 'resposne' and 'answer' parameters" == str(value_error.value)
+    assert "grader_function must have 'response' and 'answer' parameters" == str(value_error.value)
 
     with pytest.raises(ValueError) as value_error:
         uqe._validate_grader(lambda response, answer: len(response) + len(answer))
