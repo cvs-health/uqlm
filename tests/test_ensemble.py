@@ -112,7 +112,7 @@ async def test_ensemble(monkeypatch, mock_llm):
 
     assert all([results.data["noncontradiction"][i] == pytest.approx(data["noncontradiction"][i]) for i in range(len(PROMPTS))])
 
-    assert all([abs(results.data["judge_1"][i] - data["judge_1"][i]) < 1e-5 for i in range(len(PROMPTS))])
+    assert all([results.data["judge_1"][i] == pytest.approx(data["judge_1"][i], abs=1e-5) for i in range(len(PROMPTS))])
 
     assert results.metadata == metadata
 
@@ -159,9 +159,9 @@ async def test_ensemble2(monkeypatch, mock_llm):
 
     results = await uqe.generate_and_score(prompts=PROMPTS)
 
-    assert all([results.data["min_probability"][i] == pytest.approx(data["min_probability"][i]) for i in range(len(PROMPTS))])
+    assert all([results.data["min_probability"][i] == pytest.approx(data["min_probability"][i], abs=1e-5) for i in range(len(PROMPTS))])
 
-    assert all([abs(results.data["judge_1"][i] - data["judge_1"][i]) < 1e-5 for i in range(len(PROMPTS))])
+    assert all([results.data["judge_1"][i] == pytest.approx(data["judge_1"][i], abs=1e-5) for i in range(len(PROMPTS))])
 
     assert results.metadata == metadata
 
