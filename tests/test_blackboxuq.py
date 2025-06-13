@@ -55,3 +55,22 @@ async def test_bbuq(monkeypatch):
     assert all([results.data["semantic_negentropy"][i] == pytest.approx(data["semantic_negentropy"][i]) for i in range(len(PROMPTS))])
 
     assert results.metadata == metadata
+
+    # Test invalid scorer
+    with pytest.raises(ValueError):
+        BlackBoxUQ(llm=mock_object, scorers=["invalid_scorer"])
+
+    # Test default scorers
+    uqe_default = BlackBoxUQ(llm=mock_object, scorers=None)
+
+    # Test other scorer types
+    BlackBoxUQ(llm=mock_object, scorers=["bert_score"])
+    BlackBoxUQ(llm=mock_object, scorers=["cosine_sim"])
+    try:
+        BlackBoxUQ(llm=mock_object, scorers=["bleurt"])
+    except ImportError:
+        # This is expected when bleurt package is not installed
+        pass
+
+    # Test score method directly (covers score method path)
+    uqe.score(responses=MOCKED_RESPONSES, sampled_responses=MOCKED_SAMPLED_RESPONSES)
