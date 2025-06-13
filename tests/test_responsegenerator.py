@@ -81,13 +81,15 @@ def test_assertions_and_static_methods():
     mock_object = create_mock_llm()
     mock_object.temperature = 0  # This should trigger assertion
     generator_object = ResponseGenerator(llm=mock_object)
-    with pytest.raises(AssertionError):
+    with pytest.raises(AssertionError) as assert_error:
         asyncio.run(generator_object.generate_responses(prompts=MOCKED_PROMPTS[:1], count=2))
+    assert "temperature must be greater than 0 if count > 1" in str(assert_error.value)
     # Test prompt type assertion
     mock_object.temperature = 1  # Fix temperature
     generator_object = ResponseGenerator(llm=mock_object)
-    with pytest.raises(AssertionError):
+    with pytest.raises(AssertionError) as assert_error:
         asyncio.run(generator_object.generate_responses(prompts=[123], count=1))
+    assert "If using custom prompts, please ensure `prompts` is of type list[str]" in str(assert_error.value)
     # Test static methods
     assert ResponseGenerator._enforce_strings([123, "hi"]) == ["123", "hi"]
     assert list(ResponseGenerator._split([1, 2, 3, 4, 5], 2)) == [[1, 2], [3, 4], [5]]
