@@ -15,21 +15,25 @@
 
 import bert_score
 import numpy as np
-from typing import List
+from typing import List, Optional
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
+from tqdm import tqdm
 
 
 class BertScorer(SimilarityScorer):
     def __init__(self) -> None:
         """
-        Class for computing BERTScore values between original responses and candidates. For more on 
+        Class for computing BERTScore values between original responses and candidates. For more on
         BERTScore, refer to Zhang et al.(2020) :footcite:`zhang2020bertscoreevaluatingtextgeneration`.
         """
         pass
 
     def evaluate(
-        self, responses: List[str], sampled_responses: List[List[str]]
+        self,
+        responses: List[str],
+        sampled_responses: List[List[str]],
+        progress_bar: Optional[bool] = False,
     ) -> List[float]:
         """
         This method computes model-based text similarity metrics values for the provided pairs of texts.
@@ -47,9 +51,15 @@ class BertScorer(SimilarityScorer):
         List of float
             Mean BertScore values
         """
+        iterator = (
+            tqdm(range(len(responses)), desc="Scoring responses with BERT-scorer...")
+            if progress_bar
+            else range(len(responses))
+        )
+
         return [
             self._compute_score(response=responses[i], candidates=sampled_responses[i])
-            for i in range(len(responses))
+            for i in iterator
         ]
 
     @staticmethod

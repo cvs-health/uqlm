@@ -17,10 +17,11 @@ import math
 import numpy as np
 import warnings
 from collections import deque, Counter
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
+from tqdm import tqdm
 
 
 class NLIScorer(SimilarityScorer):
@@ -33,7 +34,7 @@ class NLIScorer(SimilarityScorer):
     ) -> None:
         """
         A class to computing NLI-based confidence scores. This class offers two types of confidence scores, namely
-        noncontradiction probability :footcite:`chen2023quantifyinguncertaintyanswerslanguage` and semantic entropy 
+        noncontradiction probability :footcite:`chen2023quantifyinguncertaintyanswerslanguage` and semantic entropy
         :footcite:`farquhar2024detectinghallucinations`.
 
         Parameters
@@ -44,22 +45,20 @@ class NLIScorer(SimilarityScorer):
 
         verbose : bool, default=False
             Specifies whether to print verbose status updates of NLI scoring process
-            
+
         nli_model_name : str, default="microsoft/deberta-large-mnli"
-            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and 
+            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
-            
+
         max_length : int, default=2000
-            Specifies the maximum allowed string length. Responses longer than this value will be truncated to 
+            Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
         """
         self.device = device
         self.verbose = verbose
         self.max_length = max_length
         self.tokenizer = AutoTokenizer.from_pretrained(nli_model_name)
-        model = AutoModelForSequenceClassification.from_pretrained(
-            nli_model_name
-        )
+        model = AutoModelForSequenceClassification.from_pretrained(nli_model_name)
         if self.device:
             self.model = model.to(self.device)
         else:
@@ -87,7 +86,9 @@ class NLIScorer(SimilarityScorer):
             warnings.warn(
                 "Maximum response length exceeded for NLI comparison. Truncation will occur. To adjust, change the value of max_length"
             )
-        concat = response1[0:self.max_length] + " [SEP] " + response2[0:self.max_length]
+        concat = (
+            response1[0 : self.max_length] + " [SEP] " + response2[0 : self.max_length]
+        )
         encoded_inputs = self.tokenizer(concat, padding=True, return_tensors="pt")
         if self.device:
             encoded_inputs = {
@@ -106,6 +107,7 @@ class NLIScorer(SimilarityScorer):
         sampled_responses: List[List[str]],
         use_best: bool,
         compute_entropy: bool = False,
+        progress_bar: Optional[bool] = False,
     ) -> Dict[str, Any]:
         """
         Evaluate confidence scores on LLM responses.
@@ -117,7 +119,7 @@ class NLIScorer(SimilarityScorer):
 
         sampled_responses : list of list of strings
             Sampled candidate responses to be compared to the original response
-            
+
         use_best : bool
             Specifies whether to swap the original response for the uncertainty-minimized response
             based on semantic entropy clusters.
@@ -138,14 +140,25 @@ class NLIScorer(SimilarityScorer):
             "responses": responses,
             "sampled_responses": sampled_responses,
         }
-        for i, response in enumerate(responses):
+        iterator = (
+            tqdm(
+                enumerate(responses),
+                total=len(responses),
+                desc="Scoring responses with NLI...",
+            )
+            if progress_bar
+            else enumerate(responses)
+        )
+        for i, response in iterator:
             oc_result_i = self._observed_consistency_i(
                 original=response,
                 candidates=sampled_responses[i],
                 use_best=use_best,
                 compute_entropy=compute_entropy,
             )
-            observed_consistency_data["noncontradiction"].append(oc_result_i["nli_score_i"])
+            observed_consistency_data["noncontradiction"].append(
+                oc_result_i["nli_score_i"]
+            )
             observed_consistency_data["semantic_negentropy"].append(
                 oc_result_i["semantic_negentropy"]
             )
@@ -241,14 +254,10 @@ class NLIScorer(SimilarityScorer):
         if response1 == response2:
             avg_nli_score, entailment = 1, True
         else:
-            left = self.predict(
-                response1=response1, response2=response2
-            )
+            left = self.predict(response1=response1, response2=response2)
             left_label = self.label_mapping[left.argmax(axis=1)[0]]
 
-            right = self.predict(
-                response1=response2, response2=response1
-            )
+            right = self.predict(response1=response2, response2=response1)
             right_label = self.label_mapping[right.argmax(axis=1)[0]]
             s1, s2 = 1 - left[:, 0], 1 - right[:, 0]
 

@@ -38,7 +38,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
     ) -> None:
         """
         Class for black box uncertainty quantification. Leverages multiple responses to the same prompt to evaluate
-        consistency as an indicator of hallucination likelihood. 
+        consistency as an indicator of hallucination likelihood.
 
         Parameters
         ----------
@@ -50,18 +50,18 @@ class BlackBoxUQ(UncertaintyQuantifier):
             'semantic_negentropy', 'noncontradiction', 'exact_match', 'bert_score', 'bleurt', 'cosine_sim'
         }, default=None
             Specifies which black box (consistency) scorers to include. If None, defaults to
-            ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"]. 
-            
+            ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"].
+
         device: str or torch.device input or torch.device object, default="cpu"
-            Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction' 
+            Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction'
             scorers. Pass a torch.device to leverage GPU.
 
         use_best : bool, default=True
             Specifies whether to swap the original response for the uncertainty-minimized response
             based on semantic entropy clusters. Only used if `scorers` includes 'semantic_negentropy' or 'noncontradiction'.
-            
+
         nli_model_name : str, default="microsoft/deberta-large-mnli"
-            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and 
+            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
 
         postprocessor : callable, default=None
@@ -81,11 +81,11 @@ class BlackBoxUQ(UncertaintyQuantifier):
         use_n_param : bool, default=False
             Specifies whether to use `n` parameter for `BaseChatModel`. Not compatible with all
             `BaseChatModel` classes. If used, it speeds up the generation process substantially when num_responses > 1.
-            
+
         max_length : int, default=2000
-            Specifies the maximum allowed string length. Responses longer than this value will be truncated to 
+            Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
-            
+
         verbose : bool, default=False
             Specifies whether to print the index of response currently being scored.
         """
@@ -114,6 +114,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self,
         prompts: List[str],
         num_responses: int = 5,
+        progress_bar: Optional[bool] = False,
     ) -> UQResult:
         """
         Generate LLM responses, sampled LLM (candidate) responses, and compute confidence scores with specified scorers for the provided prompts.
@@ -133,16 +134,23 @@ class BlackBoxUQ(UncertaintyQuantifier):
         """
         self.prompts = prompts
         self.num_responses = num_responses
+        self.progress_bar = progress_bar
 
-        responses = await self.generate_original_responses(prompts)
-        sampled_responses = await self.generate_candidate_responses(prompts)
+        responses = await self.generate_original_responses(prompts, progress_bar)
+        sampled_responses = await self.generate_candidate_responses(
+            prompts, progress_bar
+        )
         return self.score(
-            responses = responses, sampled_responses = sampled_responses,
+            responses=responses,
+            sampled_responses=sampled_responses,
+            progress_bar=progress_bar,
         )
 
     def score(
-        self, responses: List[str], sampled_responses: List[List[str]]
-             
+        self,
+        responses: List[str],
+        sampled_responses: List[List[str]],
+        progress_bar: Optional[bool] = False,
     ) -> UQResult:
         """
         Compute confidence scores with specified scorers on provided LLM responses. Should only be used if responses and sampled responses
@@ -151,10 +159,10 @@ class BlackBoxUQ(UncertaintyQuantifier):
         Parameters
         ----------
         responses : list of str, default=None
-            A list of model responses for the prompts. 
+            A list of model responses for the prompts.
 
         sampled_responses : list of list of str, default=None
-            A list of lists of sampled LLM responses for each prompt. These will be used to compute consistency scores by comparing to 
+            A list of lists of sampled LLM responses for each prompt. These will be used to compute consistency scores by comparing to
             the corresponding response from `responses`.
 
         Returns
@@ -166,15 +174,16 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.responses = responses
         self.sampled_responses = sampled_responses
         self.num_responses = len(sampled_responses[0])
-        
+
         self.scores_dict = {k: [] for k in self.scorer_objects}
         if self.use_nli:
-            compute_entropy = ("semantic_negentropy" in self.scorers)
+            compute_entropy = "semantic_negentropy" in self.scorers
             nli_scores = self.nli_scorer.evaluate(
                 responses=self.responses,
                 sampled_responses=self.sampled_responses,
                 use_best=self.use_best,
                 compute_entropy=compute_entropy,
+                progress_bar=progress_bar,
             )
             if self.use_best:
                 self.original_responses = self.responses.copy()
@@ -186,9 +195,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
                     if key == "semantic_negentropy":
                         nli_scores[key] = [
                             1 - s
-                            for s in self.nli_scorer._normalize_entropy(
-                                nli_scores[key]
-                            )
+                            for s in self.nli_scorer._normalize_entropy(nli_scores[key])
                         ]  # Convert to confidence score
                     self.scores_dict[key] = nli_scores[key]
 
@@ -198,10 +205,11 @@ class BlackBoxUQ(UncertaintyQuantifier):
                 self.scores_dict[scorer_key] = self.scorer_objects[scorer_key].evaluate(
                     responses=self.responses,
                     sampled_responses=self.sampled_responses,
+                    progress_bar=progress_bar,
                 )
-                
+
         return self._construct_result()
-                
+
     def _construct_result(self) -> Any:
         """Constructs UQResult object"""
         data = {
@@ -236,6 +244,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
                 self.scorer_objects["bert_score"] = BertScorer()
             elif scorer == "bleurt":
                 from uqlm.black_box import BLEURTScorer
+
                 self.scorer_objects["bleurt"] = BLEURTScorer()
             elif scorer == "cosine_sim":
                 self.scorer_objects["cosine_sim"] = CosineScorer()

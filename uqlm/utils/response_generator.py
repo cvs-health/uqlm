@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages.human import HumanMessage
 from langchain_core.messages.system import SystemMessage
+from tqdm import tqdm
 
 
 class ResponseGenerator:
@@ -54,6 +55,7 @@ class ResponseGenerator:
         prompts: List[str],
         system_prompt: str = "You are a helpful assistant.",
         count: int = 1,
+        progress_bar: Optional[bool] = False,
     ) -> Dict[str, Any]:
         """
         Generates evaluation dataset from a provided set of prompts. For each prompt,
@@ -106,7 +108,7 @@ class ResponseGenerator:
         self.system_message = SystemMessage(system_prompt)
 
         generations, duplicated_prompts = await self._generate_in_batches(
-            prompts=prompts
+            prompts=prompts, progress_bar=progress_bar
         )
 
         responses = generations["responses"]
@@ -156,8 +158,7 @@ class ResponseGenerator:
             self.llm.n = count
 
     async def _generate_in_batches(
-        self,
-        prompts: List[str],
+        self, prompts: List[str], progress_bar: Optional[bool] = False
     ) -> Tuple[List[str], List[str]]:
         """Executes async IO with langchain in batches to avoid rate limit error"""
         batch_size = (
@@ -167,9 +168,19 @@ class ResponseGenerator:
         )
         prompts_partition = self._split(prompts, batch_size)
 
+        if progress_bar:
+            partition_iter = tqdm(
+                prompts_partition,
+                desc="Generating responses...",
+                total=len(prompts_partition),
+            )
+        else:
+            partition_iter = prompts_partition
+
         duplicated_prompts = []
         generations = {"responses": [], "logprobs": []}
-        for prompt_batch in prompts_partition:
+
+        for prompt_batch in partition_iter:
             start = time.time()
             # generate responses for current batch
             tasks, duplicated_batch_prompts = self._create_tasks(prompt_batch)
@@ -200,14 +211,14 @@ class ResponseGenerator:
             if self.llm.logprobs:
                 if "logprobs_result" in result.generations[0][0].generation_info:
                     logprobs = [
-                            result.generations[0][i].generation_info["logprobs_result"]
-                            for i in range(count)
-                        ]
+                        result.generations[0][i].generation_info["logprobs_result"]
+                        for i in range(count)
+                    ]
                 elif "logprobs" in result.generations[0][0].generation_info:
                     logprobs = [
-                            result.generations[0][i].generation_info["logprobs"]["content"]
-                            for i in range(count)
-                        ]    
+                        result.generations[0][i].generation_info["logprobs"]["content"]
+                        for i in range(count)
+                    ]
         return {
             "logprobs": logprobs,
             "responses": [result.generations[0][i].text for i in range(count)],
