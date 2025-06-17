@@ -14,7 +14,6 @@
 
 import pytest
 import json
-import pandas as pd
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
 from uqlm.judges.judge import LLMJudge
 from langchain_openai import AzureChatOpenAI
@@ -90,12 +89,15 @@ async def test_edge_cases(monkeypatch):
     assert isinstance(judge2, LLMJudge)
     #  Test _update_best
     uq_update = UncertaintyQuantifier(llm=mock_object)
-    uq_update.responses = ["r1", "r2"]
-    uq_update.logprobs = [0.1, 0.2]
-    uq_update.sampled_responses = [["r1", "s1"], ["r2", "s2"]]
-    uq_update.multiple_logprobs = [[0.1, 0.11], [0.2, 0.21]]
-    uq_update._update_best(["r1", "r2"])
-    assert uq_update.responses == ["r1", "r2"]
+    uq_update.responses = ["r1", "r1"]
+    uq_update.logprobs = [0.11, 0.21]
+    uq_update.sampled_responses = [["r2", "s2"], ["r3", "s3"]]
+    uq_update.multiple_logprobs = [[0.12, 0.22], [0.13, 0.23]]
+
+    new_responses, new_logprobs = ["r2", "s3"], [0.12, 0.23]
+    uq_update._update_best(new_responses)
+    assert uq_update.responses == new_responses
+    assert uq_update.logprobs == new_logprobs
 
 
 @pytest.mark.asyncio
