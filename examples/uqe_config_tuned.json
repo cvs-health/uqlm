@@ -1,0 +1,34 @@
+{
+  "weights": [
+    0.2617069447774227,
+    0.5505691242292149,
+    0.028703759144112998,
+    0.028387189700397265,
+    0.13063298214885202
+  ],
+  "thresh": 0.84,
+  "components": [
+    "exact_match",
+    "noncontradiction",
+    "normalized_probability",
+    "judge_1",
+    "judge_2"
+  ],
+  "llm_config": {
+    "class_name": "ChatVertexAI",
+    "module": "langchain_google_vertexai.chat_models",
+    "model_name": "gemini-1.5-flash"
+  },
+  "llm_scorers": {
+    "judge_1": {
+      "class_name": "ChatVertexAI",
+      "module": "langchain_google_vertexai.chat_models",
+      "model_name": "gemini-1.5-flash"
+    },
+    "judge_2": {
+      "class_name": "ChatVertexAI",
+      "module": "langchain_google_vertexai.chat_models",
+      "model_name": "gemini-1.5-flash"
+    }
+  }
+}
