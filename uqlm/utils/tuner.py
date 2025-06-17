@@ -166,13 +166,13 @@ class Tuner:
     def _validate_tuning_inputs(self):
         """Helper function to validate tuning inputs."""
         if self.k == 1:
-            raise ValueError("""Tuning only applies if more than scorer component is present.""")
+            raise ValueError("Tuning only applies if more than scorer component is present.")
 
         if self.weights_objective not in self.objective_to_func:
             raise ValueError(
                 """
-            Only 'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc_score', and 'log_loss' are supported for tuning objectives.
-            """
+                Only 'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc_score', and 'log_loss' are supported for tuning objectives.
+                """
             )
         if self.thresh_objective not in ["fbeta_score", "accuracy_score", "balanced_accuracy_score"]:
             raise ValueError(

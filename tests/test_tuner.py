@@ -53,22 +53,25 @@ class TestTuner:
         assert len(normalized_weights) == len(weights)
 
     def test_validation_errors_and_optimization_paths(self):
-        # test input validation
-        tuner = Tuner()
-        tuner.k = 1
-        with pytest.raises(ValueError):
-            tuner._validate_tuning_inputs()
+        # test input validation (k=1)
+        with pytest.raises(ValueError) as e:
+            Tuner().tune_params(score_lists=[self.score_lists[0]], correct_indicators=self.correct_indicators)
+        assert "Tuning only applies if more than scorer component is present." in str(e.value)
+
         # test unsupported weights_objective
-        tuner.k = 3
-        tuner.weights_objective = "invalid"
-        with pytest.raises(ValueError):
-            tuner._validate_tuning_inputs()
+        with pytest.raises(ValueError) as e:
+            Tuner().tune_params(score_lists=self.score_lists, correct_indicators=self.correct_indicators, weights_objective="invalid")
+        assert "Only 'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc_score', and 'log_loss' are supported for tuning objectives." in str(e.value)
 
         # test unsupported thresh_objective
-        tuner.weights_objective = "roc_auc"
-        tuner.thresh_objective = "invalid"
-        with pytest.raises(ValueError):
-            tuner._validate_tuning_inputs()
+        with pytest.raises(ValueError) as e:
+            Tuner().tune_params(score_lists=self.score_lists, correct_indicators=self.correct_indicators, thresh_objective="invalid")
+        assert "Only 'fbeta_score', 'accuracy_score', 'balanced_accuracy_score' are supported for tuning objectives." in str(e.value)
+
+        # test thresh_objective must match weights_objective for any threshold-dependent weights_objective
+        with pytest.raises(ValueError) as e:
+            Tuner().tune_params(self.score_lists, self.correct_indicators, weights_objective="fbeta_score", thresh_objective="accuracy_score")
+        assert "thresh_objective must match weights_objective for any threshold-dependent weights_objective." in str(e.value)
 
         # test threshold optimization with different paths
         # cover  tune_threshold() method  and different objective function evaluations
@@ -77,6 +80,8 @@ class TestTuner:
 
         # k=2: different objectives (optimize_jointly=False path)
         Tuner().tune_params(self.score_lists[:2], self.correct_indicators, weights_objective="roc_auc", thresh_objective="fbeta_score")
+        # k=2: same objectives (optimize_jointly=True, grid search)
+        Tuner().tune_params(self.score_lists[:2], self.correct_indicators, weights_objective="fbeta_score", thresh_objective="fbeta_score")
         # k=3: same objectives (optimize_jointly=True, grid search)
         Tuner().tune_params(self.score_lists, self.correct_indicators, weights_objective="fbeta_score", thresh_objective="fbeta_score")
         # k=3: different objectives (optimize_jointly=False, separate optimization)
@@ -86,4 +91,3 @@ class TestTuner:
         Tuner().tune_params(extended_lists, self.correct_indicators)
         # log_loss objective (obj_multiplier = -1 path)
         Tuner().tune_params(self.score_lists, self.correct_indicators, weights_objective="log_loss", thresh_objective="fbeta_score")
-
