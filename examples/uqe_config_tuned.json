@@ -1,12 +1,12 @@
 {
   "weights": [
-    0.2617069447774227,
-    0.5505691242292149,
-    0.028703759144112998,
-    0.028387189700397265,
-    0.13063298214885202
+    0.4136505532742457,
+    0.058231009780750076,
+    0.5253883480071272,
+    0.00215074600781475,
+    0.0005793429300622097
   ],
-  "thresh": 0.84,
+  "thresh": 0.99,
   "components": [
     "exact_match",
     "noncontradiction",
@@ -26,9 +26,9 @@
       "model_name": "gemini-1.5-flash"
     },
     "judge_2": {
-      "class_name": "ChatVertexAI",
-      "module": "langchain_google_vertexai.chat_models",
-      "model_name": "gemini-1.5-flash"
+      "class_name": "AzureChatOpenAI",
+      "module": "langchain_openai.chat_models.azure",
+      "temperature": 1.0
     }
   }
 }

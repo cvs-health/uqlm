@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import json
 import inspect
+from importlib import import_module
 from langchain_core.language_models.chat_models import BaseChatModel
 from typing import Any, Dict, List, Optional, Union, Tuple
+
 
 from uqlm.judges.judge import LLMJudge
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
@@ -488,7 +490,8 @@ class UQEnsemble(UncertaintyQuantifier):
             if not isinstance(check_val, bool):
                 raise ValueError("grader_function must return boolean")
 
-    def _save_llm_config(self, llm: BaseChatModel) -> Dict[str, Any]:
+    @staticmethod
+    def _save_llm_config(llm: BaseChatModel) -> Dict[str, Any]:
         """
         Extract and save LLM configuration.
 
@@ -520,8 +523,9 @@ class UQEnsemble(UncertaintyQuantifier):
                     config[param] = value
         
         return config
-
-    def _load_llm_config(self, llm_config: Dict[str, Any]) -> BaseChatModel:
+    
+    @staticmethod
+    def _load_llm_config(llm_config: Dict[str, Any]) -> BaseChatModel:
         """
         Recreate LLM instance from saved configuration.
 
@@ -535,7 +539,6 @@ class UQEnsemble(UncertaintyQuantifier):
         BaseChatModel
             Recreated LLM instance
         """
-        from importlib import import_module
         
         try:
             # Import the LLM class
@@ -549,7 +552,7 @@ class UQEnsemble(UncertaintyQuantifier):
             # Create LLM instance
             return llm_class(**llm_params)
         except Exception as e:
-            raise ValueError(f"Could not recreate LLM from config: {e}")
+            raise ValueError(f"Could not recreate LLM from config: {e}") from e
 
     def save_config(self, path: str) -> None:
         """
@@ -560,7 +563,6 @@ class UQEnsemble(UncertaintyQuantifier):
         path : str
             Path where to save the configuration file (should end with .json)
         """
-        import json
         
         # Handle components and LLM scorers
         serializable_components = []
@@ -611,8 +613,6 @@ class UQEnsemble(UncertaintyQuantifier):
         UQEnsemble
             New UQEnsemble instance with loaded configuration
         """
-        import json
-        
         with open(path, 'r') as f:
             config = json.load(f)
         
