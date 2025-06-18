@@ -14,17 +14,18 @@
 
 import json
 import os
-import numpy as np
+import importlib.util
+import sys
 import shutil
+import numpy as np
 import subprocess
 import importlib.resources as resources
+import unittest
 from uqlm.black_box import BertScorer, BLEURTScorer, CosineScorer, MatchScorer
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
-import unittest
-import pytest
-import sys
-import io
 from contextlib import redirect_stdout
+import pytest
+import io
 
 datafile_path = "tests/data/similarity/similarity_results_file.json"
 with open(datafile_path, "r") as f:
@@ -41,10 +42,13 @@ def test_bert():
 
 
 def test_bluert_import_error():
-    subprocess.run(["pip", "uninstall", "-y", "bleurt"], capture_output=True)
-    with pytest.raises(ImportError) as import_error:
-        BLEURTScorer()
-    assert "The bleurt package is required to use BLEURTScorer but is not installed. Please install it using:" in str(import_error.value)
+    result = subprocess.run(["pip", "uninstall", "-y", "bleurt"], capture_output=True)
+    result.check_returncode()  # Wait for subprocess to finish and check for errors
+    bleurt_installed = importlib.util.find_spec("bleurt") is not None
+    if not bleurt_installed:
+        with pytest.raises(ImportError) as import_error:
+            BLEURTScorer()
+        assert "The bleurt package is required to use BLEURTScorer but is not installed. Please install it using:" in str(import_error.value)
 
 
 @unittest.skipIf((os.getenv("CI") == "true"), "Skipping test in CI due to dependency on GitHub repository.")
