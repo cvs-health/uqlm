@@ -140,6 +140,7 @@ Note that although we use `ChatVertexAI` in this example, we can use any [LangCh
 *   Categorical LLM-as-a-Judge ([Manakul et al., 2023](https://arxiv.org/abs/2303.08896); [Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175); [Luo et al., 2023](https://arxiv.org/abs/2303.15621))
 *   Continuous LLM-as-a-Judge ([Xiong et al., 2024](https://arxiv.org/abs/2306.13063))
 *   Panel of LLM Judges ([Verga et al., 2024](https://arxiv.org/abs/2404.18796))
+*   Likert Scale Scoring ([Bai et al., 2023](https://arxiv.org/pdf/2306.04181))
 
 ### Ensemble Scorers
 

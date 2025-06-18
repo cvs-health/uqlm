@@ -13,47 +13,32 @@
 # limitations under the License.
 
 from math import isclose
+import pytest
 from uqlm.utils.tuner import Tuner
 
-class TestTuner:
 
+class TestTuner:
     def setup_method(self):
         # Setup common test data
         self.y_scores = [0.1, 0.4, 0.35, 0.8]
         self.correct_indicators = [0, 1, 0, 1]
-        self.score_lists = [
-            [0.1, 0.4, 0.35, 0.8],
-            [0.2, 0.5, 0.3, 0.7],
-            [0.15, 0.45, 0.25, 0.75]
-        ]
+        self.score_lists = [[0.1, 0.4, 0.35, 0.8], [0.2, 0.5, 0.3, 0.7], [0.15, 0.45, 0.25, 0.75]]
 
     def test_initialization(self):
         # Test default initialization
         tuner = Tuner()
-        assert list(tuner.objective_to_func.keys()) == [
-            'fbeta_score',
-            'accuracy_score',
-            'balanced_accuracy_score',
-            'log_loss',
-            'roc_auc'
-        ]
+        assert list(tuner.objective_to_func.keys()) == ["fbeta_score", "accuracy_score", "balanced_accuracy_score", "log_loss", "roc_auc"]
 
     def test_tune_threshold(self):
         tuner = Tuner()
-        threshold = tuner.tune_threshold(
-            y_scores=self.y_scores,
-            correct_indicators=self.correct_indicators
-        )
+        threshold = tuner.tune_threshold(y_scores=self.y_scores, correct_indicators=self.correct_indicators)
         assert isinstance(threshold, float)
         assert 0 <= threshold <= 1
         assert isclose(threshold, 0.35, abs_tol=10**-4)
 
     def test_tune_params(self):
         tuner = Tuner()
-        result = tuner.tune_params(
-            score_lists=self.score_lists,
-            correct_indicators=self.correct_indicators
-        )
+        result = tuner.tune_params(score_lists=self.score_lists, correct_indicators=self.correct_indicators)
         assert "weights" in result
         assert "thresh" in result
         assert isinstance(result["weights"], tuple)
@@ -66,4 +51,43 @@ class TestTuner:
         normalized_weights = Tuner._normalize_weights(weights)
         assert abs(sum(normalized_weights) - 1.0) < 1e-9
         assert len(normalized_weights) == len(weights)
-        
+
+    def test_validation_errors_and_optimization_paths(self):
+        # test input validation (k=1)
+        with pytest.raises(ValueError) as e:
+            Tuner().tune_params(score_lists=[self.score_lists[0]], correct_indicators=self.correct_indicators)
+        assert "Tuning only applies if more than scorer component is present." in str(e.value)
+
+        # test unsupported weights_objective
+        with pytest.raises(ValueError) as e:
+            Tuner().tune_params(score_lists=self.score_lists, correct_indicators=self.correct_indicators, weights_objective="invalid")
+        assert "Only 'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc_score', and 'log_loss' are supported for tuning objectives." in str(e.value)
+
+        # test unsupported thresh_objective
+        with pytest.raises(ValueError) as e:
+            Tuner().tune_params(score_lists=self.score_lists, correct_indicators=self.correct_indicators, thresh_objective="invalid")
+        assert "Only 'fbeta_score', 'accuracy_score', 'balanced_accuracy_score' are supported for tuning objectives." in str(e.value)
+
+        # test thresh_objective must match weights_objective for any threshold-dependent weights_objective
+        with pytest.raises(ValueError) as e:
+            Tuner().tune_params(self.score_lists, self.correct_indicators, weights_objective="fbeta_score", thresh_objective="accuracy_score")
+        assert "thresh_objective must match weights_objective for any threshold-dependent weights_objective." in str(e.value)
+
+        # test threshold optimization with different paths
+        # cover  tune_threshold() method  and different objective function evaluations
+        for obj in ["accuracy_score", "balanced_accuracy_score", "roc_auc"]:
+            Tuner().tune_threshold(self.y_scores, self.correct_indicators, thresh_objective=obj)
+
+        # k=2: different objectives (optimize_jointly=False path)
+        Tuner().tune_params(self.score_lists[:2], self.correct_indicators, weights_objective="roc_auc", thresh_objective="fbeta_score")
+        # k=2: same objectives (optimize_jointly=True, grid search)
+        Tuner().tune_params(self.score_lists[:2], self.correct_indicators, weights_objective="fbeta_score", thresh_objective="fbeta_score")
+        # k=3: same objectives (optimize_jointly=True, grid search)
+        Tuner().tune_params(self.score_lists, self.correct_indicators, weights_objective="fbeta_score", thresh_objective="fbeta_score")
+        # k=3: different objectives (optimize_jointly=False, separate optimization)
+        Tuner().tune_params(self.score_lists, self.correct_indicators, weights_objective="accuracy_score", thresh_objective="accuracy_score")
+        # k>3: Optuna path
+        extended_lists = self.score_lists + [[0.25, 0.55, 0.35, 0.65]]
+        Tuner().tune_params(extended_lists, self.correct_indicators)
+        # log_loss objective (obj_multiplier = -1 path)
+        Tuner().tune_params(self.score_lists, self.correct_indicators, weights_objective="log_loss", thresh_objective="fbeta_score")

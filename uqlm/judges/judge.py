@@ -23,11 +23,9 @@ from typing import Any, Dict, List, Optional
 from uqlm.utils.response_generator import ResponseGenerator
 
 
-KEYWORDS_TO_SCORES_DICT = {
-    round(0.0, 1): ["incorrect", "not correct", "not right", "wrong"],
-    0.5: ["not sure", "not certain", "unsure", "uncertain"],
-    1.0: ["correct", "right"],
-}
+KEYWORDS_TO_SCORES_DICT = {round(0.0, 1): ["incorrect", "not correct", "not right", "wrong"], 0.5: ["not sure", "not certain", "unsure", "uncertain"], 1.0: ["correct", "right"]}
+
+LIKERT_TO_SCORES_DICT = {0.0: ["1", "completely incorrect", "not correct"], 0.25: ["2", "mostly incorrect", "somewhat correct"], 0.5: ["3", "partially correct", "moderately correct"], 0.75: ["4", "mostly correct", "very correct"], 1.0: ["5", "completely correct", "highly correct"]}
 
 CHOICES_2_CLASS = """\"Correct\", \"Incorrect\""""
 CHOICES_3_CLASS = CHOICES_2_CLASS + """, or \"I am not sure\""""
@@ -49,32 +47,31 @@ Question: What is 2+2?, Proposed Answer: 4
 ## Your response
 99 (highly certain the proposed answer is correct)
 """
+LIKERT_SCORE_INSTRUCTION = """
+You are a fair assessment expert evaluating the CORRECTNESS of an answer to a question.
+Your task is to score the answer on a scale from 1 to 5, with 5 being the highest:
+1 - Completely incorrect: The answer is entirely wrong or irrelevant.
+2 - Mostly incorrect: The answer contains significant errors or misconceptions.
+3 - Partially correct: The answer has some correct elements but also contains errors.
+4 - Mostly correct: The answer is largely accurate with only minor errors or omissions.
+5 - Completely correct: The answer is fully accurate and comprehensive.
+Give only the numerical score (1-5) with no explanation.
+"""
 
 
 def cat_instruction(choices):
     return f"""Your task is to look at the question and answer provided and determine if the answer is correct. You are to respond with ONLY one of: {choices}. YOUR ANSWER MUST ONLY CONTAIN ONE OF {choices}. DO NOT ANSWER THE QUESTION AGAIN. ONLY DETERMINE IF THE ANSWER TO THE QUESTION IS {choices}."""
 
 
-TEMPLATE_TO_INSTRUCTION = {
-    "continuous": CONTINUOUS_SCORE_INSTRUCTION,
-    "true_false_uncertain": cat_instruction(CHOICES_3_CLASS),
-    "true_false": cat_instruction(CHOICES_2_CLASS),
-}
+TEMPLATE_TO_INSTRUCTION = {"continuous": CONTINUOUS_SCORE_INSTRUCTION, "true_false_uncertain": cat_instruction(CHOICES_3_CLASS), "true_false": cat_instruction(CHOICES_2_CLASS), "likert": LIKERT_SCORE_INSTRUCTION}
 
 
 class LLMJudge(ResponseGenerator):
-    def __init__(
-        self,
-        llm: Any,
-        max_calls_per_min: Optional[int] = None,
-        scoring_template: str = "true_false_uncertain",
-        system_prompt: Optional[str] = None,
-        template_ques_ans: Optional[str] = None,
-        keywords_to_scores_dict: Optional[Dict] = None,
-    ) -> None:
+    def __init__(self, llm: Any, max_calls_per_min: Optional[int] = None, scoring_template: str = "true_false_uncertain", system_prompt: Optional[str] = None, template_ques_ans: Optional[str] = None, keywords_to_scores_dict: Optional[Dict] = None) -> None:
         """
-        Class for using LLM-as-a-judge to score proposed answers to questions based on correctness. Three off-the-shelf
-        templates are offered: incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), and continuous score (0 to 1).
+        Class for using LLM-as-a-judge to score proposed answers to questions based on correctness. Four off-the-shelf
+        templates are offered: incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), continuous score (0 to 1), and likert
+        scale score ( 1-5 scale, normalized to 0/0.25/0.5/0.75/1).
         Customization is also supported for user-provided classification-based judging templates. The correct/incorrect/uncertain
         template is based on Chen and Mueller(2023) :footcite:`chen2023quantifyinguncertaintyanswerslanguage`
 
@@ -88,10 +85,10 @@ class LLMJudge(ResponseGenerator):
             Specifies how many api calls to make per minute to avoid a rate limit error. By default, no
             limit is specified.
 
-        scoring_template : {'true_false_uncertain', 'true_false', 'continuous'}, default='true_false_uncertain'
-             specifies which off-the-shelf template to use, if any. Three off-the-shelf templates offered:
-             incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), and continuous score (0 to 1).
-             These templates are respectively specified as 'true_false_uncertain', 'true_false', and 'continuous'
+        scoring_template : {'true_false_uncertain', 'true_false', 'continuous', 'likert'}, default='true_false_uncertain'
+             specifies which off-the-shelf template to use, if any. Four off-the-shelf templates offered:
+             incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), continuous score (0 to 1), and likert scale score ( 1-5 scale, normalized to 0/0.25/0.5/0.75/1).
+             These templates are respectively specified as 'true_false_uncertain', 'true_false', 'continuous', and 'likert'
 
         system_prompt : str or None, default=None
             Optional argument for user to provide custom system prompt. If None, a default instruction
@@ -118,12 +115,10 @@ class LLMJudge(ResponseGenerator):
         self._validate_inputs()
         self.system_prompt = self.instruction if not system_prompt else system_prompt
 
-    async def judge_responses(
-        self, prompts: List[str], responses: List[str], retries: int = 5
-    ) -> Dict[str, Any]:
+    async def judge_responses(self, prompts: List[str], responses: List[str], retries: int = 5) -> Dict[str, Any]:
         """
         Judge responses for correctness.
-        
+
         Parameters
         ----------
         prompts : list of str
@@ -140,34 +135,19 @@ class LLMJudge(ResponseGenerator):
         Dict
             Dictionary containing Q/A concatenation prompts, judge responses, and judge scores
         """
-        concatenated_qa = [
-            self.template_ques_ans.format(prompts[i], responses[i])
-            for i in range(len(prompts))
-        ]
+        concatenated_qa = [self.template_ques_ans.format(prompts[i], responses[i]) for i in range(len(prompts))]
         print("Generating LLMJudge scores...")
         with contextlib.redirect_stdout(io.StringIO()):
             data = await self.generate_responses(prompts=concatenated_qa, count=1)
-        df = pd.DataFrame(
-            {
-                "judge_prompts": data["data"]["prompt"],
-                "judge_responses": data["data"]["response"],
-                "scores": self._extract_answers(responses=data["data"]["response"]),
-            }
-        )
+        df = pd.DataFrame({"judge_prompts": data["data"]["prompt"], "judge_responses": data["data"]["response"], "scores": self._extract_answers(responses=data["data"]["response"])})
         retry = 0
         while retry <= retries:
             retry += 1
             df_sub = df[pd.isna(df.scores)]
             if len(df_sub) > 0:
                 with contextlib.redirect_stdout(io.StringIO()):
-                    tmp = await self.generate_responses(
-                        prompts=list(df_sub.judge_prompts), 
-                        count=1, 
-                        system_prompt=self.system_prompt
-                    )
-                df.loc[df_sub.index, "scores"] = self._extract_answers(
-                    responses=tmp["data"]["response"]
-                )
+                    tmp = await self.generate_responses(prompts=list(df_sub.judge_prompts), count=1, system_prompt=self.system_prompt)
+                df.loc[df_sub.index, "scores"] = self._extract_answers(responses=tmp["data"]["response"])
         return {col: list(df[col]) for col in df.columns}
 
     def _default_template_ques_ans(self):
@@ -186,17 +166,28 @@ class LLMJudge(ResponseGenerator):
         """
         A method to extract score from an llm response based on provided score-keyword dictionary.
         """
+        if response in [None, np.nan]:
+            return np.nan
+
         if self.scoring_template == "continuous":
             score = "".join(c for c in response if c.isdigit())
             if len(score) > 0:
                 if 0.0 <= float(score) <= 100.0:
                     return float(score) / 100.0  # normalize
+
+        elif self.scoring_template == "likert":
+            response = response.strip().lower()
+            if len(response) == 1 and response.isdigit() and "1" <= response <= "5":
+                return (int(response) - 1) / 4.0  # Normalize to 0-1
+            for score, keywords in self.keywords_to_scores_dict.items():
+                if any(keyword in response for keyword in keywords):
+                    return score
+
         elif self.scoring_template in ["true_false_uncertain", "true_false", None]:
             response = response.lower()
             for score, keywords in self.keywords_to_scores_dict.items():
                 if any(keyword in response for keyword in keywords):
                     return score
-        return np.nan
 
     def _validate_inputs(self):
         """Validate inputs"""
@@ -205,19 +196,17 @@ class LLMJudge(ResponseGenerator):
                 if not isinstance(key, float):
                     raise ValueError("keys in keywords_to_scores_dict must be floats")
                 if not isinstance(val, list):
-                    raise ValueError(
-                        "values in keywords_to_scores_dict must be lists of strings"
-                    )
+                    raise ValueError("values in keywords_to_scores_dict must be lists of strings")
                 # TODO: validate value ordering for substrings of other keys
         if self.scoring_template in TEMPLATE_TO_INSTRUCTION:
             self.instruction = TEMPLATE_TO_INSTRUCTION[self.scoring_template]
             self.template_ques_ans = self._default_template_ques_ans()
-            self.keywords_to_scores_dict = {
-                round(k, 1): v for k, v in KEYWORDS_TO_SCORES_DICT.items()
-            }
+            # Choose the appropriate keywords dictionary based on template
+            if self.scoring_template == "likert":
+                self.keywords_to_scores_dict = {round(k, 2): v for k, v in LIKERT_TO_SCORES_DICT.items()}
+            else:
+                self.keywords_to_scores_dict = {round(k, 1): v for k, v in KEYWORDS_TO_SCORES_DICT.items()}
             if self.scoring_template == "true_false":  # drop uncertain option if binary
                 del self.keywords_to_scores_dict[0.5]
         else:
-            raise ValueError(
-                """If provided, scoring_template must be one of 'true_false_uncertain', 'true_false', 'continuous'. Otherwise, valid template_ques_ans and keywords_to_scores_dict must be provided"""
-            )
+            raise ValueError("""If provided, scoring_template must be one of 'true_false_uncertain', 'true_false', 'continuous', 'likert'. Otherwise, valid template_ques_ans and keywords_to_scores_dict must be provided""")

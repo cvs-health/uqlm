@@ -17,7 +17,7 @@ def math_postprocessor(input_string: str) -> str:
     """
     Parameters
     ----------
-    
+
     input_string: str
         The string from which the numerical answer will be extracted. Only the integer part is extracted.
 
