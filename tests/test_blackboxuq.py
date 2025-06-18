@@ -17,6 +17,7 @@ import json
 from uqlm.scorers import BlackBoxUQ
 from uqlm.scorers.baseclass.uncertainty import DEFAULT_BLACK_BOX_SCORERS
 from langchain_openai import AzureChatOpenAI
+import sys
 
 datafile_path = "tests/data/scorers/blackbox_results_file.json"
 with open(datafile_path, "r") as f:
@@ -69,11 +70,16 @@ async def test_bbuq(monkeypatch, mock_llm):
     uqe_default = BlackBoxUQ(llm=mock_llm, scorers=None)
     assert len(uqe_default.scorers) == len(DEFAULT_BLACK_BOX_SCORERS)
 
-    # Test initiating BertScorer and BLEURT Scorer
-    try:
-        # BLEURT scorer is optional dependecies, this line will raise import error for first time user and GA workflow
-        BlackBoxUQ(llm=mock_llm, scorers=["bert_score", "bleurt"])
-        # Developers will have BLEURT installed, so we raised ImportError to get coverage on 'except' block
-        raise (ImportError)
-    except ImportError:
-        pass
+    # Mock the entire bleurt module structure for testing
+    class  MockBLEURTScorer:
+        def __init__(self):
+            pass
+
+    # Create a proper module structure that matches the import path
+    class MockBlackBoxModule:
+        BLEURTScorer = MockBLEURTScorer
+    
+    # Directly modify sys.modules dictionary with the complete module structure
+    monkeypatch.setitem(sys.modules, "uqlm.black_box", MockBlackBoxModule())
+
+    BlackBoxUQ(llm=mock_llm, scorers=["bert_score", "bleurt"])
