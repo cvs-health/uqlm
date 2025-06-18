@@ -412,25 +412,19 @@ class UQEnsemble(UncertaintyQuantifier):
         dict
             Dictionary containing LLM configuration
         """
-        config = {
-            "class_name": llm.__class__.__name__,
-            "module": llm.__class__.__module__,
-        }
-        
+        config = {"class_name": llm.__class__.__name__, "module": llm.__class__.__module__}
+
         # Common LLM parameters to save
-        params_to_save = [
-            'model', 'model_name', 'temperature', 'max_tokens', 'max_output_tokens',
-            'top_p', 'top_k', 'frequency_penalty', 'presence_penalty'
-        ]
-        
+        params_to_save = ["model", "model_name", "temperature", "max_tokens", "max_output_tokens", "top_p", "top_k", "frequency_penalty", "presence_penalty"]
+
         for param in params_to_save:
             if hasattr(llm, param):
                 value = getattr(llm, param)
                 if value is not None:
                     config[param] = value
-        
+
         return config
-    
+
     @staticmethod
     def _load_llm_config(llm_config: Dict[str, Any]) -> BaseChatModel:
         """
@@ -446,16 +440,15 @@ class UQEnsemble(UncertaintyQuantifier):
         BaseChatModel
             Recreated LLM instance
         """
-        
+
         try:
             # Import the LLM class
-            module = import_module(llm_config['module'])
-            llm_class = getattr(module, llm_config['class_name'])
-            
+            module = import_module(llm_config["module"])
+            llm_class = getattr(module, llm_config["class_name"])
+
             # Extract parameters (exclude class info)
-            llm_params = {k: v for k, v in llm_config.items() 
-                         if k not in ['class_name', 'module']}
-            
+            llm_params = {k: v for k, v in llm_config.items() if k not in ["class_name", "module"]}
+
             # Create LLM instance
             return llm_class(**llm_params)
         except Exception as e:
@@ -470,12 +463,12 @@ class UQEnsemble(UncertaintyQuantifier):
         path : str
             Path where to save the configuration file (should end with .json)
         """
-        
+
         # Handle components and LLM scorers
         serializable_components = []
         llm_configs = {}
         llm_count = 0
-        
+
         for component in self.components:
             if isinstance(component, str):
                 serializable_components.append(component)
@@ -486,25 +479,19 @@ class UQEnsemble(UncertaintyQuantifier):
                 llm_configs[llm_key] = self._save_llm_config(component)
             else:
                 raise ValueError(f"Cannot serialize component: {component}")
-        
+
         # Save main LLM config if present
         main_llm_config = None
         if self.llm:
             main_llm_config = self._save_llm_config(self.llm)
-        
-        config = {
-            "weights": self.weights,
-            "thresh": self.thresh,
-            "components": serializable_components,
-            "llm_config": main_llm_config,
-            "llm_scorers": llm_configs
-        }
-        
-        with open(path, 'w') as f:
+
+        config = {"weights": self.weights, "thresh": self.thresh, "components": serializable_components, "llm_config": main_llm_config, "llm_scorers": llm_configs}
+
+        with open(path, "w") as f:
             json.dump(config, f, indent=2)
 
     @classmethod
-    def load_config(cls, path: str, llm: Optional[BaseChatModel] = None) -> 'UQEnsemble':
+    def load_config(cls, path: str, llm: Optional[BaseChatModel] = None) -> "UQEnsemble":
         """
         Load configuration and create UQEnsemble instance.
 
@@ -520,22 +507,22 @@ class UQEnsemble(UncertaintyQuantifier):
         UQEnsemble
             New UQEnsemble instance with loaded configuration
         """
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             config = json.load(f)
-        
+
         # Create temporary instance to access helper methods
         temp_instance = cls.__new__(cls)
-        
+
         # Recreate main LLM
-        if llm is None and config.get('llm_config'):
-            llm = temp_instance._load_llm_config(config['llm_config'])
-        
+        if llm is None and config.get("llm_config"):
+            llm = temp_instance._load_llm_config(config["llm_config"])
+
         # Recreate component scorers
         components = []
-        llm_scorers = config.get('llm_scorers', {})
-        
-        for component in config['components']:
-            if isinstance(component, str) and component.startswith('judge_'):
+        llm_scorers = config.get("llm_scorers", {})
+
+        for component in config["components"]:
+            if isinstance(component, str) and component.startswith("judge_"):
                 # This is an LLM scorer
                 if component in llm_scorers:
                     llm_scorer = temp_instance._load_llm_config(llm_scorers[component])
@@ -545,10 +532,5 @@ class UQEnsemble(UncertaintyQuantifier):
             else:
                 # This is a named scorer
                 components.append(component)
-        
-        return cls(
-            llm=llm,
-            scorers=components,
-            weights=config['weights'],
-            thresh=config['thresh']
-        )
+
+        return cls(llm=llm, scorers=components, weights=config["weights"], thresh=config["thresh"])
