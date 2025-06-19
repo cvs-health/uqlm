@@ -1,0 +1,39 @@
+{
+  "weights": [
+    0.25742720134368274,
+    0.128529861964413,
+    0.5747307678374962,
+    0.038540308857692746,
+    0.0007718599967152709
+  ],
+  "thresh": 0.96,
+  "components": [
+    "exact_match",
+    "noncontradiction",
+    "normalized_probability",
+    "judge_1",
+    "judge_2"
+  ],
+  "llm_config": {
+    "class_name": "ChatVertexAI",
+    "module": "langchain_google_vertexai.chat_models",
+    "model_name": "gemini-1.5-flash"
+  },
+  "llm_scorers": {
+    "judge_1": {
+      "class_name": "ChatVertexAI",
+      "module": "langchain_google_vertexai.chat_models",
+      "model_name": "gemini-1.5-flash"
+    },
+    "judge_2": {
+      "class_name": "AzureChatOpenAI",
+      "module": "langchain_openai.chat_models.azure",
+      "temperature": 0.9,
+      "openai_api_key_env": "AZURECHATOPENAI_OPENAI_API_KEY",
+      "azure_endpoint_env": "AZURECHATOPENAI_AZURE_ENDPOINT",
+      "deployment_name_env": "AZURECHATOPENAI_DEPLOYMENT_NAME",
+      "openai_api_type_env": "AZURECHATOPENAI_OPENAI_API_TYPE",
+      "openai_api_version_env": "AZURECHATOPENAI_OPENAI_API_VERSION"
+    }
+  }
+}
