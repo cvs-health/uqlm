@@ -540,3 +540,126 @@ class TestUQEnsembleConfig:
                 
         finally:
             os.unlink(config_path)
+            
+    def test_save_llm_config_sensitive_params_as_env_placeholders(self):
+        """Test _save_llm_config saves sensitive parameters as environment variable placeholders"""
+        config = UQEnsemble._save_llm_config(self.mock_llm)
+        
+        # Check that sensitive parameters are saved as env placeholders
+        assert "openai_api_key_env" in config
+        assert config["openai_api_key_env"] == "AZURECHATOPENAI_OPENAI_API_KEY"
+        assert "azure_endpoint_env" in config
+        assert config["azure_endpoint_env"] == "AZURECHATOPENAI_AZURE_ENDPOINT"
+        assert "deployment_name_env" in config
+        assert config["deployment_name_env"] == "AZURECHATOPENAI_DEPLOYMENT_NAME"
+        assert "openai_api_version_env" in config
+        assert config["openai_api_version_env"] == "AZURECHATOPENAI_OPENAI_API_VERSION"
+        
+        # Check that actual sensitive values are NOT saved
+        assert "openai_api_key" not in config
+        assert "azure_endpoint" not in config
+        assert "deployment_name" not in config
+        assert "openai_api_version" not in config
+        
+    def test_save_llm_config_no_sensitive_params(self):
+        """Test _save_llm_config handles LLMs without sensitive parameters"""
+        # Create a mock that doesn't have any of the sensitive parameters
+        mock_vertex_llm = MagicMock()
+        mock_vertex_llm.__class__.__name__ = "ChatVertexAI"
+        mock_vertex_llm.__class__.__module__ = "langchain_google_vertexai.chat_models"
+        mock_vertex_llm.model_name = "gemini-1.5-flash"
+        mock_vertex_llm.temperature = 0.8
+        
+        # Ensure it doesn't have any sensitive parameters
+        sensitive_params = ["api_key", "openai_api_key", "azure_ad_token", "azure_endpoint", "deployment_name", "api_version", "openai_api_type", "openai_api_version"]
+        for param in sensitive_params:
+            if hasattr(mock_vertex_llm, param):
+                delattr(mock_vertex_llm, param)
+        
+        config = UQEnsemble._save_llm_config(mock_vertex_llm)
+        
+        # Should not have any env placeholders
+        assert not any(k.endswith("_env") for k in config.keys())
+        
+    @patch.dict(os.environ, {"AZURECHATOPENAI_OPENAI_API_KEY": "test-key", "AZURECHATOPENAI_AZURE_ENDPOINT": "https://test.endpoint.com", "AZURECHATOPENAI_OPENAI_API_VERSION": "2024-05-01-preview"})
+    def test_load_llm_config_env_placeholders(self):
+        """Test _load_llm_config loads from environment variable placeholders"""
+        config = {
+            "class_name": "AzureChatOpenAI",
+            "module": "langchain_openai.chat_models.azure",
+            "temperature": 0.5,
+            "openai_api_key_env": "AZURECHATOPENAI_OPENAI_API_KEY",
+            "azure_endpoint_env": "AZURECHATOPENAI_AZURE_ENDPOINT",
+            "openai_api_version_env": "AZURECHATOPENAI_OPENAI_API_VERSION"
+        }
+        
+        recreated_llm = UQEnsemble._load_llm_config(config)
+        
+        assert isinstance(recreated_llm, AzureChatOpenAI)
+        # The actual values should be loaded from environment variables
+        assert hasattr(recreated_llm, 'openai_api_key')
+        assert hasattr(recreated_llm, 'azure_endpoint')
+        
+    @patch.dict(os.environ, {"AZURE_OPENAI_API_KEY": "fallback-key", "AZURE_OPENAI_ENDPOINT": "https://fallback.endpoint.com", "OPENAI_API_VERSION": "2024-05-01-preview"})
+    def test_load_llm_config_fallback_env_vars(self):
+        """Test _load_llm_config uses fallback environment variable names"""
+        config = {
+            "class_name": "AzureChatOpenAI",
+            "module": "langchain_openai.chat_models.azure",
+            "temperature": 0.5,
+            "openai_api_key_env": "AZURECHATOPENAI_OPENAI_API_KEY",  # This env var doesn't exist
+            "azure_endpoint_env": "AZURECHATOPENAI_AZURE_ENDPOINT"  # This env var doesn't exist
+        }
+        
+        recreated_llm = UQEnsemble._load_llm_config(config)
+        
+        assert isinstance(recreated_llm, AzureChatOpenAI)
+        # Should use fallback environment variables
+        assert hasattr(recreated_llm, 'openai_api_key')
+        assert hasattr(recreated_llm, 'azure_endpoint')
+        
+    def test_load_llm_config_missing_env_vars(self):
+        """Test _load_llm_config handles missing environment variables gracefully"""
+        config = {
+            "class_name": "AzureChatOpenAI",
+            "module": "langchain_openai.chat_models.azure",
+            "temperature": 0.5,
+            "openai_api_key_env": "NONEXISTENT_API_KEY",
+            "azure_endpoint_env": "NONEXISTENT_ENDPOINT"
+        }
+        
+        # Should raise ValueError due to missing required env vars
+        with pytest.raises(ValueError, match="Could not recreate LLM from config"):
+            UQEnsemble._load_llm_config(config)
+        
+    def test_load_config_mixed_env_and_regular_params(self):
+        """Test load_config with mix of environment variables and regular parameters"""
+        config = {
+            "weights": [1.0],
+            "thresh": 0.5,
+            "components": ["exact_match"],
+            "llm_config": {
+                "class_name": "AzureChatOpenAI",
+                "module": "langchain_openai.chat_models.azure",
+                "temperature": 0.5,  # Regular parameter
+                "max_tokens": 1024,   # Regular parameter
+                "api_key_env": "AZURECHATOPENAI_API_KEY",  # Environment variable
+                "azure_endpoint_env": "AZURECHATOPENAI_ENDPOINT"  # Environment variable
+            },
+            "llm_scorers": {}
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            config_path = f.name
+            json.dump(config, f)
+            
+        try:
+            with patch.dict(os.environ, {"AZURECHATOPENAI_API_KEY": "test-key", "AZURECHATOPENAI_ENDPOINT": "https://test.endpoint.com", "OPENAI_API_VERSION": "2024-05-01-preview"}):
+                ensemble = UQEnsemble.load_config(config_path)
+                
+                assert ensemble.llm is not None
+                assert ensemble.llm.temperature == 0.5
+                assert ensemble.llm.max_tokens == 1024
+                
+        finally:
+            os.unlink(config_path)
