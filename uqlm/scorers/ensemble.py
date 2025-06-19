@@ -479,7 +479,7 @@ class UQEnsemble(UncertaintyQuantifier):
                                 "deployment_name": ["AZURE_OPENAI_DEPLOYMENT_NAME"],
                                 "api_version": ["AZURE_OPENAI_API_VERSION"],
                                 "openai_api_version": ["AZURE_OPENAI_API_VERSION"],
-                                "openai_api_type": ["AZURE_OPENAI_API_TYPE"]
+                                "openai_api_type": ["AZURE_OPENAI_API_TYPE"],
                             }
                             if param_name in common_env_vars:
                                 for fallback_env in common_env_vars[param_name]:
@@ -544,7 +544,7 @@ class UQEnsemble(UncertaintyQuantifier):
         llm : BaseChatModel, optional
             LLM instance to use as main LLM. If None, uses saved config.
         env_file : str, optional
-            Path to .env file to load environment variables from. If None, 
+            Path to .env file to load environment variables from. If None,
             will try to find .env file automatically.
 
         Returns
@@ -560,8 +560,8 @@ class UQEnsemble(UncertaintyQuantifier):
                 raise ImportError("python-dotenv is required to load environment variables from file. Install with: pip install python-dotenv")
         else:
             # Try to load from default .env file
-            try:                
-                load_dotenv(find_dotenv())  
+            try:
+                load_dotenv(find_dotenv())
             except ImportError:
                 # python-dotenv not available, continue without loading .env
                 pass
@@ -598,7 +598,7 @@ class UQEnsemble(UncertaintyQuantifier):
     def setup_environment_variables(env_vars: Dict[str, str]) -> None:
         """
         Set up environment variables for LLM configuration.
-        
+
         Parameters
         ----------
         env_vars : dict
