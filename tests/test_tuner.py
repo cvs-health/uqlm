@@ -27,7 +27,7 @@ class TestTuner:
     def test_initialization(self):
         # Test default initialization
         tuner = Tuner()
-        assert list(tuner.objective_to_func.keys()) == ["fbeta_score", "accuracy_score", "balanced_accuracy_score", "log_loss", "roc_auc"]
+        assert list(tuner.objective_to_func.keys()) == ["fbeta_score", "accuracy_score", "balanced_accuracy_score", "log_loss", "roc_auc", "average_precision", "brier_score"]
 
     def test_tune_threshold(self):
         tuner = Tuner()

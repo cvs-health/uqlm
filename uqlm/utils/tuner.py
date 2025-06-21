@@ -18,7 +18,7 @@ from numpy.typing import ArrayLike
 import optuna
 from typing import Any, Dict, List, Tuple
 
-from sklearn.metrics import fbeta_score, balanced_accuracy_score, accuracy_score, roc_auc_score, log_loss
+from sklearn.metrics import fbeta_score, balanced_accuracy_score, accuracy_score, roc_auc_score, log_loss, average_precision_score, brier_score_loss
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
@@ -26,9 +26,9 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 class Tuner:
     def __init__(self) -> None:
         """
-        Class for tuning weights and threshold for UQEnsemble class.
+        Class for tuning weights and threshold for BSDetector and UQEnsemble
         """
-        self.objective_to_func = {"fbeta_score": self._f_score, "accuracy_score": accuracy_score, "balanced_accuracy_score": balanced_accuracy_score, "log_loss": log_loss, "roc_auc": roc_auc_score}
+        self.objective_to_func = {"fbeta_score": self._f_score, "accuracy_score": accuracy_score, "balanced_accuracy_score": balanced_accuracy_score, "log_loss": log_loss, "roc_auc": roc_auc_score, "average_precision": average_precision_score, "brier_score": brier_score_loss}
 
     def tune_threshold(self, y_scores: List[float], correct_indicators: List[bool], thresh_objective: str = "fbeta_score", fscore_beta: float = 1, bounds: Tuple[float, float] = (0, 1), step_size: int = 0.01) -> float:
         """
@@ -88,7 +88,7 @@ class Tuner:
             Objective function for optimization of weights. Must match thresh_objective if one of 'fbeta_score',
             'accuracy_score', 'balanced_accuracy_score'. If same as thresh_objective, joint optimization will be done.
 
-        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss'}, default='fbeta_score'
+        thresh_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score'}, default='fbeta_score'
             Objective function for threshold optimization via grid search.
 
         thresh_bounds : tuple of floats, default=(0,1)
