@@ -15,11 +15,8 @@
 from uqlm.utils.postprocessors import math_postprocessor
 
 
-TEST_DATA = {
-    "$3.134": "3",
-    "the answer is 12 cookies": "12",
-    "Hmmm /n perhaps 555.,7&333$5x": "555"
-}
+TEST_DATA = {"$3.134": "3", "the answer is 12 cookies": "12", "Hmmm /n perhaps 555.,7&333$5x": "555"}
+
 
 def test_math_postprocessor():
     for key in TEST_DATA:

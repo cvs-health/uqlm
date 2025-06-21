@@ -14,6 +14,7 @@
 
 
 import inspect
+import numpy as np
 from langchain_core.language_models.chat_models import BaseChatModel
 from typing import Any, Dict, List, Optional, Union, Tuple
 
@@ -100,14 +101,7 @@ class UQEnsemble(UncertaintyQuantifier):
         verbose : bool, default=False
             Specifies whether to print the index of response currently being scored.
         """
-        super().__init__(
-            llm=llm,
-            device=device,
-            system_prompt=system_prompt,
-            max_calls_per_min=max_calls_per_min,
-            use_n_param=use_n_param,
-            postprocessor=postprocessor,
-        )
+        super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor)
         self.nli_model_name = nli_model_name
         self.thresh = thresh
         self.weights = weights
@@ -119,11 +113,7 @@ class UQEnsemble(UncertaintyQuantifier):
         self._validate_components(scorers)
         self._validate_weights()
 
-    async def generate_and_score(
-        self,
-        prompts: List[str],
-        num_responses: int = 5,
-    ):
+    async def generate_and_score(self, prompts: List[str], num_responses: int = 5):
         """
         Generate LLM responses from provided prompts and compute confidence scores.
 
@@ -154,20 +144,9 @@ class UQEnsemble(UncertaintyQuantifier):
         else:
             sampled_responses = None
 
-        return await self.score(
-            prompts=prompts,
-            responses=responses,
-            sampled_responses=sampled_responses,
-            logprobs_results=self.logprobs,
-        )
+        return await self.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=self.logprobs)
 
-    async def score(
-        self,
-        prompts: List[str],
-        responses: List[str],
-        sampled_responses: Optional[List[List[str]]] = None,
-        logprobs_results: Optional[List[List[Dict[str, Any]]]] = None,
-    ):
+    async def score(self, prompts: List[str], responses: List[str], sampled_responses: Optional[List[List[str]]] = None, logprobs_results: Optional[List[List[Dict[str, Any]]]] = None, num_responses: int = 5):
         """
         Generate LLM responses from provided prompts and compute confidence scores.
 
@@ -186,6 +165,9 @@ class UQEnsemble(UncertaintyQuantifier):
         logprobs_results : list of logprobs_result, default=None
             List of lists of dictionaries, each returned by BaseChatModel.agenerate. Must be provided if using white box scorers.
 
+        num_responses : int, default=5
+            The number of sampled responses used to compute consistency. Not value will not be used if sampled_responses is provided
+
         Returns
         -------
         UQResult
@@ -193,39 +175,28 @@ class UQEnsemble(UncertaintyQuantifier):
             metadata
         """
         if self.black_box_components and not sampled_responses:
-            raise ValueError(
-                "sampled_responses must be provided if using black-box scorers"
-            )
+            raise ValueError("sampled_responses must be provided if using black-box scorers")
         if self.white_box_components and not logprobs_results:
-            raise ValueError(
-                "logprobs_results must be provided if using white-box scorers"
-            )
+            raise ValueError("logprobs_results must be provided if using white-box scorers")
 
         self.prompts = prompts
         self.responses = responses
         self.sampled_responses = sampled_responses
-        self.num_responses = len(sampled_responses[0])
+        self.num_responses = num_responses if not sampled_responses else len(sampled_responses[0])
         if not logprobs_results:
             self.logprobs = [None] * len(prompts)
             self.multiple_logprobs = [[None] * self.num_responses] * len(prompts)
 
         if self.black_box_components:
-            black_box_results = self.black_box_object.score(
-                responses=self.responses,
-                sampled_responses=self.sampled_responses,
-            )
+            black_box_results = self.black_box_object.score(responses=self.responses, sampled_responses=self.sampled_responses)
             if self.use_best:
                 self._update_best(black_box_results.data["responses"])
 
         if self.white_box_components:
-            white_box_results = self.white_box_object.score(
-                logprobs_results=self.logprobs
-            )
+            white_box_results = self.white_box_object.score(logprobs_results=self.logprobs)
 
         if self.judges:
-            judge_results = await self.judges_object.score(
-                prompts=prompts, responses=self.responses
-            )
+            judge_results = await self.judges_object.score(prompts=prompts, responses=self.responses)
         self.component_scores = {k: [] for k in self.component_names}
 
         for i, component in enumerate(self.component_scores):
@@ -238,16 +209,7 @@ class UQEnsemble(UncertaintyQuantifier):
 
         return self._construct_result()
 
-    def tune_from_graded(
-        self,
-        correct_indicators: List[bool],
-        weights_objective: str = "roc_auc",
-        thresh_bounds: Tuple[float, float] = (0, 1),
-        thresh_objective: str = "fbeta_score",
-        n_trials: int = 100,
-        step_size: float = 0.01,
-        fscore_beta: float = 1,
-    ) -> UQResult:
+    def tune_from_graded(self, correct_indicators: List[bool], weights_objective: str = "roc_auc", thresh_bounds: Tuple[float, float] = (0, 1), thresh_objective: str = "fbeta_score", n_trials: int = 100, step_size: float = 0.01, fscore_beta: float = 1) -> UQResult:
         """
         Tunes weights and threshold parameters on a set of user-provided graded responses.
 
@@ -283,33 +245,12 @@ class UQEnsemble(UncertaintyQuantifier):
         evaluate method must be run prior to running tune_params method
         """
         score_lists = list(self.component_scores.values())
-        optimal_params = self.tuner.tune_params(
-            score_lists=score_lists,
-            correct_indicators=correct_indicators,
-            weights_objective=weights_objective,
-            thresh_bounds=thresh_bounds,
-            thresh_objective=thresh_objective,
-            n_trials=n_trials,
-            step_size=step_size,
-            fscore_beta=fscore_beta,
-        )
+        optimal_params = self.tuner.tune_params(score_lists=score_lists, correct_indicators=correct_indicators, weights_objective=weights_objective, thresh_bounds=thresh_bounds, thresh_objective=thresh_objective, n_trials=n_trials, step_size=step_size, fscore_beta=fscore_beta)
         self.weights = optimal_params["weights"]
         self.thresh = optimal_params["thresh"]
         return self._construct_result()
 
-    async def tune(
-        self,
-        prompts: List[str],
-        ground_truth_answers: List[str],
-        grader_function: Optional[Any] = None,
-        num_responses: int = 5,
-        weights_objective: str = "roc_auc",
-        thresh_bounds: Tuple[float, float] = (0, 1),
-        thresh_objective: str = "fbeta_score",
-        n_trials: int = 100,
-        step_size: float = 0.01,
-        fscore_beta: float = 1,
-    ) -> UQResult:
+    async def tune(self, prompts: List[str], ground_truth_answers: List[str], grader_function: Optional[Any] = None, num_responses: int = 5, weights_objective: str = "roc_auc", thresh_bounds: Tuple[float, float] = (0, 1), thresh_objective: str = "fbeta_score", n_trials: int = 100, step_size: float = 0.01, fscore_beta: float = 1) -> UQResult:
         """
         Generate responses from provided prompts, grade responses with provided grader function, and tune ensemble weights.
 
@@ -355,63 +296,28 @@ class UQEnsemble(UncertaintyQuantifier):
         await self.generate_and_score(prompts=prompts, num_responses=num_responses)
         print("Grading responses with grader function...")
         if grader_function:
-            correct_indicators = [
-                grader_function(r, a)
-                for r, a in zip(self.responses, ground_truth_answers)
-            ]
+            correct_indicators = [grader_function(r, a) for r, a in zip(self.responses, ground_truth_answers)]
         else:
             self._construct_hhem()  # use vectara hhem if no grader is provided
             pairs = [(a, r) for a, r in zip(ground_truth_answers, self.responses)]
             halluc_scores = self.hhem.predict(pairs)
             correct_indicators = [(s > 0.5) * 1 for s in halluc_scores]
 
-        tuned_result = self.tune_from_graded(
-            correct_indicators=correct_indicators,
-            weights_objective=weights_objective,
-            thresh_bounds=thresh_bounds,
-            thresh_objective=thresh_objective,
-            n_trials=n_trials,
-            step_size=step_size,
-            fscore_beta=fscore_beta,
-        )
+        tuned_result = self.tune_from_graded(correct_indicators=correct_indicators, weights_objective=weights_objective, thresh_bounds=thresh_bounds, thresh_objective=thresh_objective, n_trials=n_trials, step_size=step_size, fscore_beta=fscore_beta)
         return tuned_result
 
     def _construct_result(self) -> Any:
         """Constructs UQResult from dictionary"""
-        data = {
-            "prompts": self.prompts,
-            "responses": self.responses,
-            "sampled_responses": self.sampled_responses
-            if self.sampled_responses
-            else [None] * len(self.responses),
-        }
-        data["ensemble_scores"] = self._compute_ensemble_scores(
-            score_dict=self.component_scores, weights=self.weights
-        )
+        data = {"prompts": self.prompts, "responses": self.responses, "sampled_responses": self.sampled_responses if self.sampled_responses else [None] * len(self.responses)}
+        data["ensemble_scores"] = self._compute_ensemble_scores(score_dict=self.component_scores, weights=self.weights)
         data.update(self.component_scores)
-        result = {
-            "data": data,
-            "metadata": {
-                "temperature": None if not self.llm else self.llm.temperature,
-                "sampling_temperature": None
-                if not self.sampling_temperature
-                else self.sampling_temperature,
-                "num_responses": self.num_responses,
-                "thresh": self.thresh,
-                "weights": self.weights,
-                "logprobs": self.logprobs,
-            },
-        }
+        result = {"data": data, "metadata": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "thresh": self.thresh, "weights": self.weights, "logprobs": self.logprobs}}
         return UQResult(result)
 
-    def _compute_ensemble_scores(
-        self, score_dict: Dict[str, List[float]], weights: List[float]
-    ):
+    def _compute_ensemble_scores(self, score_dict: Dict[str, List[float]], weights: List[float]):
         """Compute dot product of component scores and weights"""
-        score_lists = [score_dict[key] for key in score_dict.keys()]
-        return self.tuner._compute_ensemble_scores(
-            weights=weights, score_lists=score_lists
-        )
+        score_lists = [np.array(score_dict[key]) for key in score_dict.keys()]
+        return self.tuner._compute_ensemble_scores(weights=np.array(weights), score_lists=score_lists).tolist()
 
     def _validate_components(self, components: List[Any]) -> None:
         "Validate components and construct applicable scorer attributes"
@@ -449,13 +355,7 @@ class UQEnsemble(UncertaintyQuantifier):
                         """
                     )
         if self.black_box_components:
-            self.black_box_object = BlackBoxUQ(
-                scorers=self.black_box_components,
-                device=self.device,
-                nli_model_name=self.nli_model_name,
-                max_length=self.max_length,
-                use_best=self.use_best,
-            )
+            self.black_box_object = BlackBoxUQ(scorers=self.black_box_components, device=self.device, nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=self.use_best)
         if self.white_box_components:
             self.white_box_object = WhiteBoxUQ()
         if self.judges:
@@ -465,23 +365,21 @@ class UQEnsemble(UncertaintyQuantifier):
     def _validate_weights(self) -> None:
         """Validate ensemble weights"""
         if self.weights:
+            if len(self.weights) != len(self.components):
+                raise ValueError("Must have same number of weights as components")
             self.weights = self._normalize_weights(self.weights)
         else:
             self.weights = [1 / len(self.components)] * len(self.components)
-        if len(self.weights) != len(self.components):
-            raise ValueError("Must have same number of weights as components")
 
     def _normalize_weights(self, weights: List[float]) -> List[float]:
         """Normalize weights to sum to 1."""
         weights = weights if weights else [1] * len(self.components)
-        return self.tuner._normalize_weights(weights)
+        return list(self.tuner._normalize_weights(weights))
 
     def _construct_hhem(self):
         from transformers import AutoModelForSequenceClassification
 
-        self.hhem = AutoModelForSequenceClassification.from_pretrained(
-            "vectara/hallucination_evaluation_model", trust_remote_code=True
-        )
+        self.hhem = AutoModelForSequenceClassification.from_pretrained("vectara/hallucination_evaluation_model", trust_remote_code=True)
 
     @staticmethod
     def _validate_grader(grader_function: Any) -> bool:
@@ -492,9 +390,7 @@ class UQEnsemble(UncertaintyQuantifier):
             sig = inspect.signature(grader_function)
             params = sig.parameters
             if "response" not in params or "answer" not in params:
-                raise ValueError(
-                    "grader_function must have 'resposne' and 'answer' parameters"
-                )
+                raise ValueError("grader_function must have 'response' and 'answer' parameters")
             check_val = grader_function("a", "b")
             if not isinstance(check_val, bool):
                 raise ValueError("grader_function must return boolean")

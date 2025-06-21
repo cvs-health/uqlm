@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import asyncio
 import os
 import json
 from dotenv import load_dotenv, find_dotenv
@@ -24,18 +24,10 @@ from langchain_openai import AzureChatOpenAI
 
 async def main():
     # svamp dataset to be used as a prod dataset
-    svamp = (
-        load_example_dataset("svamp")
-        .rename(columns={"question_concat": "question", "Answer": "answer"})[
-            ["question", "answer"]
-        ]
-        .tail(5)
-    )
+    svamp = load_example_dataset("svamp").rename(columns={"question_concat": "question", "Answer": "answer"})[["question", "answer"]].tail(5)
 
     # Define prompts
-    MATH_INSTRUCTION = (
-        "When you solve this math problem only return the answer with no additional text.\n"
-    )
+    MATH_INSTRUCTION = "When you solve this math problem only return the answer with no additional text.\n"
     prompts = [MATH_INSTRUCTION + prompt for prompt in svamp.question]
 
     # User to populate .env file with API credentials
@@ -61,7 +53,6 @@ async def main():
         """Helper function to strip non-numeric characters"""
         return "".join(c for c in s if c.isdigit())
 
-
     components = [
         "exact_match",  # Measures proportion of candidate responses that match original response
         "noncontradiction",  # mean non-contradiction probability between candidate responses and original response
@@ -78,10 +69,38 @@ async def main():
     )
 
     results = await uqe.generate_and_score(prompts=prompts, num_responses=5)
+    store_results = {"ensemble1": results.to_dict()}
+
+    uqe = UQEnsemble(
+        llm=gpt,
+        max_calls_per_min=250,
+        postprocessor=math_postprocessor,
+        use_n_param=False,  # Set True if using AzureChatOpenAI for faster generation
+    )
+
+    results = await uqe.generate_and_score(prompts=prompts, num_responses=5)
+    store_results["bsdetector"] = results.to_dict()
+
+    components1 = [
+        "min_probability",  # measures semantic volatility
+        gpt,  # Using same LLM as external judge for testing
+    ]
+
+    uqe1 = UQEnsemble(
+        llm=gpt,
+        max_calls_per_min=250,
+        postprocessor=math_postprocessor,
+        use_n_param=False,  # Set True if using AzureChatOpenAI for faster generation
+        scorers=components1,
+    )
+
+    results1 = await uqe1.generate_and_score(prompts=prompts)
+    store_results["ensemble2"] = results1.to_dict()
 
     results_file = "ensemble_results_file.json"
     with open(results_file, "w") as f:
-        json.dump(results.to_dict(), f)
+        json.dump(store_results, f)
 
-if __name__ == '__main__':
-    main()
+
+if __name__ == "__main__":
+    asyncio.run(main())

@@ -24,7 +24,7 @@ from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
 class CosineScorer(SimilarityScorer):
     def __init__(self, transformer: str = "all-MiniLM-L6-v2") -> None:
-        """Compute cosine similarity betwee original and candidate responses. 
+        """Compute cosine similarity betwee original and candidate responses.
 
         Parameters
         ----------
@@ -36,9 +36,7 @@ class CosineScorer(SimilarityScorer):
         self.transformer = transformer
         self.model = SentenceTransformer(f"sentence-transformers/{transformer}")
 
-    def evaluate(
-        self, responses: List[str], sampled_responses: List[List[str]]
-    ) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]]) -> List[float]:
         """
         This method computes model-based text similarity metrics values for the provided pairs of texts.
 
@@ -55,10 +53,7 @@ class CosineScorer(SimilarityScorer):
         List of float
             Mean cosine similarity values
         """
-        return [
-            self._compute_score(response=responses[i], candidates=sampled_responses[i])
-            for i in range(len(responses))
-        ]
+        return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in range(len(responses))]
 
     def _get_embeddings(self, texts1: List[str], texts2: List[str]) -> Tuple[Any, Any]:
         """
@@ -76,9 +71,7 @@ class CosineScorer(SimilarityScorer):
         embeddings1, embeddings2 = self._get_embeddings(duplicate_responses, candidates)
         cosine_list = []
         for i in range(0, len(embeddings1)):
-            cosine_i = np.dot(embeddings1[i], embeddings2[i]) / (
-                norm(embeddings1[i]) * norm(embeddings2[i])
-            )
+            cosine_i = np.dot(embeddings1[i], embeddings2[i]) / (norm(embeddings1[i]) * norm(embeddings2[i]))
             norm_cosine_i = 0.5 + cosine_i / 2
             cosine_list.append(norm_cosine_i)
         return np.mean(cosine_list)

@@ -33,22 +33,16 @@ async def main():
     DEPLOYMENT_NAME = os.getenv("DEPLOYMENT_NAME")
 
     llm = AzureChatOpenAI(
-    deployment_name=DEPLOYMENT_NAME,
-    openai_api_key=API_KEY,
-    azure_endpoint=API_BASE,
-    openai_api_type=API_TYPE,
-    openai_api_version=API_VERSION,
-    temperature=1,  # User to set temperature
-)
-
-    # svamp dataset to be used as a prod dataset
-    svamp = (
-        load_example_dataset("gsm8k")
-        .rename(columns={"question_concat": "question", "Answer": "answer"})[
-            ["question", "answer"]
-        ].tail(5)
+        deployment_name=DEPLOYMENT_NAME,
+        openai_api_key=API_KEY,
+        azure_endpoint=API_BASE,
+        openai_api_type=API_TYPE,
+        openai_api_version=API_VERSION,
+        temperature=1,  # User to set temperature
     )
 
+    # svamp dataset to be used as a prod dataset
+    svamp = load_example_dataset("gsm8k").rename(columns={"question_concat": "question", "Answer": "answer"})[["question", "answer"]].tail(5)
 
     # Define prompts
     MATH_INSTRUCTION = "Solve the math problem, but return only the numerical answer.\n"
@@ -62,5 +56,6 @@ async def main():
     with open(results_file, "w") as f:
         json.dump(results.to_dict(), f)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

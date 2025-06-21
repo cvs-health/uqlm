@@ -24,18 +24,10 @@ from langchain_openai import AzureChatOpenAI
 
 async def main():
     # svamp dataset to be used as a prod dataset
-    svamp = (
-        load_example_dataset("svamp")
-        .rename(columns={"question_concat": "question", "Answer": "answer"})[
-            ["question", "answer"]
-        ]
-        .tail(5)
-    )
+    svamp = load_example_dataset("svamp").rename(columns={"question_concat": "question", "Answer": "answer"})[["question", "answer"]].tail(5)
 
     # Define prompts
-    MATH_INSTRUCTION = (
-        "When you solve this math problem only return the answer with no additional text.\n"
-    )
+    MATH_INSTRUCTION = "When you solve this math problem only return the answer with no additional text.\n"
     prompts = [MATH_INSTRUCTION + prompt for prompt in svamp.question]
 
     # User to populate .env file with API credentials
@@ -65,6 +57,6 @@ async def main():
     with open(results_file, "w") as f:
         json.dump(results.to_dict(), f)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
- 

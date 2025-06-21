@@ -23,12 +23,7 @@ from langchain_core.messages.system import SystemMessage
 
 
 class ResponseGenerator:
-    def __init__(
-        self,
-        llm: BaseChatModel = None,
-        max_calls_per_min: Optional[int] = None,
-        use_n_param: bool = False,
-    ) -> None:
+    def __init__(self, llm: BaseChatModel = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False) -> None:
         """
         Class for generating data from a provided set of prompts
 
@@ -49,12 +44,7 @@ class ResponseGenerator:
         self.use_n_param = use_n_param
         self.max_calls_per_min = max_calls_per_min
 
-    async def generate_responses(
-        self,
-        prompts: List[str],
-        system_prompt: str = "You are a helpful assistant.",
-        count: int = 1,
-    ) -> Dict[str, Any]:
+    async def generate_responses(self, prompts: List[str], system_prompt: str = "You are a helpful assistant.", count: int = 1) -> Dict[str, Any]:
         """
         Generates evaluation dataset from a provided set of prompts. For each prompt,
         `self.count` responses are generated.
@@ -96,57 +86,31 @@ class ResponseGenerator:
         assert isinstance(self.llm, BaseChatModel), """
             llm must be an instance of langchain_core.language_models.chat_models.BaseChatModel
         """
-        assert all(isinstance(prompt, str) for prompt in prompts), (
-            "If using custom prompts, please ensure `prompts` is of type list[str]"
-        )
+        assert all(isinstance(prompt, str) for prompt in prompts), "If using custom prompts, please ensure `prompts` is of type list[str]"
         print(f"Generating {count} responses per prompt...")
         if self.llm.temperature == 0:
             assert count == 1, "temperature must be greater than 0 if count > 1"
         self._update_count(count)
         self.system_message = SystemMessage(system_prompt)
 
-        generations, duplicated_prompts = await self._generate_in_batches(
-            prompts=prompts
-        )
+        generations, duplicated_prompts = await self._generate_in_batches(prompts=prompts)
 
         responses = generations["responses"]
         logprobs = generations["logprobs"]
 
         print("Responses successfully generated!")
-        return {
-            "data": {
-                "prompt": self._enforce_strings(duplicated_prompts),
-                "response": self._enforce_strings(responses),
-            },
-            "metadata": {
-                "system_prompt": system_prompt,
-                "temperature": self.llm.temperature,
-                "count": self.count,
-                "logprobs": logprobs,
-            },
-        }
+        return {"data": {"prompt": self._enforce_strings(duplicated_prompts), "response": self._enforce_strings(responses)}, "metadata": {"system_prompt": system_prompt, "temperature": self.llm.temperature, "count": self.count, "logprobs": logprobs}}
 
-    def _create_tasks(
-        self,
-        prompts: List[str],
-    ) -> Tuple[List[Any], List[str]]:
+    def _create_tasks(self, prompts: List[str]) -> Tuple[List[Any], List[str]]:
         """
         Creates a list of async tasks and returns duplicated prompt list
         with each prompt duplicated `count` times
         """
-        duplicated_prompts = [
-            prompt for prompt, i in itertools.product(prompts, range(self.count))
-        ]
+        duplicated_prompts = [prompt for prompt, i in itertools.product(prompts, range(self.count))]
         if self.use_n_param:
-            tasks = [
-                self._async_api_call(prompt=prompt, count=self.count)
-                for prompt in prompts
-            ]
+            tasks = [self._async_api_call(prompt=prompt, count=self.count) for prompt in prompts]
         else:
-            tasks = [
-                self._async_api_call(prompt=prompt, count=1)
-                for prompt in duplicated_prompts
-            ]
+            tasks = [self._async_api_call(prompt=prompt, count=1) for prompt in duplicated_prompts]
         return tasks, duplicated_prompts
 
     def _update_count(self, count: int) -> None:
@@ -155,16 +119,9 @@ class ResponseGenerator:
         if self.use_n_param:
             self.llm.n = count
 
-    async def _generate_in_batches(
-        self,
-        prompts: List[str],
-    ) -> Tuple[List[str], List[str]]:
+    async def _generate_in_batches(self, prompts: List[str]) -> Tuple[List[str], List[str]]:
         """Executes async IO with langchain in batches to avoid rate limit error"""
-        batch_size = (
-            len(prompts)
-            if not self.max_calls_per_min
-            else self.max_calls_per_min // self.count
-        )
+        batch_size = len(prompts) if not self.max_calls_per_min else self.max_calls_per_min // self.count
         prompts_partition = self._split(prompts, batch_size)
 
         duplicated_prompts = []
@@ -199,19 +156,10 @@ class ResponseGenerator:
         if hasattr(self.llm, "logprobs"):
             if self.llm.logprobs:
                 if "logprobs_result" in result.generations[0][0].generation_info:
-                    logprobs = [
-                            result.generations[0][i].generation_info["logprobs_result"]
-                            for i in range(count)
-                        ]
+                    logprobs = [result.generations[0][i].generation_info["logprobs_result"] for i in range(count)]
                 elif "logprobs" in result.generations[0][0].generation_info:
-                    logprobs = [
-                            result.generations[0][i].generation_info["logprobs"]["content"]
-                            for i in range(count)
-                        ]    
-        return {
-            "logprobs": logprobs,
-            "responses": [result.generations[0][i].text for i in range(count)],
-        }
+                    logprobs = [result.generations[0][i].generation_info["logprobs"]["content"] for i in range(count)]
+        return {"logprobs": logprobs, "responses": [result.generations[0][i].text for i in range(count)]}
 
     @staticmethod
     def _enforce_strings(texts: List[Any]) -> List[str]:

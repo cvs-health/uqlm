@@ -23,14 +23,12 @@ from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 class BertScorer(SimilarityScorer):
     def __init__(self) -> None:
         """
-        Class for computing BERTScore values between original responses and candidates. For more on 
+        Class for computing BERTScore values between original responses and candidates. For more on
         BERTScore, refer to Zhang et al.(2020) :footcite:`zhang2020bertscoreevaluatingtextgeneration`.
         """
         pass
 
-    def evaluate(
-        self, responses: List[str], sampled_responses: List[List[str]]
-    ) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]]) -> List[float]:
         """
         This method computes model-based text similarity metrics values for the provided pairs of texts.
 
@@ -47,16 +45,11 @@ class BertScorer(SimilarityScorer):
         List of float
             Mean BertScore values
         """
-        return [
-            self._compute_score(response=responses[i], candidates=sampled_responses[i])
-            for i in range(len(responses))
-        ]
+        return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in range(len(responses))]
 
     @staticmethod
     def _compute_score(response: str, candidates: List[str]) -> float:
         """Compute mean BERTScore between a response and candidate responses"""
         duplicated_response = [response] * len(candidates)
-        P, R, F1 = bert_score.score(
-            list(duplicated_response), refs=list(candidates), lang="en"
-        )
+        P, R, F1 = bert_score.score(list(duplicated_response), refs=list(candidates), lang="en")
         return np.mean([float(f) for f in F1])
