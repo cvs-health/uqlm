@@ -26,7 +26,7 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 class Tuner:
     def __init__(self) -> None:
         """
-        Class for tuning weights and threshold for BSDetector and UQEnsemble
+        Class for tuning weights and threshold for UQEnsemble
         """
         self.objective_to_func = {"fbeta_score": self._f_score, "accuracy_score": accuracy_score, "balanced_accuracy_score": balanced_accuracy_score, "log_loss": log_loss, "roc_auc": roc_auc_score, "average_precision": average_precision_score, "brier_score": brier_score_loss}
 
