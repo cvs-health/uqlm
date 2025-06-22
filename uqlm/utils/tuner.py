@@ -28,7 +28,7 @@ class Tuner:
         """
         Class for tuning weights and threshold for BSDetector and UQEnsemble
         """
-        self.objective_to_func = {"fbeta_score": self._f_score, "accuracy_score": accuracy_score, "balanced_accuracy_score": balanced_accuracy_score, "log_loss": log_loss, "roc_auc": roc_auc_score, "average_precision": average_precision_score, "brier_score": brier_score_loss}
+        self.objective_to_func = {"fbeta_score": self._f_score, "accuracy_score": accuracy_score, "balanced_accuracy_score": balanced_accuracy_score, "log_loss": log_loss, "roc_auc": roc_auc_score, "average_precision": average_precision_score, "brier_score": self._brier_score}
 
     def tune_threshold(self, y_scores: List[float], correct_indicators: List[bool], thresh_objective: str = "fbeta_score", fscore_beta: float = 1, bounds: Tuple[float, float] = (0, 1), step_size: int = 0.01) -> float:
         """
@@ -270,3 +270,8 @@ class Tuner:
         """Helper function to ensure weights sum to 1."""
         weights_array = np.asarray(weights)
         return weights_array / np.sum(weights_array)
+
+    @staticmethod
+    def _brier_score(y_true, y_score):
+        """Computes brier score loss"""
+        return brier_score_loss(y_true=y_true, y_proba=y_score)

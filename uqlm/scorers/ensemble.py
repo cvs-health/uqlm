@@ -271,7 +271,7 @@ class UQEnsemble(UncertaintyQuantifier):
 
         weights_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss', 'average_precision', 'brier_score'}, default='roc_auc'
             Objective function for weight optimization. Must match thresh_objective if one of 'fbeta_score',
-            'accuracy_score', 'balanced_accuracy_score', 'average_precision'. If same as thresh_objective, joint optimization will be done.
+            'accuracy_score', 'balanced_accuracy_score'. If same as thresh_objective, joint optimization will be done.
 
         thresh_bounds : tuple of floats, default=(0,1)
             Bounds to search for threshold
