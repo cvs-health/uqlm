@@ -28,7 +28,7 @@ class Tuner:
         """
         Class for tuning weights and threshold for BSDetector and UQEnsemble
         """
-        self.objective_to_func = {"fbeta_score": self._f_score, "accuracy_score": accuracy_score, "balanced_accuracy_score": balanced_accuracy_score, "log_loss": log_loss, "roc_auc": roc_auc_score, "average_precision": average_precision_score, "brier_score": self._brier_score}
+        self.objective_to_func = {"fbeta_score": self._f_score, "accuracy_score": accuracy_score, "balanced_accuracy_score": balanced_accuracy_score, "log_loss": log_loss, "roc_auc": roc_auc_score, "average_precision": average_precision_score, "brier_score": brier_score_loss}
 
     def tune_threshold(self, y_scores: List[float], correct_indicators: List[bool], thresh_objective: str = "fbeta_score", fscore_beta: float = 1, bounds: Tuple[float, float] = (0, 1), step_size: int = 0.01) -> float:
         """
@@ -42,7 +42,7 @@ class Tuner:
         correct_indicators : list of bool
             A list of boolean indicators of whether self.original_responses are correct.
 
-        thresh_objective: {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss'}, default='fbeta_score'
+        thresh_objective: {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score'}, default='fbeta_score'
             Objective function for threshold optimization via grid search.
 
         fscore_beta : float, default=1
@@ -84,7 +84,7 @@ class Tuner:
         correct_indicators : list of bool
             A list of boolean indicators of whether self.original_responses are correct.
 
-        weights_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss'}, default='roc_auc'
+        weights_objective : {'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc', 'log_loss', 'average_precision', 'brier_score'}, default='roc_auc'
             Objective function for optimization of weights. Must match thresh_objective if one of 'fbeta_score',
             'accuracy_score', 'balanced_accuracy_score'. If same as thresh_objective, joint optimization will be done.
 
@@ -118,9 +118,8 @@ class Tuner:
         self.step_size = step_size
         self.fscore_beta = fscore_beta
         self.optimize_jointly = weights_objective == thresh_objective
-        self.obj_multiplier = 1 if weights_objective == "logloss" else -1
+        self.obj_multiplier = 1 if weights_objective in ["logloss", "brier_score"] else -1
 
-        # Validate inputs are correct
         self._validate_tuning_inputs()
         self.weights_tuning_objective = self.objective_to_func[self.weights_objective]
         self.threshold_tuning_objective = self.objective_to_func[self.thresh_objective]
@@ -171,7 +170,7 @@ class Tuner:
         if self.weights_objective not in self.objective_to_func:
             raise ValueError(
                 """
-                Only 'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc_score', and 'log_loss' are supported for tuning objectives.
+                Only 'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc_score', 'log_loss', 'average_precision', and 'brier_score' are supported for tuning objectives.
                 """
             )
         if self.thresh_objective not in ["fbeta_score", "accuracy_score", "balanced_accuracy_score"]:
@@ -214,7 +213,8 @@ class Tuner:
         adjusted_weights = weights[:, None] * valid_mask
         normalized_weights = adjusted_weights / np.sum(adjusted_weights, axis=0, keepdims=True)
         stacked_nonan = np.nan_to_num(score_lists, nan=0.0)
-        return np.sum(stacked_nonan * normalized_weights, axis=0)
+        ensemble_scores = np.sum(stacked_nonan * normalized_weights, axis=0)
+        return np.clip(ensemble_scores, 0, 1)
 
     def _grid_search_weights_thresh(self):
         """
@@ -270,8 +270,3 @@ class Tuner:
         """Helper function to ensure weights sum to 1."""
         weights_array = np.asarray(weights)
         return weights_array / np.sum(weights_array)
-
-    @staticmethod
-    def _brier_score(y_true, y_score):
-        """Computes brier score loss"""
-        return brier_score_loss(y_true=y_true, y_proba=y_score)
