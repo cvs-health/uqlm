@@ -18,5 +18,6 @@ from uqlm.utils.dataloader import load_dataset, load_example_dataset
 from uqlm.utils.postprocessors import math_postprocessor
 from uqlm.utils.response_generator import ResponseGenerator
 from uqlm.utils.tuner import Tuner
+from uqlm.utils.llm_config import save_llm_config, load_llm_config
 
-__all__ = ["plot_model_accuracies", "load_example_dataset", "load_dataset", "load_example_dataset", "math_postprocessor", "ResponseGenerator", "Tuner"]
+__all__ = ["plot_model_accuracies", "load_example_dataset", "load_dataset", "load_example_dataset", "math_postprocessor", "ResponseGenerator", "Tuner", "save_llm_config", "load_llm_config"]

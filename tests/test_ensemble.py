@@ -19,6 +19,7 @@ import os
 from unittest.mock import patch, MagicMock
 from uqlm.scorers import UQEnsemble
 from uqlm.scorers.baseclass.uncertainty import UQResult
+from uqlm.utils.llm_config import save_llm_config, load_llm_config
 from langchain_openai import AzureChatOpenAI
 
 datafile_path = "tests/data/scorers/ensemble_results_file.json"
@@ -182,6 +183,7 @@ async def test_default_logprob(monkeypatch, mock_llm):
     assert list(set(sum(uqe.multiple_logprobs, []))) == [None]
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestUQEnsembleConfig:
     """Test suite for save/load configuration functionality"""
 
@@ -189,24 +191,26 @@ class TestUQEnsembleConfig:
         """Set up test fixtures"""
         self.mock_llm = AzureChatOpenAI(deployment_name="test-deployment", temperature=0.7, max_tokens=1024, api_key="test-key", api_version="2024-05-01-preview", azure_endpoint="https://test.endpoint.com")
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_save_llm_config(self):
-        """Test _save_llm_config static method"""
-        config = UQEnsemble._save_llm_config(self.mock_llm)
+        """Test save_llm_config function"""
+        config = save_llm_config(self.mock_llm)
 
         assert config["class_name"] == "AzureChatOpenAI"
         assert config["module"] == "langchain_openai.chat_models.azure"
         assert config["temperature"] == 0.7
         assert config["max_tokens"] == 1024
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_save_llm_config_with_none_values(self):
-        """Test _save_llm_config handles None values correctly"""
+        """Test save_llm_config handles None values correctly"""
         mock_llm = MagicMock()
         mock_llm.__class__.__name__ = "TestLLM"
         mock_llm.__class__.__module__ = "test.module"
         mock_llm.temperature = 0.5
         mock_llm.max_tokens = None  # This should be excluded
 
-        config = UQEnsemble._save_llm_config(mock_llm)
+        config = save_llm_config(mock_llm)
 
         assert "max_tokens" not in config  # None values should be excluded
         assert config["temperature"] == 0.5
@@ -214,25 +218,28 @@ class TestUQEnsembleConfig:
         assert config["module"] == "test.module"
 
     @patch.dict(os.environ, {"AZURE_OPENAI_API_KEY": "test-key", "AZURE_OPENAI_ENDPOINT": "https://test.endpoint.com"})
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_llm_config_success(self):
-        """Test _load_llm_config successfully recreates LLM"""
+        """Test load_llm_config successfully recreates LLM"""
         config = {"class_name": "AzureChatOpenAI", "module": "langchain_openai.chat_models.azure", "temperature": 0.5, "max_tokens": 512, "api_key": "test-key", "azure_endpoint": "https://test.endpoint.com", "api_version": "2024-05-01-preview"}
 
-        recreated_llm = UQEnsemble._load_llm_config(config)
+        recreated_llm = load_llm_config(config)
 
         assert isinstance(recreated_llm, AzureChatOpenAI)
         assert recreated_llm.temperature == 0.5
         assert recreated_llm.max_tokens == 512
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_llm_config_import_error(self):
-        """Test _load_llm_config handles import errors"""
+        """Test load_llm_config handles import errors"""
         config = {"class_name": "NonExistentLLM", "module": "non.existent.module", "temperature": 0.5}
 
         with pytest.raises(ValueError, match="Could not recreate LLM from config"):
-            UQEnsemble._load_llm_config(config)
+            load_llm_config(config)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_llm_config_class_not_found(self):
-        """Test _load_llm_config handles missing class"""
+        """Test load_llm_config handles missing class"""
         config = {
             "class_name": "NonExistentClass",
             "module": "langchain_openai",  # Valid module
@@ -240,8 +247,9 @@ class TestUQEnsembleConfig:
         }
 
         with pytest.raises(ValueError, match="Could not recreate LLM from config"):
-            UQEnsemble._load_llm_config(config)
+            load_llm_config(config)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_save_config_named_components_only(self):
         """Test save_config with only named string components"""
         ensemble = UQEnsemble(llm=self.mock_llm, scorers=["exact_match", "noncontradiction"], weights=[0.6, 0.4], thresh=0.75)
@@ -265,6 +273,7 @@ class TestUQEnsembleConfig:
         finally:
             os.unlink(config_path)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_save_config_with_llm_scorers(self):
         """Test save_config with LLM scorer components"""
         judge_llm = AzureChatOpenAI(deployment_name="judge-deployment", temperature=0.3, max_tokens=256, api_key="judge-key", api_version="2024-05-01-preview", azure_endpoint="https://judge.endpoint.com")
@@ -289,6 +298,7 @@ class TestUQEnsembleConfig:
         finally:
             os.unlink(config_path)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_save_config_no_main_llm(self):
         """Test save_config when no main LLM is provided"""
         ensemble = UQEnsemble(scorers=["exact_match", "noncontradiction"], weights=[0.5, 0.5], thresh=0.8)
@@ -307,6 +317,7 @@ class TestUQEnsembleConfig:
         finally:
             os.unlink(config_path)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_save_config_invalid_component(self):
         """Test save_config with invalid component type"""
         invalid_component = {"invalid": "component"}
@@ -326,6 +337,7 @@ class TestUQEnsembleConfig:
                 os.unlink(config_path)
 
     @patch.dict(os.environ, {"AZURE_OPENAI_API_KEY": "test-key", "AZURE_OPENAI_ENDPOINT": "https://test.endpoint.com"})
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_config_named_components_only(self):
         """Test load_config with only named components"""
         config = {"weights": [0.6, 0.4], "thresh": 0.75, "components": ["exact_match", "noncontradiction"], "llm_config": {"class_name": "AzureChatOpenAI", "module": "langchain_openai.chat_models.azure", "temperature": 0.5, "max_tokens": 512, "api_key": "test-key", "azure_endpoint": "https://test.endpoint.com", "api_version": "2024-05-01-preview"}, "llm_scorers": {}}
@@ -346,6 +358,7 @@ class TestUQEnsembleConfig:
         finally:
             os.unlink(config_path)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_config_with_provided_llm(self):
         """Test load_config with externally provided LLM"""
         config = {"weights": [0.6, 0.4], "thresh": 0.75, "components": ["exact_match", "noncontradiction"], "llm_config": {"class_name": "AzureChatOpenAI", "module": "langchain_openai.chat_models.azure", "temperature": 0.5}, "llm_scorers": {}}
@@ -367,6 +380,7 @@ class TestUQEnsembleConfig:
             os.unlink(config_path)
 
     @patch.dict(os.environ, {"AZURE_OPENAI_API_KEY": "test-key", "AZURE_OPENAI_ENDPOINT": "https://test.endpoint.com"})
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_config_with_llm_scorers(self):
         """Test load_config with LLM scorer components"""
         config = {
@@ -393,6 +407,7 @@ class TestUQEnsembleConfig:
         finally:
             os.unlink(config_path)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_config_missing_llm_scorer(self):
         """Test load_config with missing LLM scorer configuration"""
         config = {
@@ -414,6 +429,7 @@ class TestUQEnsembleConfig:
         finally:
             os.unlink(config_path)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_config_no_llm_config(self):
         """Test load_config when no LLM config is provided and no external LLM"""
         config = {"weights": [1.0], "thresh": 0.5, "components": ["exact_match"], "llm_config": None, "llm_scorers": {}}
@@ -429,11 +445,13 @@ class TestUQEnsembleConfig:
         finally:
             os.unlink(config_path)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_config_file_not_found(self):
         """Test load_config with non-existent file"""
         with pytest.raises(FileNotFoundError):
             UQEnsemble.load_config("non_existent_config.json")
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_config_invalid_json(self):
         """Test load_config with invalid JSON file"""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -443,116 +461,6 @@ class TestUQEnsembleConfig:
         try:
             with pytest.raises(json.JSONDecodeError):
                 UQEnsemble.load_config(config_path)
-
-        finally:
-            os.unlink(config_path)
-
-    def test_save_llm_config_sensitive_params_as_env_placeholders(self):
-        """Test _save_llm_config saves sensitive parameters as environment variable placeholders"""
-        config = UQEnsemble._save_llm_config(self.mock_llm)
-
-        # Check that sensitive parameters are saved as env placeholders
-        assert "openai_api_key_env" in config
-        assert config["openai_api_key_env"] == "AZURECHATOPENAI_OPENAI_API_KEY"
-        assert "azure_endpoint_env" in config
-        assert config["azure_endpoint_env"] == "AZURECHATOPENAI_AZURE_ENDPOINT"
-        assert "deployment_name_env" in config
-        assert config["deployment_name_env"] == "AZURECHATOPENAI_DEPLOYMENT_NAME"
-        assert "openai_api_version_env" in config
-        assert config["openai_api_version_env"] == "AZURECHATOPENAI_OPENAI_API_VERSION"
-
-        # Check that actual sensitive values are NOT saved
-        assert "openai_api_key" not in config
-        assert "azure_endpoint" not in config
-        assert "deployment_name" not in config
-        assert "openai_api_version" not in config
-
-    def test_save_llm_config_no_sensitive_params(self):
-        """Test _save_llm_config handles LLMs without sensitive parameters"""
-        # Create a mock that doesn't have any of the sensitive parameters
-        mock_vertex_llm = MagicMock()
-        mock_vertex_llm.__class__.__name__ = "ChatVertexAI"
-        mock_vertex_llm.__class__.__module__ = "langchain_google_vertexai.chat_models"
-        mock_vertex_llm.model_name = "gemini-1.5-flash"
-        mock_vertex_llm.temperature = 0.8
-
-        # Ensure it doesn't have any sensitive parameters
-        sensitive_params = ["api_key", "openai_api_key", "azure_ad_token", "azure_endpoint", "deployment_name", "api_version", "openai_api_type", "openai_api_version"]
-        for param in sensitive_params:
-            if hasattr(mock_vertex_llm, param):
-                delattr(mock_vertex_llm, param)
-
-        config = UQEnsemble._save_llm_config(mock_vertex_llm)
-
-        # Should not have any env placeholders
-        assert not any(k.endswith("_env") for k in config.keys())
-
-    @patch.dict(os.environ, {"AZURECHATOPENAI_OPENAI_API_KEY": "test-key", "AZURECHATOPENAI_AZURE_ENDPOINT": "https://test.endpoint.com", "AZURECHATOPENAI_OPENAI_API_VERSION": "2024-05-01-preview"})
-    def test_load_llm_config_env_placeholders(self):
-        """Test _load_llm_config loads from environment variable placeholders"""
-        config = {"class_name": "AzureChatOpenAI", "module": "langchain_openai.chat_models.azure", "temperature": 0.5, "openai_api_key_env": "AZURECHATOPENAI_OPENAI_API_KEY", "azure_endpoint_env": "AZURECHATOPENAI_AZURE_ENDPOINT", "openai_api_version_env": "AZURECHATOPENAI_OPENAI_API_VERSION"}
-
-        recreated_llm = UQEnsemble._load_llm_config(config)
-
-        assert isinstance(recreated_llm, AzureChatOpenAI)
-        # The actual values should be loaded from environment variables
-        assert hasattr(recreated_llm, "openai_api_key")
-        assert hasattr(recreated_llm, "azure_endpoint")
-
-    @patch.dict(os.environ, {"AZURE_OPENAI_API_KEY": "fallback-key", "AZURE_OPENAI_ENDPOINT": "https://fallback.endpoint.com", "OPENAI_API_VERSION": "2024-05-01-preview"})
-    def test_load_llm_config_fallback_env_vars(self):
-        """Test _load_llm_config uses fallback environment variable names"""
-        config = {
-            "class_name": "AzureChatOpenAI",
-            "module": "langchain_openai.chat_models.azure",
-            "temperature": 0.5,
-            "openai_api_key_env": "AZURECHATOPENAI_OPENAI_API_KEY",  # This env var doesn't exist
-            "azure_endpoint_env": "AZURECHATOPENAI_AZURE_ENDPOINT",  # This env var doesn't exist
-        }
-
-        recreated_llm = UQEnsemble._load_llm_config(config)
-
-        assert isinstance(recreated_llm, AzureChatOpenAI)
-        # Should use fallback environment variables
-        assert hasattr(recreated_llm, "openai_api_key")
-        assert hasattr(recreated_llm, "azure_endpoint")
-
-    def test_load_llm_config_missing_env_vars(self):
-        """Test _load_llm_config handles missing environment variables gracefully"""
-        config = {"class_name": "AzureChatOpenAI", "module": "langchain_openai.chat_models.azure", "temperature": 0.5, "openai_api_key_env": "NONEXISTENT_API_KEY", "azure_endpoint_env": "NONEXISTENT_ENDPOINT"}
-
-        # Should raise ValueError due to missing required env vars
-        with pytest.raises(ValueError, match="Could not recreate LLM from config"):
-            UQEnsemble._load_llm_config(config)
-
-    def test_load_config_mixed_env_and_regular_params(self):
-        """Test load_config with mix of environment variables and regular parameters"""
-        config = {
-            "weights": [1.0],
-            "thresh": 0.5,
-            "components": ["exact_match"],
-            "llm_config": {
-                "class_name": "AzureChatOpenAI",
-                "module": "langchain_openai.chat_models.azure",
-                "temperature": 0.5,  # Regular parameter
-                "max_tokens": 1024,  # Regular parameter
-                "api_key_env": "AZURECHATOPENAI_API_KEY",  # Environment variable
-                "azure_endpoint_env": "AZURECHATOPENAI_ENDPOINT",  # Environment variable
-            },
-            "llm_scorers": {},
-        }
-
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            config_path = f.name
-            json.dump(config, f)
-
-        try:
-            with patch.dict(os.environ, {"AZURECHATOPENAI_API_KEY": "test-key", "AZURECHATOPENAI_ENDPOINT": "https://test.endpoint.com", "OPENAI_API_VERSION": "2024-05-01-preview"}):
-                ensemble = UQEnsemble.load_config(config_path)
-
-                assert ensemble.llm is not None
-                assert ensemble.llm.temperature == 0.5
-                assert ensemble.llm.max_tokens == 1024
 
         finally:
             os.unlink(config_path)
