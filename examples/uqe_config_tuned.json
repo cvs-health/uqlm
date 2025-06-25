@@ -1,12 +1,12 @@
 {
   "weights": [
-    0.4136505532742457,
-    0.058231009780750076,
-    0.5253883480071272,
-    0.00215074600781475,
-    0.0005793429300622097
+    0.12571232769719037,
+    0.46846166703379394,
+    0.08486699614822044,
+    0.32093951576056123,
+    1.949336023398012e-05
   ],
-  "thresh": 0.99,
+  "thresh": 0.74,
   "components": [
     "exact_match",
     "noncontradiction",
@@ -17,18 +17,53 @@
   "llm_config": {
     "class_name": "ChatVertexAI",
     "module": "langchain_google_vertexai.chat_models",
-    "model_name": "gemini-1.5-flash"
+    "convert_system_message_to_human": false,
+    "default_metadata": [],
+    "endpoint_version": "v1beta1",
+    "full_model_name": "projects/anbc-dev-csr-va/locations/us-central1/publishers/google/models/gemini-1.5-flash",
+    "location": "us-central1",
+    "logprobs": true,
+    "max_retries": 6,
+    "model_family": "2",
+    "model_name": "gemini-1.5-flash",
+    "n": 1,
+    "perform_literal_eval_on_string_raw_content": true,
+    "project": "anbc-dev-csr-va",
+    "request_parallelism": 5,
+    "streaming": false,
+    "verbose": false
   },
   "llm_scorers": {
     "judge_1": {
       "class_name": "ChatVertexAI",
       "module": "langchain_google_vertexai.chat_models",
-      "model_name": "gemini-1.5-flash"
+      "convert_system_message_to_human": false,
+      "default_metadata": [],
+      "endpoint_version": "v1beta1",
+      "full_model_name": "projects/anbc-dev-csr-va/locations/us-central1/publishers/google/models/gemini-1.5-flash",
+      "location": "us-central1",
+      "logprobs": true,
+      "max_retries": 6,
+      "model_family": "2",
+      "model_name": "gemini-1.5-flash",
+      "n": 1,
+      "perform_literal_eval_on_string_raw_content": true,
+      "project": "anbc-dev-csr-va",
+      "request_parallelism": 5,
+      "streaming": false,
+      "verbose": false
     },
     "judge_2": {
       "class_name": "AzureChatOpenAI",
       "module": "langchain_openai.chat_models.azure",
-      "temperature": 1.0
+      "azure_endpoint": "https://hcbgenaiindevuse2exai.openai.azure.com/",
+      "deployment_name": "gpt-4o",
+      "model_version": "",
+      "openai_api_type": "azure",
+      "openai_api_version": "2024-02-15-preview",
+      "streaming": false,
+      "temperature": 1.0,
+      "verbose": false
     }
   }
 }
