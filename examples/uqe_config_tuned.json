@@ -1,12 +1,12 @@
 {
   "weights": [
-    0.4136505532742457,
-    0.058231009780750076,
-    0.5253883480071272,
-    0.00215074600781475,
-    0.0005793429300622097
+    0.25742720134368274,
+    0.128529861964413,
+    0.5747307678374962,
+    0.038540308857692746,
+    0.0007718599967152709
   ],
-  "thresh": 0.99,
+  "thresh": 0.96,
   "components": [
     "exact_match",
     "noncontradiction",
@@ -28,7 +28,12 @@
     "judge_2": {
       "class_name": "AzureChatOpenAI",
       "module": "langchain_openai.chat_models.azure",
-      "temperature": 1.0
+      "temperature": 0.9,
+      "openai_api_key_env": "AZURECHATOPENAI_OPENAI_API_KEY",
+      "azure_endpoint_env": "AZURECHATOPENAI_AZURE_ENDPOINT",
+      "deployment_name_env": "AZURECHATOPENAI_DEPLOYMENT_NAME",
+      "openai_api_type_env": "AZURECHATOPENAI_OPENAI_API_TYPE",
+      "openai_api_version_env": "AZURECHATOPENAI_OPENAI_API_VERSION"
     }
   }
 }

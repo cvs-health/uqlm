@@ -18,7 +18,8 @@ from importlib import import_module
 import numpy as np
 from langchain_core.language_models.chat_models import BaseChatModel
 from typing import Any, Dict, List, Optional, Union, Tuple
-
+import os
+from dotenv import load_dotenv, find_dotenv
 
 from uqlm.judges.judge import LLMJudge
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
@@ -417,11 +418,23 @@ class UQEnsemble(UncertaintyQuantifier):
         # Common LLM parameters to save
         params_to_save = ["model", "model_name", "temperature", "max_tokens", "max_output_tokens", "top_p", "top_k", "frequency_penalty", "presence_penalty"]
 
+        # Sensitive parameters that should use environment variables
+        sensitive_params = ["api_key", "openai_api_key", "azure_ad_token", "azure_endpoint", "deployment_name", "api_version", "openai_api_type", "openai_api_version"]
+
         for param in params_to_save:
             if hasattr(llm, param):
                 value = getattr(llm, param)
                 if value is not None:
                     config[param] = value
+
+        # Handle sensitive parameters - save as environment variable placeholders
+        for param in sensitive_params:
+            if hasattr(llm, param):
+                value = getattr(llm, param)
+                if value is not None:
+                    # Create environment variable name based on parameter
+                    env_var_name = f"{llm.__class__.__name__.upper()}_{param.upper()}"
+                    config[f"{param}_env"] = env_var_name
 
         return config
 
@@ -446,8 +459,37 @@ class UQEnsemble(UncertaintyQuantifier):
             module = import_module(llm_config["module"])
             llm_class = getattr(module, llm_config["class_name"])
 
-            # Extract parameters (exclude class info)
-            llm_params = {k: v for k, v in llm_config.items() if k not in ["class_name", "module"]}
+            # Extract parameters (exclude class info and env placeholders)
+            llm_params = {}
+            for k, v in llm_config.items():
+                if k not in ["class_name", "module"]:
+                    if k.endswith("_env"):
+                        # This is an environment variable placeholder
+                        param_name = k[:-4]  # Remove "_env" suffix
+                        env_var_name = v
+                        env_value = os.getenv(env_var_name)
+                        if env_value is not None:
+                            llm_params[param_name] = env_value
+                        else:
+                            # Try common environment variable names as fallback
+                            common_env_vars = {
+                                "api_key": ["OPENAI_API_KEY", "AZURE_OPENAI_API_KEY"],
+                                "openai_api_key": ["OPENAI_API_KEY", "AZURE_OPENAI_API_KEY"],
+                                "azure_endpoint": ["AZURE_OPENAI_ENDPOINT"],
+                                "deployment_name": ["AZURE_OPENAI_DEPLOYMENT_NAME"],
+                                "api_version": ["AZURE_OPENAI_API_VERSION"],
+                                "openai_api_version": ["AZURE_OPENAI_API_VERSION"],
+                                "openai_api_type": ["AZURE_OPENAI_API_TYPE"],
+                            }
+                            if param_name in common_env_vars:
+                                for fallback_env in common_env_vars[param_name]:
+                                    fallback_value = os.getenv(fallback_env)
+                                    if fallback_value is not None:
+                                        llm_params[param_name] = fallback_value
+                                        break
+                    else:
+                        # Regular parameter
+                        llm_params[k] = v
 
             # Create LLM instance
             return llm_class(**llm_params)
@@ -491,7 +533,7 @@ class UQEnsemble(UncertaintyQuantifier):
             json.dump(config, f, indent=2)
 
     @classmethod
-    def load_config(cls, path: str, llm: Optional[BaseChatModel] = None) -> "UQEnsemble":
+    def load_config(cls, path: str, llm: Optional[BaseChatModel] = None, env_file: Optional[str] = None) -> "UQEnsemble":
         """
         Load configuration and create UQEnsemble instance.
 
@@ -501,12 +543,29 @@ class UQEnsemble(UncertaintyQuantifier):
             Path to the saved configuration file
         llm : BaseChatModel, optional
             LLM instance to use as main LLM. If None, uses saved config.
+        env_file : str, optional
+            Path to .env file to load environment variables from. If None,
+            will try to find .env file automatically.
 
         Returns
         -------
         UQEnsemble
             New UQEnsemble instance with loaded configuration
         """
+        # Load environment variables if env_file is provided
+        if env_file:
+            try:
+                load_dotenv(env_file)
+            except ImportError:
+                raise ImportError("python-dotenv is required to load environment variables from file. Install with: pip install python-dotenv")
+        else:
+            # Try to load from default .env file
+            try:
+                load_dotenv(find_dotenv())
+            except ImportError:
+                # python-dotenv not available, continue without loading .env
+                pass
+
         with open(path, "r") as f:
             config = json.load(f)
 
@@ -534,3 +593,17 @@ class UQEnsemble(UncertaintyQuantifier):
                 components.append(component)
 
         return cls(llm=llm, scorers=components, weights=config["weights"], thresh=config["thresh"])
+
+    @staticmethod
+    def setup_environment_variables(env_vars: Dict[str, str]) -> None:
+        """
+        Set up environment variables for LLM configuration.
+
+        Parameters
+        ----------
+        env_vars : dict
+            Dictionary mapping environment variable names to values.
+            Example: {"AZURE_OPENAI_API_KEY": "your-key", "AZURE_OPENAI_ENDPOINT": "your-endpoint"}
+        """
+        for key, value in env_vars.items():
+            os.environ[key] = value
