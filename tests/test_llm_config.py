@@ -59,7 +59,7 @@ class TestLLMConfigUtils:
         assert config["max_tokens"] == 1024
         assert config["deployment_name"] == "test-deployment"
         # Note: api_key might not be saved as it's often a private attribute
-        assert config["azure_endpoint"] == "https://test.endpoint.com"
+        # Note: azure_endpoint should not be saved as it's excluded from configs
 
     @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_save_llm_config_filters_internal_attrs(self):
@@ -258,7 +258,7 @@ class TestLLMConfigUtils:
         assert config["openai_api_version"] == "2024-02-15-preview"
         assert config["temperature"] == 1
         # Note: api_key might not be saved as it's often a private attribute
-        assert config["azure_endpoint"] == "https://test.azure.endpoint.com"
+        # Note: azure_endpoint should not be saved as it's excluded from configs
 
         # Load and recreate the LLM
         recreated_llm = load_llm_config(config)
@@ -270,7 +270,7 @@ class TestLLMConfigUtils:
         assert recreated_llm.openai_api_version == "2024-02-15-preview"
         assert recreated_llm.temperature == 1
         # Note: api_key might not be directly accessible as an attribute
-        assert recreated_llm.azure_endpoint == "https://test.azure.endpoint.com"
+        # Note: azure_endpoint should be loaded from environment variables
 
     @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_save_llm_config_with_complex_data_structures(self):
@@ -305,3 +305,36 @@ class TestLLMConfigUtils:
         assert deserialized["class_name"] == config["class_name"]
         assert deserialized["module"] == config["module"]
         assert deserialized["temperature"] == config["temperature"]
+
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
+    def test_save_llm_config_excludes_endpoint_parameters(self):
+        """Test save_llm_config excludes endpoint parameters"""
+        mock_llm = MagicMock()
+        mock_llm.__class__.__name__ = "TestLLM"
+        mock_llm.__class__.__module__ = "test.module"
+        mock_llm.temperature = 0.5
+        
+        # Add various endpoint-related attributes that should be excluded
+        mock_llm.base_url = "https://api.example.com"
+        mock_llm.endpoint = "https://endpoint.example.com"
+        mock_llm.azure_endpoint = "https://azure.example.com"
+        mock_llm.openai_api_base = "https://openai.example.com"
+        mock_llm.api_base = "https://api-base.example.com"
+        mock_llm.api_url = "https://api-url.example.com"
+        mock_llm.url = "https://url.example.com"
+
+        config = save_llm_config(mock_llm)
+
+        # Endpoint parameters should be excluded
+        assert "base_url" not in config
+        assert "endpoint" not in config
+        assert "azure_endpoint" not in config
+        assert "openai_api_base" not in config
+        assert "api_base" not in config
+        assert "api_url" not in config
+        assert "url" not in config
+
+        # Valid parameters should be included
+        assert config["temperature"] == 0.5
+        assert config["class_name"] == "TestLLM"
+        assert config["module"] == "test.module"
