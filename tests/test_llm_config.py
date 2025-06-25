@@ -313,7 +313,7 @@ class TestLLMConfigUtils:
         mock_llm.__class__.__name__ = "TestLLM"
         mock_llm.__class__.__module__ = "test.module"
         mock_llm.temperature = 0.5
-        
+
         # Add various endpoint-related attributes that should be excluded
         mock_llm.base_url = "https://api.example.com"
         mock_llm.endpoint = "https://endpoint.example.com"

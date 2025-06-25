@@ -52,10 +52,7 @@ def save_llm_config(llm: BaseChatModel) -> Dict[str, Any]:
     # Save all attributes that are serializable and not None
     for attr_name in dir(llm):
         # Skip private attributes, methods, special attributes, internal LangChain attrs, and endpoint attrs
-        if (attr_name.startswith("_") or 
-            callable(getattr(llm, attr_name)) or 
-            attr_name in internal_attrs or
-            attr_name in endpoint_attrs):
+        if attr_name.startswith("_") or callable(getattr(llm, attr_name)) or attr_name in internal_attrs or attr_name in endpoint_attrs:
             continue
 
         try:
