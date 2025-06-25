@@ -27,7 +27,7 @@ class TestTuner:
     def test_initialization(self):
         # Test default initialization
         tuner = Tuner()
-        assert list(tuner.objective_to_func.keys()) == ["fbeta_score", "accuracy_score", "balanced_accuracy_score", "log_loss", "roc_auc"]
+        assert list(tuner.objective_to_func.keys()) == ["fbeta_score", "accuracy_score", "balanced_accuracy_score", "log_loss", "roc_auc", "average_precision", "brier_score"]
 
     def test_tune_threshold(self):
         tuner = Tuner()
@@ -61,7 +61,7 @@ class TestTuner:
         # test unsupported weights_objective
         with pytest.raises(ValueError) as e:
             Tuner().tune_params(score_lists=self.score_lists, correct_indicators=self.correct_indicators, weights_objective="invalid")
-        assert "Only 'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc_score', and 'log_loss' are supported for tuning objectives." in str(e.value)
+        assert "Only 'fbeta_score', 'accuracy_score', 'balanced_accuracy_score', 'roc_auc_score', 'log_loss', 'average_precision', and 'brier_score' are supported for tuning objectives." in str(e.value)
 
         # test unsupported thresh_objective
         with pytest.raises(ValueError) as e:
