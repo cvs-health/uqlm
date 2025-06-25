@@ -46,10 +46,16 @@ def save_llm_config(llm: BaseChatModel) -> Dict[str, Any]:
     # Internal LangChain attributes that shouldn't be passed to constructors
     internal_attrs = {"config_specs", "lc_attributes", "lc_secrets", "model_computed_fields", "model_config", "model_kwargs", "disabled_params", "include_response_headers", "stream_usage", "validate_base_url", "disable_streaming"}
 
+    # Endpoint and URL attributes that should not be saved (will be loaded from environment)
+    endpoint_attrs = {"base_url", "endpoint", "azure_endpoint", "openai_api_base", "api_base", "api_url", "url"}
+
     # Save all attributes that are serializable and not None
     for attr_name in dir(llm):
-        # Skip private attributes, methods, special attributes, and internal LangChain attrs
-        if attr_name.startswith("_") or callable(getattr(llm, attr_name)) or attr_name in internal_attrs:
+        # Skip private attributes, methods, special attributes, internal LangChain attrs, and endpoint attrs
+        if (attr_name.startswith("_") or 
+            callable(getattr(llm, attr_name)) or 
+            attr_name in internal_attrs or
+            attr_name in endpoint_attrs):
             continue
 
         try:

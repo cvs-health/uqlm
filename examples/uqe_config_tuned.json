@@ -1,12 +1,12 @@
 {
   "weights": [
-    0.12571232769719037,
-    0.46846166703379394,
-    0.08486699614822044,
-    0.32093951576056123,
-    1.949336023398012e-05
+    0.22517161424882978,
+    0.5256472050407895,
+    0.20544462057286958,
+    0.04343460765924121,
+    0.00030195247826969915
   ],
-  "thresh": 0.74,
+  "thresh": 0.85,
   "components": [
     "exact_match",
     "noncontradiction",
@@ -56,7 +56,6 @@
     "judge_2": {
       "class_name": "AzureChatOpenAI",
       "module": "langchain_openai.chat_models.azure",
-      "azure_endpoint": "https://hcbgenaiindevuse2exai.openai.azure.com/",
       "deployment_name": "gpt-4o",
       "model_version": "",
       "openai_api_type": "azure",
