@@ -147,23 +147,29 @@ class NLIScorer(SimilarityScorer):
 
         return {"nli_score_i": np.mean(nli_scores), "candidates": candidates, "response": best_response, "semantic_negentropy": semantic_negentropy}
 
-    def _semantic_entropy_process(self, candidates: List[str], i: int = None, discrete=True) -> Any:
+    def _semantic_entropy_process(self, candidates: List[str], i: int = None, logprobs_results: List[List[Dict[str, Any]]] = None) -> Any:
         """
         Executes complete process for semantic entropy and returns best response, SE score, and dictionary
         of NLI scores for response pairs
         """
         if self.verbose:
             print("Question No. - ", i + 1)
-        clustered_responses, nli_scores = self._cluster_responses(responses=candidates)
-        if discrete:
-            response_probabilities = [[1] * len(cluster_i) for cluster_i in clustered_responses]
-            cluster_probabilities = self._compute_cluster_probability(response_probabilities=response_probabilities)
-            best_response = clustered_responses[cluster_probabilities.index(max(cluster_probabilities))][0]
-            semantic_negentropy = self._compute_semantic_entropy(cluster_probabilities=cluster_probabilities)
-        else:
-            # TODO: enable continuous semantic entropy
-            raise ValueError("SemanticEntropy currently only supports discrete evaluations")
+        response_probabilities = self._compute_response_probabilities(logprobs_results=logprobs_results, num_responses=len(candidates))
+        clustered_responses, cluster_probabilities, nli_scores = self._cluster_responses(responses=candidates, response_probabilities=response_probabilities)
+        best_response = clustered_responses[cluster_probabilities.index(max(cluster_probabilities))][0]
+        semantic_negentropy = self._compute_semantic_entropy(cluster_probabilities=cluster_probabilities)
         return (best_response, semantic_negentropy, nli_scores)
+    
+    def _compute_response_probabilities(self, logprobs_results: List[List[Dict[str, Any]]], num_responses: int=None) -> List[float]:
+        """Compute response probabilities"""
+        if logprobs_results:
+            return [self.avg_logprob(logprobs_i) if logprobs_i else np.nan for logprobs_i in logprobs_results]
+        return [1/num_responses] * num_responses
+    
+    @staticmethod
+    def avg_logprob(logprobs: List[Dict[str, Any]]) -> float:
+        "Compute average logprob"
+        return np.mean([np.exp(d["logprob"]) for d in logprobs])
 
     def _get_nli_results(self, response1: str, response2: str) -> Dict[str, Any]:
         """This method computes mean NLI score and determines whether entailment exists."""
@@ -181,7 +187,7 @@ class NLIScorer(SimilarityScorer):
             avg_nli_score = ((s1 + s2) / 2)[0]
         return {"score": avg_nli_score, "entailment": entailment}
 
-    def _cluster_responses(self, responses: List[str]) -> Any:
+    def _cluster_responses(self, responses: List[str], response_probabilities: List[List[float]]) -> Any:
         """
         This method create clusters from a list of responses based on the semantic meaning of each response.
 
@@ -194,12 +200,12 @@ class NLIScorer(SimilarityScorer):
         ----------
         A list of lists, where each list represents a cluster.
         """
-        clusters = [deque([responses[0]])]
+        clusters, cluster_probabilities = [deque([responses[0]])], [response_probabilities[0]]
         nli_scores = {}
         entailments = {}
         for i in range(1, len(responses)):
             new_cluster_indicator = True
-            for cluster in clusters:
+            for j, cluster in enumerate(clusters):
                 key, rev_key = (cluster[0], responses[i]), (responses[i], cluster[0])
                 if key in nli_scores:
                     # Do not recompute if pair already assessed
@@ -213,13 +219,18 @@ class NLIScorer(SimilarityScorer):
                 if entailment:
                     new_cluster_indicator = False
                     cluster.append(responses[i])
+                    cluster_probabilities[j] += response_probabilities[i]
 
             if new_cluster_indicator:
                 clusters.append(deque([responses[i]]))
+                cluster_probabilities.append(response_probabilities[i])
 
         # Arrange cluster so that first element is mode (if exists) else longest
         clusters = [self._sort_responses(list(cluster)) for cluster in clusters]
-        return clusters, nli_scores
+
+        # Normalize cluster probabilities
+        cluster_probabilities = self._normalize_cluster_probabilities(cluster_probabilities=cluster_probabilities)
+        return clusters, cluster_probabilities, nli_scores
 
     def _compute_semantic_entropy(self, cluster_probabilities: List[float]) -> float:
         """
@@ -231,11 +242,10 @@ class NLIScorer(SimilarityScorer):
         return [e / math.log(self.num_responses + 1) for e in entropy_values]
 
     @staticmethod
-    def _compute_cluster_probability(response_probabilities: List[float]) -> float:
-        """Computes cluster probabilities from response probabilities"""
-        total_probability = sum(map(sum, response_probabilities))
-        cluster_probabilities = [sum(rp_i) / total_probability for rp_i in response_probabilities]
-        return cluster_probabilities
+    def _normalize_cluster_probabilities(cluster_probabilities: List[float]) -> float:
+        """Normalize cluster probabilities"""
+        total_probability = sum(cluster_probabilities)
+        return [cp_i / total_probability for cp_i in cluster_probabilities]
 
     @staticmethod
     def _sort_responses(responses: List[str]) -> List[str]:
