@@ -98,6 +98,10 @@ class SemanticEntropy(UncertaintyQuantifier):
         self.num_responses = num_responses
         self.nli_scorer.num_responses = num_responses
 
+        if hasattr(self.llm, "logprobs"):
+            print("UQLM: Using logprobs to compute response probabilities for semantic entropy score")
+            self.llm.logprobs = True
+
         responses = await self.generate_original_responses(prompts)
         sampled_responses = await self.generate_candidate_responses(prompts)
         return self.score(responses=responses, sampled_responses=sampled_responses)
@@ -132,8 +136,10 @@ class SemanticEntropy(UncertaintyQuantifier):
         print("Computing confidence scores...")
         for i in range(n_prompts):
             candidates = [self.responses[i]] + self.sampled_responses[i]
-            tmp = self.nli_scorer._semantic_entropy_process(candidates=candidates, i=i)
-            best_responses[i], semantic_entropy[i], scores = tmp
+
+            candidate_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i] if (self.logprobs and self.multiple_logprobs) else None
+            tmp = self.nli_scorer._semantic_entropy_process(candidates=candidates, i=i, logprobs_results=candidate_logprobs)
+            best_responses[i], semantic_entropy[i], _ = tmp
 
         confidence_scores = [1 - ne for ne in self.nli_scorer._normalize_entropy(semantic_entropy)]
 
