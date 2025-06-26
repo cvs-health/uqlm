@@ -29,9 +29,9 @@ class WhiteBoxUQ(UncertaintyQuantifier):
         scorers: Optional[List[str]] = None,
     ) -> None:
         """
-        Class for computing white-box UQ confidence scores. This class offers two confidence scores, normalized 
+        Class for computing white-box UQ confidence scores. This class offers two confidence scores, normalized
         probability :footcite:`malinin2021uncertaintyestimationautoregressivestructured` and minimum probability :footcite:`manakul2023selfcheckgptzeroresourceblackboxhallucination`.
-        
+
         Parameters
         ----------
         llm : BaseChatModel
@@ -79,9 +79,11 @@ class WhiteBoxUQ(UncertaintyQuantifier):
         self.llm.logprobs = True
         responses = await self.generate_original_responses(prompts)
         return self.score(
-            prompts=prompts, responses=responses, logprobs_results=self.logprobs,
+            prompts=prompts,
+            responses=responses,
+            logprobs_results=self.logprobs,
         )
-        
+
     def score(
         self,
         logprobs_results: List[List[Dict[str, Any]]],
@@ -95,30 +97,30 @@ class WhiteBoxUQ(UncertaintyQuantifier):
         ----------
         logprobs_results : list of logprobs_result
             List of dictionaries, each returned by BaseChatModel.agenerate
-        
+
         prompts : list of str, default=None
             A list of input prompts for the model.
-            
+
         responses : list of str, default=None
-            A list of model responses for the prompts. 
+            A list of model responses for the prompts.
 
         Returns
         -------
         UQResult
             UQResult containing prompts, responses, logprobs, and white-box UQ scores
-        """        
-        
+        """
+
         self.logprobs = logprobs_results
         self.prompts = prompts
         self.responses = responses
-        
+
         data = {}
         if self.prompts:
             data["prompts"] = self.prompts
         if self.responses:
             data["responses"] = self.responses
-            
-        data['logprobs'] = self.logprobs
+
+        data["logprobs"] = self.logprobs
         scores = self._compute_scores(self.logprobs)
         for key in self.scorers:
             data[key] = scores[key]
@@ -130,14 +132,20 @@ class WhiteBoxUQ(UncertaintyQuantifier):
             },
         }
         return UQResult(result)
-    
-    def _compute_scores(self, logprobs_results: List[List[Dict[str, Any]]]) -> List[float]:
+
+    def _compute_scores(
+        self, logprobs_results: List[List[Dict[str, Any]]]
+    ) -> List[float]:
         """
         This method computes token-probability-based confidence scores.
         """
         return {
-            "normalized_probability": [np.nan if not r else self._norm_prob(r) for r in logprobs_results],
-            "min_probability": [np.nan if not r else self._min_prob(r) for r in logprobs_results],
+            "normalized_probability": [
+                np.nan if not r else self._norm_prob(r) for r in logprobs_results
+            ],
+            "min_probability": [
+                np.nan if not r else self._min_prob(r) for r in logprobs_results
+            ],
         }
 
     def _norm_prob(self, logprobs: List[Dict[str, Any]]) -> float:
@@ -151,12 +159,12 @@ class WhiteBoxUQ(UncertaintyQuantifier):
     def avg_logprob(self, logprobs: List[Dict[str, Any]]) -> float:
         "Compute average logprob"
         return np.mean(self.get_logprobs(logprobs))
-    
+
     @staticmethod
     def _get_probs(logprobs):
         """Extract token probabilities"""
         return [math.exp(d["logprob"]) for d in logprobs]
-    
+
     @staticmethod
     def get_logprobs(logprobs):
         """Extract log token probabilities"""

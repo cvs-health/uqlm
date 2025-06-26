@@ -38,7 +38,6 @@ async def main():
     API_VERSION = os.getenv("API_VERSION")
     DEPLOYMENT_NAME = os.getenv("DEPLOYMENT_NAME")
 
-
     original_llm = AzureChatOpenAI(
         deployment_name=DEPLOYMENT_NAME,
         openai_api_key=API_KEY,
@@ -47,7 +46,7 @@ async def main():
         openai_api_version=API_VERSION,
         temperature=1,  # User to set temperature
     )
-    
+
     rg = ResponseGenerator(langchain_llm=original_llm, max_calls_per_min=250)
     generations = await rg.generate_responses(prompts=prompts, count=1)
     responses = generations["data"]["response"]
@@ -59,14 +58,15 @@ async def main():
     extract_answer = judge._extract_answers(responses=judge_result["judge_responses"])
 
     store_results = {
-    "prompts": prompts,
-    "responses": responses,
-    "judge_result": judge_result,
-    "extract_answer": extract_answer,
+        "prompts": prompts,
+        "responses": responses,
+        "judge_result": judge_result,
+        "extract_answer": extract_answer,
     }
     results_file = "llmjudge_results_file.json"
     with open(results_file, "w") as f:
         json.dump(store_results, f)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

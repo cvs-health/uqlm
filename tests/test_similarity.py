@@ -38,6 +38,7 @@ def test_bert():
         ]
     )
 
+
 @unittest.skipIf(
     (os.getenv("CI") == "true"),
     "Skipping test in CI due to dependency on GitHub repository.",

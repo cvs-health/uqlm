@@ -59,7 +59,7 @@ class UncertaintyQuantifier:
             temperature and other relevant parameters to the constructor of their `llm` object.
 
         device: str or torch.device input or torch.device object, default="cpu"
-            Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction' 
+            Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction'
             scorers. Pass a torch.device to leverage GPU.
 
         system_prompt : str or None, default="You are a helpful assistant."
@@ -100,7 +100,7 @@ class UncertaintyQuantifier:
         if self.postprocessor:
             responses = [self.postprocessor(r) for r in responses]
         return responses
-            
+
     async def generate_candidate_responses(self, prompts: List[str]) -> List[List[str]]:
         """
         This method generates multiple responses for uncertainty
@@ -110,7 +110,9 @@ class UncertaintyQuantifier:
         llm_temperature = self.llm.temperature
         print("Generating candidate responses...")
         generations = await self._generate_responses(
-            prompts=prompts, count=self.num_responses, temperature=self.sampling_temperature
+            prompts=prompts,
+            count=self.num_responses,
+            temperature=self.sampling_temperature,
         )
         tmp_mr, tmp_lp = generations["responses"], generations["logprobs"]
         sampled_responses, self.multiple_logprobs = [], []
@@ -134,9 +136,7 @@ class UncertaintyQuantifier:
     ) -> List[str]:
         """Helper function to generate responses with LLM"""
         if self.llm is None:
-            raise ValueError(
-                """llm must be provided to generate responses."""
-            )
+            raise ValueError("""llm must be provided to generate responses.""")
         llm_temperature = self.llm.temperature
         if temperature:
             self.llm.temperature = temperature
@@ -174,10 +174,10 @@ class UncertaintyQuantifier:
     def _setup_nli(self, nli_model_name: Any) -> None:
         """Set up NLI scorer"""
         self.nli_scorer = NLIScorer(
-            nli_model_name=self.nli_model_name, 
+            nli_model_name=self.nli_model_name,
             device=self.device,
             max_length=self.max_length,
-            verbose=self.verbose
+            verbose=self.verbose,
         )
 
     def _update_best(self, best_responses: List[str]) -> None:

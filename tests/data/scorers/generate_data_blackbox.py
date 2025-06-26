@@ -21,6 +21,7 @@ from uqlm.utils.dataloader import load_example_dataset
 from uqlm.scorers import BlackBoxUQ
 from langchain_openai import AzureChatOpenAI
 
+
 async def main():
     # svamp dataset to be used as a prod dataset
     svamp = (
@@ -32,9 +33,7 @@ async def main():
     )
 
     # Define prompts
-    MATH_INSTRUCTION = (
-        "When you solve this math problem only return the answer with no additional text.\n"
-    )
+    MATH_INSTRUCTION = "When you solve this math problem only return the answer with no additional text.\n"
     prompts = [MATH_INSTRUCTION + prompt for prompt in svamp.question]
 
     # User to populate .env file with API credentials
@@ -58,7 +57,7 @@ async def main():
 
     bbuq = BlackBoxUQ(
         llm=gpt,
-        scorers=['noncontradiction', 'exact_match', 'semantic_negentropy'],
+        scorers=["noncontradiction", "exact_match", "semantic_negentropy"],
     )
 
     results = await bbuq.generate_and_score(prompts=prompts, num_responses=5)
@@ -67,5 +66,6 @@ async def main():
     with open(results_file, "w") as f:
         json.dump(results.to_dict(), f)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

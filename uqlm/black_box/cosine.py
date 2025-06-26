@@ -23,7 +23,7 @@ from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
 class CosineScorer(SimilarityScorer):
     def __init__(self, transformer: str = "all-MiniLM-L6-v2") -> None:
-        """Compute cosine similarity betwee original and candidate responses. 
+        """Compute cosine similarity betwee original and candidate responses.
 
         Parameters
         ----------
@@ -33,6 +33,7 @@ class CosineScorer(SimilarityScorer):
             for more information. The recommended sentence transformer is 'all-MiniLM-L6-v2'.
         """
         from sentence_transformers import SentenceTransformer
+
         self.transformer = transformer
         self.model = SentenceTransformer(f"{transformer}")
 

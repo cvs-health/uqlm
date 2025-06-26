@@ -22,7 +22,7 @@ from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 class MatchScorer(SimilarityScorer):
     def __init__(self) -> None:
         """
-        Class for computing exact match rates between original responses and candidates. This 
+        Class for computing exact match rates between original responses and candidates. This
         method is based on Cole et al.(2023) :footcite:`cole2023selectivelyansweringambiguousquestions`.
         """
         pass

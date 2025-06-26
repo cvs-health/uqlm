@@ -33,11 +33,15 @@ async def main():
     sampled_responses = data["sampled_responses"]
 
     store_results = dict()
-    store_results.update({"responses": responses, "sampled_responses": sampled_responses})
+    store_results.update(
+        {"responses": responses, "sampled_responses": sampled_responses}
+    )
 
     # 1. Bert Scorer
     bert = BertScorer()
-    bert_result = bert.evaluate(responses=responses, sampled_responses=sampled_responses)
+    bert_result = bert.evaluate(
+        responses=responses, sampled_responses=sampled_responses
+    )
 
     store_results.update(
         {
@@ -91,5 +95,6 @@ async def main():
     with open(results_file, "w") as f:
         json.dump(store_results, f)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

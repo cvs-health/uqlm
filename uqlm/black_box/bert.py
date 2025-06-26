@@ -23,7 +23,7 @@ from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 class BertScorer(SimilarityScorer):
     def __init__(self) -> None:
         """
-        Class for computing BERTScore values between original responses and candidates. For more on 
+        Class for computing BERTScore values between original responses and candidates. For more on
         BERTScore, refer to Zhang et al.(2020) :footcite:`zhang2020bertscoreevaluatingtextgeneration`.
         """
         pass

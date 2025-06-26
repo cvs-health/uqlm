@@ -51,20 +51,20 @@ class UQEnsemble(UncertaintyQuantifier):
         llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel`. User is responsible for specifying temperature and other
             relevant parameters to the constructor of their `llm` object.
-            
+
         scorers : List containing instances of BaseChatModel, LLMJudge, black-box scorer names from ['semantic_negentropy', 'noncontradiction','exact_match', 'bert_score', 'bleurt', 'cosine_sim'], or white-box scorer names from ["normalized_probability", "min_probability"] default=None
-            Specifies which UQ components to include. If None, defaults to the off-the-shelf BS Detector ensemble by 
-            Chen and Mueller (2023) :footcite:`chen2023quantifyinguncertaintyanswerslanguage` which uses components 
+            Specifies which UQ components to include. If None, defaults to the off-the-shelf BS Detector ensemble by
+            Chen and Mueller (2023) :footcite:`chen2023quantifyinguncertaintyanswerslanguage` which uses components
             ["noncontradiction", "exact_match","self_reflection"] with respective weights of [0.56, 0.14, 0.3]
 
         device : str or torch.device input or torch.device object, default="cpu"
-            Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction' 
+            Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction'
             scorers. Pass a torch.device to leverage GPU.
 
         postprocessor : callable, default=None
             A user-defined function that takes a string input and returns a string. Used for postprocessing
             outputs.
-            
+
         use_best : bool, default=True
             Specifies whether to swap the original response for the uncertainty-minimized response
             based on semantic entropy clusters.
@@ -84,19 +84,19 @@ class UQEnsemble(UncertaintyQuantifier):
             `BaseChatModel` classes. If used, it speeds up the generation process substantially when num_responses > 1.
 
         weights : list of floats, default=None
-            Specifies weight for each component in ensemble. If None and `scorers` is not None, each component will 
-            receive equal weight. If `scorers` is None, defaults to the off-the-shelf BS Detector ensemble by 
-            Chen and Mueller (2023) :footcite:`chen2023quantifyinguncertaintyanswerslanguage` which uses components 
+            Specifies weight for each component in ensemble. If None and `scorers` is not None, each component will
+            receive equal weight. If `scorers` is None, defaults to the off-the-shelf BS Detector ensemble by
+            Chen and Mueller (2023) :footcite:`chen2023quantifyinguncertaintyanswerslanguage` which uses components
             ["noncontradiction", "exact_match","self_reflection"] with respective weights of [0.56, 0.14, 0.3].
-            
+
         nli_model_name : str, default="microsoft/deberta-large-mnli"
-            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and 
+            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
-            
+
         max_length : int, default=2000
-            Specifies the maximum allowed string length. Responses longer than this value will be truncated to 
+            Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
-            
+
         verbose : bool, default=False
             Specifies whether to print the index of response currently being scored.
         """
@@ -120,7 +120,9 @@ class UQEnsemble(UncertaintyQuantifier):
         self._validate_weights()
 
     async def generate_and_score(
-        self, prompts: List[str], num_responses: int = 5,
+        self,
+        prompts: List[str],
+        num_responses: int = 5,
     ):
         """
         Generate LLM responses from provided prompts and compute confidence scores.
@@ -129,7 +131,7 @@ class UQEnsemble(UncertaintyQuantifier):
         ----------
         prompts : list of str
             A list of input prompts for the model.
-            
+
         num_responses : int, default=5
             The number of sampled responses used to compute consistency.
 
@@ -145,7 +147,7 @@ class UQEnsemble(UncertaintyQuantifier):
             In order to use white-box components, BaseChatModel must have logprobs attribute
             """
             self.llm.logprobs = True
-            
+
         responses = await self.generate_original_responses(prompts)
         if self.black_box_components:
             sampled_responses = await self.generate_candidate_responses(prompts)
@@ -153,16 +155,16 @@ class UQEnsemble(UncertaintyQuantifier):
             sampled_responses = None
 
         return await self.score(
-            prompts=prompts, 
-            responses=responses, 
+            prompts=prompts,
+            responses=responses,
             sampled_responses=sampled_responses,
-            logprobs_results=self.logprobs
+            logprobs_results=self.logprobs,
         )
-    
+
     async def score(
-        self, 
-        prompts: List[str], 
-        responses: List[str], 
+        self,
+        prompts: List[str],
+        responses: List[str],
         sampled_responses: Optional[List[List[str]]] = None,
         logprobs_results: Optional[List[List[Dict[str, Any]]]] = None,
     ):
@@ -173,14 +175,14 @@ class UQEnsemble(UncertaintyQuantifier):
         ----------
         prompts : list of str
             A list of input prompts for the model.
-            
+
         responses : list of str
-            A list of model responses for the prompts. 
-            
+            A list of model responses for the prompts.
+
         sampled_responses : list of list of str, default=None
-            A list of lists of sampled LLM responses for each prompt. These will be used to compute consistency scores by comparing to 
+            A list of lists of sampled LLM responses for each prompt. These will be used to compute consistency scores by comparing to
             the corresponding response from `responses`. Must be provided if using black box scorers.
-            
+
         logprobs_results : list of logprobs_result, default=None
             List of lists of dictionaries, each returned by BaseChatModel.agenerate. Must be provided if using white box scorers.
 
@@ -191,10 +193,14 @@ class UQEnsemble(UncertaintyQuantifier):
             metadata
         """
         if self.black_box_components and not sampled_responses:
-            raise ValueError("sampled_responses must be provided if using black-box scorers")
+            raise ValueError(
+                "sampled_responses must be provided if using black-box scorers"
+            )
         if self.white_box_components and not logprobs_results:
-            raise ValueError("logprobs_results must be provided if using white-box scorers")            
-        
+            raise ValueError(
+                "logprobs_results must be provided if using white-box scorers"
+            )
+
         self.prompts = prompts
         self.responses = responses
         self.sampled_responses = sampled_responses
@@ -202,7 +208,7 @@ class UQEnsemble(UncertaintyQuantifier):
         if not logprobs_results:
             self.logprobs = [None] * len(prompts)
             self.multiple_logprobs = [[None] * self.num_responses] * len(prompts)
-        
+
         if self.black_box_components:
             black_box_results = self.black_box_object.score(
                 responses=self.responses,
@@ -229,9 +235,9 @@ class UQEnsemble(UncertaintyQuantifier):
                 self.component_scores[component] = white_box_results.data[component]
             elif i in self.judges_indices:
                 self.component_scores[component] = judge_results.data[component]
-                
+
         return self._construct_result()
-    
+
     def tune_from_graded(
         self,
         correct_indicators: List[bool],
@@ -290,7 +296,7 @@ class UQEnsemble(UncertaintyQuantifier):
         self.weights = optimal_params["weights"]
         self.thresh = optimal_params["thresh"]
         return self._construct_result()
-    
+
     async def tune(
         self,
         prompts: List[str],
@@ -311,10 +317,10 @@ class UQEnsemble(UncertaintyQuantifier):
         ----------
         prompts : list of str
             A list of input prompts for the model.
-        
+
         ground_truth_answers : list of str
-            A list of ideal (correct) responses 
-            
+            A list of ideal (correct) responses
+
         grader_function : function(response: str, answer: str) -> bool, default=None
             A user-defined function that takes a response and a ground truth 'answer' and returns a boolean indicator of whether
             the response is correct. If not provided, vectara's HHEM is used: https://huggingface.co/vectara/hallucination_evaluation_model
@@ -349,13 +355,16 @@ class UQEnsemble(UncertaintyQuantifier):
         await self.generate_and_score(prompts=prompts, num_responses=num_responses)
         print("Grading responses with grader function...")
         if grader_function:
-            correct_indicators = [grader_function(r, a) for r, a in zip(self.responses, ground_truth_answers)]
+            correct_indicators = [
+                grader_function(r, a)
+                for r, a in zip(self.responses, ground_truth_answers)
+            ]
         else:
-            self._construct_hhem() # use vectara hhem if no grader is provided
+            self._construct_hhem()  # use vectara hhem if no grader is provided
             pairs = [(a, r) for a, r in zip(ground_truth_answers, self.responses)]
             halluc_scores = self.hhem.predict(pairs)
             correct_indicators = [(s > 0.5) * 1 for s in halluc_scores]
-            
+
         tuned_result = self.tune_from_graded(
             correct_indicators=correct_indicators,
             weights_objective=weights_objective,
@@ -363,10 +372,9 @@ class UQEnsemble(UncertaintyQuantifier):
             thresh_objective=thresh_objective,
             n_trials=n_trials,
             step_size=step_size,
-            fscore_beta=fscore_beta,            
+            fscore_beta=fscore_beta,
         )
         return tuned_result
-        
 
     def _construct_result(self) -> Any:
         """Constructs UQResult from dictionary"""
@@ -446,7 +454,7 @@ class UQEnsemble(UncertaintyQuantifier):
                 device=self.device,
                 nli_model_name=self.nli_model_name,
                 max_length=self.max_length,
-                use_best=self.use_best
+                use_best=self.use_best,
             )
         if self.white_box_components:
             self.white_box_object = WhiteBoxUQ()
@@ -467,13 +475,14 @@ class UQEnsemble(UncertaintyQuantifier):
         """Normalize weights to sum to 1."""
         weights = weights if weights else [1] * len(self.components)
         return self.tuner._normalize_weights(weights)
-    
+
     def _construct_hhem(self):
         from transformers import AutoModelForSequenceClassification
+
         self.hhem = AutoModelForSequenceClassification.from_pretrained(
-            'vectara/hallucination_evaluation_model', trust_remote_code=True
+            "vectara/hallucination_evaluation_model", trust_remote_code=True
         )
-    
+
     @staticmethod
     def _validate_grader(grader_function: Any) -> bool:
         "Validate that grader function is valid"
@@ -482,8 +491,10 @@ class UQEnsemble(UncertaintyQuantifier):
         else:
             sig = inspect.signature(grader_function)
             params = sig.parameters
-            if 'response' not in params or 'answer' not in params:
-                raise ValueError("grader_function must have 'resposne' and 'answer' parameters")
+            if "response" not in params or "answer" not in params:
+                raise ValueError(
+                    "grader_function must have 'resposne' and 'answer' parameters"
+                )
             check_val = grader_function("a", "b")
             if not isinstance(check_val, bool):
                 raise ValueError("grader_function must return boolean")

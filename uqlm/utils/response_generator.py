@@ -200,14 +200,14 @@ class ResponseGenerator:
             if self.llm.logprobs:
                 if "logprobs_result" in result.generations[0][0].generation_info:
                     logprobs = [
-                            result.generations[0][i].generation_info["logprobs_result"]
-                            for i in range(count)
-                        ]
+                        result.generations[0][i].generation_info["logprobs_result"]
+                        for i in range(count)
+                    ]
                 elif "logprobs" in result.generations[0][0].generation_info:
                     logprobs = [
-                            result.generations[0][i].generation_info["logprobs"]["content"]
-                            for i in range(count)
-                        ]    
+                        result.generations[0][i].generation_info["logprobs"]["content"]
+                        for i in range(count)
+                    ]
         return {
             "logprobs": logprobs,
             "responses": [result.generations[0][i].text for i in range(count)],

@@ -123,7 +123,7 @@ class LLMJudge(ResponseGenerator):
     ) -> Dict[str, Any]:
         """
         Judge responses for correctness.
-        
+
         Parameters
         ----------
         prompts : list of str
@@ -161,9 +161,9 @@ class LLMJudge(ResponseGenerator):
             if len(df_sub) > 0:
                 with contextlib.redirect_stdout(io.StringIO()):
                     tmp = await self.generate_responses(
-                        prompts=list(df_sub.judge_prompts), 
-                        count=1, 
-                        system_prompt=self.system_prompt
+                        prompts=list(df_sub.judge_prompts),
+                        count=1,
+                        system_prompt=self.system_prompt,
                     )
                 df.loc[df_sub.index, "scores"] = self._extract_answers(
                     responses=tmp["data"]["response"]

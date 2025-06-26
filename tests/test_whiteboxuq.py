@@ -27,7 +27,7 @@ metadata = expected_result["metadata"]
 PROMPTS = data["prompts"]
 MOCKED_RESPONSES = data["responses"]
 MOCKED_LOGPROBS = data["logprobs"]
-    
+
 mock_object = AzureChatOpenAI(
     deployment_name="YOUR-DEPLOYMENT",
     temperature=1.0,
@@ -37,18 +37,19 @@ mock_object = AzureChatOpenAI(
 )
 
 
-
 @pytest.mark.asyncio
 async def test_whiteboxuq(monkeypatch):
     wbuq = WhiteBoxUQ(llm=mock_object)
-    
+
     async def mock_generate_original_responses(*args, **kwargs):
         wbuq.logprobs = MOCKED_LOGPROBS
         return MOCKED_RESPONSES
 
-    monkeypatch.setattr(wbuq, "generate_original_responses", mock_generate_original_responses)
+    monkeypatch.setattr(
+        wbuq, "generate_original_responses", mock_generate_original_responses
+    )
     results = await wbuq.generate_and_score(prompts=PROMPTS)
-    
+
     assert all(
         [
             results.data["normalized_probability"][i]
@@ -64,8 +65,5 @@ async def test_whiteboxuq(monkeypatch):
             for i in range(len(PROMPTS))
         ]
     )
-    
+
     assert results.metadata == metadata
-    
-    
-    

@@ -23,11 +23,11 @@ with open(datafile_path, "r") as f:
 
 data = expected_result["data"]
 metadata = expected_result["metadata"]
-    
+
 PROMPTS = data["prompts"]
 MOCKED_RESPONSES = data["responses"]
 MOCKED_SAMPLED_RESPONSES = data["sampled_responses"]
-    
+
 mock_object = AzureChatOpenAI(
     deployment_name="YOUR-DEPLOYMENT",
     temperature=1,
@@ -36,26 +36,32 @@ mock_object = AzureChatOpenAI(
     azure_endpoint="https://mocked.endpoint.com",
 )
 
+
 @pytest.mark.asyncio
 async def test_bbuq(monkeypatch):
     uqe = BlackBoxUQ(
         llm=mock_object,
-        scorers=['noncontradiction', 'exact_match', 'semantic_negentropy'],
+        scorers=["noncontradiction", "exact_match", "semantic_negentropy"],
     )
-    
+
     async def mock_generate_original_responses(*args, **kwargs):
         uqe.logprobs = [None] * 5
         return MOCKED_RESPONSES
-    
+
     async def mock_generate_candidate_responses(*args, **kwargs):
         uqe.multiple_logprobs = [[None] * 5] * 5
         return MOCKED_SAMPLED_RESPONSES
-    
-    monkeypatch.setattr(uqe, "generate_original_responses", mock_generate_original_responses)
-    monkeypatch.setattr(uqe, "generate_candidate_responses", mock_generate_candidate_responses)
-    
+
+    monkeypatch.setattr(
+        uqe, "generate_original_responses", mock_generate_original_responses
+    )
+    monkeypatch.setattr(
+        uqe, "generate_candidate_responses", mock_generate_candidate_responses
+    )
+
     results = await uqe.generate_and_score(
-        prompts=PROMPTS, num_responses=5,
+        prompts=PROMPTS,
+        num_responses=5,
     )
 
     assert all(
@@ -80,5 +86,5 @@ async def test_bbuq(monkeypatch):
             for i in range(len(PROMPTS))
         ]
     )
-    
+
     assert results.metadata == metadata

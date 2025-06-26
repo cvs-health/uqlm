@@ -149,7 +149,7 @@ def load_example_dataset(
     name : str
         The name of the dataset to load. Must be one of "svamp", "gsm8k", "ai2_arc",
         "csqa", "nq_open", "popqa"
-        
+
     n : int, optional
         Number of rows to load from the dataset.
 

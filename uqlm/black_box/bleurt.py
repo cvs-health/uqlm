@@ -41,9 +41,9 @@ class BLEURTScorer(SimilarityScorer):
         """
         try:
             from bleurt.score import BleurtScorer
-        except ImportError:    
+        except ImportError:
             raise ImportError(
-            """
+                """
             The bleurt package is required to use BLEURTScorer but is not installed. Please install it using:\n
             `pip install git+https://github.com/google-research/bleurt.git`
             """
@@ -90,7 +90,7 @@ class BLEURTScorer(SimilarityScorer):
         )
 
     def _set_bleurt_checkpoint(self):
-        """Sets up checkpoint"""        
+        """Sets up checkpoint"""
         resource_path = resources.files("uqlm.resources").joinpath("BLEURT-20")
         if not resource_path.is_dir():
             self._download_and_unzip(
@@ -115,7 +115,9 @@ class BLEURTScorer(SimilarityScorer):
                 print(f"Failed to download file. Status code: {response.status_code}")
                 return
         except RequestException as e:
-            print(f"Network error occurred while downloading BLEURT checkpoint: {str(e)}")
+            print(
+                f"Network error occurred while downloading BLEURT checkpoint: {str(e)}"
+            )
             return
 
         try:

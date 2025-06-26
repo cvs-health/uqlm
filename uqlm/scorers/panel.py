@@ -48,11 +48,11 @@ class LLMPanel(UncertaintyQuantifier):
 
         system_prompt : str or None, default="You are a helpful assistant."
             Optional argument for user to provide custom system prompt
-            
+
         scoring_templates : List[str], default=None
              Specifies which off-the-shelf template to use for each judge. Three off-the-shelf templates offered:
              incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), and continuous score (0 to 1).
-             These templates are respectively specified as 'true_false_uncertain', 'true_false', and 'continuous'. 
+             These templates are respectively specified as 'true_false_uncertain', 'true_false', and 'continuous'.
              If specified, must be of equal length to `judges` list. Defaults to 'true_false_uncertain' template
              used by Chen and Mueller (2023) :footcite:`chen2023quantifyinguncertaintyanswerslanguage` for each judge.
         """
@@ -64,14 +64,18 @@ class LLMPanel(UncertaintyQuantifier):
         self.scoring_templates = scoring_templates
         if self.scoring_templates:
             if len(self.scoring_templates) != len(judges):
-                raise ValueError("Length of scoring_templates list must be equal to length of judges list")
+                raise ValueError(
+                    "Length of scoring_templates list must be equal to length of judges list"
+                )
         else:
             self.scoring_templates = ["true_false_uncertain"] * len(judges)
         self.judges = []
         for judge, template in zip(judges, self.scoring_templates):
             if isinstance(judge, BaseChatModel):
                 judge = LLMJudge(
-                    llm=judge, max_calls_per_min=max_calls_per_min, scoring_template=template
+                    llm=judge,
+                    max_calls_per_min=max_calls_per_min,
+                    scoring_template=template,
                 )
             elif not isinstance(judge, LLMJudge):
                 raise ValueError(
@@ -98,7 +102,7 @@ class LLMPanel(UncertaintyQuantifier):
         """
         responses = await self.generate_original_responses(prompts)
         return await self.score(prompts=prompts, responses=responses)
-    
+
     async def score(
         self,
         prompts: List[str],
@@ -114,7 +118,7 @@ class LLMPanel(UncertaintyQuantifier):
             A list of input prompts for the model.
 
         responses: list of str, default = None
-            A list of LLM responses for the corresponding to the provided prompts. 
+            A list of LLM responses for the corresponding to the provided prompts.
 
         Returns
         -------
@@ -127,7 +131,7 @@ class LLMPanel(UncertaintyQuantifier):
             "prompts": prompts,
             "responses": responses,
         }
-        
+
         judge_count = 1
         scores_lists = []
         for judge in self.judges:

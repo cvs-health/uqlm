@@ -33,9 +33,7 @@ async def main():
     )
 
     # Define prompts
-    MATH_INSTRUCTION = (
-        "When you solve this math problem only return the answer with no additional text.\n"
-    )
+    MATH_INSTRUCTION = "When you solve this math problem only return the answer with no additional text.\n"
     prompts = [MATH_INSTRUCTION + prompt for prompt in svamp.question]
 
     # User to populate .env file with API credentials
@@ -65,6 +63,6 @@ async def main():
     with open(results_file, "w") as f:
         json.dump(results.to_dict(), f)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
- 

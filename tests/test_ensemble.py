@@ -24,13 +24,13 @@ with open(datafile_path, "r") as f:
 
 data = expected_result["data"]
 metadata = expected_result["metadata"]
-    
+
 PROMPTS = data["prompts"]
 MOCKED_RESPONSES = data["responses"]
 MOCKED_SAMPLED_RESPONSES = data["sampled_responses"]
-MOCKED_JUDGE_SCORES = data['judge_1']
+MOCKED_JUDGE_SCORES = data["judge_1"]
 MOCKED_LOGPROBS = metadata["logprobs"]
-    
+
 mock_object = AzureChatOpenAI(
     deployment_name="YOUR-DEPLOYMENT",
     temperature=1,
@@ -39,38 +39,43 @@ mock_object = AzureChatOpenAI(
     azure_endpoint="https://mocked.endpoint.com",
 )
 
+
 @pytest.mark.asyncio
 async def test_ensemble(monkeypatch):
     uqe = UQEnsemble(
         llm=mock_object,
         scorers=[
-            "exact_match",  
-            "noncontradiction",  
-            "min_probability",  
-            mock_object,  
-        ]
+            "exact_match",
+            "noncontradiction",
+            "min_probability",
+            mock_object,
+        ],
     )
-    
+
     async def mock_generate_original_responses(*args, **kwargs):
         uqe.logprobs = MOCKED_LOGPROBS
         return MOCKED_RESPONSES
-    
+
     async def mock_generate_candidate_responses(*args, **kwargs):
         uqe.multiple_logprobs = [MOCKED_LOGPROBS] * 5
         return MOCKED_SAMPLED_RESPONSES
-    
+
     async def mock_judge_scores(*args, **kwargs):
-        return UQResult({'data': {'judge_1': MOCKED_JUDGE_SCORES}})
-    
-    monkeypatch.setattr(uqe, "generate_original_responses", mock_generate_original_responses)
-    monkeypatch.setattr(uqe, "generate_candidate_responses", mock_generate_candidate_responses)
+        return UQResult({"data": {"judge_1": MOCKED_JUDGE_SCORES}})
+
+    monkeypatch.setattr(
+        uqe, "generate_original_responses", mock_generate_original_responses
+    )
+    monkeypatch.setattr(
+        uqe, "generate_candidate_responses", mock_generate_candidate_responses
+    )
     monkeypatch.setattr(uqe.judges_object, "score", mock_judge_scores)
-    
+
     results = await uqe.generate_and_score(
         prompts=PROMPTS,
         num_responses=5,
     )
-    
+
     assert all(
         [
             results.data["ensemble_scores"][i]
