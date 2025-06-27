@@ -63,9 +63,11 @@ def test_nli4(nli_model_cpu):
     text1 = "Capital of France is Paris"
     text2 = " Paris is the capital of France"
     text3 = "Rome is the capital of Italy"
-    logprobs_results = [[{"token": "Capital", "logprob": 0.6}, {"token": "of", "logprob": 0.5}, {"token": "France", "logprob": 0.3}, {"token": "is", "logprob": 0.3}, {"token": "Paris", "logprob": 0.3}], 
-                        [{"token": "Paris", "logprob": 0.75}, {"token": "is", "logprob": 0.8}, {"token": "the", "logprob": 0.9}, {"token": "capital", "logprob": 0.6}, {"token": "of", "logprob": 0.6}, {"token": "France", "logprob": 0.6}], 
-                        [{"token": "Rome", "logprob": 0.75}, {"token": "is", "logprob": 0.8}, {"token": "the", "logprob": 0.9}, {"token": "capital", "logprob": 0.6}, {"token": "of", "logprob": 0.6}, {"token": "Italy", "logprob": 0.6}]]
+    logprobs_results = [
+        [{"token": "Capital", "logprob": 0.6}, {"token": "of", "logprob": 0.5}, {"token": "France", "logprob": 0.3}, {"token": "is", "logprob": 0.3}, {"token": "Paris", "logprob": 0.3}],
+        [{"token": "Paris", "logprob": 0.75}, {"token": "is", "logprob": 0.8}, {"token": "the", "logprob": 0.9}, {"token": "capital", "logprob": 0.6}, {"token": "of", "logprob": 0.6}, {"token": "France", "logprob": 0.6}],
+        [{"token": "Rome", "logprob": 0.75}, {"token": "is", "logprob": 0.8}, {"token": "the", "logprob": 0.9}, {"token": "capital", "logprob": 0.6}, {"token": "of", "logprob": 0.6}, {"token": "Italy", "logprob": 0.6}],
+    ]
     best_response, semantic_negentropy, nli_scores = nli_model_cpu._semantic_entropy_process(candidates=[text1, text2, text3], i=1, logprobs_results=logprobs_results)
 
     assert best_response == text2
