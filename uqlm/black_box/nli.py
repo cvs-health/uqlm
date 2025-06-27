@@ -83,7 +83,7 @@ class NLIScorer(SimilarityScorer):
         probabilites = np.exp(np_logits) / np.exp(np_logits).sum(axis=-1, keepdims=True)
         return probabilites
 
-    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], use_best: bool, compute_entropy: bool = False) -> Dict[str, Any]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], responses_logprobs: List[List[Dict[str, Any]]] = None, sampled_responses_logprobs: List[List[List[Dict[str, Any]]]] = None, use_best: bool = False, compute_entropy: bool = False) -> Dict[str, Any]:
         """
         Evaluate confidence scores on LLM responses.
 
@@ -109,9 +109,10 @@ class NLIScorer(SimilarityScorer):
             The dictionary will also contain original and multiple responses, updated if `use_best` is True
         """
         self.num_responses = len(sampled_responses[0])
+        self.logprobs, self.multiple_logprobs = responses_logprobs, sampled_responses_logprobs
         observed_consistency_data = {"noncontradiction": [], "semantic_negentropy": [], "responses": responses, "sampled_responses": sampled_responses}
         for i, response in enumerate(responses):
-            oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], use_best=use_best, compute_entropy=compute_entropy)
+            oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], i=i,use_best=use_best, compute_entropy=compute_entropy)
             observed_consistency_data["noncontradiction"].append(oc_result_i["nli_score_i"])
             observed_consistency_data["semantic_negentropy"].append(oc_result_i["semantic_negentropy"])
             responses[i] = oc_result_i["response"]  # Replace with optimized response if use_best
@@ -122,7 +123,13 @@ class NLIScorer(SimilarityScorer):
             observed_consistency_data["sampled_responses"] = sampled_responses
         return observed_consistency_data
 
-    def _observed_consistency_i(self, original: str, candidates: List[str], use_best: bool = False, compute_entropy: bool = False) -> Dict[str, Any]:
+    def _observed_consistency_i(self, 
+                            original: str, 
+                            candidates: List[str], 
+                            i: int = None,
+                            use_best: bool = False, 
+                            compute_entropy: bool = False
+                            ) -> Dict[str, Any]:
         """
         Compute observed consistency score on the provided original response and multiple candidates.
         """
@@ -132,7 +139,8 @@ class NLIScorer(SimilarityScorer):
         semantic_negentropy = None
         if compute_entropy or use_best:
             all_responses = [original] + candidates
-            tmp = self._semantic_entropy_process(candidates=all_responses)
+            all_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i] if (self.logprobs and self.multiple_logprobs) else None
+            tmp = self._semantic_entropy_process(candidates=all_responses, i=i, logprobs_results=all_logprobs)
             best_response, semantic_negentropy, scores = tmp
             if use_best:
                 all_responses.remove(best_response)
@@ -152,7 +160,7 @@ class NLIScorer(SimilarityScorer):
         Executes complete process for semantic entropy and returns best response, SE score, and dictionary
         of NLI scores for response pairs
         """
-        if self.verbose:
+        if self.verbose and i is not None:
             print("Question No. - ", i + 1)
         response_probabilities = self._compute_response_probabilities(logprobs_results=logprobs_results, num_responses=len(candidates))
         clustered_responses, cluster_probabilities, nli_scores = self._cluster_responses(responses=candidates, response_probabilities=response_probabilities)
@@ -165,11 +173,6 @@ class NLIScorer(SimilarityScorer):
         if logprobs_results:
             return [self.avg_logprob(logprobs_i) if logprobs_i else np.nan for logprobs_i in logprobs_results]
         return [1/num_responses] * num_responses
-    
-    @staticmethod
-    def avg_logprob(logprobs: List[Dict[str, Any]]) -> float:
-        "Compute average logprob"
-        return np.mean([np.exp(d["logprob"]) for d in logprobs])
 
     def _get_nli_results(self, response1: str, response2: str) -> Dict[str, Any]:
         """This method computes mean NLI score and determines whether entailment exists."""
@@ -232,14 +235,20 @@ class NLIScorer(SimilarityScorer):
         cluster_probabilities = self._normalize_cluster_probabilities(cluster_probabilities=cluster_probabilities)
         return clusters, cluster_probabilities, nli_scores
 
-    def _compute_semantic_entropy(self, cluster_probabilities: List[float]) -> float:
+    def _normalize_entropy(self, entropy_values):
+        return [e / math.log(self.num_responses + 1) for e in entropy_values]
+    
+    @staticmethod
+    def _compute_semantic_entropy(cluster_probabilities: List[float]) -> float:
         """
         Helper function to compute semantic entropy score from cluster probabilities
         """
-        return abs(sum([p * math.log(p) for p in cluster_probabilities]))
-
-    def _normalize_entropy(self, entropy_values):
-        return [e / math.log(self.num_responses + 1) for e in entropy_values]
+        return abs(sum([p * math.log(p) if p > 0.0 else 0 for p in cluster_probabilities]))
+    
+    @staticmethod
+    def avg_logprob(logprobs: List[Dict[str, Any]]) -> float:
+        "Compute average logprob"
+        return np.mean([np.exp(d["logprob"]) for d in logprobs])
 
     @staticmethod
     def _normalize_cluster_probabilities(cluster_probabilities: List[float]) -> float:

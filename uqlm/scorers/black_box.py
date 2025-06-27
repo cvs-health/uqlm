@@ -121,6 +121,9 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.prompts = prompts
         self.num_responses = num_responses
 
+        if hasattr(self.llm, "logprobs") and "semantic_negentropy" in self.scorers:
+            self.llm.logprobs = True
+
         responses = await self.generate_original_responses(prompts)
         sampled_responses = await self.generate_candidate_responses(prompts)
         return self.score(responses=responses, sampled_responses=sampled_responses)
@@ -152,7 +155,9 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.scores_dict = {k: [] for k in self.scorer_objects}
         if self.use_nli:
             compute_entropy = "semantic_negentropy" in self.scorers
-            nli_scores = self.nli_scorer.evaluate(responses=self.responses, sampled_responses=self.sampled_responses, use_best=self.use_best, compute_entropy=compute_entropy)
+            responses_logprobs = self.logprobs if hasattr(self.llm, "logprobs") else None
+            sampled_responses_logprobs = self.multiple_logprobs if hasattr(self.llm, "logprobs") else None
+            nli_scores = self.nli_scorer.evaluate(responses=self.responses, sampled_responses=self.sampled_responses, responses_logprobs=responses_logprobs, sampled_responses_logprobs=sampled_responses_logprobs, use_best=self.use_best, compute_entropy=compute_entropy)
             if self.use_best:
                 self.original_responses = self.responses.copy()
                 self.responses = nli_scores["responses"]
