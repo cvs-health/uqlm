@@ -33,6 +33,7 @@ bert-score = "^0.3.0"
 pandas = "^2.2.3"
 sentence-transformers = "^3.4.0"
 datasets = "^3.3.2"
+tf-keras = "^2.19.0"
 
 
 [tool.poetry.group.dev]

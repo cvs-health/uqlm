@@ -35,7 +35,7 @@ class CosineScorer(SimilarityScorer):
         from sentence_transformers import SentenceTransformer
 
         self.transformer = transformer
-        self.model = SentenceTransformer(f"{transformer}")
+        self.model = SentenceTransformer(f"sentence-transformers/{transformer}")
 
     def evaluate(self, responses: List[str], sampled_responses: List[List[str]]) -> List[float]:
         """
