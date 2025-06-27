@@ -6,18 +6,7 @@ import importlib
 def test_import_time():
     """Test that the total import time for uqlm is less than 3 seconds."""
     # List of main dependencies to profile
-    dependencies = [
-        "langchain",
-        "langchain_core",
-        "transformers",
-        "sentence_transformers",
-        "bert_score",
-        "matplotlib",
-        "optuna",
-        "numpy",
-        "pandas",
-        "sklearn",
-    ]
+    dependencies = ["langchain", "langchain_core", "transformers", "sentence_transformers", "bert_score", "matplotlib", "optuna", "numpy", "pandas", "sklearn"]
 
     results = []
     for dep in dependencies:
@@ -42,12 +31,7 @@ def test_import_time():
 
         scorer = BlackBoxUQ(scorers=["bert_score", "cosine_sim"])
         # Actually use the scorer to force loading of all dependencies
-        scorer.score(
-            responses=["This is a test response"],
-            sampled_responses=[
-                ["This is a test response", "This is another test response"]
-            ],
-        )
+        scorer.score(responses=["This is a test response"], sampled_responses=[["This is a test response", "This is another test response"]])
         elapsed = time.time() - start
         results.append(("uqlm (with BlackBoxUQ usage)", elapsed))
         print(f"\nuqlm (with BlackBoxUQ usage): {elapsed:.4f} seconds")
@@ -60,10 +44,6 @@ def test_import_time():
         print(f"\nSlowest import: {slowest[0]} ({slowest[1]:.4f} seconds)")
 
     # Assert that uqlm import time is less than 3 seconds
-    uqlm_time = next(
-        (t for name, t in results if name == "uqlm (with BlackBoxUQ usage)"), None
-    )
+    uqlm_time = next((t for name, t in results if name == "uqlm (with BlackBoxUQ usage)"), None)
     assert uqlm_time is not None, "Failed to measure uqlm import time"
-    assert uqlm_time < 5.0, (
-        f"uqlm import time ({uqlm_time:.2f} seconds) exceeds 3 second limit"
-    )
+    assert uqlm_time < 5.0, f"uqlm import time ({uqlm_time:.2f} seconds) exceeds 3 second limit"
