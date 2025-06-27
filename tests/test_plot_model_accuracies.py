@@ -28,10 +28,7 @@ def test_plot_model_accuracies_basic():
     correct_indicators = np.array([True, False, True, True])
     thresholds = np.linspace(0, 0.9, num=10)
 
-    try:
-        plot_model_accuracies(scores, correct_indicators, thresholds)
-    except Exception as e:
-        pytest.fail(f"plot_model_accuracies raised an exception {e}")
+    plot_model_accuracies(scores, correct_indicators, thresholds)
     plt.close("all")
 
 
@@ -52,12 +49,7 @@ def test_plot_model_accuracies_with_write_path():
     thresholds = np.linspace(0, 0.9, num=10)
     write_path = "test_plot.png"
 
-    try:
-        plot_model_accuracies(
-            scores, correct_indicators, thresholds, write_path=write_path
-        )
-    except Exception as e:
-        pytest.fail(f"plot_model_accuracies raised an exception {e}")
+    plot_model_accuracies(scores, correct_indicators, thresholds, write_path=write_path)
     plt.close("all")
     assert os.path.exists(write_path)
     os.remove(write_path)

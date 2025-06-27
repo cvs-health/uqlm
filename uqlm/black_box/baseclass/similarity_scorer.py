@@ -20,11 +20,11 @@ class SimilarityScorer(ABC):
     """Abstract class for text similarity scorers"""
 
     @abstractmethod
-    def __init__():
+    def __init__(self):
         """Abstract constructor method"""
         pass
 
     @abstractmethod
-    def evaluate(responses: List[str], sampled_responses: List[str]) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[str]) -> List[float]:
         """Abstract method for metric computation"""
         pass

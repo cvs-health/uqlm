@@ -18,10 +18,4 @@ from uqlm.black_box.cosine import CosineScorer
 from uqlm.black_box.match import MatchScorer
 from uqlm.black_box.nli import NLIScorer
 
-__all__ = [
-    "BertScorer",
-    "BLEURTScorer",
-    "CosineScorer",
-    "MatchScorer",
-    "NLIScorer",
-]
+__all__ = ["BertScorer", "BLEURTScorer", "CosineScorer", "MatchScorer", "NLIScorer"]

@@ -14,6 +14,4 @@
 
 from uqlm.judges.judge import LLMJudge
 
-__all__ = [
-    "LLMJudge",
-]
+__all__ = ["LLMJudge"]

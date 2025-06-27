@@ -89,14 +89,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         verbose : bool, default=False
             Specifies whether to print the index of response currently being scored.
         """
-        super().__init__(
-            llm=llm,
-            device=device,
-            system_prompt=system_prompt,
-            max_calls_per_min=max_calls_per_min,
-            use_n_param=use_n_param,
-            postprocessor=postprocessor,
-        )
+        super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor)
         self.prompts = None
         self.max_length = max_length
         self.verbose = verbose
@@ -104,17 +97,11 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.sampling_temperature = sampling_temperature
         self.nli_model_name = nli_model_name
         self._validate_scorers(scorers)
-        self.use_nli = ("semantic_negentropy" in self.scorers) or (
-            "noncontradiction" in self.scorers
-        )
+        self.use_nli = ("semantic_negentropy" in self.scorers) or ("noncontradiction" in self.scorers)
         if self.use_nli:
             self._setup_nli(nli_model_name)
 
-    async def generate_and_score(
-        self,
-        prompts: List[str],
-        num_responses: int = 5,
-    ) -> UQResult:
+    async def generate_and_score(self, prompts: List[str], num_responses: int = 5) -> UQResult:
         """
         Generate LLM responses, sampled LLM (candidate) responses, and compute confidence scores with specified scorers for the provided prompts.
 
@@ -136,14 +123,9 @@ class BlackBoxUQ(UncertaintyQuantifier):
 
         responses = await self.generate_original_responses(prompts)
         sampled_responses = await self.generate_candidate_responses(prompts)
-        return self.score(
-            responses=responses,
-            sampled_responses=sampled_responses,
-        )
+        return self.score(responses=responses, sampled_responses=sampled_responses)
 
-    def score(
-        self, responses: List[str], sampled_responses: List[List[str]]
-    ) -> UQResult:
+    def score(self, responses: List[str], sampled_responses: List[List[str]]) -> UQResult:
         """
         Compute confidence scores with specified scorers on provided LLM responses. Should only be used if responses and sampled responses
         are already generated. Otherwise, use `generate_and_score`.
@@ -170,12 +152,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.scores_dict = {k: [] for k in self.scorer_objects}
         if self.use_nli:
             compute_entropy = "semantic_negentropy" in self.scorers
-            nli_scores = self.nli_scorer.evaluate(
-                responses=self.responses,
-                sampled_responses=self.sampled_responses,
-                use_best=self.use_best,
-                compute_entropy=compute_entropy,
-            )
+            nli_scores = self.nli_scorer.evaluate(responses=self.responses, sampled_responses=self.sampled_responses, use_best=self.use_best, compute_entropy=compute_entropy)
             if self.use_best:
                 self.original_responses = self.responses.copy()
                 self.responses = nli_scores["responses"]
@@ -184,42 +161,23 @@ class BlackBoxUQ(UncertaintyQuantifier):
             for key in ["semantic_negentropy", "noncontradiction"]:
                 if key in self.scorers:
                     if key == "semantic_negentropy":
-                        nli_scores[key] = [
-                            1 - s
-                            for s in self.nli_scorer._normalize_entropy(nli_scores[key])
-                        ]  # Convert to confidence score
+                        nli_scores[key] = [1 - s for s in self.nli_scorer._normalize_entropy(nli_scores[key])]  # Convert to confidence score
                     self.scores_dict[key] = nli_scores[key]
 
         # similarity scorers that follow the same pattern
         for scorer_key in ["exact_match", "bert_score", "bleurt", "cosine_sim"]:
             if scorer_key in self.scorer_objects:
-                self.scores_dict[scorer_key] = self.scorer_objects[scorer_key].evaluate(
-                    responses=self.responses,
-                    sampled_responses=self.sampled_responses,
-                )
+                self.scores_dict[scorer_key] = self.scorer_objects[scorer_key].evaluate(responses=self.responses, sampled_responses=self.sampled_responses)
 
         return self._construct_result()
 
     def _construct_result(self) -> Any:
         """Constructs UQResult object"""
-        data = {
-            "responses": self.responses,
-            "sampled_responses": self.sampled_responses,
-        }
+        data = {"responses": self.responses, "sampled_responses": self.sampled_responses}
         if self.prompts:
             data["prompts"] = self.prompts
         data.update(self.scores_dict)
-        result = {
-            "data": data,
-            "metadata": {
-                "temperature": None if not self.llm else self.llm.temperature,
-                "sampling_temperature": None
-                if not self.sampling_temperature
-                else self.sampling_temperature,
-                "num_responses": self.num_responses,
-                "scorers": self.scorers,
-            },
-        }
+        result = {"data": data, "metadata": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "scorers": self.scorers}}
         return UQResult(result)
 
     def _validate_scorers(self, scorers: List[Any]) -> None:

@@ -25,14 +25,7 @@ from uqlm.utils.llm_config import save_llm_config, load_llm_config, _is_serializ
 class TestLLMConfigUtils:
     def setup_method(self):
         """Set up test fixtures"""
-        self.mock_llm = AzureChatOpenAI(
-            deployment_name="test-deployment",
-            temperature=0.7,
-            max_tokens=1024,
-            api_key="test-key",
-            api_version="2024-05-01-preview",
-            azure_endpoint="https://test.endpoint.com",
-        )
+        self.mock_llm = AzureChatOpenAI(deployment_name="test-deployment", temperature=0.7, max_tokens=1024, api_key="test-key", api_version="2024-05-01-preview", azure_endpoint="https://test.endpoint.com")
 
     @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_is_serializable(self):
@@ -185,25 +178,11 @@ class TestLLMConfigUtils:
         assert config["temperature"] == 0.5
         assert "problematic_attr" not in config
 
-    @patch.dict(
-        "os.environ",
-        {
-            "AZURE_OPENAI_API_KEY": "test-key",
-            "AZURE_OPENAI_ENDPOINT": "https://test.endpoint.com",
-        },
-    )
+    @patch.dict("os.environ", {"AZURE_OPENAI_API_KEY": "test-key", "AZURE_OPENAI_ENDPOINT": "https://test.endpoint.com"})
     @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_llm_config_success(self):
         """Test load_llm_config successfully recreates LLM"""
-        config = {
-            "class_name": "AzureChatOpenAI",
-            "module": "langchain_openai.chat_models.azure",
-            "temperature": 0.5,
-            "max_tokens": 512,
-            "api_key": "test-key",
-            "azure_endpoint": "https://test.endpoint.com",
-            "api_version": "2024-05-01-preview",
-        }
+        config = {"class_name": "AzureChatOpenAI", "module": "langchain_openai.chat_models.azure", "temperature": 0.5, "max_tokens": 512, "api_key": "test-key", "azure_endpoint": "https://test.endpoint.com", "api_version": "2024-05-01-preview"}
 
         recreated_llm = load_llm_config(config)
 
@@ -216,11 +195,7 @@ class TestLLMConfigUtils:
     @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_load_llm_config_import_error(self):
         """Test load_llm_config handles import errors"""
-        config = {
-            "class_name": "NonExistentLLM",
-            "module": "non.existent.module",
-            "temperature": 0.5,
-        }
+        config = {"class_name": "NonExistentLLM", "module": "non.existent.module", "temperature": 0.5}
 
         with pytest.raises(ValueError, match="Could not recreate LLM from config"):
             load_llm_config(config)
@@ -265,25 +240,12 @@ class TestLLMConfigUtils:
         with pytest.raises(ValueError, match="Could not recreate LLM from config"):
             load_llm_config(config)
 
-    @patch.dict(
-        "os.environ",
-        {
-            "AZURE_OPENAI_API_KEY": "test-key",
-            "AZURE_OPENAI_ENDPOINT": "https://test.endpoint.com",
-        },
-    )
+    @patch.dict("os.environ", {"AZURE_OPENAI_API_KEY": "test-key", "AZURE_OPENAI_ENDPOINT": "https://test.endpoint.com"})
     @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_save_load_roundtrip(self):
         """Test complete save and load roundtrip"""
         # Create an AzureChatOpenAI instance
-        azure_llm = AzureChatOpenAI(
-            deployment_name="gpt-4o",
-            openai_api_type="azure",
-            openai_api_version="2024-02-15-preview",
-            temperature=1,
-            api_key="test-api-key",
-            azure_endpoint="https://test.azure.endpoint.com",
-        )
+        azure_llm = AzureChatOpenAI(deployment_name="gpt-4o", openai_api_type="azure", openai_api_version="2024-02-15-preview", temperature=1, api_key="test-api-key", azure_endpoint="https://test.azure.endpoint.com")
 
         # Save the configuration
         config = save_llm_config(azure_llm)

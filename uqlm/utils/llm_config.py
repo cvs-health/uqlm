@@ -44,40 +44,15 @@ def save_llm_config(llm: BaseChatModel) -> Dict[str, Any]:
     config = {"class_name": llm.__class__.__name__, "module": llm.__class__.__module__}
 
     # Internal LangChain attributes that shouldn't be passed to constructors
-    internal_attrs = {
-        "config_specs",
-        "lc_attributes",
-        "lc_secrets",
-        "model_computed_fields",
-        "model_config",
-        "model_kwargs",
-        "disabled_params",
-        "include_response_headers",
-        "stream_usage",
-        "validate_base_url",
-        "disable_streaming",
-    }
+    internal_attrs = {"config_specs", "lc_attributes", "lc_secrets", "model_computed_fields", "model_config", "model_kwargs", "disabled_params", "include_response_headers", "stream_usage", "validate_base_url", "disable_streaming"}
 
     # Endpoint and URL attributes that should not be saved (will be loaded from environment)
-    endpoint_attrs = {
-        "base_url",
-        "endpoint",
-        "azure_endpoint",
-        "openai_api_base",
-        "api_base",
-        "api_url",
-        "url",
-    }
+    endpoint_attrs = {"base_url", "endpoint", "azure_endpoint", "openai_api_base", "api_base", "api_url", "url"}
 
     # Save all attributes that are serializable and not None
     for attr_name in dir(llm):
         # Skip private attributes, methods, special attributes, internal LangChain attrs, and endpoint attrs
-        if (
-            attr_name.startswith("_")
-            or callable(getattr(llm, attr_name))
-            or attr_name in internal_attrs
-            or attr_name in endpoint_attrs
-        ):
+        if attr_name.startswith("_") or callable(getattr(llm, attr_name)) or attr_name in internal_attrs or attr_name in endpoint_attrs:
             continue
 
         try:
@@ -111,9 +86,7 @@ def load_llm_config(llm_config: Dict[str, Any]) -> BaseChatModel:
         llm_class = getattr(module, llm_config["class_name"])
 
         # Extract all parameters except class info
-        llm_params = {
-            k: v for k, v in llm_config.items() if k not in ["class_name", "module"]
-        }
+        llm_params = {k: v for k, v in llm_config.items() if k not in ["class_name", "module"]}
 
         # Create LLM instance
         return llm_class(**llm_params)

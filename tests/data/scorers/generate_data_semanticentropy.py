@@ -42,13 +42,7 @@ async def main():
     )
 
     # svamp dataset to be used as a prod dataset
-    svamp = (
-        load_example_dataset("gsm8k")
-        .rename(columns={"question_concat": "question", "Answer": "answer"})[
-            ["question", "answer"]
-        ]
-        .tail(5)
-    )
+    svamp = load_example_dataset("gsm8k").rename(columns={"question_concat": "question", "Answer": "answer"})[["question", "answer"]].tail(5)
 
     # Define prompts
     MATH_INSTRUCTION = "Solve the math problem, but return only the numerical answer.\n"

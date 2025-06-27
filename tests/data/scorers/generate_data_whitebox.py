@@ -24,13 +24,7 @@ from langchain_openai import AzureChatOpenAI
 
 async def main():
     # svamp dataset to be used as a prod dataset
-    svamp = (
-        load_example_dataset("svamp")
-        .rename(columns={"question_concat": "question", "Answer": "answer"})[
-            ["question", "answer"]
-        ]
-        .tail(5)
-    )
+    svamp = load_example_dataset("svamp").rename(columns={"question_concat": "question", "Answer": "answer"})[["question", "answer"]].tail(5)
 
     # Define prompts
     MATH_INSTRUCTION = "When you solve this math problem only return the answer with no additional text.\n"
