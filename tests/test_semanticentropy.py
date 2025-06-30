@@ -48,6 +48,7 @@ async def test_semanticentropy(monkeypatch):
     monkeypatch.setattr(se_object, "generate_candidate_responses", mock_generate_candidate_responses)
 
     se_results = await se_object.generate_and_score(prompts=PROMPTS)
+    se_object.logprobs = None
     se_results = se_object.score(responses=MOCKED_RESPONSES, sampled_responses=MOCKED_SAMPLED_RESPONSES)
     assert se_results.data["responses"] == data["responses"]
     assert se_results.data["sampled_responses"] == data["sampled_responses"]
