@@ -132,6 +132,7 @@ class SemanticEntropy(UncertaintyQuantifier):
         n_prompts = len(self.responses)
         semantic_entropy = [None] * n_prompts
         best_responses = [None] * n_prompts
+        tokenprob_semantic_entropy = [None] * n_prompts
 
         print("Computing confidence scores...")
         for i in range(n_prompts):
@@ -139,7 +140,7 @@ class SemanticEntropy(UncertaintyQuantifier):
 
             candidate_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i] if (self.logprobs and self.multiple_logprobs) else None
             tmp = self.nli_scorer._semantic_entropy_process(candidates=candidates, i=i, logprobs_results=candidate_logprobs)
-            best_responses[i], semantic_entropy[i], _ = tmp
+            best_responses[i], semantic_entropy[i], _, tokenprob_semantic_entropy[i] = tmp
 
         confidence_scores = [1 - ne for ne in self.nli_scorer._normalize_entropy(semantic_entropy)]
 
@@ -149,4 +150,8 @@ class SemanticEntropy(UncertaintyQuantifier):
         }
         if self.prompts:
             result["data"]["prompts"] = self.prompts
+        if tokenprob_semantic_entropy[0] is not None:
+            result["data"]["tokenprob_entropy_values"] = tokenprob_semantic_entropy
+            result["data"]["tokenprob_confidence_scores"] = [1 - ne for ne in self.nli_scorer._normalize_entropy(tokenprob_semantic_entropy)]
+
         return UQResult(result)

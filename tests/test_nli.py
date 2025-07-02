@@ -68,11 +68,11 @@ def test_nli4(nli_model_cpu):
         [{"token": "Paris", "logprob": 0.75}, {"token": "is", "logprob": 0.8}, {"token": "the", "logprob": 0.9}, {"token": "capital", "logprob": 0.6}, {"token": "of", "logprob": 0.6}, {"token": "France", "logprob": 0.6}],
         [{"token": "Rome", "logprob": 0.75}, {"token": "is", "logprob": 0.8}, {"token": "the", "logprob": 0.9}, {"token": "capital", "logprob": 0.6}, {"token": "of", "logprob": 0.6}, {"token": "Italy", "logprob": 0.6}],
     ]
-    best_response, semantic_negentropy, nli_scores = nli_model_cpu._semantic_entropy_process(candidates=[text1, text2, text3], i=1, logprobs_results=logprobs_results)
+    best_response, semantic_negentropy, nli_scores, tokenprob_semantic_entropy = nli_model_cpu._semantic_entropy_process(candidates=[text1, text2, text3], i=1, logprobs_results=logprobs_results)
 
     assert best_response == text2
-    assert pytest.approx(semantic_negentropy, abs=1e-5) == 0.6565463105613729
+    assert pytest.approx(semantic_negentropy, abs=1e-5) == 0.6365141682948128
     assert pytest.approx(list(nli_scores.values()), abs=1e-5) == [0.9997053, 0.9997053, 0.24012965, 0.24012965]
-
+    assert pytest.approx(tokenprob_semantic_entropy, abs=1e-5) == 0.6565463105613729
     del nli_model_cpu
     gc.collect()
