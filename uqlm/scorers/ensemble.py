@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import json
 import inspect
+from typing import Any, Dict, List, Optional, Union, Tuple
 import numpy as np
 from langchain_core.language_models.chat_models import BaseChatModel
-from typing import Any, Dict, List, Optional, Union, Tuple
+
 
 from uqlm.judges.judge import LLMJudge
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
@@ -24,6 +25,7 @@ from uqlm.scorers.panel import LLMPanel
 from uqlm.scorers.black_box import BlackBoxUQ
 from uqlm.scorers.white_box import WhiteBoxUQ
 from uqlm.utils.tuner import Tuner
+from uqlm.utils.llm_config import save_llm_config, load_llm_config
 
 
 class UQEnsemble(UncertaintyQuantifier):
@@ -394,3 +396,81 @@ class UQEnsemble(UncertaintyQuantifier):
             check_val = grader_function("a", "b")
             if not isinstance(check_val, bool):
                 raise ValueError("grader_function must return boolean")
+
+    def save_config(self, path: str) -> None:
+        """
+        Save minimal configuration: weights, threshold, components, and LLM configs.
+
+        Parameters
+        ----------
+        path : str
+            Path where to save the configuration file (should end with .json)
+        """
+
+        # Handle components and LLM scorers
+        serializable_components = []
+        llm_configs = {}
+        llm_count = 0
+
+        for component in self.components:
+            if isinstance(component, str):
+                serializable_components.append(component)
+            elif isinstance(component, (LLMJudge, BaseChatModel)):
+                llm_count += 1
+                llm_key = f"judge_{llm_count}"
+                serializable_components.append(llm_key)
+                llm_configs[llm_key] = save_llm_config(component)
+            else:
+                raise ValueError(f"Cannot serialize component: {component}")
+
+        # Save main LLM config if present
+        main_llm_config = None
+        if self.llm:
+            main_llm_config = save_llm_config(self.llm)
+
+        config = {"weights": self.weights, "thresh": self.thresh, "components": serializable_components, "llm_config": main_llm_config, "llm_scorers": llm_configs}
+
+        with open(path, "w") as f:
+            json.dump(config, f, indent=2)
+
+    @classmethod
+    def load_config(cls, path: str, llm: Optional[BaseChatModel] = None) -> "UQEnsemble":
+        """
+        Load configuration and create UQEnsemble instance.
+
+        Parameters
+        ----------
+        path : str
+            Path to the saved configuration file
+        llm : BaseChatModel, optional
+            LLM instance to use as main LLM. If None, uses saved config.
+
+        Returns
+        -------
+        UQEnsemble
+            New UQEnsemble instance with loaded configuration
+        """
+        with open(path, "r") as f:
+            config = json.load(f)
+
+        # Recreate main LLM
+        if llm is None and config.get("llm_config"):
+            llm = load_llm_config(config["llm_config"])
+
+        # Recreate component scorers
+        components = []
+        llm_scorers = config.get("llm_scorers", {})
+
+        for component in config["components"]:
+            if isinstance(component, str) and component.startswith("judge_"):
+                # This is an LLM scorer
+                if component in llm_scorers:
+                    llm_scorer = load_llm_config(llm_scorers[component])
+                    components.append(llm_scorer)
+                else:
+                    raise ValueError(f"Missing LLM config for {component}")
+            else:
+                # This is a named scorer
+                components.append(component)
+
+        return cls(llm=llm, scorers=components, weights=config["weights"], thresh=config["thresh"])
