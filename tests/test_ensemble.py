@@ -189,12 +189,12 @@ def test_print_ensemble_weights(mock_llm):
     uqe = UQEnsemble(llm=mock_llm, scorers=["exact_match", "noncontradiction"])
     uqe.component_names = ["exact_match", "noncontradiction"]
     uqe.weights = [0.6, 0.4]
-    
+
     # We can't easily test the output since it's printed to stdout
     # but we can verify the method exists and can be called
-    assert hasattr(uqe, 'print_ensemble_weights')
+    assert hasattr(uqe, "print_ensemble_weights")
     assert callable(uqe.print_ensemble_weights)
-    
+
     uqe.print_ensemble_weights()
 
 
@@ -204,8 +204,10 @@ def test_print_ensemble_weights_sorting(mock_llm):
     uqe = UQEnsemble(llm=mock_llm, scorers=["exact_match", "noncontradiction"])
     uqe.component_names = ["exact_match", "noncontradiction", "judge_1"]
     uqe.weights = [0.2, 0.5, 0.3]  # Should be sorted to [0.5, 0.3, 0.2]
-    
+
     uqe.print_ensemble_weights()
+
+
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestUQEnsembleConfig:
     """Test suite for save/load configuration functionality"""

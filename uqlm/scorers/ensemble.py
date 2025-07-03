@@ -251,10 +251,10 @@ class UQEnsemble(UncertaintyQuantifier):
         optimal_params = self.tuner.tune_params(score_lists=score_lists, correct_indicators=correct_indicators, weights_objective=weights_objective, thresh_bounds=thresh_bounds, thresh_objective=thresh_objective, n_trials=n_trials, step_size=step_size, fscore_beta=fscore_beta)
         self.weights = optimal_params["weights"]
         self.thresh = optimal_params["thresh"]
-        
+
         # Print ensemble weights in a pretty table
         self.print_ensemble_weights()
-        
+
         return self._construct_result()
 
     async def tune(self, prompts: List[str], ground_truth_answers: List[str], grader_function: Optional[Any] = None, num_responses: int = 5, weights_objective: str = "roc_auc", thresh_bounds: Tuple[float, float] = (0, 1), thresh_objective: str = "fbeta_score", n_trials: int = 100, step_size: float = 0.01, fscore_beta: float = 1) -> UQResult:
@@ -402,7 +402,6 @@ class UQEnsemble(UncertaintyQuantifier):
             if not isinstance(check_val, bool):
                 raise ValueError("grader_function must return boolean")
 
-
     def save_config(self, path: str) -> None:
         """
         Save minimal configuration: weights, threshold, components, and LLM configs.
@@ -481,21 +480,17 @@ class UQEnsemble(UncertaintyQuantifier):
 
         return cls(llm=llm, scorers=components, weights=config["weights"], thresh=config["thresh"])
 
-
     def print_ensemble_weights(self):
         """Prints ensemble weights in a pretty table format, sorted by weight in descending order"""
         # Create DataFrame and sort by weight in descending order
-        weights_df = pd.DataFrame({
-            "Component": self.component_names,
-            "Weight": self.weights
-        })
-        
+        weights_df = pd.DataFrame({"Component": self.component_names, "Weight": self.weights})
+
         # Sort by weight in descending order
         weights_df = weights_df.sort_values(by="Weight", ascending=False)
-        
+
         # Format weights to 4 decimal places
         weights_df["Weight"] = weights_df["Weight"].apply(lambda x: f"{x:.4f}")
-        
+
         print("\nOptimized Ensemble Weights:")
         print("=" * 50)
         # Print header
