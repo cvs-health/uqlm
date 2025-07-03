@@ -17,7 +17,6 @@ from typing import Any, List, Tuple
 
 import numpy as np
 from numpy.linalg import norm
-from sentence_transformers import SentenceTransformer
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
@@ -33,6 +32,8 @@ class CosineScorer(SimilarityScorer):
             https://huggingface.co/sentence-transformers?sort_models=likes#models
             for more information. The recommended sentence transformer is 'all-MiniLM-L6-v2'.
         """
+        from sentence_transformers import SentenceTransformer
+
         self.transformer = transformer
         self.model = SentenceTransformer(f"sentence-transformers/{transformer}")
 

@@ -1,0 +1,68 @@
+{
+  "weights": [
+    0.22517161424882978,
+    0.5256472050407895,
+    0.20544462057286958,
+    0.04343460765924121,
+    0.00030195247826969915
+  ],
+  "thresh": 0.85,
+  "components": [
+    "exact_match",
+    "noncontradiction",
+    "normalized_probability",
+    "judge_1",
+    "judge_2"
+  ],
+  "llm_config": {
+    "class_name": "ChatVertexAI",
+    "module": "langchain_google_vertexai.chat_models",
+    "convert_system_message_to_human": false,
+    "default_metadata": [],
+    "endpoint_version": "v1beta1",
+    "full_model_name": "projects/anbc-dev-csr-va/locations/us-central1/publishers/google/models/gemini-1.5-flash",
+    "location": "us-central1",
+    "logprobs": true,
+    "max_retries": 6,
+    "model_family": "2",
+    "model_name": "gemini-1.5-flash",
+    "n": 1,
+    "perform_literal_eval_on_string_raw_content": true,
+    "project": "anbc-dev-csr-va",
+    "request_parallelism": 5,
+    "streaming": false,
+    "verbose": false
+  },
+  "llm_scorers": {
+    "judge_1": {
+      "class_name": "ChatVertexAI",
+      "module": "langchain_google_vertexai.chat_models",
+      "convert_system_message_to_human": false,
+      "default_metadata": [],
+      "endpoint_version": "v1beta1",
+      "full_model_name": "projects/anbc-dev-csr-va/locations/us-central1/publishers/google/models/gemini-1.5-flash",
+      "location": "us-central1",
+      "logprobs": true,
+      "max_retries": 6,
+      "model_family": "2",
+      "model_name": "gemini-1.5-flash",
+      "n": 1,
+      "perform_literal_eval_on_string_raw_content": true,
+      "project": "anbc-dev-csr-va",
+      "request_parallelism": 5,
+      "streaming": false,
+      "verbose": false
+    },
+    "judge_2": {
+      "class_name": "AzureChatOpenAI",
+      "module": "langchain_openai.chat_models.azure",
+      "deployment_name": "gpt-4o",
+      "model_version": "",
+      "openai_api_type": "azure",
+      "openai_api_version": "2024-02-15-preview",
+      "streaming": false,
+      "temperature": 1.0,
+      "verbose": false
+    }
+  }
+}
