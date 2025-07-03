@@ -248,7 +248,6 @@ class NLIScorer(SimilarityScorer):
         return clusters, cluster_indices, nli_scores
 
     def _normalize_entropy(self, entropy_values):
-        print(entropy_values)
         return [e / math.log(self.num_responses + 1) for e in entropy_values]
 
     @staticmethod
