@@ -177,7 +177,7 @@ class NLIScorer(SimilarityScorer):
         """Compute cluster probabilities"""
         cluster_probabilities = [0] * len(cluster_indices)
         for i, cluster_index in enumerate(cluster_indices):
-                cluster_probabilities[i] = sum([response_probabilities[j] for j in cluster_index])
+            cluster_probabilities[i] = sum([response_probabilities[j] for j in cluster_index])
         return self._normalize_cluster_probabilities(cluster_probabilities=cluster_probabilities)
 
     def _compute_response_probabilities(self, logprobs_results: List[List[Dict[str, Any]]], num_responses: int = None) -> List[float]:
