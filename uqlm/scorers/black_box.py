@@ -161,7 +161,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
             for key in ["semantic_negentropy", "noncontradiction"]:
                 if key in self.scorers:
                     if key == "semantic_negentropy":
-                        nli_scores[key] = [1 - s for s in self.nli_scorer._normalize_entropy(nli_scores[key])]  # Convert to confidence score
+                        nli_scores[key] = [1 - s for s in self.nli_scorer._normalize_entropy(nli_scores["discrete_semantic_entropy"])]  # Convert to confidence score
                     self.scores_dict[key] = nli_scores[key]
 
         # similarity scorers that follow the same pattern
