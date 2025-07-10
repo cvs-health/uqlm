@@ -53,6 +53,6 @@ async def test_semanticentropy(monkeypatch):
     assert se_results.data["responses"] == data["responses"]
     assert se_results.data["sampled_responses"] == data["sampled_responses"]
     assert se_results.data["prompts"] == data["prompts"]
-    assert all([abs(se_results.data["entropy_values"][i] - data["entropy_values"][i]) < 1e-5 for i in range(len(PROMPTS))])
-    assert all([abs(se_results.data["confidence_scores"][i] - data["confidence_scores"][i]) < 1e-5 for i in range(len(PROMPTS))])
+    assert all([abs(se_results.data["discrete_entropy_values"][i] - data["entropy_values"][i]) < 1e-5 for i in range(len(PROMPTS))])
+    assert all([abs(se_results.data["discrete_confidence_scores"][i] - data["confidence_scores"][i]) < 1e-5 for i in range(len(PROMPTS))])
     assert se_results.metadata == metadata

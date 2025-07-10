@@ -47,7 +47,8 @@ def test_nli(text1, text2, nli_model):
 def test_nli2(text1, nli_model_cpu):
     result = nli_model_cpu._observed_consistency_i(original=text1, candidates=[text1] * 5, use_best=False, compute_entropy=False)
     assert result["nli_score_i"] == 1
-    assert result["semantic_negentropy"] is None
+    assert result["discrete_semantic_entropy"] is None
+    assert result["tokenprob_semantic_entropy"] is None
 
 
 def test_nli3(text1, text2, nli_model_cpu):
@@ -73,6 +74,6 @@ def test_nli4(nli_model_cpu):
     assert best_response == text2
     assert pytest.approx(semantic_negentropy, abs=1e-5) == 0.6365141682948128
     assert pytest.approx(list(nli_scores.values()), abs=1e-5) == [0.9997053, 0.9997053, 0.24012965, 0.24012965]
-    assert pytest.approx(tokenprob_semantic_entropy, abs=1e-5) == 0.6565463105613729
+    assert pytest.approx(tokenprob_semantic_entropy, abs=1e-5) == 0.6918935849478249
     del nli_model_cpu
     gc.collect()
