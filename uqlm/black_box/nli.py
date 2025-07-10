@@ -138,7 +138,7 @@ class NLIScorer(SimilarityScorer):
             observed_consistency_data["responses"] = responses
             observed_consistency_data["sampled_responses"] = sampled_responses
         return observed_consistency_data
-    
+
     def _validate_best_response_selection(self, best_response_selection: Callable) -> None:
         """Validate the best response selection function"""
         if best_response_selection:
@@ -199,7 +199,7 @@ class NLIScorer(SimilarityScorer):
                 best_response = self.best_response_selection(clustered_responses=clustered_responses, cluster_probabilities=tokenprob_cluster_probabilities)
 
         return (best_response, discrete_semantic_entropy, nli_scores, tokenprob_semantic_entropy)
-    
+
     def _default_best_response_selection(self, clustered_responses: List[List[str]], cluster_probabilities: List[float]) -> str:
         """Select the best response from the clustered responses based on the cluster probabilities"""
         return clustered_responses[cluster_probabilities.index(max(cluster_probabilities))][0]
