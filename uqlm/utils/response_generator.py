@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages.human import HumanMessage
 from langchain_core.messages.system import SystemMessage
+from tqdm import tqdm
 
 
 class ResponseGenerator:
@@ -44,7 +45,7 @@ class ResponseGenerator:
         self.use_n_param = use_n_param
         self.max_calls_per_min = max_calls_per_min
 
-    async def generate_responses(self, prompts: List[str], system_prompt: str = "You are a helpful assistant.", count: int = 1) -> Dict[str, Any]:
+    async def generate_responses(self, prompts: List[str], system_prompt: str = "You are a helpful assistant.", count: int = 1, progress_bar: Optional[bool] = False) -> Dict[str, Any]:
         """
         Generates evaluation dataset from a provided set of prompts. For each prompt,
         `self.count` responses are generated.
@@ -59,6 +60,9 @@ class ResponseGenerator:
 
         count : int, default=1
             Specifies number of responses to generate for each prompt.
+
+        progress_bar : bool, default=False
+            If True, displays a progress bar while scoring responses
 
         Returns
         -------
@@ -93,7 +97,7 @@ class ResponseGenerator:
         self._update_count(count)
         self.system_message = SystemMessage(system_prompt)
 
-        generations, duplicated_prompts = await self._generate_in_batches(prompts=prompts)
+        generations, duplicated_prompts = await self._generate_in_batches(prompts=prompts, progress_bar=progress_bar)
 
         responses = generations["responses"]
         logprobs = generations["logprobs"]
@@ -119,14 +123,19 @@ class ResponseGenerator:
         if self.use_n_param:
             self.llm.n = count
 
-    async def _generate_in_batches(self, prompts: List[str]) -> Tuple[List[str], List[str]]:
+    async def _generate_in_batches(self, prompts: List[str], progress_bar: Optional[bool] = False) -> Tuple[List[str], List[str]]:
         """Executes async IO with langchain in batches to avoid rate limit error"""
         batch_size = len(prompts) if not self.max_calls_per_min else self.max_calls_per_min // self.count
         prompts_partition = self._split(prompts, batch_size)
 
+        if progress_bar:
+            partition_iter = tqdm(prompts_partition, desc="Generating responses...", total=len(prompts_partition))
+        else:
+            partition_iter = prompts_partition
+
         duplicated_prompts = []
         generations = {"responses": [], "logprobs": []}
-        for prompt_batch in prompts_partition:
+        for prompt_batch in partition_iter:
             start = time.time()
             # generate responses for current batch
             tasks, duplicated_batch_prompts = self._create_tasks(prompt_batch)
