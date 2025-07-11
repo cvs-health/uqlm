@@ -22,11 +22,18 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.9, <4.0"
 langchain = "^0.3.7"
 transformers = "^4.45.2"
-scikit-learn = "^1.5.2"
-numpy = "^1.26.4"
+scikit-learn = [
+    { version = "^1.5.2", markers = "python_version < '3.13'" },
+    { version = ">=1.7.0", markers = "python_version >= '3.13'" }
+]
+numpy = [
+    { version = "^1.26.4", markers = "python_version < '3.13'" },
+    { version = ">=2.3.1", markers = "python_version >= '3.13'" }
+]
+scipy = {version = "^1.15.0", markers = "python_version >= '3.13'"}
 matplotlib = "^3.9.2"
 optuna = "^4.0.0"
 bert-score = "^0.3.0"
@@ -56,7 +63,7 @@ langchain-google-vertexai = "^2.0.14"
 datasets = "^3.3.2"
 pytest-asyncio = "^0.25.3"
 pytest-cov = "^6.0.0"
-bleurt = { git = "https://github.com/google-research/bleurt.git", branch = "master" }
+bleurt = { git = "https://github.com/google-research/bleurt.git", branch = "master", python = "<3.13" }
 
 [tool.pytest.ini_options]
 markers = [
