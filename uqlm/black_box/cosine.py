@@ -13,10 +13,11 @@
 # limitations under the License.
 
 
-from typing import Any, List, Tuple
+from typing import Any, List, Tuple, Optional
 
 import numpy as np
 from numpy.linalg import norm
+from tqdm import tqdm
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
@@ -37,7 +38,7 @@ class CosineScorer(SimilarityScorer):
         self.transformer = transformer
         self.model = SentenceTransformer(f"sentence-transformers/{transformer}")
 
-    def evaluate(self, responses: List[str], sampled_responses: List[List[str]]) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = False) -> List[float]:
         """
         This method computes model-based text similarity metrics values for the provided pairs of texts.
 
@@ -49,12 +50,17 @@ class CosineScorer(SimilarityScorer):
         sampled_responses : list of list of strings
             Candidate responses to be compared to the original response
 
+        progress_bar : bool, default=False
+            If True, displays a progress bar while scoring responses
+
         Returns
         -------
         List of float
             Mean cosine similarity values
         """
-        return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in range(len(responses))]
+        iterator = tqdm(range(len(responses)), desc="Scoring responses with Cosine Similarity...") if progress_bar else range(len(responses))
+
+        return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in iterator]
 
     def _get_embeddings(self, texts1: List[str], texts2: List[str]) -> Tuple[Any, Any]:
         """

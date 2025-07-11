@@ -21,9 +21,10 @@ import zipfile
 from requests.exceptions import RequestException
 from zipfile import BadZipFile
 
-from typing import List
+from typing import List, Optional
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
+from tqdm import tqdm
 
 
 class BLEURTScorer(SimilarityScorer):
@@ -54,7 +55,7 @@ class BLEURTScorer(SimilarityScorer):
         except Exception as e:
             raise RuntimeError(f"Failed to initialize BLEURT scorer. Error: {str(e)}") from e
 
-    def evaluate(self, responses: List[str], sampled_responses: List[List[str]]) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = False) -> List[float]:
         """
         This method computes model-based text similarity metrics values for the provided pairs of texts.
 
@@ -66,12 +67,17 @@ class BLEURTScorer(SimilarityScorer):
         sampled_responses : list of list of strings
             Candidate responses to be compared to the original response
 
+        progress_bar : bool, default=False
+            If True, displays a progress bar while scoring responses
+
         Returns
         -------
         List of float
             Mean BLEURT scores
         """
-        return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in range(len(responses))]
+        iterator = tqdm(range(len(responses)), desc="Scoring responses with BLUERT-scorer...") if progress_bar else range(len(responses))
+
+        return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in iterator]
 
     def _compute_score(self, response: str, candidates: List[str]) -> float:
         """Compute BLEURT scores between a response and candidate responses"""

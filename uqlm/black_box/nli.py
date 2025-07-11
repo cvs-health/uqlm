@@ -17,9 +17,9 @@ import math
 import numpy as np
 import warnings
 from collections import deque, Counter
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-
+from tqdm import tqdm
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
 
@@ -83,7 +83,7 @@ class NLIScorer(SimilarityScorer):
         probabilites = np.exp(np_logits) / np.exp(np_logits).sum(axis=-1, keepdims=True)
         return probabilites
 
-    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], use_best: bool, compute_entropy: bool = False) -> Dict[str, Any]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], use_best: bool, compute_entropy: bool = False, progress_bar: Optional[bool] = False) -> Dict[str, Any]:
         """
         Evaluate confidence scores on LLM responses.
 
@@ -102,6 +102,9 @@ class NLIScorer(SimilarityScorer):
         compute_entropy : bool, default=False
             Specifies whether to include semantic entropy in returned result
 
+        progress_bar : bool, default=False
+            If True, displays a progress bar while scoring responses
+
         Returns
         -------
         Dict
@@ -110,7 +113,8 @@ class NLIScorer(SimilarityScorer):
         """
         self.num_responses = len(sampled_responses[0])
         observed_consistency_data = {"noncontradiction": [], "semantic_negentropy": [], "responses": responses, "sampled_responses": sampled_responses}
-        for i, response in enumerate(responses):
+        iterator = tqdm(enumerate(responses), total=len(responses), desc="Scoring responses with NLI...") if progress_bar else enumerate(responses)
+        for i, response in iterator:
             oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], use_best=use_best, compute_entropy=compute_entropy)
             observed_consistency_data["noncontradiction"].append(oc_result_i["nli_score_i"])
             observed_consistency_data["semantic_negentropy"].append(oc_result_i["semantic_negentropy"])
