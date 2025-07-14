@@ -19,7 +19,7 @@ import warnings
 from collections import deque, Counter
 from typing import Any, Dict, List, Optional
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from tqdm import tqdm
+from rich.progress import Progress
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
 
@@ -113,13 +113,24 @@ class NLIScorer(SimilarityScorer):
         """
         self.num_responses = len(sampled_responses[0])
         observed_consistency_data = {"noncontradiction": [], "semantic_negentropy": [], "responses": responses, "sampled_responses": sampled_responses}
-        iterator = tqdm(enumerate(responses), total=len(responses), desc="Scoring responses with NLI...") if progress_bar else enumerate(responses)
-        for i, response in iterator:
-            oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], use_best=use_best, compute_entropy=compute_entropy)
-            observed_consistency_data["noncontradiction"].append(oc_result_i["nli_score_i"])
-            observed_consistency_data["semantic_negentropy"].append(oc_result_i["semantic_negentropy"])
-            responses[i] = oc_result_i["response"]  # Replace with optimized response if use_best
-            sampled_responses[i] = oc_result_i["candidates"]  # Replace with updated candidates if use_best
+
+        if progress_bar:
+            with Progress() as progress:
+                task = progress.add_task("[cyan]Scoring responses with NLI...", total=len(responses))
+                for i, response in enumerate(responses):
+                    oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], use_best=use_best, compute_entropy=compute_entropy)
+                    observed_consistency_data["noncontradiction"].append(oc_result_i["nli_score_i"])
+                    observed_consistency_data["semantic_negentropy"].append(oc_result_i["semantic_negentropy"])
+                    responses[i] = oc_result_i["response"]  # Replace with optimized response if use_best
+                    sampled_responses[i] = oc_result_i["candidates"]  # Replace with updated candidates if use_best
+                    progress.update(task, advance=1)
+        else:
+            for i, response in enumerate(responses):
+                oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], use_best=use_best, compute_entropy=compute_entropy)
+                observed_consistency_data["noncontradiction"].append(oc_result_i["nli_score_i"])
+                observed_consistency_data["semantic_negentropy"].append(oc_result_i["semantic_negentropy"])
+                responses[i] = oc_result_i["response"]  # Replace with optimized response if use_best
+                sampled_responses[i] = oc_result_i["candidates"]  # Replace with updated candidates if use_best
 
         if use_best:
             observed_consistency_data["responses"] = responses

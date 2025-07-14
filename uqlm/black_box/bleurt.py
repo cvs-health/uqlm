@@ -24,7 +24,7 @@ from zipfile import BadZipFile
 from typing import List, Optional
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
-from tqdm import tqdm
+from rich.progress import Progress
 
 
 class BLEURTScorer(SimilarityScorer):
@@ -75,9 +75,17 @@ class BLEURTScorer(SimilarityScorer):
         List of float
             Mean BLEURT scores
         """
-        iterator = tqdm(range(len(responses)), desc="Scoring responses with BLUERT-scorer...") if progress_bar else range(len(responses))
-
-        return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in iterator]
+        if progress_bar:
+            with Progress() as progress:
+                task = progress.add_task("[blue]Scoring responses with BLEURT...", total=len(responses))
+                results = []
+                for i in range(len(responses)):
+                    score = self._compute_score(response=responses[i], candidates=sampled_responses[i])
+                    results.append(score)
+                    progress.update(task, advance=1)
+                return results
+        else:
+            return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in range(len(responses))]
 
     def _compute_score(self, response: str, candidates: List[str]) -> float:
         """Compute BLEURT scores between a response and candidate responses"""

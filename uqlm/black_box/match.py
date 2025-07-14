@@ -17,7 +17,7 @@ import numpy as np
 from typing import List, Optional
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
-from tqdm import tqdm
+from rich.progress import Progress
 
 
 class MatchScorer(SimilarityScorer):
@@ -48,9 +48,17 @@ class MatchScorer(SimilarityScorer):
         List of float
             Exact match rates
         """
-        iterator = tqdm(zip(responses, sampled_responses), total=len(responses), desc="Scoring responses with Exact Match...") if progress_bar else zip(responses, sampled_responses)
-
-        return [self._compute_score(response=o, candidates=mr) for o, mr in iterator]
+        if progress_bar:
+            with Progress() as progress:
+                task = progress.add_task("[red]Scoring responses with Exact Match...", total=len(responses))
+                results = []
+                for i, (response, candidates) in enumerate(zip(responses, sampled_responses)):
+                    score = self._compute_score(response=response, candidates=candidates)
+                    results.append(score)
+                    progress.update(task, advance=1)
+                return results
+        else:
+            return [self._compute_score(response=o, candidates=mr) for o, mr in zip(responses, sampled_responses)]
 
     @staticmethod
     def _compute_score(response: str, candidates: List[str]) -> List[float]:

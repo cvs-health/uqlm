@@ -33,6 +33,7 @@ bert-score = "^0.3.0"
 pandas = "^2.2.3"
 sentence-transformers = "^3.4.0"
 datasets = "^3.3.2"
+rich = "^13.8.0"
 
 
 [tool.poetry.group.dev]
@@ -57,6 +58,7 @@ datasets = "^3.3.2"
 pytest-asyncio = "^0.25.3"
 pytest-cov = "^6.0.0"
 bleurt = { git = "https://github.com/google-research/bleurt.git", branch = "master" }
+tf-keras = "2.19.0"
 
 [tool.pytest.ini_options]
 markers = [

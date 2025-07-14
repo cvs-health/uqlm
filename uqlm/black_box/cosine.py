@@ -17,7 +17,7 @@ from typing import Any, List, Tuple, Optional
 
 import numpy as np
 from numpy.linalg import norm
-from tqdm import tqdm
+from rich.progress import Progress
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
@@ -58,9 +58,17 @@ class CosineScorer(SimilarityScorer):
         List of float
             Mean cosine similarity values
         """
-        iterator = tqdm(range(len(responses)), desc="Scoring responses with Cosine Similarity...") if progress_bar else range(len(responses))
-
-        return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in iterator]
+        if progress_bar:
+            with Progress() as progress:
+                task = progress.add_task("[magenta]Scoring responses with Cosine Similarity...", total=len(responses))
+                results = []
+                for i in range(len(responses)):
+                    score = self._compute_score(response=responses[i], candidates=sampled_responses[i])
+                    results.append(score)
+                    progress.update(task, advance=1)
+                return results
+        else:
+            return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in range(len(responses))]
 
     def _get_embeddings(self, texts1: List[str], texts2: List[str]) -> Tuple[Any, Any]:
         """
