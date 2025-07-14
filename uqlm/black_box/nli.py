@@ -83,7 +83,7 @@ class NLIScorer(SimilarityScorer):
         probabilites = np.exp(np_logits) / np.exp(np_logits).sum(axis=-1, keepdims=True)
         return probabilites
 
-    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], responses_logprobs: List[List[Dict[str, Any]]] = None, sampled_responses_logprobs: List[List[List[Dict[str, Any]]]] = None, use_best: bool = False, compute_entropy: bool = False, best_response_selection: Callable = None, entropy_type: str = "discrete") -> Dict[str, Any]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], responses_logprobs: List[List[Dict[str, Any]]] = None, sampled_responses_logprobs: List[List[List[Dict[str, Any]]]] = None, use_best: bool = False, compute_entropy: bool = False, best_response_selection: str = "discrete") -> Dict[str, Any]:
         """
         Evaluate confidence scores on LLM responses.
 
@@ -108,12 +108,8 @@ class NLIScorer(SimilarityScorer):
         compute_entropy : bool, default=False
             Specifies whether to include semantic entropy in returned result
 
-        best_response_selection : Callable, default=None
-            Specifies the function to select the best response from the clustered responses.
-            If None, the default function will be used.
-
-        entropy_type : str, default="discrete"
-            Specifies the type of entropy confidence score to compute best response. Must be one of "discrete" or "token-level".
+        best_response_selection : str, default="discrete"
+            Specifies the type of entropy confidence score to compute best response. Must be one of "discrete" or "token-based".
 
         Returns
         -------
@@ -121,8 +117,6 @@ class NLIScorer(SimilarityScorer):
             Dictionary containing mean NLI and (optionally) semantic entropy scores.
             The dictionary will also contain original and multiple responses, updated if `use_best` is True
         """
-        self._validate_best_response_selection(best_response_selection)
-        self.entropy_type = entropy_type
         self.num_responses = len(sampled_responses[0])
         self.logprobs, self.multiple_logprobs = responses_logprobs, sampled_responses_logprobs
         observed_consistency_data = {"noncontradiction": [], "discrete_semantic_entropy": [], "tokenprob_semantic_entropy": [], "responses": responses, "sampled_responses": sampled_responses}
@@ -138,15 +132,6 @@ class NLIScorer(SimilarityScorer):
             observed_consistency_data["responses"] = responses
             observed_consistency_data["sampled_responses"] = sampled_responses
         return observed_consistency_data
-
-    def _validate_best_response_selection(self, best_response_selection: Callable) -> None:
-        """Validate the best response selection function"""
-        if best_response_selection:
-            if not isinstance(best_response_selection, Callable):
-                raise ValueError("UQLM: best_response_selection must be a callable function")
-            self.best_response_selection = best_response_selection
-        else:
-            self.best_response_selection = self._default_best_response_selection
 
     def _observed_consistency_i(self, original: str, candidates: List[str], i: int = None, use_best: bool = False, compute_entropy: bool = False) -> Dict[str, Any]:
         """
@@ -174,20 +159,18 @@ class NLIScorer(SimilarityScorer):
 
         return {"nli_score_i": np.mean(nli_scores), "candidates": candidates, "response": best_response, "discrete_semantic_entropy": discrete_semantic_entropy, "tokenprob_semantic_entropy": tokenprob_semantic_entropy}
 
-    def _semantic_entropy_process(self, candidates: List[str], i: int = None, logprobs_results: List[List[Dict[str, Any]]] = None, best_response_selection: Callable = None, entropy_type: str = "discrete") -> Any:
+    def _semantic_entropy_process(self, candidates: List[str], i: int = None, logprobs_results: List[List[Dict[str, Any]]] = None, best_response_selection: str = "discrete") -> Any:
         """
         Executes complete process for semantic entropy and returns best response, SE score, and dictionary
         of NLI scores for response pairs
         """
-        self.entropy_type = entropy_type
-        self._validate_best_response_selection(best_response_selection)
         if self.verbose and i is not None:
             print("Question No. - ", i + 1)
         tokenprob_response_probabilities, response_probabilities = self._compute_response_probabilities(logprobs_results=logprobs_results, num_responses=len(candidates))
         clustered_responses, cluster_indices, nli_scores = self._cluster_responses(responses=candidates)
         # Compute discrete semantic entropy
         cluster_probabilities = self._compute_cluster_probabilities(response_probabilities=response_probabilities, cluster_indices=cluster_indices)
-        best_response = self.best_response_selection(clustered_responses=clustered_responses, cluster_probabilities=cluster_probabilities)
+        best_response = self._default_best_response_selection(clustered_responses=clustered_responses, cluster_probabilities=cluster_probabilities)
         discrete_semantic_entropy = self._compute_semantic_entropy(cluster_probabilities=cluster_probabilities)
 
         # Compute token-level semantic entropy
@@ -195,8 +178,8 @@ class NLIScorer(SimilarityScorer):
         if tokenprob_response_probabilities:
             tokenprob_cluster_probabilities = self._compute_cluster_probabilities(response_probabilities=tokenprob_response_probabilities, cluster_indices=cluster_indices)
             tokenprob_semantic_entropy = self._compute_semantic_entropy(cluster_probabilities=tokenprob_cluster_probabilities)
-            if self.entropy_type == "token-level":
-                best_response = self.best_response_selection(clustered_responses=clustered_responses, cluster_probabilities=tokenprob_cluster_probabilities)
+            if best_response_selection == "token-based":
+                best_response = self._default_best_response_selection(clustered_responses=clustered_responses, cluster_probabilities=tokenprob_cluster_probabilities)
 
         return (best_response, discrete_semantic_entropy, nli_scores, tokenprob_semantic_entropy)
 

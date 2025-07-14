@@ -13,31 +13,18 @@
 # limitations under the License.
 
 
-from typing import Any, Callable, List, Optional
+from typing import Any, List, Optional
+import warnings
 
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
 
 
 class SemanticEntropy(UncertaintyQuantifier):
     def __init__(
-        self,
-        llm=None,
-        postprocessor: Any = None,
-        device: Any = None,
-        use_best: bool = True,
-        entropy_type: str = "discrete",
-        best_response_selection: Callable = None,
-        system_prompt: str = "You are a helpful assistant.",
-        max_calls_per_min: Optional[int] = None,
-        use_n_param: bool = False,
-        sampling_temperature: float = 1.0,
-        verbose: bool = False,
-        nli_model_name: str = "microsoft/deberta-large-mnli",
-        max_length: int = 2000,
+        self, llm=None, postprocessor: Any = None, device: Any = None, use_best: bool = True, best_response_selection: str = "discrete", system_prompt: str = "You are a helpful assistant.", max_calls_per_min: Optional[int] = None, use_n_param: bool = False, sampling_temperature: float = 1.0, verbose: bool = False, nli_model_name: str = "microsoft/deberta-large-mnli", max_length: int = 2000
     ) -> None:
         """
-        Class for computing Discrete Semantic Entropy-based confidence scores. For more on semantic entropy,
-        refer to Farquhar et al.(2024) :footcite:`farquhar2024detectinghallucinations`.
+        Class for computing discrete and token-probability-based semantic entropy and associated confidence scores. For more on semantic entropy, refer to Farquhar et al.(2024) :footcite:`farquhar2024detectinghallucinations`.
 
         Parameters
         ----------
@@ -57,12 +44,8 @@ class SemanticEntropy(UncertaintyQuantifier):
             Specifies whether to swap the original response for the uncertainty-minimized response
             based on semantic entropy clusters.
 
-        entropy_type : str, default="discrete"
-            Specifies the type of entropy confidence score to compute best response. Must be one of "discrete" or "token-level".
-
-        best_response_selection : Callable, default=None
-            Specifies the function to select the best response from the clustered responses.
-            If None, the default function will be used.
+        best_response_selection : str, default="discrete"
+            Specifies the type of entropy confidence score to compute best response. Must be one of "discrete" or "token-based".
 
         system_prompt : str or None, default="You are a helpful assistant."
             Optional argument for user to provide custom system prompt
@@ -97,7 +80,6 @@ class SemanticEntropy(UncertaintyQuantifier):
         self.sampling_temperature = sampling_temperature
         self.prompts = None
         self._setup_nli(nli_model_name)
-        self.entropy_type = entropy_type
         self.best_response_selection = best_response_selection
 
     async def generate_and_score(self, prompts: List[str], num_responses: int = 5) -> UQResult:
@@ -122,8 +104,9 @@ class SemanticEntropy(UncertaintyQuantifier):
         self.nli_scorer.num_responses = num_responses
 
         if hasattr(self.llm, "logprobs"):
-            print("UQLM: Using logprobs to compute response probabilities for semantic entropy score")
             self.llm.logprobs = True
+        else:
+            warnings.warn("The provided LLM does not support logprobs access. Only discrete semantic entropy will be computed.")
 
         responses = await self.generate_original_responses(prompts)
         sampled_responses = await self.generate_candidate_responses(prompts)
@@ -162,7 +145,7 @@ class SemanticEntropy(UncertaintyQuantifier):
             candidates = [self.responses[i]] + self.sampled_responses[i]
 
             candidate_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i] if (self.logprobs and self.multiple_logprobs) else None
-            tmp = self.nli_scorer._semantic_entropy_process(candidates=candidates, i=i, logprobs_results=candidate_logprobs, best_response_selection=self.best_response_selection, entropy_type=self.entropy_type)
+            tmp = self.nli_scorer._semantic_entropy_process(candidates=candidates, i=i, logprobs_results=candidate_logprobs, best_response_selection=self.best_response_selection)
             best_responses[i], discrete_semantic_entropy[i], _, tokenprob_semantic_entropy[i] = tmp
 
         confidence_scores = [1 - ne for ne in self.nli_scorer._normalize_entropy(discrete_semantic_entropy)]
