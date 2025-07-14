@@ -15,12 +15,12 @@
 import asyncio
 import itertools
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages.human import HumanMessage
 from langchain_core.messages.system import SystemMessage
-from tqdm import tqdm
+from rich.progress import Progress
 
 
 class ResponseGenerator:
@@ -126,36 +126,43 @@ class ResponseGenerator:
     async def _generate_in_batches(self, prompts: List[str], progress_bar: Optional[bool] = False) -> Tuple[List[str], List[str]]:
         """Executes async IO with langchain in batches to avoid rate limit error"""
         batch_size = len(prompts) if not self.max_calls_per_min else self.max_calls_per_min // self.count
-        prompts_partition = self._split(prompts, batch_size)
-
-        if progress_bar:
-            partition_iter = tqdm(prompts_partition, desc="Generating responses...", total=len(prompts_partition))
-        else:
-            partition_iter = prompts_partition
+        prompts_partition = list(self._split(prompts, batch_size))
 
         duplicated_prompts = []
         generations = {"responses": [], "logprobs": []}
-        for prompt_batch in partition_iter:
-            start = time.time()
-            # generate responses for current batch
-            tasks, duplicated_batch_prompts = self._create_tasks(prompt_batch)
-            generations_batch = await asyncio.gather(*tasks)
-            responses_batch, logprobs_batch = [], []
-            for g in generations_batch:
-                responses_batch.extend(g["responses"])
-                logprobs_batch.extend(g["logprobs"])
 
-            # extend lists to include current batch
-            duplicated_prompts.extend(duplicated_batch_prompts)
-            generations["responses"].extend(responses_batch)
-            generations["logprobs"].extend(logprobs_batch)
-            stop = time.time()
-
-            # pause if needed
-            if (stop - start < 60) and (batch_size < len(prompts)):
-                time.sleep(61 - stop + start)
+        if progress_bar:
+            with Progress() as progress:
+                task = progress.add_task(f"[green]Generating responses ({self.count} per prompt)...", total=len(prompts_partition))
+                for prompt_batch in prompts_partition:
+                    await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)
+                    progress.update(task, advance=1)
+        else:
+            for prompt_batch in prompts_partition:
+                await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)
 
         return generations, duplicated_prompts
+
+    async def _process_batch(self, prompt_batch: List[str], duplicated_prompts: List[str], generations: Dict[str, List], batch_size: int) -> None:
+        """Process a single batch of prompts"""
+        start = time.time()
+        # generate responses for current batch
+        tasks, duplicated_batch_prompts = self._create_tasks(prompt_batch)
+        generations_batch = await asyncio.gather(*tasks)
+        responses_batch, logprobs_batch = [], []
+        for g in generations_batch:
+            responses_batch.extend(g["responses"])
+            logprobs_batch.extend(g["logprobs"])
+
+        # extend lists to include current batch
+        duplicated_prompts.extend(duplicated_batch_prompts)
+        generations["responses"].extend(responses_batch)
+        generations["logprobs"].extend(logprobs_batch)
+        stop = time.time()
+
+        # pause if needed
+        if (stop - start < 60) and (batch_size < len(prompt_batch)):
+            time.sleep(61 - stop + start)
 
     async def _async_api_call(self, prompt: str, count: int = 1) -> List[Any]:
         """Generates responses asynchronously using an RunnableSequence object"""
@@ -176,7 +183,7 @@ class ResponseGenerator:
         return [str(r) for r in texts]
 
     @staticmethod
-    def _split(list_a: List[str], chunk_size: int) -> List[List[str]]:
+    def _split(list_a: List[str], chunk_size: int) -> Iterator[List[str]]:
         """Partitions list"""
         for i in range(0, len(list_a), chunk_size):
             yield list_a[i : i + chunk_size]
