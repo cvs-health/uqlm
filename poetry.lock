@@ -5630,6 +5630,21 @@ files = [
 tests = ["pytest", "pytest-cov"]
 
 [[package]]
+name = "tf-keras"
+version = "2.19.0"
+description = "Deep learning for humans."
+optional = false
+python-versions = ">=3.9"
+groups = ["test"]
+files = [
+    {file = "tf_keras-2.19.0-py3-none-any.whl", hash = "sha256:4f339e800987b39d1548a8c76a7b33b6801a97ec7fcd89c299ec29741f7890bd"},
+    {file = "tf_keras-2.19.0.tar.gz", hash = "sha256:b09a407d87a4571ce1e8ca985cfc68483e3d63b2518a5d79a97ad92cb64dbe9c"},
+]
+
+[package.dependencies]
+tensorflow = ">=2.19,<2.20"
+
+[[package]]
 name = "tf-slim"
 version = "1.1.0"
 description = "TensorFlow-Slim: A lightweight library for defining, training and evaluating complex models in TensorFlow"
@@ -6706,4 +6721,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<3.13"
-content-hash = "0e081159d91c78d65fa583d1435734c33aa062974178197fad6f9a32ed1fd243"
+content-hash = "ec30c98144f65420eb74fb76d77eeb9db38cfff431ae842c729e768092c2f09e"
