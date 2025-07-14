@@ -17,7 +17,7 @@ import math
 import numpy as np
 import warnings
 from collections import deque, Counter
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict, List
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
