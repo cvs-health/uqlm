@@ -28,6 +28,9 @@ class BlackBoxUQ(UncertaintyQuantifier):
         device: Any = None,
         use_best: bool = True,
         nli_model_name: str = "microsoft/deberta-large-mnli",
+        nli_model_path: str = None,
+        cosine_transformer: str = "all-MiniLM-L6-v2",
+        cosine_transformer_path: str = None,
         postprocessor: Any = None,
         system_prompt: str = "You are a helpful assistant.",
         max_calls_per_min: Optional[int] = None,
@@ -64,6 +67,17 @@ class BlackBoxUQ(UncertaintyQuantifier):
             Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
 
+        nli_model_path : str, default=None
+            Specifies the path to the NLI model. If None, the nli_model_name will be accessed from HuggingFace using transformers library.
+
+        cosine_transformer : str, default="all-MiniLM-L6-v2"
+            Specifies which huggingface sentence transformer to use when computing cosine distance. See
+            https://huggingface.co/sentence-transformers?sort_models=likes#models
+            for more information. The recommended sentence transformer is 'all-MiniLM-L6-v2'. This parameter is ignored if cosine_transformer_path is provided.
+
+        cosine_transformer_path : str, default=None
+            Specifies the path to the sentence transformer model. If None, the transformer model will be accessed from HuggingFace using transformer library.
+        
         postprocessor : callable, default=None
             A user-defined function that takes a string input and returns a string. Used for postprocessing
             outputs.
@@ -96,10 +110,14 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.use_best = use_best
         self.sampling_temperature = sampling_temperature
         self.nli_model_name = nli_model_name
+        self.nli_model_path = nli_model_path
+        self.cosine_transformer = cosine_transformer
+        self.cosine_transformer_path = cosine_transformer_path
         self._validate_scorers(scorers)
         self.use_nli = ("semantic_negentropy" in self.scorers) or ("noncontradiction" in self.scorers)
         if self.use_nli:
-            self._setup_nli(nli_model_name)
+            self._setup_nli(nli_model_name, nli_model_path)
+
 
     async def generate_and_score(self, prompts: List[str], num_responses: int = 5) -> UQResult:
         """
@@ -195,7 +213,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
 
                 self.scorer_objects["bleurt"] = BLEURTScorer()
             elif scorer == "cosine_sim":
-                self.scorer_objects["cosine_sim"] = CosineScorer()
+                self.scorer_objects["cosine_sim"] = CosineScorer(transformer=self.cosine_transformer, transformer_path=self.cosine_transformer_path)
             elif scorer in ["semantic_negentropy", "noncontradiction"]:
                 continue
             else:
