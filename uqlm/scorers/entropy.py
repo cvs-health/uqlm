@@ -21,7 +21,20 @@ from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
 
 class SemanticEntropy(UncertaintyQuantifier):
     def __init__(
-        self, llm=None, postprocessor: Any = None, device: Any = None, use_best: bool = True, best_response_selection: str = "discrete", system_prompt: str = "You are a helpful assistant.", max_calls_per_min: Optional[int] = None, use_n_param: bool = False, sampling_temperature: float = 1.0, verbose: bool = False, nli_model_name: str = "microsoft/deberta-large-mnli", max_length: int = 2000
+        self,
+        llm=None,
+        postprocessor: Any = None,
+        device: Any = None,
+        use_best: bool = True,
+        best_response_selection: str = "discrete",
+        system_prompt: str = "You are a helpful assistant.",
+        max_calls_per_min: Optional[int] = None,
+        use_n_param: bool = False,
+        sampling_temperature: float = 1.0,
+        verbose: bool = False,
+        nli_model_name: str = "microsoft/deberta-large-mnli",
+        nli_model_path: str = None,
+        max_length: int = 2000,
     ) -> None:
         """
         Class for computing discrete and token-probability-based semantic entropy and associated confidence scores. For more on semantic entropy, refer to Farquhar et al.(2024) :footcite:`farquhar2024detectinghallucinations`.
@@ -68,18 +81,22 @@ class SemanticEntropy(UncertaintyQuantifier):
             Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
 
+        nli_model_path : str, default=None
+            Specifies the path to the NLI model. If None, the nli_model_name will be accessed from HuggingFace using transformers library.
+
         max_length : int, default=2000
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
         """
         super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor)
         self.nli_model_name = nli_model_name
+        self.nli_model_path = nli_model_path
         self.max_length = max_length
         self.verbose = verbose
         self.use_best = use_best
         self.sampling_temperature = sampling_temperature
         self.prompts = None
-        self._setup_nli(nli_model_name)
+        self._setup_nli(nli_model_name, nli_model_path)
         self.best_response_selection = best_response_selection
 
     async def generate_and_score(self, prompts: List[str], num_responses: int = 5) -> UQResult:
