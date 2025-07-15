@@ -29,10 +29,12 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install
+          poetry shell
           pip install -r docs/requirements.txt
 
       - name: Build Sphinx docs
         run: |
+          poetry shell
           make -C docs clean
           make -C docs html
           ls 
