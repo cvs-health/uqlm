@@ -46,7 +46,7 @@ class WhiteBoxUQ(UncertaintyQuantifier):
         super().__init__(llm=llm, max_calls_per_min=max_calls_per_min, system_prompt=system_prompt)
         self.scorers = scorers if scorers else self.white_box_names
 
-    async def generate_and_score(self, prompts: List[str], progress_bar: Optional[bool] = False) -> UQResult:
+    async def generate_and_score(self, prompts: List[str], progress_bar: Optional[bool] = True) -> UQResult:
         """
         Generate responses and compute white-box confidence scores based on extracted token probabilities.
 

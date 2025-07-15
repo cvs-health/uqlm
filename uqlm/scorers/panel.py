@@ -64,7 +64,7 @@ class LLMPanel(UncertaintyQuantifier):
                 raise ValueError("judges must be a list containing instances of either LLMJudge or BaseChatModel")
             self.judges.append(judge)
 
-    async def generate_and_score(self, prompts: List[str], progress_bar: Optional[bool] = False) -> UQResult:
+    async def generate_and_score(self, prompts: List[str], progress_bar: Optional[bool] = True) -> UQResult:
         """
         Generate LLM responses to provided prompts and use panel of judges to score responses for correctness.
 

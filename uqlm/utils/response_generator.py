@@ -45,7 +45,7 @@ class ResponseGenerator:
         self.use_n_param = use_n_param
         self.max_calls_per_min = max_calls_per_min
 
-    async def generate_responses(self, prompts: List[str], system_prompt: str = "You are a helpful assistant.", count: int = 1, progress_bar: Optional[bool] = False) -> Dict[str, Any]:
+    async def generate_responses(self, prompts: List[str], system_prompt: str = "You are a helpful assistant.", count: int = 1, progress_bar: Optional[bool] = True) -> Dict[str, Any]:
         """
         Generates evaluation dataset from a provided set of prompts. For each prompt,
         `self.count` responses are generated.
@@ -123,7 +123,7 @@ class ResponseGenerator:
         if self.use_n_param:
             self.llm.n = count
 
-    async def _generate_in_batches(self, prompts: List[str], progress_bar: Optional[bool] = False) -> Tuple[List[str], List[str]]:
+    async def _generate_in_batches(self, prompts: List[str], progress_bar: Optional[bool] = True) -> Tuple[List[str], List[str]]:
         """Executes async IO with langchain in batches to avoid rate limit error"""
         batch_size = len(prompts) if not self.max_calls_per_min else self.max_calls_per_min // self.count
         prompts_partition = list(self._split(prompts, batch_size))
@@ -137,6 +137,7 @@ class ResponseGenerator:
                 for prompt_batch in prompts_partition:
                     await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)
                     progress.update(task, advance=1)
+                progress.update(task, completed=len(prompts_partition))  # Ensure 100% completion
         else:
             for prompt_batch in prompts_partition:
                 await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)

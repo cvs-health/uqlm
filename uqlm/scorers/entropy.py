@@ -77,7 +77,7 @@ class SemanticEntropy(UncertaintyQuantifier):
         self._setup_nli(nli_model_name)
         self.nli_scorer.discrete = discrete
 
-    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, progress_bar: Optional[bool] = False) -> UQResult:
+    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, progress_bar: Optional[bool] = True) -> UQResult:
         """
         Evaluate discrete semantic entropy score on LLM responses for the provided prompts.
 
@@ -105,7 +105,7 @@ class SemanticEntropy(UncertaintyQuantifier):
         sampled_responses = await self.generate_candidate_responses(prompts, progress_bar=progress_bar)
         return self.score(responses=responses, sampled_responses=sampled_responses, progress_bar=progress_bar)
 
-    def score(self, responses: List[str] = None, sampled_responses: List[List[str]] = None, progress_bar: Optional[bool] = False) -> UQResult:
+    def score(self, responses: List[str] = None, sampled_responses: List[List[str]] = None, progress_bar: Optional[bool] = True) -> UQResult:
         """
         Evaluate discrete semantic entropy score on LLM responses for the provided prompts.
 
@@ -143,6 +143,7 @@ class SemanticEntropy(UncertaintyQuantifier):
                     tmp = self.nli_scorer._semantic_entropy_process(candidates=candidates, i=i)
                     best_responses[i], semantic_entropy[i], scores = tmp
                     progress.update(task, advance=1)
+                progress.update(task, completed=n_prompts)  # Ensure 100% completion
         else:
             for i in range(n_prompts):
                 candidates = [self.responses[i]] + self.sampled_responses[i]

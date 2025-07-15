@@ -28,7 +28,7 @@ class MatchScorer(SimilarityScorer):
         """
         pass
 
-    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = False) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = True) -> List[float]:
         """
         This method computes exact match rates for the provided pairs of texts.
 
@@ -56,6 +56,7 @@ class MatchScorer(SimilarityScorer):
                     score = self._compute_score(response=response, candidates=candidates)
                     results.append(score)
                     progress.update(task, advance=1)
+                progress.update(task, completed=len(responses))  # Ensure 100% completion
                 return results
         else:
             return [self._compute_score(response=o, candidates=mr) for o, mr in zip(responses, sampled_responses)]

@@ -101,7 +101,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         if self.use_nli:
             self._setup_nli(nli_model_name)
 
-    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, progress_bar: Optional[bool] = False) -> UQResult:
+    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, progress_bar: Optional[bool] = True) -> UQResult:
         """
         Generate LLM responses, sampled LLM (candidate) responses, and compute confidence scores with specified scorers for the provided prompts.
 
@@ -129,7 +129,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         sampled_responses = await self.generate_candidate_responses(prompts=prompts, progress_bar=progress_bar)
         return self.score(responses=responses, sampled_responses=sampled_responses, progress_bar=progress_bar)
 
-    def score(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = False) -> UQResult:
+    def score(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = True) -> UQResult:
         """
         Compute confidence scores with specified scorers on provided LLM responses. Should only be used if responses and sampled responses
         are already generated. Otherwise, use `generate_and_score`.

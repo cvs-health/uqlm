@@ -38,7 +38,7 @@ class CosineScorer(SimilarityScorer):
         self.transformer = transformer
         self.model = SentenceTransformer(f"sentence-transformers/{transformer}")
 
-    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = False) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = True) -> List[float]:
         """
         This method computes model-based text similarity metrics values for the provided pairs of texts.
 
@@ -66,6 +66,7 @@ class CosineScorer(SimilarityScorer):
                     score = self._compute_score(response=responses[i], candidates=sampled_responses[i])
                     results.append(score)
                     progress.update(task, advance=1)
+                progress.update(task, completed=len(responses))  # Ensure 100% completion
                 return results
         else:
             return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in range(len(responses))]

@@ -83,7 +83,7 @@ class NLIScorer(SimilarityScorer):
         probabilites = np.exp(np_logits) / np.exp(np_logits).sum(axis=-1, keepdims=True)
         return probabilites
 
-    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], use_best: bool, compute_entropy: bool = False, progress_bar: Optional[bool] = False) -> Dict[str, Any]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], use_best: bool, compute_entropy: bool = False, progress_bar: Optional[bool] = True) -> Dict[str, Any]:
         """
         Evaluate confidence scores on LLM responses.
 
@@ -124,6 +124,7 @@ class NLIScorer(SimilarityScorer):
                     responses[i] = oc_result_i["response"]  # Replace with optimized response if use_best
                     sampled_responses[i] = oc_result_i["candidates"]  # Replace with updated candidates if use_best
                     progress.update(task, advance=1)
+                progress.update(task, completed=len(responses))  # Ensure 100% completion
         else:
             for i, response in enumerate(responses):
                 oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], use_best=use_best, compute_entropy=compute_entropy)
