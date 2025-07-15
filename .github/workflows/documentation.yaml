@@ -33,11 +33,13 @@ jobs:
 
       - name: Build Sphinx docs
         run: |
-          sphinx-build -b html docs/ build/
+          make -C docs clean
+          make -C docs html
+          ls 
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
-          destination_dir: latest
+      # - name: Deploy to GitHub Pages
+      #   uses: peaceiris/actions-gh-pages@v4
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     publish_dir: ./build
+      #     destination_dir: latest
