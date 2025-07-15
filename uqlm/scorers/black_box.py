@@ -77,7 +77,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
 
         cosine_transformer_path : str, default=None
             Specifies the path to the sentence transformer model. If None, the transformer model will be accessed from HuggingFace using transformer library.
-        
+
         postprocessor : callable, default=None
             A user-defined function that takes a string input and returns a string. Used for postprocessing
             outputs.
@@ -117,7 +117,6 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.use_nli = ("semantic_negentropy" in self.scorers) or ("noncontradiction" in self.scorers)
         if self.use_nli:
             self._setup_nli(nli_model_name, nli_model_path)
-
 
     async def generate_and_score(self, prompts: List[str], num_responses: int = 5) -> UQResult:
         """
