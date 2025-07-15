@@ -24,7 +24,7 @@ from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
 
 class NLIScorer(SimilarityScorer):
-    def __init__(self, device: Any = None, verbose: bool = False, nli_model_name: str = "microsoft/deberta-large-mnli", max_length: int = 2000) -> None:
+    def __init__(self, device: Any = None, verbose: bool = False, nli_model_name: str = "microsoft/deberta-large-mnli", nli_model_path: str = None, max_length: int = 2000) -> None:
         """
         A class to computing NLI-based confidence scores. This class offers two types of confidence scores, namely
         noncontradiction probability :footcite:`chen2023quantifyinguncertaintyanswerslanguage` and semantic entropy
@@ -41,7 +41,10 @@ class NLIScorer(SimilarityScorer):
 
         nli_model_name : str, default="microsoft/deberta-large-mnli"
             Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
-            AutoModelForSequenceClassification.from_pretrained()
+            AutoModelForSequenceClassification.from_pretrained(). This parameter is ignored if nli_model_path is provided.
+
+        nli_model_path : str, default=None
+            Specifies the path to the NLI model. If None, the nli_model_name will be accessed from HuggingFace using transformers library.
 
         max_length : int, default=2000
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to
@@ -50,8 +53,9 @@ class NLIScorer(SimilarityScorer):
         self.device = device
         self.verbose = verbose
         self.max_length = max_length
-        self.tokenizer = AutoTokenizer.from_pretrained(nli_model_name)
-        model = AutoModelForSequenceClassification.from_pretrained(nli_model_name)
+        model_str = nli_model_path if nli_model_path else nli_model_name
+        self.tokenizer = AutoTokenizer.from_pretrained(model_str)
+        model = AutoModelForSequenceClassification.from_pretrained(model_str)
         self.model = model.to(self.device) if self.device else model
         self.label_mapping = ["contradiction", "neutral", "entailment"]
 
