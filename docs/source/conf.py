@@ -80,7 +80,7 @@ html_theme_options = {
     "navbar_align": "left",
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "switcher": {
-        "json_url": "https://cvs-health.github.io/uqlm/versions.json",
+        "json_url": "https://dtsapetis.github.io/uqlm/versions.json",
         "version_match": release,
     },
     "logo": {
