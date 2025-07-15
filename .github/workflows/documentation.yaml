@@ -29,8 +29,8 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install
+          poetry run pip install -r docs/requirements.txt
           eval $(poetry env activate)
-          pip install -r docs/requirements.txt
 
       - name: Build Sphinx docs
         run: |
