@@ -128,9 +128,9 @@ class UncertaintyQuantifier:
         else:
             return LLMJudge(llm=llm)
 
-    def _setup_nli(self, nli_model_name: Any) -> None:
+    def _setup_nli(self, nli_model_name: str, nli_model_path: str) -> None:
         """Set up NLI scorer"""
-        self.nli_scorer = NLIScorer(nli_model_name=self.nli_model_name, device=self.device, max_length=self.max_length, verbose=self.verbose)
+        self.nli_scorer = NLIScorer(nli_model_name=nli_model_name, nli_model_path=nli_model_path, device=self.device, max_length=self.max_length, verbose=self.verbose)
 
     def _update_best(self, best_responses: List[str]) -> None:
         """Updates best"""
