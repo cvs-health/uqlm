@@ -29,6 +29,7 @@ jobs:
       - name: Install dependencies
         run: |
           poetry install
+          poetry add pandoc
           poetry run pip install -r docs/requirements.txt
           eval $(poetry env activate)
 
