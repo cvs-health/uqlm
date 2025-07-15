@@ -28,6 +28,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         device: Any = None,
         use_best: bool = True,
         nli_model_name: str = "microsoft/deberta-large-mnli",
+        cosine_transformer: str = "all-MiniLM-L6-v2",
         postprocessor: Any = None,
         system_prompt: str = "You are a helpful assistant.",
         max_calls_per_min: Optional[int] = None,
@@ -64,6 +65,11 @@ class BlackBoxUQ(UncertaintyQuantifier):
             Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
 
+        cosine_transformer : str, default="all-MiniLM-L6-v2"
+            Specifies which huggingface sentence transformer to use when computing cosine distance. See
+            https://huggingface.co/sentence-transformers?sort_models=likes#models
+            for more information. The recommended sentence transformer is 'all-MiniLM-L6-v2'.
+
         postprocessor : callable, default=None
             A user-defined function that takes a string input and returns a string. Used for postprocessing
             outputs.
@@ -96,6 +102,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.use_best = use_best
         self.sampling_temperature = sampling_temperature
         self.nli_model_name = nli_model_name
+        self.cosine_transformer = cosine_transformer
         self._validate_scorers(scorers)
         self.use_nli = ("semantic_negentropy" in self.scorers) or ("noncontradiction" in self.scorers)
         if self.use_nli:
@@ -195,7 +202,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
 
                 self.scorer_objects["bleurt"] = BLEURTScorer()
             elif scorer == "cosine_sim":
-                self.scorer_objects["cosine_sim"] = CosineScorer()
+                self.scorer_objects["cosine_sim"] = CosineScorer(transformer=self.cosine_transformer)
             elif scorer in ["semantic_negentropy", "noncontradiction"]:
                 continue
             else:
