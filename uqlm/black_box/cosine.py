@@ -22,7 +22,7 @@ from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
 
 class CosineScorer(SimilarityScorer):
-    def __init__(self, transformer: str = "all-MiniLM-L6-v2") -> None:
+    def __init__(self, transformer: str = "all-MiniLM-L6-v2", transformer_path: str = None) -> None:
         """Compute cosine similarity betwee original and candidate responses.
 
         Parameters
@@ -30,12 +30,17 @@ class CosineScorer(SimilarityScorer):
         transformer : str (HuggingFace sentence transformer), default='all-MiniLM-L6-v2'
             Specifies which huggingface sentence transformer to use when computing cosine distance. See
             https://huggingface.co/sentence-transformers?sort_models=likes#models
-            for more information. The recommended sentence transformer is 'all-MiniLM-L6-v2'.
+            for more information. The recommended sentence transformer is 'all-MiniLM-L6-v2'. This parameter is ignored if transformer_path is provided.
+
+        transformer_path : str, default=None
+            Specifies the path to the sentence transformer model. If None, the transformer model will be accessed from HuggingFace using transformer library.
         """
         from sentence_transformers import SentenceTransformer
 
         self.transformer = transformer
-        self.model = SentenceTransformer(f"sentence-transformers/{transformer}")
+        self.transformer_path = transformer_path
+        model_str = transformer_path if transformer_path else f"sentence-transformers/{transformer}"
+        self.model = SentenceTransformer(model_str)
 
     def evaluate(self, responses: List[str], sampled_responses: List[List[str]]) -> List[float]:
         """
