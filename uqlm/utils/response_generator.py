@@ -91,7 +91,6 @@ class ResponseGenerator:
             llm must be an instance of langchain_core.language_models.chat_models.BaseChatModel
         """
         assert all(isinstance(prompt, str) for prompt in prompts), "If using custom prompts, please ensure `prompts` is of type list[str]"
-        print(f"Generating {count} responses per prompt...")
         if self.llm.temperature == 0:
             assert count == 1, "temperature must be greater than 0 if count > 1"
         self._update_count(count)
@@ -133,7 +132,10 @@ class ResponseGenerator:
 
         if progress_bar:
             with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
-                task = progress.add_task(f"[green]Generating responses ({self.count} per prompt)...", total=len(prompts_partition))
+                if self.count == 1:
+                    task = progress.add_task("[green]Generating responses...", total=len(prompts_partition))
+                else:
+                    task = progress.add_task(f"[green]Generating candidate responses ({self.count} per prompt)...", total=len(prompts_partition))
                 for prompt_batch in prompts_partition:
                     await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)
                     progress.update(task, advance=1)
