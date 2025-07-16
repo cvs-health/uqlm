@@ -128,7 +128,7 @@ class UQEnsemble(UncertaintyQuantifier):
         num_responses : int, default=5
             The number of sampled responses used to compute consistency.
 
-        progress_bar : bool, default=False
+        progress_bar : bool, default=True
             If True, displays a progress bar while scoring responses
 
         Returns
@@ -174,7 +174,7 @@ class UQEnsemble(UncertaintyQuantifier):
         num_responses : int, default=5
             The number of sampled responses used to compute consistency. Not value will not be used if sampled_responses is provided
 
-        progress_bar : bool, default=False
+        progress_bar : bool, default=True
             If True, displays a progress bar while scoring responses
 
         Returns

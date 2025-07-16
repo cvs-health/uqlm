@@ -103,7 +103,7 @@ class NLIScorer(SimilarityScorer):
         compute_entropy : bool, default=False
             Specifies whether to include semantic entropy in returned result
 
-        progress_bar : bool, default=False
+        progress_bar : bool, default=True
             If True, displays a progress bar while scoring responses
 
         Returns

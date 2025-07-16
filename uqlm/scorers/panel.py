@@ -73,7 +73,7 @@ class LLMPanel(UncertaintyQuantifier):
         prompts : list of str
             A list of input prompts for the model.
 
-        progress_bar : bool, default=False
+        progress_bar : bool, default=True
             If True, displays a progress bar while scoring responses
 
         Returns
