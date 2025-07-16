@@ -35,7 +35,6 @@ sentence-transformers = "^3.4.0"
 datasets = "^3.3.2"
 rich = "^13.8.0"
 
-
 [tool.poetry.group.dev]
 optional = true
 

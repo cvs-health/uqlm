@@ -151,7 +151,6 @@ class BlackBoxUQ(UncertaintyQuantifier):
         UQResult
             UQResult containing data (prompts, responses, and scores) and metadata
         """
-        print("Computing confidence scores...")
         self.responses = responses
         self.sampled_responses = sampled_responses
         self.num_responses = len(sampled_responses[0])

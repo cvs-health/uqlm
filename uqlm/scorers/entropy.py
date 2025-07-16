@@ -132,7 +132,6 @@ class SemanticEntropy(UncertaintyQuantifier):
         semantic_entropy = [None] * n_prompts
         best_responses = [None] * n_prompts
 
-        print("Computing confidence scores...")
         if progress_bar:
             from rich.progress import Progress
 
