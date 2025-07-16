@@ -16,6 +16,8 @@
 from typing import Any, List, Optional
 
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
+import time
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
 
 
 class SemanticEntropy(UncertaintyQuantifier):
@@ -133,16 +135,14 @@ class SemanticEntropy(UncertaintyQuantifier):
         best_responses = [None] * n_prompts
 
         if progress_bar:
-            from rich.progress import Progress
-
-            with Progress() as progress:
+            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
                 task = progress.add_task("[green]Computing semantic entropy scores...", total=n_prompts)
                 for i in range(n_prompts):
                     candidates = [self.responses[i]] + self.sampled_responses[i]
                     tmp = self.nli_scorer._semantic_entropy_process(candidates=candidates, i=i)
                     best_responses[i], semantic_entropy[i], scores = tmp
                     progress.update(task, advance=1)
-                progress.update(task, completed=n_prompts)  # Ensure 100% completion
+                time.sleep(0.1)
         else:
             for i in range(n_prompts):
                 candidates = [self.responses[i]] + self.sampled_responses[i]

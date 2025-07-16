@@ -19,7 +19,8 @@ import warnings
 from collections import deque, Counter
 from typing import Any, Dict, List, Optional
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from rich.progress import Progress
+import time
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
 
@@ -115,7 +116,7 @@ class NLIScorer(SimilarityScorer):
         observed_consistency_data = {"noncontradiction": [], "semantic_negentropy": [], "responses": responses, "sampled_responses": sampled_responses}
 
         if progress_bar:
-            with Progress() as progress:
+            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
                 task = progress.add_task("[cyan]Scoring responses with NLI...", total=len(responses))
                 for i, response in enumerate(responses):
                     oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], use_best=use_best, compute_entropy=compute_entropy)
@@ -124,7 +125,7 @@ class NLIScorer(SimilarityScorer):
                     responses[i] = oc_result_i["response"]  # Replace with optimized response if use_best
                     sampled_responses[i] = oc_result_i["candidates"]  # Replace with updated candidates if use_best
                     progress.update(task, advance=1)
-                progress.update(task, completed=len(responses))  # Ensure 100% completion
+                time.sleep(0.1)
         else:
             for i, response in enumerate(responses):
                 oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], use_best=use_best, compute_entropy=compute_entropy)

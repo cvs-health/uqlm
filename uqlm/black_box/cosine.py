@@ -17,7 +17,8 @@ from typing import Any, List, Tuple, Optional
 
 import numpy as np
 from numpy.linalg import norm
-from rich.progress import Progress
+import time
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
@@ -59,14 +60,14 @@ class CosineScorer(SimilarityScorer):
             Mean cosine similarity values
         """
         if progress_bar:
-            with Progress() as progress:
+            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
                 task = progress.add_task("[magenta]Scoring responses with Cosine Similarity...", total=len(responses))
                 results = []
                 for i in range(len(responses)):
                     score = self._compute_score(response=responses[i], candidates=sampled_responses[i])
                     results.append(score)
                     progress.update(task, advance=1)
-                progress.update(task, completed=len(responses))  # Ensure 100% completion
+                time.sleep(0.1)
                 return results
         else:
             return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in range(len(responses))]

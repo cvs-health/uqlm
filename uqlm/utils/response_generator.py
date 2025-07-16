@@ -22,6 +22,7 @@ from langchain_core.messages.human import HumanMessage
 from langchain_core.messages.system import SystemMessage
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
 
+
 class ResponseGenerator:
     def __init__(self, llm: BaseChatModel = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False) -> None:
         """
@@ -131,18 +132,12 @@ class ResponseGenerator:
         generations = {"responses": [], "logprobs": []}
 
         if progress_bar:
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                BarColumn(),
-                TextColumn("[progress.percentage]{task.completed}/{task.total}"),
-                TimeElapsedColumn()
-            ) as progress:
+            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
                 task = progress.add_task(f"[green]Generating responses ({self.count} per prompt)...", total=len(prompts_partition))
                 for prompt_batch in prompts_partition:
                     await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)
                     progress.update(task, advance=1)
-                time.sleep(0.1) 
+                time.sleep(0.1)
         else:
             for prompt_batch in prompts_partition:
                 await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)

@@ -17,7 +17,9 @@ import numpy as np
 from typing import List, Optional
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
-from rich.progress import Progress
+
+import time
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
 
 
 class MatchScorer(SimilarityScorer):
@@ -49,14 +51,14 @@ class MatchScorer(SimilarityScorer):
             Exact match rates
         """
         if progress_bar:
-            with Progress() as progress:
+            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
                 task = progress.add_task("[red]Scoring responses with Exact Match...", total=len(responses))
                 results = []
                 for i, (response, candidates) in enumerate(zip(responses, sampled_responses)):
                     score = self._compute_score(response=response, candidates=candidates)
                     results.append(score)
                     progress.update(task, advance=1)
-                progress.update(task, completed=len(responses))  # Ensure 100% completion
+                time.sleep(0.1)
                 return results
         else:
             return [self._compute_score(response=o, candidates=mr) for o, mr in zip(responses, sampled_responses)]
