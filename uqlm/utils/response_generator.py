@@ -44,6 +44,8 @@ class ResponseGenerator:
         self.llm = llm
         self.use_n_param = use_n_param
         self.max_calls_per_min = max_calls_per_min
+        self.progress = None
+        self.progress_task = None
 
     async def generate_responses(self, prompts: List[str], system_prompt: str = "You are a helpful assistant.", count: int = 1, progress_bar: Optional[bool] = True) -> Dict[str, Any]:
         """
@@ -61,7 +63,7 @@ class ResponseGenerator:
         count : int, default=1
             Specifies number of responses to generate for each prompt.
 
-        progress_bar : bool, default=False
+        progress_bar : bool, default=True
             If True, displays a progress bar while scoring responses
 
         Returns
@@ -122,23 +124,26 @@ class ResponseGenerator:
         if self.use_n_param:
             self.llm.n = count
 
-    async def _generate_in_batches(self, prompts: List[str], progress_bar: Optional[bool] = True) -> Tuple[List[str], List[str]]:
+    async def _generate_in_batches(self, prompts: List[str], progress_bar: Optional[bool] = True) -> Tuple[Dict[str, List[Any]], List[str]]:
         """Executes async IO with langchain in batches to avoid rate limit error"""
-        batch_size = len(prompts) if not self.max_calls_per_min else self.max_calls_per_min // self.count
+        assert self.count > 0, "count must be greater than 0"
+        if self.max_calls_per_min:
+            batch_size = max(1, self.max_calls_per_min // self.count)
+        else:
+            batch_size = len(prompts)
         prompts_partition = list(self._split(prompts, batch_size))
 
         duplicated_prompts = []
         generations = {"responses": [], "logprobs": []}
 
         if progress_bar:
-            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
+            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as self.progress:
                 if self.count == 1:
-                    task = progress.add_task("[green]Generating responses...", total=len(prompts_partition))
+                    self.progress_task = self.progress.add_task("[green]Generating responses...", total=len(prompts))
                 else:
-                    task = progress.add_task(f"[green]Generating candidate responses ({self.count} per prompt)...", total=len(prompts_partition))
+                    self.progress_task = self.progress.add_task(f"[green]Generating candidate responses ({self.count} per prompt)...", total=len(prompts) * self.count)
                 for prompt_batch in prompts_partition:
                     await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)
-                    progress.update(task, advance=1)
                 time.sleep(0.1)
         else:
             for prompt_batch in prompts_partition:
@@ -146,7 +151,7 @@ class ResponseGenerator:
 
         return generations, duplicated_prompts
 
-    async def _process_batch(self, prompt_batch: List[str], duplicated_prompts: List[str], generations: Dict[str, List], batch_size: int) -> None:
+    async def _process_batch(self, prompt_batch: List[str], duplicated_prompts: List[str], generations: Dict[str, List[Any]], batch_size: int) -> None:
         """Process a single batch of prompts"""
         start = time.time()
         # generate responses for current batch
@@ -167,11 +172,14 @@ class ResponseGenerator:
         if (stop - start < 60) and (batch_size < len(prompt_batch)):
             time.sleep(61 - stop + start)
 
-    async def _async_api_call(self, prompt: str, count: int = 1) -> List[Any]:
+    async def _async_api_call(self, prompt: str, count: int = 1) -> Dict[str, Any]:
         """Generates responses asynchronously using an RunnableSequence object"""
         messages = [self.system_message, HumanMessage(prompt)]
         logprobs = [None] * count
         result = await self.llm.agenerate([messages])
+        if self.progress:
+            for _ in range(count):
+                self.progress.update(self.progress_task, advance=1)
         if hasattr(self.llm, "logprobs"):
             if self.llm.logprobs:
                 if "logprobs_result" in result.generations[0][0].generation_info:
