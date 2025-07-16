@@ -74,6 +74,7 @@ class UncertaintyQuantifier:
         estimation. If specified in the child class, all responses are postprocessed
         using the callable function defined by the user.
         """
+        print("Generating responses...")
         generations = await self._generate_responses(prompts, count=1, progress_bar=progress_bar)
         responses = generations["responses"]
         self.logprobs = generations["logprobs"]
@@ -87,6 +88,7 @@ class UncertaintyQuantifier:
         estimation. If specified in the child class, all responses are postprocessed
         using the callable function defined by the user.
         """
+        print("Generating candidate responses...")
         llm_temperature = self.llm.temperature
         generations = await self._generate_responses(prompts=prompts, count=self.num_responses, temperature=self.sampling_temperature, progress_bar=progress_bar)
         tmp_mr, tmp_lp = generations["responses"], generations["logprobs"]

@@ -91,7 +91,7 @@ class ResponseGenerator:
             llm must be an instance of langchain_core.language_models.chat_models.BaseChatModel
         """
         assert all(isinstance(prompt, str) for prompt in prompts), "If using custom prompts, please ensure `prompts` is of type list[str]"
-        print(f"Generating candidate responses ({count} per prompt)")
+        print(f"Generating {count} responses per prompt...")
         if self.llm.temperature == 0:
             assert count == 1, "temperature must be greater than 0 if count > 1"
         self._update_count(count)
