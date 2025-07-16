@@ -122,26 +122,27 @@ class NLIScorer(SimilarityScorer):
             The dictionary will also contain original and multiple responses, updated if `use_best` is True
         """
         self.num_responses = len(sampled_responses[0])
-        observed_consistency_data = {"noncontradiction": [], "semantic_negentropy": [], "responses": responses, "sampled_responses": sampled_responses}
+        self.logprobs, self.multiple_logprobs = responses_logprobs, sampled_responses_logprobs
+        observed_consistency_data = {"noncontradiction": [], "discrete_semantic_entropy": [], "tokenprob_semantic_entropy": [], "responses": responses, "sampled_responses": sampled_responses}
+        
+        def _process_i(i, response):
+            oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], i=i, use_best=use_best, compute_entropy=compute_entropy)
+            observed_consistency_data["noncontradiction"].append(oc_result_i["nli_score_i"])
+            observed_consistency_data["discrete_semantic_entropy"].append(oc_result_i["discrete_semantic_entropy"])
+            observed_consistency_data["tokenprob_semantic_entropy"].append(oc_result_i["tokenprob_semantic_entropy"])
+            responses[i] = oc_result_i["response"]  # Replace with optimized response if use_best
+            sampled_responses[i] = oc_result_i["candidates"]  # Replace with updated candidates if use_best
+            
         if progress_bar:
             with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
                 task = progress.add_task("[cyan]Scoring responses with NLI...", total=len(responses))
                 for i, response in enumerate(responses):
-                    oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], use_best=use_best, compute_entropy=compute_entropy)
-                    observed_consistency_data["noncontradiction"].append(oc_result_i["nli_score_i"])
-                    observed_consistency_data["semantic_negentropy"].append(oc_result_i["semantic_negentropy"])
-                    responses[i] = oc_result_i["response"]  # Replace with optimized response if use_best
-                    sampled_responses[i] = oc_result_i["candidates"]  # Replace with updated candidates if use_best
+                    _process_i(i, response)
                     progress.update(task, advance=1)
                 time.sleep(0.1)
         else:
             for i, response in enumerate(responses):
-              oc_result_i = self._observed_consistency_i(original=response, candidates=sampled_responses[i], i=i, use_best=use_best, compute_entropy=compute_entropy)
-              observed_consistency_data["noncontradiction"].append(oc_result_i["nli_score_i"])
-              observed_consistency_data["discrete_semantic_entropy"].append(oc_result_i["discrete_semantic_entropy"])
-              observed_consistency_data["tokenprob_semantic_entropy"].append(oc_result_i["tokenprob_semantic_entropy"])
-              responses[i] = oc_result_i["response"]  # Replace with optimized response if use_best
-              sampled_responses[i] = oc_result_i["candidates"]  # Replace with updated candidates if use_best
+                _process_i(i, response)
 
         if use_best:
             observed_consistency_data["responses"] = responses

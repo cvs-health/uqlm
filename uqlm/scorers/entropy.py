@@ -144,23 +144,23 @@ class SemanticEntropy(UncertaintyQuantifier):
         discrete_semantic_entropy = [None] * n_prompts
         best_responses = [None] * n_prompts
         tokenprob_semantic_entropy = [None] * n_prompts
+        
+        def _process_i(i):
+            candidates = [self.responses[i]] + self.sampled_responses[i]
+            candidate_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i] if (self.logprobs and self.multiple_logprobs) else None
+            tmp = self.nli_scorer._semantic_entropy_process(candidates=candidates, i=i, logprobs_results=candidate_logprobs, best_response_selection=self.best_response_selection)
+            best_responses[i], discrete_semantic_entropy[i], _, tokenprob_semantic_entropy[i] = tmp
 
         if progress_bar:
             with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
-                task = progress.add_task("[green]Computing semantic entropy scores...", total=n_prompts)
+                progress_task = progress.add_task("[green]Computing semantic entropy scores...", total=n_prompts)
                 for i in range(n_prompts):
-                    candidates = [self.responses[i]] + self.sampled_responses[i]
-                    candidate_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i] if (self.logprobs and self.multiple_logprobs) else None
-                    tmp = self.nli_scorer._semantic_entropy_process(candidates=candidates, i=i, logprobs_results=candidate_logprobs, best_response_selection=self.best_response_selection)
-                    best_responses[i], discrete_semantic_entropy[i], _, tokenprob_semantic_entropy[i] = tmp
-                    progress.update(task, advance=1)
+                    _process_i(i)
+                    progress.update(progress_task, advance=1)
                 time.sleep(0.1)
         else:
             for i in range(n_prompts):
-                candidates = [self.responses[i]] + self.sampled_responses[i]
-                candidate_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i] if (self.logprobs and self.multiple_logprobs) else None
-                tmp = self.nli_scorer._semantic_entropy_process(candidates=candidates, i=i, logprobs_results=candidate_logprobs, best_response_selection=self.best_response_selection)
-                best_responses[i], discrete_semantic_entropy[i], _, tokenprob_semantic_entropy[i] = tmp
+                _process_i(i)
 
         confidence_scores = [1 - ne for ne in self.nli_scorer._normalize_entropy(discrete_semantic_entropy)]
 

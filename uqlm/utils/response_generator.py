@@ -46,6 +46,7 @@ class ResponseGenerator:
         self.max_calls_per_min = max_calls_per_min
         self.progress = None
         self.progress_task = None
+        self.is_judge = False
 
     async def generate_responses(self, prompts: List[str], system_prompt: str = "You are a helpful assistant.", count: int = 1, progress_bar: Optional[bool] = True) -> Dict[str, Any]:
         """
@@ -102,8 +103,6 @@ class ResponseGenerator:
 
         responses = generations["responses"]
         logprobs = generations["logprobs"]
-
-        print("Responses successfully generated!")
         return {"data": {"prompt": self._enforce_strings(duplicated_prompts), "response": self._enforce_strings(responses)}, "metadata": {"system_prompt": system_prompt, "temperature": self.llm.temperature, "count": self.count, "logprobs": logprobs}}
 
     def _create_tasks(self, prompts: List[str]) -> Tuple[List[Any], List[str]]:
@@ -139,7 +138,7 @@ class ResponseGenerator:
         if progress_bar:
             with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as self.progress:
                 if self.count == 1:
-                    self.progress_task = self.progress.add_task("[green]Generating responses...", total=len(prompts))
+                    self.progress_task = self.progress.add_task( f"[green]Generating {'LLM judge scores' if self.is_judge else 'responses'}...", total=len(prompts))
                 else:
                     self.progress_task = self.progress.add_task(f"[green]Generating candidate responses ({self.count} per prompt)...", total=len(prompts) * self.count)
                 for prompt_batch in prompts_partition:
