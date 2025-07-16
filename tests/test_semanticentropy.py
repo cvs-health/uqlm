@@ -48,10 +48,11 @@ async def test_semanticentropy(monkeypatch):
     monkeypatch.setattr(se_object, "generate_candidate_responses", mock_generate_candidate_responses)
 
     se_results = await se_object.generate_and_score(prompts=PROMPTS)
+    se_object.logprobs = None
     se_results = se_object.score(responses=MOCKED_RESPONSES, sampled_responses=MOCKED_SAMPLED_RESPONSES)
     assert se_results.data["responses"] == data["responses"]
     assert se_results.data["sampled_responses"] == data["sampled_responses"]
     assert se_results.data["prompts"] == data["prompts"]
-    assert all([abs(se_results.data["entropy_values"][i] - data["entropy_values"][i]) < 1e-5 for i in range(len(PROMPTS))])
-    assert all([abs(se_results.data["confidence_scores"][i] - data["confidence_scores"][i]) < 1e-5 for i in range(len(PROMPTS))])
+    assert all([abs(se_results.data["discrete_entropy_values"][i] - data["entropy_values"][i]) < 1e-5 for i in range(len(PROMPTS))])
+    assert all([abs(se_results.data["discrete_confidence_scores"][i] - data["confidence_scores"][i]) < 1e-5 for i in range(len(PROMPTS))])
     assert se_results.metadata == metadata
