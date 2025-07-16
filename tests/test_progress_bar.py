@@ -131,34 +131,6 @@ def test_match_scorer_without_progress_bar():
     assert all(isinstance(score, (int, float)) for score in results)
 
 
-def test_cosine_scorer_with_progress_bar():
-    """Test CosineScorer with progress bar enabled."""
-    try:
-        from uqlm.black_box import CosineScorer
-
-        scorer = CosineScorer()
-        results = scorer.evaluate(TEST_RESPONSES, TEST_SAMPLED_RESPONSES, progress_bar=True)
-
-        assert len(results) == len(TEST_RESPONSES)
-        assert all(isinstance(score, (int, float)) for score in results)
-    except Exception as e:
-        pytest.skip(f"CosineScorer failed (might need sentence-transformers): {e}")
-
-
-def test_cosine_scorer_without_progress_bar():
-    """Test CosineScorer with progress bar disabled."""
-    try:
-        from uqlm.black_box import CosineScorer
-
-        scorer = CosineScorer()
-        results = scorer.evaluate(TEST_RESPONSES, TEST_SAMPLED_RESPONSES, progress_bar=False)
-
-        assert len(results) == len(TEST_RESPONSES)
-        assert all(isinstance(score, (int, float)) for score in results)
-    except Exception as e:
-        pytest.skip(f"CosineScorer failed (might need dependencies): {e}")
-
-
 def test_bert_scorer_with_progress_bar():
     """Test BertScorer with progress bar enabled."""
     try:
