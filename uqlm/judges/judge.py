@@ -136,7 +136,6 @@ class LLMJudge(ResponseGenerator):
             Dictionary containing Q/A concatenation prompts, judge responses, and judge scores
         """
         concatenated_qa = [self.template_ques_ans.format(prompts[i], responses[i]) for i in range(len(prompts))]
-        print("Generating LLMJudge scores...")
         with contextlib.redirect_stdout(io.StringIO()):
             data = await self.generate_responses(prompts=concatenated_qa, count=1)
         df = pd.DataFrame({"judge_prompts": data["data"]["prompt"], "judge_responses": data["data"]["response"], "scores": self._extract_answers(responses=data["data"]["response"])})
