@@ -144,7 +144,7 @@ class SemanticEntropy(UncertaintyQuantifier):
         discrete_semantic_entropy = [None] * n_prompts
         best_responses = [None] * n_prompts
         tokenprob_semantic_entropy = [None] * n_prompts
-        
+
         def _process_i(i):
             candidates = [self.responses[i]] + self.sampled_responses[i]
             candidate_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i] if (self.logprobs and self.multiple_logprobs) else None
