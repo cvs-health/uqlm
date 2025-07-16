@@ -15,12 +15,12 @@
 import asyncio
 import itertools
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages.human import HumanMessage
 from langchain_core.messages.system import SystemMessage
-from tqdm import tqdm
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
 
 
 class ResponseGenerator:
@@ -44,8 +44,10 @@ class ResponseGenerator:
         self.llm = llm
         self.use_n_param = use_n_param
         self.max_calls_per_min = max_calls_per_min
+        self.progress = None
+        self.progress_task = None
 
-    async def generate_responses(self, prompts: List[str], system_prompt: str = "You are a helpful assistant.", count: int = 1, progress_bar: Optional[bool] = False) -> Dict[str, Any]:
+    async def generate_responses(self, prompts: List[str], system_prompt: str = "You are a helpful assistant.", count: int = 1, progress_bar: Optional[bool] = True) -> Dict[str, Any]:
         """
         Generates evaluation dataset from a provided set of prompts. For each prompt,
         `self.count` responses are generated.
@@ -61,7 +63,7 @@ class ResponseGenerator:
         count : int, default=1
             Specifies number of responses to generate for each prompt.
 
-        progress_bar : bool, default=False
+        progress_bar : bool, default=True
             If True, displays a progress bar while scoring responses
 
         Returns
@@ -91,7 +93,6 @@ class ResponseGenerator:
             llm must be an instance of langchain_core.language_models.chat_models.BaseChatModel
         """
         assert all(isinstance(prompt, str) for prompt in prompts), "If using custom prompts, please ensure `prompts` is of type list[str]"
-        print(f"Generating {count} responses per prompt...")
         if self.llm.temperature == 0:
             assert count == 1, "temperature must be greater than 0 if count > 1"
         self._update_count(count)
@@ -123,45 +124,62 @@ class ResponseGenerator:
         if self.use_n_param:
             self.llm.n = count
 
-    async def _generate_in_batches(self, prompts: List[str], progress_bar: Optional[bool] = False) -> Tuple[List[str], List[str]]:
+    async def _generate_in_batches(self, prompts: List[str], progress_bar: Optional[bool] = True) -> Tuple[Dict[str, List[Any]], List[str]]:
         """Executes async IO with langchain in batches to avoid rate limit error"""
-        batch_size = len(prompts) if not self.max_calls_per_min else self.max_calls_per_min // self.count
-        prompts_partition = self._split(prompts, batch_size)
-
-        if progress_bar:
-            partition_iter = tqdm(prompts_partition, desc="Generating responses...", total=len(prompts_partition))
+        assert self.count > 0, "count must be greater than 0"
+        if self.max_calls_per_min:
+            batch_size = max(1, self.max_calls_per_min // self.count)
         else:
-            partition_iter = prompts_partition
+            batch_size = len(prompts)
+        prompts_partition = list(self._split(prompts, batch_size))
 
         duplicated_prompts = []
         generations = {"responses": [], "logprobs": []}
-        for prompt_batch in partition_iter:
-            start = time.time()
-            # generate responses for current batch
-            tasks, duplicated_batch_prompts = self._create_tasks(prompt_batch)
-            generations_batch = await asyncio.gather(*tasks)
-            responses_batch, logprobs_batch = [], []
-            for g in generations_batch:
-                responses_batch.extend(g["responses"])
-                logprobs_batch.extend(g["logprobs"])
 
-            # extend lists to include current batch
-            duplicated_prompts.extend(duplicated_batch_prompts)
-            generations["responses"].extend(responses_batch)
-            generations["logprobs"].extend(logprobs_batch)
-            stop = time.time()
-
-            # pause if needed
-            if (stop - start < 60) and (batch_size < len(prompts)):
-                time.sleep(61 - stop + start)
+        if progress_bar:
+            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as self.progress:
+                if self.count == 1:
+                    self.progress_task = self.progress.add_task("[green]Generating responses...", total=len(prompts))
+                else:
+                    self.progress_task = self.progress.add_task(f"[green]Generating candidate responses ({self.count} per prompt)...", total=len(prompts) * self.count)
+                for prompt_batch in prompts_partition:
+                    await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)
+                time.sleep(0.1)
+        else:
+            for prompt_batch in prompts_partition:
+                await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)
 
         return generations, duplicated_prompts
 
-    async def _async_api_call(self, prompt: str, count: int = 1) -> List[Any]:
+    async def _process_batch(self, prompt_batch: List[str], duplicated_prompts: List[str], generations: Dict[str, List[Any]], batch_size: int) -> None:
+        """Process a single batch of prompts"""
+        start = time.time()
+        # generate responses for current batch
+        tasks, duplicated_batch_prompts = self._create_tasks(prompt_batch)
+        generations_batch = await asyncio.gather(*tasks)
+        responses_batch, logprobs_batch = [], []
+        for g in generations_batch:
+            responses_batch.extend(g["responses"])
+            logprobs_batch.extend(g["logprobs"])
+
+        # extend lists to include current batch
+        duplicated_prompts.extend(duplicated_batch_prompts)
+        generations["responses"].extend(responses_batch)
+        generations["logprobs"].extend(logprobs_batch)
+        stop = time.time()
+
+        # pause if needed
+        if (stop - start < 60) and (batch_size < len(prompt_batch)):
+            time.sleep(61 - stop + start)
+
+    async def _async_api_call(self, prompt: str, count: int = 1) -> Dict[str, Any]:
         """Generates responses asynchronously using an RunnableSequence object"""
         messages = [self.system_message, HumanMessage(prompt)]
         logprobs = [None] * count
         result = await self.llm.agenerate([messages])
+        if self.progress:
+            for _ in range(count):
+                self.progress.update(self.progress_task, advance=1)
         if hasattr(self.llm, "logprobs"):
             if self.llm.logprobs:
                 if "logprobs_result" in result.generations[0][0].generation_info:
@@ -176,7 +194,7 @@ class ResponseGenerator:
         return [str(r) for r in texts]
 
     @staticmethod
-    def _split(list_a: List[str], chunk_size: int) -> List[List[str]]:
+    def _split(list_a: List[str], chunk_size: int) -> Iterator[List[str]]:
         """Partitions list"""
         for i in range(0, len(list_a), chunk_size):
             yield list_a[i : i + chunk_size]

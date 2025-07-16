@@ -116,7 +116,7 @@ class UQEnsemble(UncertaintyQuantifier):
         self._validate_components(scorers)
         self._validate_weights()
 
-    async def generate_and_score(self, prompts: List[str], num_responses: int = 5):
+    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, progress_bar: Optional[bool] = True):
         """
         Generate LLM responses from provided prompts and compute confidence scores.
 
@@ -127,6 +127,9 @@ class UQEnsemble(UncertaintyQuantifier):
 
         num_responses : int, default=5
             The number of sampled responses used to compute consistency.
+
+        progress_bar : bool, default=True
+            If True, displays a progress bar while scoring responses
 
         Returns
         -------
@@ -141,15 +144,15 @@ class UQEnsemble(UncertaintyQuantifier):
             """
             self.llm.logprobs = True
 
-        responses = await self.generate_original_responses(prompts)
+        responses = await self.generate_original_responses(prompts, progress_bar=progress_bar)
         if self.black_box_components:
-            sampled_responses = await self.generate_candidate_responses(prompts)
+            sampled_responses = await self.generate_candidate_responses(prompts, progress_bar=progress_bar)
         else:
             sampled_responses = None
 
-        return await self.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=self.logprobs)
+        return await self.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=self.logprobs, progress_bar=progress_bar)
 
-    async def score(self, prompts: List[str], responses: List[str], sampled_responses: Optional[List[List[str]]] = None, logprobs_results: Optional[List[List[Dict[str, Any]]]] = None, num_responses: int = 5):
+    async def score(self, prompts: List[str], responses: List[str], sampled_responses: Optional[List[List[str]]] = None, logprobs_results: Optional[List[List[Dict[str, Any]]]] = None, num_responses: int = 5, progress_bar: Optional[bool] = True):
         """
         Generate LLM responses from provided prompts and compute confidence scores.
 
@@ -171,6 +174,9 @@ class UQEnsemble(UncertaintyQuantifier):
         num_responses : int, default=5
             The number of sampled responses used to compute consistency. Not value will not be used if sampled_responses is provided
 
+        progress_bar : bool, default=True
+            If True, displays a progress bar while scoring responses
+
         Returns
         -------
         UQResult
@@ -191,7 +197,7 @@ class UQEnsemble(UncertaintyQuantifier):
             self.multiple_logprobs = [[None] * self.num_responses] * len(prompts)
 
         if self.black_box_components:
-            black_box_results = self.black_box_object.score(responses=self.responses, sampled_responses=self.sampled_responses)
+            black_box_results = self.black_box_object.score(responses=self.responses, sampled_responses=self.sampled_responses, progress_bar=progress_bar)
             if self.use_best:
                 self._update_best(black_box_results.data["responses"])
 
@@ -257,7 +263,7 @@ class UQEnsemble(UncertaintyQuantifier):
 
         return self._construct_result()
 
-    async def tune(self, prompts: List[str], ground_truth_answers: List[str], grader_function: Optional[Any] = None, num_responses: int = 5, weights_objective: str = "roc_auc", thresh_bounds: Tuple[float, float] = (0, 1), thresh_objective: str = "fbeta_score", n_trials: int = 100, step_size: float = 0.01, fscore_beta: float = 1) -> UQResult:
+    async def tune(self, prompts: List[str], ground_truth_answers: List[str], grader_function: Optional[Any] = None, num_responses: int = 5, weights_objective: str = "roc_auc", thresh_bounds: Tuple[float, float] = (0, 1), thresh_objective: str = "fbeta_score", n_trials: int = 100, step_size: float = 0.01, fscore_beta: float = 1, progress_bar: Optional[bool] = True) -> UQResult:
         """
         Generate responses from provided prompts, grade responses with provided grader function, and tune ensemble weights.
 
@@ -300,7 +306,7 @@ class UQEnsemble(UncertaintyQuantifier):
         UQResult
         """
         self._validate_grader(grader_function)
-        await self.generate_and_score(prompts=prompts, num_responses=num_responses)
+        await self.generate_and_score(prompts=prompts, num_responses=num_responses, progress_bar=progress_bar)
         print("Grading responses with grader function...")
         if grader_function:
             correct_indicators = [grader_function(r, a) for r, a in zip(self.responses, ground_truth_answers)]

@@ -101,7 +101,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         if self.use_nli:
             self._setup_nli(nli_model_name)
 
-    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, progress_bar: Optional[bool] = False) -> UQResult:
+    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, progress_bar: Optional[bool] = True) -> UQResult:
         """
         Generate LLM responses, sampled LLM (candidate) responses, and compute confidence scores with specified scorers for the provided prompts.
 
@@ -113,7 +113,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         num_responses : int, default=5
             The number of sampled responses used to compute consistency.
 
-        progress_bar : bool, default=False
+        progress_bar : bool, default=True
             If True, displays a progress bar while scoring responses
 
         Returns
@@ -129,7 +129,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         sampled_responses = await self.generate_candidate_responses(prompts=prompts, progress_bar=progress_bar)
         return self.score(responses=responses, sampled_responses=sampled_responses, progress_bar=progress_bar)
 
-    def score(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = False) -> UQResult:
+    def score(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = True) -> UQResult:
         """
         Compute confidence scores with specified scorers on provided LLM responses. Should only be used if responses and sampled responses
         are already generated. Otherwise, use `generate_and_score`.
@@ -143,7 +143,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
             A list of lists of sampled LLM responses for each prompt. These will be used to compute consistency scores by comparing to
             the corresponding response from `responses`.
 
-        progress_bar : bool, default=False
+        progress_bar : bool, default=True
             If True, displays a progress bar while scoring responses
 
         Returns
@@ -151,7 +151,6 @@ class BlackBoxUQ(UncertaintyQuantifier):
         UQResult
             UQResult containing data (prompts, responses, and scores) and metadata
         """
-        print("Computing confidence scores...")
         self.responses = responses
         self.sampled_responses = sampled_responses
         self.num_responses = len(sampled_responses[0])

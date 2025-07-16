@@ -17,7 +17,9 @@ import numpy as np
 from typing import List, Optional
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
-from tqdm import tqdm
+
+import time
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
 
 
 class MatchScorer(SimilarityScorer):
@@ -28,7 +30,7 @@ class MatchScorer(SimilarityScorer):
         """
         pass
 
-    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = False) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = True) -> List[float]:
         """
         This method computes exact match rates for the provided pairs of texts.
 
@@ -40,7 +42,7 @@ class MatchScorer(SimilarityScorer):
         sampled_responses : list of list of strings
             Candidate responses to be compared to the original response
 
-        progress_bar : bool, default=False
+        progress_bar : bool, default=True
             If True, displays a progress bar while scoring responses
 
         Returns
@@ -48,9 +50,18 @@ class MatchScorer(SimilarityScorer):
         List of float
             Exact match rates
         """
-        iterator = tqdm(zip(responses, sampled_responses), total=len(responses), desc="Scoring responses with Exact Match...") if progress_bar else zip(responses, sampled_responses)
-
-        return [self._compute_score(response=o, candidates=mr) for o, mr in iterator]
+        if progress_bar:
+            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
+                task = progress.add_task("[red]Scoring responses with Exact Match...", total=len(responses))
+                results = []
+                for i, (response, candidates) in enumerate(zip(responses, sampled_responses)):
+                    score = self._compute_score(response=response, candidates=candidates)
+                    results.append(score)
+                    progress.update(task, advance=1)
+                time.sleep(0.1)
+                return results
+        else:
+            return [self._compute_score(response=o, candidates=mr) for o, mr in zip(responses, sampled_responses)]
 
     @staticmethod
     def _compute_score(response: str, candidates: List[str]) -> List[float]:

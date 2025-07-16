@@ -18,7 +18,9 @@ import numpy as np
 from typing import List, Optional
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
-from tqdm import tqdm
+
+import time
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
 
 
 class BertScorer(SimilarityScorer):
@@ -29,7 +31,7 @@ class BertScorer(SimilarityScorer):
         """
         pass
 
-    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = False) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = True) -> List[float]:
         """
         This method computes model-based text similarity metrics values for the provided pairs of texts.
 
@@ -41,7 +43,7 @@ class BertScorer(SimilarityScorer):
         sampled_responses : list of list of strings
             Candidate responses to be compared to the original response
 
-        progress_bar : bool, default=False
+        progress_bar : bool, default=True
             If True, displays a progress bar while scoring responses
 
         Returns
@@ -49,13 +51,22 @@ class BertScorer(SimilarityScorer):
         List of float
             Mean BertScore values
         """
-        iterator = tqdm(range(len(responses)), desc="Scoring responses with BERT-scorer...") if progress_bar else range(len(responses))
-
-        return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in iterator]
+        if progress_bar:
+            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
+                task = progress.add_task("[yellow]Scoring responses with BERT...", total=len(responses))
+                results = []
+                for i in range(len(responses)):
+                    score = self._compute_score(response=responses[i], candidates=sampled_responses[i])
+                    results.append(score)
+                    progress.update(task, advance=1)
+                time.sleep(0.1)
+                return results
+        else:
+            return [self._compute_score(response=responses[i], candidates=sampled_responses[i]) for i in range(len(responses))]
 
     @staticmethod
     def _compute_score(response: str, candidates: List[str]) -> float:
         """Compute mean BERTScore between a response and candidate responses"""
         duplicated_response = [response] * len(candidates)
-        P, R, F1 = bert_score.score(list(duplicated_response), refs=list(candidates), lang="en")
+        P, R, F1 = bert_score.score(list(duplicated_response), refs=list(candidates), lang="en", verbose=False)
         return np.mean([float(f) for f in F1])

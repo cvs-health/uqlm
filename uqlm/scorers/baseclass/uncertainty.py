@@ -68,29 +68,27 @@ class UncertaintyQuantifier:
         self.white_box_names = WHITE_BOX_SCORERS
         self.default_black_box_names = DEFAULT_BLACK_BOX_SCORERS
 
-    async def generate_original_responses(self, prompts: List[str]) -> List[str]:
+    async def generate_original_responses(self, prompts: List[str], progress_bar: Optional[bool] = True) -> List[str]:
         """
         This method generates original responses for uncertainty
         estimation. If specified in the child class, all responses are postprocessed
         using the callable function defined by the user.
         """
-        print("Generating responses...")
-        generations = await self._generate_responses(prompts, count=1)
+        generations = await self._generate_responses(prompts, count=1, progress_bar=progress_bar)
         responses = generations["responses"]
         self.logprobs = generations["logprobs"]
         if self.postprocessor:
             responses = [self.postprocessor(r) for r in responses]
         return responses
 
-    async def generate_candidate_responses(self, prompts: List[str]) -> List[List[str]]:
+    async def generate_candidate_responses(self, prompts: List[str], progress_bar: Optional[bool] = True) -> List[List[str]]:
         """
         This method generates multiple responses for uncertainty
         estimation. If specified in the child class, all responses are postprocessed
         using the callable function defined by the user.
         """
         llm_temperature = self.llm.temperature
-        print("Generating candidate responses...")
-        generations = await self._generate_responses(prompts=prompts, count=self.num_responses, temperature=self.sampling_temperature)
+        generations = await self._generate_responses(prompts=prompts, count=self.num_responses, temperature=self.sampling_temperature, progress_bar=progress_bar)
         tmp_mr, tmp_lp = generations["responses"], generations["logprobs"]
         sampled_responses, self.multiple_logprobs = [], []
         for i in range(len(prompts)):
@@ -102,7 +100,7 @@ class UncertaintyQuantifier:
         self.llm.temperature = llm_temperature
         return sampled_responses
 
-    async def _generate_responses(self, prompts: List[str], count: int, temperature: float = None) -> List[str]:
+    async def _generate_responses(self, prompts: List[str], count: int, temperature: float = None, progress_bar: Optional[bool] = True) -> List[str]:
         """Helper function to generate responses with LLM"""
         if self.llm is None:
             raise ValueError("""llm must be provided to generate responses.""")
@@ -111,7 +109,7 @@ class UncertaintyQuantifier:
             self.llm.temperature = temperature
         generator_object = ResponseGenerator(llm=self.llm, max_calls_per_min=self.max_calls_per_min, use_n_param=self.use_n_param)
         with contextlib.redirect_stdout(io.StringIO()):
-            generations = await generator_object.generate_responses(prompts=prompts, count=count, system_prompt=self.system_prompt)
+            generations = await generator_object.generate_responses(prompts=prompts, count=count, system_prompt=self.system_prompt, progress_bar=progress_bar)
         self.llm.temperature = llm_temperature
         return {"responses": generations["data"]["response"], "logprobs": generations["metadata"]["logprobs"]}
 
