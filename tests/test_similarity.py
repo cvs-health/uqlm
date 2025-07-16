@@ -20,7 +20,6 @@ import shutil
 import numpy as np
 import subprocess
 import importlib.resources as resources
-import unittest
 from uqlm.black_box import BertScorer, BLEURTScorer, CosineScorer, MatchScorer
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 from contextlib import redirect_stdout
