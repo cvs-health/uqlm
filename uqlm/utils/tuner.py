@@ -26,7 +26,7 @@ from sklearn.metrics import fbeta_score, balanced_accuracy_score, accuracy_score
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 
-class TunerNew:
+class Tuner:
     def __init__(self) -> None:
         """
         Class for tuning weights and threshold for UQEnsemble

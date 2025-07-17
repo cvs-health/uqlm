@@ -56,7 +56,7 @@ class WhiteBoxUQ(UncertaintyQuantifier):
             A list of input prompts for the model.
 
         progress_bar : bool, default=True
-            If True, displays a progress bar while scoring responses
+            If True, displays a progress bar while generating and scoring responses
 
         Returns
         -------

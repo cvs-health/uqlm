@@ -129,7 +129,7 @@ class UQEnsemble(UncertaintyQuantifier):
             The number of sampled responses used to compute consistency.
 
         progress_bar : bool, default=True
-            If True, displays a progress bar while scoring responses
+            If True, displays a progress bar while generating and scoring responses
 
         Returns
         -------
@@ -300,6 +300,9 @@ class UQEnsemble(UncertaintyQuantifier):
 
         fscore_beta : float, default=1
             Value of beta in fbeta_score
+            
+        progress_bar : bool, default=True
+            If True, displays a progress bar while while generating responses, scoring responses, and tuning weights
 
         Returns
         -------

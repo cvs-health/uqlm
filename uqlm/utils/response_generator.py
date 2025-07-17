@@ -65,7 +65,7 @@ class ResponseGenerator:
             Specifies number of responses to generate for each prompt.
 
         progress_bar : bool, default=True
-            If True, displays a progress bar while scoring responses
+            If True, displays a progress bar while generating responses
 
         Returns
         -------

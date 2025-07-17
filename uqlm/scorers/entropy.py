@@ -97,7 +97,7 @@ class SemanticEntropy(UncertaintyQuantifier):
             The number of sampled responses used to compute consistency.
 
         progress_bar : bool, default=True
-            If True, displays a progress bar while scoring responses
+            If True, displays a progress bar while generating and scoring responses
 
         Returns
         -------
