@@ -105,7 +105,7 @@ class Tuner:
 
         fscore_beta : float, default=1
             Value of beta in fbeta_score.
-            
+
         progress_bar : bool, default=True
             If True, displays a progress bar during optimization routine
 
@@ -140,8 +140,10 @@ class Tuner:
                 study = optuna.create_study()
                 with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.percentage:>3.0f}%"), TimeElapsedColumn()) as progress:
                     progress_task = progress.add_task("[blue]Optimizing weights...", total=self.n_trials)
+
                     def callback(study, trial):
                         progress.update(progress_task, advance=1)
+
                     study.optimize(self._optuna_objective, n_trials=self.n_trials, callbacks=[callback])
                     params = tuple(study.best_params.values())
                     best_weights = self._normalize_weights(params[:-1])
@@ -156,8 +158,10 @@ class Tuner:
                 study = optuna.create_study()
                 with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.percentage:>3.0f}%"), TimeElapsedColumn()) as progress:
                     progress_task = progress.add_task("[blue]Optimizing weights...", total=self.n_trials)
+
                     def callback(study, trial):
                         progress.update(progress_task, advance=1)
+
                     study.optimize(self._optuna_objective, n_trials=self.n_trials, callbacks=[callback])
                     best_weights_raw = tuple(study.best_params.values())
                     best_weights = self._normalize_weights(best_weights_raw)
@@ -239,7 +243,7 @@ class Tuner:
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.percentage:>3.0f}%"), TimeElapsedColumn()) as progress:
             progress_task = progress.add_task("[blue]Jointly optimizing weights and threshold using grid search...", total=len(weight_grid) * len(threshold_grid))
             for w in weight_grid:
-                weights = np.array([w, 1 - w]) 
+                weights = np.array([w, 1 - w])
                 for thresh in threshold_grid:
                     cost = self._evaluate_objective(y_true=self.correct_indicators, y_pred=self._update_scores(weights), thresh=thresh)
                     progress.update(progress_task, advance=1)

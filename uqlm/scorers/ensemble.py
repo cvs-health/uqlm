@@ -300,7 +300,7 @@ class UQEnsemble(UncertaintyQuantifier):
 
         fscore_beta : float, default=1
             Value of beta in fbeta_score
-            
+
         progress_bar : bool, default=True
             If True, displays a progress bar while while generating responses, scoring responses, and tuning weights
 
@@ -393,6 +393,7 @@ class UQEnsemble(UncertaintyQuantifier):
 
     def _construct_hhem(self):
         from transformers import AutoModelForSequenceClassification
+
         self.hhem = AutoModelForSequenceClassification.from_pretrained("vectara/hallucination_evaluation_model", trust_remote_code=True)
 
     @staticmethod
