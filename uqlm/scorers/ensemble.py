@@ -310,7 +310,6 @@ class UQEnsemble(UncertaintyQuantifier):
         """
         self._validate_grader(grader_function)
         await self.generate_and_score(prompts=prompts, num_responses=num_responses, progress_bar=progress_bar)
-        print("Grading responses with grader function...")
         if grader_function:
             correct_indicators = [grader_function(r, a) for r, a in zip(self.responses, ground_truth_answers)]
         else:
@@ -394,7 +393,6 @@ class UQEnsemble(UncertaintyQuantifier):
 
     def _construct_hhem(self):
         from transformers import AutoModelForSequenceClassification
-
         self.hhem = AutoModelForSequenceClassification.from_pretrained("vectara/hallucination_evaluation_model", trust_remote_code=True)
 
     @staticmethod
@@ -492,7 +490,7 @@ class UQEnsemble(UncertaintyQuantifier):
     def print_ensemble_weights(self):
         """Prints ensemble weights in a pretty table format, sorted by weight in descending order"""
         # Create DataFrame and sort by weight in descending order
-        weights_df = pd.DataFrame({"Component": self.component_names, "Weight": self.weights})
+        weights_df = pd.DataFrame({"Scorer": self.component_names, "Weight": self.weights})
 
         # Sort by weight in descending order
         weights_df = weights_df.sort_values(by="Weight", ascending=False)
@@ -508,5 +506,5 @@ class UQEnsemble(UncertaintyQuantifier):
         print("-" * 50)
         # Print data rows
         for _, row in weights_df.iterrows():
-            print(f"{row['Component']:<25}{row['Weight']:>15}")
+            print(f"{row['Scorer']:<25}{row['Weight']:>15}")
         print("=" * 50)
