@@ -19,7 +19,6 @@ import optuna
 from typing import Any, Dict, List, Tuple
 import time
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
-from rich import print as rprint
 
 from sklearn.metrics import fbeta_score, balanced_accuracy_score, accuracy_score, roc_auc_score, log_loss, average_precision_score, brier_score_loss
 
