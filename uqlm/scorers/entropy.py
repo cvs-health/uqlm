@@ -19,7 +19,7 @@ import warnings
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
 import time
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
-
+from rich import print as rprint
 
 class SemanticEntropy(UncertaintyQuantifier):
     def __init__(

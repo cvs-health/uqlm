@@ -261,7 +261,7 @@ class UQEnsemble(UncertaintyQuantifier):
         self.weights = optimal_params["weights"]
         self.thresh = optimal_params["thresh"]
 
-        self._print_ensemble_weights()
+        self.print_ensemble_weights()
         return self._construct_result()
 
     async def tune(self, prompts: List[str], ground_truth_answers: List[str], grader_function: Optional[Any] = None, num_responses: int = 5, weights_objective: str = "roc_auc", thresh_bounds: Tuple[float, float] = (0, 1), thresh_objective: str = "fbeta_score", n_trials: int = 100, step_size: float = 0.01, fscore_beta: float = 1, progress_bar: Optional[bool] = True) -> UQResult:
@@ -316,6 +316,23 @@ class UQEnsemble(UncertaintyQuantifier):
         correct_indicators = self._grade_responses(ground_truth_answers=ground_truth_answers, grader_function=grader_function)
         tuned_result = self.tune_from_graded(correct_indicators=correct_indicators, weights_objective=weights_objective, thresh_bounds=thresh_bounds, thresh_objective=thresh_objective, n_trials=n_trials, step_size=step_size, fscore_beta=fscore_beta, progress_bar=progress_bar)
         return tuned_result
+    
+    def print_ensemble_weights(self):
+        """Prints ensemble weights in a pretty table format, sorted by weight in descending order"""
+        weights_df = pd.DataFrame({"Scorer": self.component_names, "Weight": self.weights})
+        weights_df = weights_df.sort_values(by="Weight", ascending=False)
+        weights_df["Weight"] = weights_df["Weight"].apply(lambda x: f"{x:.4f}")
+
+        print("\nOptimized Ensemble Weights:")
+        print("=" * 50)
+
+        header = f"{weights_df.columns[0]:<25}{weights_df.columns[1]:>15}"
+        print(header)
+        print("-" * 50)
+
+        for _, row in weights_df.iterrows():
+            print(f"{row['Scorer']:<25}{row['Weight']:>15}")
+        print("=" * 50)
     
     def save_config(self, path: str) -> None:
         """
@@ -484,25 +501,7 @@ class UQEnsemble(UncertaintyQuantifier):
 
     def _construct_hhem(self):
         from transformers import AutoModelForSequenceClassification
-
         self.hhem = AutoModelForSequenceClassification.from_pretrained("vectara/hallucination_evaluation_model", trust_remote_code=True)
-                
-    def _print_ensemble_weights(self):
-        """Prints ensemble weights in a pretty table format, sorted by weight in descending order"""
-        weights_df = pd.DataFrame({"Scorer": self.component_names, "Weight": self.weights})
-        weights_df = weights_df.sort_values(by="Weight", ascending=False)
-        weights_df["Weight"] = weights_df["Weight"].apply(lambda x: f"{x:.4f}")
-
-        print("\nOptimized Ensemble Weights:")
-        print("=" * 50)
-
-        header = f"{weights_df.columns[0]:<25}{weights_df.columns[1]:>15}"
-        print(header)
-        print("-" * 50)
-
-        for _, row in weights_df.iterrows():
-            print(f"{row['Scorer']:<25}{row['Weight']:>15}")
-        print("=" * 50)
     
     @staticmethod
     def _validate_grader(grader_function: Any) -> bool:
