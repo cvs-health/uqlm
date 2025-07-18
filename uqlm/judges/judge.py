@@ -116,7 +116,7 @@ class LLMJudge(ResponseGenerator):
         self.system_prompt = self.instruction if not system_prompt else system_prompt
         self.is_judge = True
 
-    async def judge_responses(self, prompts: List[str], responses: List[str], retries: int = 5) -> Dict[str, Any]:
+    async def judge_responses(self, prompts: List[str], responses: List[str], retries: int = 5, progress_bar: bool = True) -> Dict[str, Any]:
         """
         Judge responses for correctness.
 
@@ -138,7 +138,7 @@ class LLMJudge(ResponseGenerator):
         """
         concatenated_qa = [self.template_ques_ans.format(prompts[i], responses[i]) for i in range(len(prompts))]
         with contextlib.redirect_stdout(io.StringIO()):
-            data = await self.generate_responses(prompts=concatenated_qa, count=1)
+            data = await self.generate_responses(prompts=concatenated_qa, count=1, progress_bar=progress_bar)
         df = pd.DataFrame({"judge_prompts": data["data"]["prompt"], "judge_responses": data["data"]["response"], "scores": self._extract_answers(responses=data["data"]["response"])})
         retry = 0
         while retry <= retries:
@@ -146,7 +146,7 @@ class LLMJudge(ResponseGenerator):
             df_sub = df[pd.isna(df.scores)]
             if len(df_sub) > 0:
                 with contextlib.redirect_stdout(io.StringIO()):
-                    tmp = await self.generate_responses(prompts=list(df_sub.judge_prompts), count=1, system_prompt=self.system_prompt)
+                    tmp = await self.generate_responses(prompts=list(df_sub.judge_prompts), count=1, system_prompt=self.system_prompt, progress_bar=False)
                 df.loc[df_sub.index, "scores"] = self._extract_answers(responses=tmp["data"]["response"])
         return {col: list(df[col]) for col in df.columns}
 

@@ -82,12 +82,14 @@ class LLMPanel(UncertaintyQuantifier):
         UQResult
             UQResult containing prompts, responses, Q/A concatenations, judge responses, and judge scores
         """
-        rprint("🤖 Generation")
+        if progress_bar:
+            rprint("🤖 Generation")
         responses = await self.generate_original_responses(prompts, progress_bar=progress_bar)
-        rprint("📈 Scoring")
-        return await self.score(prompts=prompts, responses=responses)
+        if progress_bar:
+            rprint("📈 Scoring")
+        return await self.score(prompts=prompts, responses=responses, progress_bar=progress_bar)
 
-    async def score(self, prompts: List[str], responses: Optional[List[str]] = None) -> UQResult:
+    async def score(self, prompts: List[str], responses: Optional[List[str]] = None, progress_bar: bool = True) -> UQResult:
         """
         Use panel to of judges to score provided responses for correctness. Use if responses are already generated. Otherwise,
         use generate_and_score.
@@ -99,6 +101,9 @@ class LLMPanel(UncertaintyQuantifier):
 
         responses: list of str, default = None
             A list of LLM responses for the corresponding to the provided prompts.
+            
+        progress_bar : bool, default=True
+            If True, displays a progress bar while generating and scoring responses
 
         Returns
         -------
@@ -112,7 +117,7 @@ class LLMPanel(UncertaintyQuantifier):
         judge_count = 1
         scores_lists = []
         for judge in self.judges:
-            tmp = await judge.judge_responses(prompts=prompts, responses=responses)
+            tmp = await judge.judge_responses(prompts=prompts, responses=responses, progress_bar=progress_bar)
             scores_lists.append(tmp["scores"])
             data[f"judge_{judge_count}"] = tmp["scores"]
             judge_count += 1

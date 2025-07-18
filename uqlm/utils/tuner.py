@@ -18,7 +18,6 @@ from numpy.typing import ArrayLike
 import optuna
 from typing import Any, Dict, List, Tuple
 import time
-from rich import print as rprint
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
 from sklearn.metrics import fbeta_score, balanced_accuracy_score, accuracy_score, roc_auc_score, log_loss, average_precision_score, brier_score_loss
 
@@ -55,7 +54,7 @@ class Tuner:
 
         step_size : float, default=0.01
             Indicates step size in grid search, if used.
-            
+
         progress_bar : bool, default=False
             If True, displays a progress bar during optimization routine
 
@@ -75,7 +74,7 @@ class Tuner:
         values = np.zeros(len(threshold_values))
         with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.percentage:>3.0f}%"), TimeElapsedColumn()) as progress:
             if self.progress_bar:
-                progress_task = progress.add_task("- [black]Optimizing threshold with grid search...", total=len(threshold_values))        
+                progress_task = progress.add_task("- [black]Optimizing threshold with grid search...", total=len(threshold_values))
             for i, y_pred in enumerate(y_pred_matrix.T):
                 values[i] = -threshold_tuning_objective(np.array(correct_indicators), y_pred)
                 if self.progress_bar:

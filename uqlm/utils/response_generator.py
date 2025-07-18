@@ -126,6 +126,7 @@ class ResponseGenerator:
     async def _generate_in_batches(self, prompts: List[str], progress_bar: Optional[bool] = True) -> Tuple[Dict[str, List[Any]], List[str]]:
         """Executes async IO with langchain in batches to avoid rate limit error"""
         assert self.count > 0, "count must be greater than 0"
+        self.use_progress_bar = progress_bar
         if self.max_calls_per_min:
             batch_size = max(1, self.max_calls_per_min // self.count)
             check_batch_time = True
@@ -143,7 +144,7 @@ class ResponseGenerator:
                     self.progress_task = self.progress.add_task(f"- Generating candidate responses ({self.count} per prompt)...", total=len(prompts) * self.count)
             for batch_idx, prompt_batch in enumerate(prompts_partition):
                 if batch_idx == len(prompts_partition) - 1:
-                    check_batch_time = False 
+                    check_batch_time = False
                 await self._process_batch(prompt_batch, duplicated_prompts, generations, check_batch_time)
             time.sleep(0.1)
 
@@ -175,7 +176,7 @@ class ResponseGenerator:
         messages = [self.system_message, HumanMessage(prompt)]
         logprobs = [None] * count
         result = await self.llm.agenerate([messages])
-        if self.progress:
+        if self.use_progress_bar:
             for _ in range(count):
                 self.progress.update(self.progress_task, advance=1)
         if hasattr(self.llm, "logprobs"):

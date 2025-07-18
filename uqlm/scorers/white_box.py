@@ -67,7 +67,8 @@ class WhiteBoxUQ(UncertaintyQuantifier):
         assert hasattr(self.llm, "logprobs"), """
         BaseChatModel must have logprobs attribute and have logprobs=True
         """
-        rprint("🤖📈 Generation & Scoring")
+        if progress_bar:
+            rprint("🤖📈 Generation & Scoring")
         self.llm.logprobs = True
         responses = await self.generate_original_responses(prompts, progress_bar=progress_bar)
         return self.score(prompts=prompts, responses=responses, logprobs_results=self.logprobs)

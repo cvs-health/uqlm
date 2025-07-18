@@ -132,10 +132,12 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.prompts = prompts
         self.num_responses = num_responses
         self.progress_bar = progress_bar
-        rprint("🤖 Generation")
+        if progress_bar:
+            rprint("🤖 Generation")
         responses = await self.generate_original_responses(prompts=prompts, progress_bar=progress_bar)
         sampled_responses = await self.generate_candidate_responses(prompts=prompts, progress_bar=progress_bar)
-        rprint("📈 Scoring")
+        if progress_bar:
+            rprint("📈 Scoring")
         return self.score(responses=responses, sampled_responses=sampled_responses, progress_bar=progress_bar)
 
     def score(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[bool] = True) -> UQResult:
