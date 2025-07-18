@@ -128,29 +128,28 @@ class ResponseGenerator:
         assert self.count > 0, "count must be greater than 0"
         if self.max_calls_per_min:
             batch_size = max(1, self.max_calls_per_min // self.count)
+            check_batch_time = True
         else:
             batch_size = len(prompts)
         prompts_partition = list(self._split(prompts, batch_size))
 
         duplicated_prompts = []
         generations = {"responses": [], "logprobs": []}
-
-        if progress_bar:
-            with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as self.progress:
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as self.progress:
+            if progress_bar:
                 if self.count == 1:
-                    self.progress_task = self.progress.add_task(f"[green]Generating {'LLM judge scores' if self.is_judge else 'responses'}...", total=len(prompts))
+                    self.progress_task = self.progress.add_task(f"- {'Scoring responses with LLM-as-a-Judge' if self.is_judge else 'Generating responses'}...", total=len(prompts))
                 else:
-                    self.progress_task = self.progress.add_task(f"[green]Generating candidate responses ({self.count} per prompt)...", total=len(prompts) * self.count)
-                for prompt_batch in prompts_partition:
-                    await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)
-                time.sleep(0.1)
-        else:
-            for prompt_batch in prompts_partition:
-                await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)
+                    self.progress_task = self.progress.add_task(f"- Generating candidate responses ({self.count} per prompt)...", total=len(prompts) * self.count)
+            for batch_idx, prompt_batch in enumerate(prompts_partition):
+                if batch_idx == len(prompts_partition) - 1:
+                    check_batch_time = False
+                await self._process_batch(prompt_batch, duplicated_prompts, generations, check_batch_time)
+            time.sleep(0.1)
 
         return generations, duplicated_prompts
 
-    async def _process_batch(self, prompt_batch: List[str], duplicated_prompts: List[str], generations: Dict[str, List[Any]], batch_size: int) -> None:
+    async def _process_batch(self, prompt_batch: List[str], duplicated_prompts: List[str], generations: Dict[str, List[Any]], check_batch_time: bool) -> None:
         """Process a single batch of prompts"""
         start = time.time()
         # generate responses for current batch
@@ -168,7 +167,7 @@ class ResponseGenerator:
         stop = time.time()
 
         # pause if needed
-        if (stop - start < 60) and (batch_size < len(prompt_batch)):
+        if (stop - start < 60) and check_batch_time:
             time.sleep(61 - stop + start)
 
     async def _async_api_call(self, prompt: str, count: int = 1) -> Dict[str, Any]:

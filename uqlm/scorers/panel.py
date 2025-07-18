@@ -16,6 +16,7 @@
 import numpy as np
 from typing import List, Optional, Union
 from langchain_core.language_models.chat_models import BaseChatModel
+from rich import print as rprint
 
 from uqlm.judges.judge import LLMJudge
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
@@ -81,7 +82,9 @@ class LLMPanel(UncertaintyQuantifier):
         UQResult
             UQResult containing prompts, responses, Q/A concatenations, judge responses, and judge scores
         """
+        rprint("🤖 Generation")
         responses = await self.generate_original_responses(prompts, progress_bar=progress_bar)
+        rprint("📈 Scoring")
         return await self.score(prompts=prompts, responses=responses)
 
     async def score(self, prompts: List[str], responses: Optional[List[str]] = None) -> UQResult:

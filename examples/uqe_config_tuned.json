@@ -1,12 +1,12 @@
 {
   "weights": [
-    0.0006124047356802156,
-    0.5392393031883811,
-    0.1368157612931045,
-    0.014099569890602504,
-    0.3092329608922318
+    0.21675893005933675,
+    0.38501491050326037,
+    0.25332673499869157,
+    5.0096045788577183e-05,
+    0.14484932839292286
   ],
-  "thresh": 0.54,
+  "thresh": 0.48,
   "components": [
     "exact_match",
     "noncontradiction",
@@ -21,7 +21,7 @@
     "logprobs": true,
     "max_retries": 2,
     "model_version": "",
-    "n": 1,
+    "n": 5,
     "openai_api_type": "azure",
     "openai_api_version": "2024-02-15-preview",
     "streaming": false,
@@ -36,7 +36,7 @@
       "logprobs": true,
       "max_retries": 2,
       "model_version": "",
-      "n": 1,
+      "n": 5,
       "openai_api_type": "azure",
       "openai_api_version": "2024-02-15-preview",
       "streaming": false,

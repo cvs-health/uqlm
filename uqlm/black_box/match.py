@@ -52,7 +52,7 @@ class MatchScorer(SimilarityScorer):
         """
         if progress_bar:
             with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
-                task = progress.add_task("[red]Scoring responses with Exact Match...", total=len(responses))
+                task = progress.add_task("- [black]Scoring responses with Exact Match...", total=len(responses))
                 results = []
                 for i, (response, candidates) in enumerate(zip(responses, sampled_responses)):
                     score = self._compute_score(response=response, candidates=candidates)

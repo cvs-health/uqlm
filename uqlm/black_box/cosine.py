@@ -61,7 +61,7 @@ class CosineScorer(SimilarityScorer):
         """
         if progress_bar:
             with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
-                task = progress.add_task("[magenta]Scoring responses with Cosine Similarity...", total=len(responses))
+                task = progress.add_task("- [black]Scoring responses with Cosine Similarity...", total=len(responses))
                 results = []
                 for i in range(len(responses)):
                     score = self._compute_score(response=responses[i], candidates=sampled_responses[i])
