@@ -78,7 +78,7 @@ class BLEURTScorer(SimilarityScorer):
         """
         if progress_bar:
             with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
-                task = progress.add_task("[cyan3]Scoring responses with BLEURT...", total=len(responses))
+                task = progress.add_task("- [black]Scoring responses with BLEURT...", total=len(responses))
                 results = []
                 for i in range(len(responses)):
                     score = self._compute_score(response=responses[i], candidates=sampled_responses[i])

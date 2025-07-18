@@ -112,7 +112,7 @@ class SemanticEntropy(UncertaintyQuantifier):
             self.llm.logprobs = True
         else:
             warnings.warn("The provided LLM does not support logprobs access. Only discrete semantic entropy will be computed.")
-
+        rprint("🤖 Generation")
         responses = await self.generate_original_responses(prompts, progress_bar=progress_bar)
         sampled_responses = await self.generate_candidate_responses(prompts, progress_bar=progress_bar)
         return self.score(responses=responses, sampled_responses=sampled_responses, progress_bar=progress_bar)
@@ -144,7 +144,7 @@ class SemanticEntropy(UncertaintyQuantifier):
         discrete_semantic_entropy = [None] * n_prompts
         best_responses = [None] * n_prompts
         tokenprob_semantic_entropy = [None] * n_prompts
-
+        rprint("📈 Scoring")
         def _process_i(i):
             candidates = [self.responses[i]] + self.sampled_responses[i]
             candidate_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i] if (self.logprobs and self.multiple_logprobs) else None

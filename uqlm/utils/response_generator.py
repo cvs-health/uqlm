@@ -138,9 +138,9 @@ class ResponseGenerator:
         if progress_bar:
             with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as self.progress:
                 if self.count == 1:
-                    self.progress_task = self.progress.add_task(f"[green]Generating {'LLM judge scores' if self.is_judge else 'responses'}...", total=len(prompts))
+                    self.progress_task = self.progress.add_task(f"- {'Scoring responses with LLM-as-a-Judge' if self.is_judge else 'Generating responses'}...", total=len(prompts))
                 else:
-                    self.progress_task = self.progress.add_task(f"[green]Generating candidate responses ({self.count} per prompt)...", total=len(prompts) * self.count)
+                    self.progress_task = self.progress.add_task(f"- Generating candidate responses ({self.count} per prompt)...", total=len(prompts) * self.count)
                 for prompt_batch in prompts_partition:
                     await self._process_batch(prompt_batch, duplicated_prompts, generations, batch_size)
                 time.sleep(0.1)
