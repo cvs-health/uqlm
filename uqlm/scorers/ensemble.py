@@ -21,6 +21,9 @@ import time
 from langchain_core.language_models.chat_models import BaseChatModel
 from rich import print as rprint
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
+from rich.spinner import Spinner
+from rich.console import Console
+from rich.table import Table
 
 from uqlm.judges.judge import LLMJudge
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
@@ -313,7 +316,7 @@ class UQEnsemble(UncertaintyQuantifier):
         await self.generate_and_score(prompts=prompts, num_responses=num_responses, progress_bar=progress_bar)
         
         rprint("⚙️ Optimization")
-        correct_indicators = self._grade_responses(ground_truth_answers=ground_truth_answers, grader_function=grader_function)
+        correct_indicators = self._grade_responses(ground_truth_answers=ground_truth_answers, grader_function=grader_function, progress_bar=progress_bar)
         tuned_result = self.tune_from_graded(correct_indicators=correct_indicators, weights_objective=weights_objective, thresh_bounds=thresh_bounds, thresh_objective=thresh_objective, n_trials=n_trials, step_size=step_size, fscore_beta=fscore_beta, progress_bar=progress_bar)
         return tuned_result
     
@@ -323,16 +326,21 @@ class UQEnsemble(UncertaintyQuantifier):
         weights_df = weights_df.sort_values(by="Weight", ascending=False)
         weights_df["Weight"] = weights_df["Weight"].apply(lambda x: f"{x:.4f}")
 
-        print("\nOptimized Ensemble Weights:")
-        print("=" * 50)
+        console = Console()
+        rprint(" ")
+
+        title = "[bold]Optimized Ensemble Weights"
+        centered_title = title.center(50)  # Center the title
+        rprint(centered_title)
+        rprint("=" * 50)
 
         header = f"{weights_df.columns[0]:<25}{weights_df.columns[1]:>15}"
-        print(header)
-        print("-" * 50)
+        rprint(header)
+        rprint("-" * 50)
 
         for _, row in weights_df.iterrows():
-            print(f"{row['Scorer']:<25}{row['Weight']:>15}")
-        print("=" * 50)
+            rprint(f"{row['Scorer']:<25}{row['Weight']:>15}")
+        rprint("=" * 50)
     
     def save_config(self, path: str) -> None:
         """
@@ -412,20 +420,27 @@ class UQEnsemble(UncertaintyQuantifier):
 
         return cls(llm=llm, scorers=components, weights=config["weights"], thresh=config["thresh"])
     
-    def _grade_responses(self, ground_truth_answers: List[str], grader_function: Any = None) -> List[Any]:
+    def _grade_responses(self, ground_truth_answers: List[str], grader_function: Any = None, progress_bar: bool = True) -> List[Any]:
         """Grade LLM responses against provided ground truth answers using provided grader function"""
         if grader_function:
                 correct_indicators = []
                 with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
-                    progress_task = progress.add_task("- [black]Grading responses against provided ground truth answers...", total=len(ground_truth_answers))   
+                    if progress_bar:
+                        progress_task = progress.add_task("- [black]Grading responses against provided ground truth answers...", total=len(ground_truth_answers))   
                     for r, a in zip(self.responses, ground_truth_answers):
                         correct_indicators.append(grader_function(r, a))
-                        progress.update(progress_task, advance=1)
+                        if progress_bar:
+                            progress.update(progress_task, advance=1)
                     time.sleep(0.1)
         else:
             self._construct_hhem()  # use vectara hhem if no grader is provided
             pairs = [(a, r) for a, r in zip(ground_truth_answers, self.responses)]
-            halluc_scores = self.hhem.predict(pairs)
+            if progress_bar:
+                console = Console()
+                with console.status(f"- [black]Grading responses against provided ground truth answers...", spinner=Spinner()):
+                    halluc_scores = self.hhem.predict(pairs)
+            else:
+                halluc_scores = self.hhem.predict(pairs)
             correct_indicators = [(s > 0.5) * 1 for s in halluc_scores]
         return correct_indicators
 

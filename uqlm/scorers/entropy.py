@@ -153,7 +153,7 @@ class SemanticEntropy(UncertaintyQuantifier):
 
         if progress_bar:
             with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
-                progress_task = progress.add_task("[green]Computing semantic entropy scores...", total=n_prompts)
+                progress_task = progress.add_task("- Scoring responses with NLI...", total=n_prompts)
                 for i in range(n_prompts):
                     _process_i(i)
                     progress.update(progress_task, advance=1)
