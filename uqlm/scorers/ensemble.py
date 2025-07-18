@@ -17,8 +17,13 @@ import inspect
 from typing import Any, Dict, List, Optional, Union, Tuple
 import numpy as np
 import pandas as pd
+import time
 from langchain_core.language_models.chat_models import BaseChatModel
-
+from rich import print as rprint
+from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
+from rich.spinner import Spinner
+from rich.console import Console
+from rich.table import Table
 
 from uqlm.judges.judge import LLMJudge
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
@@ -143,7 +148,7 @@ class UQEnsemble(UncertaintyQuantifier):
             In order to use white-box components, BaseChatModel must have logprobs attribute
             """
             self.llm.logprobs = True
-
+        rprint("🤖 Generation")
         responses = await self.generate_original_responses(prompts, progress_bar=progress_bar)
         if self.black_box_components:
             sampled_responses = await self.generate_candidate_responses(prompts, progress_bar=progress_bar)
@@ -196,6 +201,7 @@ class UQEnsemble(UncertaintyQuantifier):
             self.logprobs = [None] * len(prompts)
             self.multiple_logprobs = [[None] * self.num_responses] * len(prompts)
 
+        rprint("📈 Scoring")
         if self.black_box_components:
             black_box_results = self.black_box_object.score(responses=self.responses, sampled_responses=self.sampled_responses, progress_bar=progress_bar)
             if self.use_best:
@@ -218,7 +224,7 @@ class UQEnsemble(UncertaintyQuantifier):
 
         return self._construct_result()
 
-    def tune_from_graded(self, correct_indicators: List[bool], weights_objective: str = "roc_auc", thresh_bounds: Tuple[float, float] = (0, 1), thresh_objective: str = "fbeta_score", n_trials: int = 100, step_size: float = 0.01, fscore_beta: float = 1) -> UQResult:
+    def tune_from_graded(self, correct_indicators: List[bool], weights_objective: str = "roc_auc", thresh_bounds: Tuple[float, float] = (0, 1), thresh_objective: str = "fbeta_score", n_trials: int = 100, step_size: float = 0.01, fscore_beta: float = 1, progress_bar: Optional[bool] = True) -> UQResult:
         """
         Tunes weights and threshold parameters on a set of user-provided graded responses.
 
@@ -254,13 +260,11 @@ class UQEnsemble(UncertaintyQuantifier):
         evaluate method must be run prior to running tune_params method
         """
         score_lists = list(self.component_scores.values())
-        optimal_params = self.tuner.tune_params(score_lists=score_lists, correct_indicators=correct_indicators, weights_objective=weights_objective, thresh_bounds=thresh_bounds, thresh_objective=thresh_objective, n_trials=n_trials, step_size=step_size, fscore_beta=fscore_beta)
+        optimal_params = self.tuner.tune_params(score_lists=score_lists, correct_indicators=correct_indicators, weights_objective=weights_objective, thresh_bounds=thresh_bounds, thresh_objective=thresh_objective, n_trials=n_trials, step_size=step_size, fscore_beta=fscore_beta, progress_bar=progress_bar)
         self.weights = optimal_params["weights"]
         self.thresh = optimal_params["thresh"]
 
-        # Print ensemble weights in a pretty table
         self.print_ensemble_weights()
-
         return self._construct_result()
 
     async def tune(self, prompts: List[str], ground_truth_answers: List[str], grader_function: Optional[Any] = None, num_responses: int = 5, weights_objective: str = "roc_auc", thresh_bounds: Tuple[float, float] = (0, 1), thresh_objective: str = "fbeta_score", n_trials: int = 100, step_size: float = 0.01, fscore_beta: float = 1, progress_bar: Optional[bool] = True) -> UQResult:
@@ -310,106 +314,34 @@ class UQEnsemble(UncertaintyQuantifier):
         """
         self._validate_grader(grader_function)
         await self.generate_and_score(prompts=prompts, num_responses=num_responses, progress_bar=progress_bar)
-        if grader_function:
-            correct_indicators = [grader_function(r, a) for r, a in zip(self.responses, ground_truth_answers)]
-        else:
-            self._construct_hhem()  # use vectara hhem if no grader is provided
-            pairs = [(a, r) for a, r in zip(ground_truth_answers, self.responses)]
-            halluc_scores = self.hhem.predict(pairs)
-            correct_indicators = [(s > 0.5) * 1 for s in halluc_scores]
-
-        tuned_result = self.tune_from_graded(correct_indicators=correct_indicators, weights_objective=weights_objective, thresh_bounds=thresh_bounds, thresh_objective=thresh_objective, n_trials=n_trials, step_size=step_size, fscore_beta=fscore_beta)
+        
+        rprint("⚙️ Optimization")
+        correct_indicators = self._grade_responses(ground_truth_answers=ground_truth_answers, grader_function=grader_function, progress_bar=progress_bar)
+        tuned_result = self.tune_from_graded(correct_indicators=correct_indicators, weights_objective=weights_objective, thresh_bounds=thresh_bounds, thresh_objective=thresh_objective, n_trials=n_trials, step_size=step_size, fscore_beta=fscore_beta, progress_bar=progress_bar)
         return tuned_result
+    
+    def print_ensemble_weights(self):
+        """Prints ensemble weights in a pretty table format, sorted by weight in descending order"""
+        weights_df = pd.DataFrame({"Scorer": self.component_names, "Weight": self.weights})
+        weights_df = weights_df.sort_values(by="Weight", ascending=False)
+        weights_df["Weight"] = weights_df["Weight"].apply(lambda x: f"{x:.4f}")
 
-    def _construct_result(self) -> Any:
-        """Constructs UQResult from dictionary"""
-        data = {"prompts": self.prompts, "responses": self.responses, "sampled_responses": self.sampled_responses if self.sampled_responses else [None] * len(self.responses)}
-        data["ensemble_scores"] = self._compute_ensemble_scores(score_dict=self.component_scores, weights=self.weights)
-        data.update(self.component_scores)
-        result = {"data": data, "metadata": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "thresh": self.thresh, "weights": self.weights, "logprobs": self.logprobs}}
-        return UQResult(result)
+        console = Console()
+        rprint(" ")
 
-    def _compute_ensemble_scores(self, score_dict: Dict[str, List[float]], weights: List[float]):
-        """Compute dot product of component scores and weights"""
-        score_lists = [np.array(score_dict[key]) for key in score_dict.keys()]
-        return self.tuner._compute_ensemble_scores(weights=np.array(weights), score_lists=score_lists).tolist()
+        title = "[bold]Optimized Ensemble Weights"
+        centered_title = title.center(50)  # Center the title
+        rprint(centered_title)
+        rprint("=" * 50)
 
-    def _validate_components(self, components: List[Any]) -> None:
-        "Validate components and construct applicable scorer attributes"
-        self.black_box_components, self.white_box_components, self.judges = [], [], []
-        self.black_box_indices, self.white_box_indices, self.judges_indices = [], [], []
-        self.component_names = []
-        if components is None:
-            # Default to BS Detector
-            components = ["noncontradiction", "exact_match", self.llm]
-            self.black_box_components = ["noncontradiction", "exact_match"]
-            self.judges.append(self.llm)
-            self.component_names = self.black_box_components + ["judge_1"]
-            self.judges_indices = [2]
-            self.weights = [0.7 * 0.8, 0.7 * 0.2, 0.3]  # Default BS Detector weights
-        else:
-            judge_count = 0
-            for i, component in enumerate(components):
-                if component in self.white_box_names:
-                    self.white_box_components.append(component)
-                    self.white_box_indices.append(i)
-                    self.component_names.append(component)
-                elif component in self.black_box_names:
-                    self.black_box_components.append(component)
-                    self.black_box_indices.append(i)
-                    self.component_names.append(component)
-                elif isinstance(component, (LLMJudge, BaseChatModel)):
-                    judge_count += 1
-                    self.judges.append(component)
-                    self.judges_indices.append(i)
-                    self.component_names.append(f"judge_{judge_count}")
-                else:
-                    raise ValueError(
-                        f"""
-                        Components must be an instance of LLMJudge, BaseChatModel, a black-box scorer from {self.black_box_names}, or a white-box scorer from {self.white_box_names}
-                        """
-                    )
-        if self.black_box_components:
-            self.black_box_object = BlackBoxUQ(scorers=self.black_box_components, device=self.device, nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=self.use_best)
-        if self.white_box_components:
-            self.white_box_object = WhiteBoxUQ()
-        if self.judges:
-            self.judges_object = LLMPanel(judges=self.judges)
-        self.components = components
+        header = f"{weights_df.columns[0]:<25}{weights_df.columns[1]:>15}"
+        rprint(header)
+        rprint("-" * 50)
 
-    def _validate_weights(self) -> None:
-        """Validate ensemble weights"""
-        if self.weights:
-            if len(self.weights) != len(self.components):
-                raise ValueError("Must have same number of weights as components")
-            self.weights = self._normalize_weights(self.weights)
-        else:
-            self.weights = [1 / len(self.components)] * len(self.components)
-
-    def _normalize_weights(self, weights: List[float]) -> List[float]:
-        """Normalize weights to sum to 1."""
-        weights = weights if weights else [1] * len(self.components)
-        return list(self.tuner._normalize_weights(weights))
-
-    def _construct_hhem(self):
-        from transformers import AutoModelForSequenceClassification
-
-        self.hhem = AutoModelForSequenceClassification.from_pretrained("vectara/hallucination_evaluation_model", trust_remote_code=True)
-
-    @staticmethod
-    def _validate_grader(grader_function: Any) -> bool:
-        "Validate that grader function is valid"
-        if grader_function is None:
-            pass
-        else:
-            sig = inspect.signature(grader_function)
-            params = sig.parameters
-            if "response" not in params or "answer" not in params:
-                raise ValueError("grader_function must have 'response' and 'answer' parameters")
-            check_val = grader_function("a", "b")
-            if not isinstance(check_val, bool):
-                raise ValueError("grader_function must return boolean")
-
+        for _, row in weights_df.iterrows():
+            rprint(f"{row['Scorer']:<25}{row['Weight']:>15}")
+        rprint("=" * 50)
+    
     def save_config(self, path: str) -> None:
         """
         Save minimal configuration: weights, threshold, components, and LLM configs.
@@ -487,25 +419,115 @@ class UQEnsemble(UncertaintyQuantifier):
                 components.append(component)
 
         return cls(llm=llm, scorers=components, weights=config["weights"], thresh=config["thresh"])
+    
+    def _grade_responses(self, ground_truth_answers: List[str], grader_function: Any = None, progress_bar: bool = True) -> List[Any]:
+        """Grade LLM responses against provided ground truth answers using provided grader function"""
+        if grader_function:
+                correct_indicators = []
+                with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
+                    if progress_bar:
+                        progress_task = progress.add_task("- [black]Grading responses against provided ground truth answers...", total=len(ground_truth_answers))   
+                    for r, a in zip(self.responses, ground_truth_answers):
+                        correct_indicators.append(grader_function(r, a))
+                        if progress_bar:
+                            progress.update(progress_task, advance=1)
+                    time.sleep(0.1)
+        else:
+            self._construct_hhem()  # use vectara hhem if no grader is provided
+            pairs = [(a, r) for a, r in zip(ground_truth_answers, self.responses)]
+            if progress_bar:
+                console = Console()
+                with console.status(f"- [black]Grading responses against provided ground truth answers...", spinner=Spinner("Grading responses against provided ground truth answers...")):
+                    halluc_scores = self.hhem.predict(pairs)
+            else:
+                halluc_scores = self.hhem.predict(pairs)
+            correct_indicators = [(s > 0.5) * 1 for s in halluc_scores]
+        return correct_indicators
 
-    def print_ensemble_weights(self):
-        """Prints ensemble weights in a pretty table format, sorted by weight in descending order"""
-        # Create DataFrame and sort by weight in descending order
-        weights_df = pd.DataFrame({"Scorer": self.component_names, "Weight": self.weights})
+    def _construct_result(self) -> Any:
+        """Constructs UQResult from dictionary"""
+        data = {"prompts": self.prompts, "responses": self.responses, "sampled_responses": self.sampled_responses if self.sampled_responses else [None] * len(self.responses)}
+        data["ensemble_scores"] = self._compute_ensemble_scores(score_dict=self.component_scores, weights=self.weights)
+        data.update(self.component_scores)
+        result = {"data": data, "metadata": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "thresh": self.thresh, "weights": self.weights, "logprobs": self.logprobs}}
+        return UQResult(result)
 
-        # Sort by weight in descending order
-        weights_df = weights_df.sort_values(by="Weight", ascending=False)
+    def _compute_ensemble_scores(self, score_dict: Dict[str, List[float]], weights: List[float]):
+        """Compute dot product of component scores and weights"""
+        score_lists = [np.array(score_dict[key]) for key in score_dict.keys()]
+        return self.tuner._compute_ensemble_scores(weights=np.array(weights), score_lists=score_lists).tolist()
 
-        # Format weights to 4 decimal places
-        weights_df["Weight"] = weights_df["Weight"].apply(lambda x: f"{x:.4f}")
+    def _validate_components(self, components: List[Any]) -> None:
+        "Validate components and construct applicable scorer attributes"
+        self.black_box_components, self.white_box_components, self.judges = [], [], []
+        self.black_box_indices, self.white_box_indices, self.judges_indices = [], [], []
+        self.component_names = []
+        if components is None:
+            # Default to BS Detector
+            components = ["noncontradiction", "exact_match", self.llm]
+            self.black_box_components = ["noncontradiction", "exact_match"]
+            self.judges.append(self.llm)
+            self.component_names = self.black_box_components + ["judge_1"]
+            self.judges_indices = [2]
+            self.weights = [0.7 * 0.8, 0.7 * 0.2, 0.3]  # Default BS Detector weights
+        else:
+            judge_count = 0
+            for i, component in enumerate(components):
+                if component in self.white_box_names:
+                    self.white_box_components.append(component)
+                    self.white_box_indices.append(i)
+                    self.component_names.append(component)
+                elif component in self.black_box_names:
+                    self.black_box_components.append(component)
+                    self.black_box_indices.append(i)
+                    self.component_names.append(component)
+                elif isinstance(component, (LLMJudge, BaseChatModel)):
+                    judge_count += 1
+                    self.judges.append(component)
+                    self.judges_indices.append(i)
+                    self.component_names.append(f"judge_{judge_count}")
+                else:
+                    raise ValueError(
+                        f"""
+                        Components must be an instance of LLMJudge, BaseChatModel, a black-box scorer from {self.black_box_names}, or a white-box scorer from {self.white_box_names}
+                        """
+                    )
+        if self.black_box_components:
+            self.black_box_object = BlackBoxUQ(scorers=self.black_box_components, device=self.device, nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=self.use_best)
+        if self.white_box_components:
+            self.white_box_object = WhiteBoxUQ()
+        if self.judges:
+            self.judges_object = LLMPanel(judges=self.judges)
+        self.components = components
 
-        print("\nOptimized Ensemble Weights:")
-        print("=" * 50)
-        # Print header
-        header = f"{weights_df.columns[0]:<25}{weights_df.columns[1]:>15}"
-        print(header)
-        print("-" * 50)
-        # Print data rows
-        for _, row in weights_df.iterrows():
-            print(f"{row['Scorer']:<25}{row['Weight']:>15}")
-        print("=" * 50)
+    def _validate_weights(self) -> None:
+        """Validate ensemble weights"""
+        if self.weights:
+            if len(self.weights) != len(self.components):
+                raise ValueError("Must have same number of weights as components")
+            self.weights = self._normalize_weights(self.weights)
+        else:
+            self.weights = [1 / len(self.components)] * len(self.components)
+
+    def _normalize_weights(self, weights: List[float]) -> List[float]:
+        """Normalize weights to sum to 1."""
+        weights = weights if weights else [1] * len(self.components)
+        return list(self.tuner._normalize_weights(weights))
+
+    def _construct_hhem(self):
+        from transformers import AutoModelForSequenceClassification
+        self.hhem = AutoModelForSequenceClassification.from_pretrained("vectara/hallucination_evaluation_model", trust_remote_code=True)
+    
+    @staticmethod
+    def _validate_grader(grader_function: Any) -> bool:
+        "Validate that grader function is valid"
+        if grader_function is None:
+            pass
+        else:
+            sig = inspect.signature(grader_function)
+            params = sig.parameters
+            if "response" not in params or "answer" not in params:
+                raise ValueError("grader_function must have 'response' and 'answer' parameters")
+            check_val = grader_function("a", "b")
+            if not isinstance(check_val, bool):
+                raise ValueError("grader_function must return boolean")

@@ -135,7 +135,7 @@ class NLIScorer(SimilarityScorer):
 
         if progress_bar:
             with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("[progress.percentage]{task.completed}/{task.total}"), TimeElapsedColumn()) as progress:
-                task = progress.add_task("[cyan]Scoring responses with NLI...", total=len(responses))
+                task = progress.add_task("- [black]Scoring responses with NLI...", total=len(responses))
                 for i, response in enumerate(responses):
                     _process_i(i, response)
                     progress.update(task, advance=1)
