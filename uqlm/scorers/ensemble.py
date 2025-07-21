@@ -21,7 +21,6 @@ import time
 from langchain_core.language_models.chat_models import BaseChatModel
 from rich import print as rprint
 from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
-from rich.console import Console
 
 from uqlm.judges.judge import LLMJudge
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
@@ -199,7 +198,7 @@ class UQEnsemble(UncertaintyQuantifier):
         if not logprobs_results:
             self.logprobs = [None] * len(prompts)
             self.multiple_logprobs = [[None] * self.num_responses] * len(prompts)
-            
+
         if progress_bar:
             rprint("📈 Scoring")
         if self.black_box_components:
@@ -314,7 +313,7 @@ class UQEnsemble(UncertaintyQuantifier):
         """
         self._validate_grader(grader_function)
         await self.generate_and_score(prompts=prompts, num_responses=num_responses, progress_bar=progress_bar)
-        
+
         if progress_bar:
             rprint("⚙️ Optimization")
         correct_indicators = self._grade_responses(ground_truth_answers=ground_truth_answers, grader_function=grader_function, progress_bar=progress_bar)

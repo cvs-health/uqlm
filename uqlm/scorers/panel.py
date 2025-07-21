@@ -101,7 +101,7 @@ class LLMPanel(UncertaintyQuantifier):
 
         responses: list of str, default = None
             A list of LLM responses for the corresponding to the provided prompts.
-            
+
         progress_bar : bool, default=True
             If True, displays a progress bar while generating and scoring responses
 
