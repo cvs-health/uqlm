@@ -27,13 +27,11 @@ jobs:
           pip install poetry
 
       - name: Install pandoc
-        run: sudo apt-get update && sudo apt-get install -y pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc=3.7.0.2
 
       - name: Install dependencies
         run: |
-          poetry install
-          poetry add pandoc
-          poetry run pip install -r docs/requirements.txt
+          poetry install --with docs
           eval $(poetry env activate)
 
       - name: Build Sphinx docs
