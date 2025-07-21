@@ -66,7 +66,7 @@ Above, `use_best=True` implements mitigation so that the uncertainty-minimized r
 **Available Scorers:**
 
 *   Non-Contradiction Probability ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175); [Lin et al., 2024](https://arxiv.org/abs/2305.19187); [Manakul et al., 2023](https://arxiv.org/abs/2303.08896))
-*   Semantic Entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0); [Kuhn et al., 2023](https://arxiv.org/abs/2302.09664))
+*   Discrete Semantic Entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0); [Bouchard & Chauhan, 2025](https://arxiv.org/abs/2504.19254))
 *   Exact Match ([Cole et al., 2023](https://arxiv.org/abs/2305.14613); [Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175))
 *   BERT-score ([Manakul et al., 2023](https://arxiv.org/abs/2303.08896); [Zheng et al., 2020](https://arxiv.org/abs/1904.09675))
 *   BLUERT-score ([Sellam et al., 2020](https://arxiv.org/abs/2004.04696))
@@ -199,8 +199,9 @@ Explore the following demo notebooks to see how to use UQLM for various hallucin
 - [Black-Box Uncertainty Quantification](https://github.com/cvs-health/uqlm/blob/develop/examples/black_box_demo.ipynb): A notebook demonstrating hallucination detection with black-box (consistency) scorers.
 - [White-Box Uncertainty Quantification](https://github.com/cvs-health/uqlm/blob/develop/examples/white_box_demo.ipynb): A notebook demonstrating hallucination detection with white-box (token probability-based) scorers.
 - [LLM-as-a-Judge](https://github.com/cvs-health/uqlm/blob/develop/examples/judges_demo.ipynb): A notebook demonstrating hallucination detection with LLM-as-a-Judge.
-- [Tunable UQ Ensemble](https://github.com/cvs-health/uqlm/blob/develop/examples/ensemble_tuning_demo.ipynb): A notebook demonstrating hallucination detection with a tunable ensemble of UQ scorers ([Bouchard & Chauhan, 2023](https://arxiv.org/abs/2504.19254)).
+- [Tunable UQ Ensemble](https://github.com/cvs-health/uqlm/blob/develop/examples/ensemble_tuning_demo.ipynb): A notebook demonstrating hallucination detection with a tunable ensemble of UQ scorers ([Bouchard & Chauhan, 2025](https://arxiv.org/abs/2504.19254)).
 - [Off-the-Shelf UQ Ensemble](https://github.com/cvs-health/uqlm/blob/develop/examples/ensemble_off_the_shelf_demo.ipynb): A notebook demonstrating hallucination detection using BS Detector ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175)) off-the-shelf ensemble.
+- [Semantic Entropy](https://github.com/cvs-health/uqlm/blob/develop/examples/semantic_entropy_demo.ipynb): A notebook demonstrating token-probability-based semantic entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0); [Kuhn et al., 2023](https://arxiv.org/abs/2302.09664)), which combines elements of black-box UQ and white-box UQ to compute confidence scores.
 
 
 ## Associated Research
