@@ -69,7 +69,7 @@ jobs:
           poetry install --with docs
           eval $(poetry env activate)
 
-      - name: Checkout gh-pages branch to get version.json
+      - name: Checkout gh-pages branch to get versions.json
         uses: actions/checkout@v4
         with:
           ref: gh-pages
@@ -81,7 +81,7 @@ jobs:
           python .github/workflows/update_version_json.py "$VERSION" "gh-pages"
           cat gh-pages/versions.json
           mkdir docsVersion
-          cp gh-pages/versions.json docsVersion/version.json           
+          cp gh-pages/versions.json docsVersion/versions.json           
       
       - name: Build Sphinx docs
         run: |
