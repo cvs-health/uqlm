@@ -40,7 +40,7 @@ bert-score = "^0.3.0"
 pandas = "^2.2.3"
 sentence-transformers = "^3.4.0"
 datasets = "^3.3.2"
-rich = "^13.8.0"
+rich = ">=13.8,<15.0"
 ipywidgets = "^8.1.7"
 
 [tool.poetry.group.dev]
