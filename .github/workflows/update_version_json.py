@@ -1,41 +1,41 @@
-import json
 import sys
 from pathlib import Path
 
-def rebuild_version_json(current_version, gh_pages_path, site_url="https://dtsapetis.github.io/uqlm"):
-    version_json_path = Path(gh_pages_path) / "version.json"
-    entries = []
+def update_version_json(version, site_url="https://dtsapetis.github.io/uqlm", json_path="versions.json"):
+    tag = f"v{version}"
+    latest_entry = {
+        "name": f"{tag} (latest)",
+        "version": version,
+        "url": f"{site_url}/latest/"
+    }
 
-    # List only v* folders, ignore 'latest'
-    folders = sorted([
-        p for p in Path(gh_pages_path).iterdir()
-        if p.is_dir() and p.name.startswith("v")
-    ], reverse=True)  # newest first
+    path = Path(json_path)
+    if path.exists():
+        with open(path, "r") as f:
+            versions = json.load(f)
+    else:
+        versions = []
 
-    for folder in folders:
-        version = folder.name[1:]  # strip leading 'v'
-        entry = {
-            "name": f"v{version}",
-            "version": version,
-            "url": f"{site_url}/v{version}/"
-        }
+    # Update existing versions to remove any 'latest' marker
+    # and point URL to their specific tag folder
+    for entry in versions:
+        if "(latest)" in entry["name"]:
+            entry["name"] = entry["name"].replace(" (latest)", "")
+        # Always update URL to version-specific path (for all versions except the new latest)
+        entry["url"] = f"{site_url}/v{entry['version']}/"
 
-        # Override for the latest version
-        if version == current_version:
-            entry["name"] = f"v{version} (latest)"
-            entry["url"] = f"{site_url}/latest/"
+    # Insert new latest version at the beginning
+    versions.insert(0, latest_entry)
 
-        entries.append(entry)
-
-    # Save version.json
-    with open(version_json_path, "w") as f:
-        json.dump(entries, f, indent=4)
+    # Save changes
+    with open(json_path, "w") as f:
+        json.dump(versions, f, indent=4)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python rebuild_version_json.py <current_version> <gh_pages_path>")
+        print("Usage: python update_version_json.py <version> <json_path>")
         sys.exit(1)
 
-    current_version = sys.argv[1]
-    gh_pages_path = sys.argv[2]
-    rebuild_version_json(current_version, gh_pages_path)
+    version = sys.argv[1]
+    json_path = sys.argv[2]
+    update_version_json(version, json_path=json_path)
