@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import json
 
 def update_version_json(version, site_url="https://dtsapetis.github.io/uqlm", json_path="versions.json"):
     tag = f"v{version}"
