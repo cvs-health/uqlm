@@ -1,0 +1,6 @@
+exclude_dirs:
+  - assets
+  - examples
+  - tests
+skips:
+  - B101
