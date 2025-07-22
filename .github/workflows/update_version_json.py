@@ -8,10 +8,12 @@ def rebuild_version_json(current_version, gh_pages_path, site_url="https://dtsap
     entries = []
 
     # List only v* folders, ignore 'latest'
-    folders = sorted([
+    folders = [
         p for p in Path(gh_pages_path).iterdir()
         if p.is_dir() and p.name.startswith("v")
-    ], reverse=True)  # newest first
+    ]
+
+    folders = sorted(folders, key=lambda f: f.stat().st_ctime, reverse=True)
 
     entries.append({
             "name": f"v{current_version} (latest)",
@@ -39,7 +41,4 @@ if __name__ == "__main__":
 
     current_version = sys.argv[1]
     gh_pages_path = sys.argv[2]
-    # os.chdir("..")
-    # os.chdir("..")
-    x = os.getcwd()
     rebuild_version_json(current_version, gh_pages_path)
