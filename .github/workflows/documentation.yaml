@@ -13,6 +13,8 @@ permissions:
 jobs:
   docs:
     runs-on: ubuntu-latest
+    env:
+      PANDOC_VERSION: ${{ vars.PANDOC_VERSION }}
 
     steps:
       - name: Checkout repository
@@ -49,9 +51,8 @@ jobs:
 
       - name: Download and install Pandoc 3.7.0.2
         run: |
-          VERSION=3.7.0.2
-          FILE="pandoc-${VERSION}-1-amd64.deb"
-          URL="https://github.com/jgm/pandoc/releases/download/${VERSION}/${FILE}"
+          FILE="pandoc-${PANDOC_VERSION}-1-amd64.deb"
+          URL="https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/${FILE}"
 
           echo "Downloading $FILE..."
           curl -L -o pandoc.deb "$URL"
