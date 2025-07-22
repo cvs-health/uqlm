@@ -48,7 +48,6 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "^1.0.1"
-ipywidgets = "^8.1.5"
 ruff = "0.9.7"
 pre-commit = "^4.1.0"
 ipykernel = "^6.29.5"
@@ -61,7 +60,7 @@ ipykernel = "^6.29.5"
 langchain-openai = "^0.3.6"
 pytest = "^8.3.5"
 langchain-google-vertexai = "^2.0.14"
-pytest-asyncio = "^0.25.3"
+pytest-asyncio = ">=0.25.3,<1.2.0"
 pytest-cov = "^6.0.0"
 
 [tool.pytest.ini_options]
