@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from uqlm.black_box.bert import BertScorer
+
 # from uqlm.black_box.bleurt import BLEURTScorer # deprecated in v0.2.0
 from uqlm.black_box.cosine import CosineScorer
 from uqlm.black_box.match import MatchScorer

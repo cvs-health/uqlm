@@ -13,7 +13,6 @@
 # limitations under the License.
 
 
-import warnings
 from langchain_core.language_models.chat_models import BaseChatModel
 from typing import Any, List, Optional
 from rich import print as rprint
@@ -53,7 +52,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
             'semantic_negentropy', 'noncontradiction', 'exact_match', 'bert_score', 'cosine_sim'
         }, default=None
             Specifies which black box (consistency) scorers to include. If None, defaults to
-            ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"]. The bleurt 
+            ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"]. The bleurt
             scorer is deprecated as of v0.2.0.
 
         device: str or torch.device input or torch.device object, default="cpu"

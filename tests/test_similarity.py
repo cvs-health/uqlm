@@ -13,18 +13,9 @@
 # limitations under the License.
 
 import json
-import os
-import importlib.util
-import sys
-import shutil
 import numpy as np
-import subprocess
-import importlib.resources as resources
 from uqlm.black_box import BertScorer, CosineScorer, MatchScorer
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
-from contextlib import redirect_stdout
-import pytest
-import io
 
 datafile_path = "tests/data/similarity/similarity_results_file.json"
 with open(datafile_path, "r") as f:
