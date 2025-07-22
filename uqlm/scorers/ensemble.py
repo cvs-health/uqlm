@@ -58,7 +58,7 @@ class UQEnsemble(UncertaintyQuantifier):
             A langchain llm `BaseChatModel`. User is responsible for specifying temperature and other
             relevant parameters to the constructor of their `llm` object.
 
-        scorers : List containing instances of BaseChatModel, LLMJudge, black-box scorer names from ['semantic_negentropy', 'noncontradiction','exact_match', 'bert_score', 'bleurt', 'cosine_sim'], or white-box scorer names from ["normalized_probability", "min_probability"] default=None
+        scorers : List containing instances of BaseChatModel, LLMJudge, black-box scorer names from ['semantic_negentropy', 'noncontradiction','exact_match', 'bert_score', 'cosine_sim'], or white-box scorer names from ["normalized_probability", "min_probability"] default=None
             Specifies which UQ components to include. If None, defaults to the off-the-shelf BS Detector ensemble by
             Chen and Mueller (2023) :footcite:`chen2023quantifyinguncertaintyanswerslanguage` which uses components
             ["noncontradiction", "exact_match","self_reflection"] with respective weights of [0.56, 0.14, 0.3]

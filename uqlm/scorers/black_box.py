@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+import warnings
 from langchain_core.language_models.chat_models import BaseChatModel
 from typing import Any, List, Optional
 from rich import print as rprint
@@ -49,10 +50,11 @@ class BlackBoxUQ(UncertaintyQuantifier):
             relevant parameters to the constructor of their `llm` object.
 
         scorers : subset of {
-            'semantic_negentropy', 'noncontradiction', 'exact_match', 'bert_score', 'bleurt', 'cosine_sim'
+            'semantic_negentropy', 'noncontradiction', 'exact_match', 'bert_score', 'cosine_sim'
         }, default=None
             Specifies which black box (consistency) scorers to include. If None, defaults to
-            ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"].
+            ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"]. The bleurt 
+            scorer is deprecated as of v0.2.0.
 
         device: str or torch.device input or torch.device object, default="cpu"
             Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction'
@@ -181,7 +183,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
                     self.scores_dict[key] = nli_scores[key]
 
         # similarity scorers that follow the same pattern
-        for scorer_key in ["exact_match", "bert_score", "bleurt", "cosine_sim"]:
+        for scorer_key in ["exact_match", "bert_score", "cosine_sim"]:
             if scorer_key in self.scorer_objects:
                 self.scores_dict[scorer_key] = self.scorer_objects[scorer_key].evaluate(responses=self.responses, sampled_responses=self.sampled_responses, progress_bar=progress_bar)
 
@@ -206,18 +208,16 @@ class BlackBoxUQ(UncertaintyQuantifier):
                 self.scorer_objects["exact_match"] = MatchScorer()
             elif scorer == "bert_score":
                 self.scorer_objects["bert_score"] = BertScorer()
-            elif scorer == "bleurt":
-                from uqlm.black_box import BLEURTScorer
-
-                self.scorer_objects["bleurt"] = BLEURTScorer()
             elif scorer == "cosine_sim":
                 self.scorer_objects["cosine_sim"] = CosineScorer(transformer=self.sentence_transformer)
             elif scorer in ["semantic_negentropy", "noncontradiction"]:
                 continue
             else:
+                if scorer == "bleurt":
+                    print("bleurt is deprecated as of v0.2.0")
                 raise ValueError(
                     """
-                    scorers must be one of ['semantic_negentropy', 'noncontradiction', 'exact_match', 'bert_score', 'bleurt', 'cosine_sim']
+                    scorers must be one of ['semantic_negentropy', 'noncontradiction', 'exact_match', 'bert_score', 'cosine_sim']
                     """
                 )
         self.scorers = scorers

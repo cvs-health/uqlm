@@ -64,7 +64,6 @@ langchain-google-vertexai = "^2.0.14"
 datasets = "^3.3.2"
 pytest-asyncio = "^0.25.3"
 pytest-cov = "^6.0.0"
-bleurt = { git = "https://github.com/google-research/bleurt.git", branch = "master", python = "<3.13" }
 
 [tool.pytest.ini_options]
 markers = [

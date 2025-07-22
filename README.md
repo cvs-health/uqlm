@@ -69,8 +69,8 @@ Above, `use_best=True` implements mitigation so that the uncertainty-minimized r
 *   Discrete Semantic Entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0); [Bouchard & Chauhan, 2025](https://arxiv.org/abs/2504.19254))
 *   Exact Match ([Cole et al., 2023](https://arxiv.org/abs/2305.14613); [Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175))
 *   BERT-score ([Manakul et al., 2023](https://arxiv.org/abs/2303.08896); [Zheng et al., 2020](https://arxiv.org/abs/1904.09675))
-*   BLUERT-score ([Sellam et al., 2020](https://arxiv.org/abs/2004.04696))
 *   Cosine Similarity ([Shorinwa et al., 2024](https://arxiv.org/abs/2412.05563); [HuggingFace](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2))
+*   BLUERT ([Sellam et al., 2020](https://arxiv.org/abs/2004.04696); Deprecated as of `v0.2.0`)
 
 ### White-Box Scorers (Token-Probability-Based)
 
