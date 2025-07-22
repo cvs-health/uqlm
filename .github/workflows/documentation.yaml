@@ -81,7 +81,7 @@ jobs:
 
       - name: Update version.json
         run: |
-          VERSION=${{ steps.get_tag.outputs.tag }}
+          VERSION=${{ steps.version.outputs.clean_version }}
           python .github/workflows/update_version_json.py "$VERSION" versions.json
           cat versions.json
       
@@ -95,7 +95,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: version.json
+          publish_dir: versions.json
           keep_files: true
       
       - name: Deploy to GitHub Pages
