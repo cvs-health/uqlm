@@ -81,7 +81,7 @@ jobs:
       - name: Update version.json
         run: |
           VERSION=${{ steps.get_tag.outputs.tag }}
-          python .github/workflows/update_version_json.py "$VERSION" build/docs/version.json
+          python .github/workflows/update_version_json.py "$VERSION" version.json
       
       - name: Build Sphinx docs
         run: |
