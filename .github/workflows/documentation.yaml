@@ -43,6 +43,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          poetry lock
           poetry install --with docs
           eval $(poetry env activate)
 
