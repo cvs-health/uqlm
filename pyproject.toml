@@ -42,6 +42,9 @@ sentence-transformers = ">=3.4,<6.0"
 datasets = ">=3.3.2,<5.0.0"
 rich = "^13.8.0"
 ipywidgets = "^8.1.7"
+aiohttp = "^3.12.14"
+torch = "^2.7.1"
+
 
 [tool.poetry.group.dev]
 optional = true
@@ -51,6 +54,7 @@ python-dotenv = "^1.0.1"
 ruff = "0.9.7"
 pre-commit = "^4.1.0"
 ipykernel = "^6.29.5"
+bandit = "^1.8.6"
 
 [tool.poetry.group.test]
 optional = true
@@ -108,7 +112,7 @@ line-length = 400
 
 [tool.ruff.lint]
 #What rules to enable
-select = ["E", "F"]
+select = ["E", "F", "S"]
 # E = pycodestyle errors
 # F = pyflakes
 # I = isort (import sorting)
@@ -118,7 +122,8 @@ select = ["E", "F"]
 # S = bandit (security)
 
 #What rules to ignore
-ignore = []
+ignore = ["S101"]
+per-file-ignores = { "tests/test_similarity.py" = ["S603","S607"] }
 
 
 [tool.ruff.format]
