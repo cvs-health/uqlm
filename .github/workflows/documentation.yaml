@@ -26,11 +26,20 @@ jobs:
         run: |
           pip install poetry
 
-      - name: Install pandoc
+      - name: Download and install Pandoc 3.7.0.2
         run: |
-          sudo apt-get update 
-          sudo dpkg -i pandoc-3.7.0.2-linux-amd64
-          # sudo apt-get install -y pandoc=3.7.0.2
+          VERSION=3.7.0.2
+          FILE="pandoc-${VERSION}-1-amd64.deb"
+          URL="https://github.com/jgm/pandoc/releases/download/${VERSION}/${FILE}"
+
+          echo "Downloading $FILE..."
+          curl -L -o pandoc.deb "$URL"
+
+          echo "Installing Pandoc..."
+          sudo dpkg -i pandoc.deb
+
+      - name: Verify Pandoc version
+        run: pandoc --version
 
       - name: Install dependencies
         run: |
