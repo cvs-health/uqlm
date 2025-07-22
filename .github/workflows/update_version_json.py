@@ -3,7 +3,7 @@ import os
 import sys
 from pathlib import Path
 
-def rebuild_version_json(current_version, gh_pages_path, site_url="https://dtsapetis.github.io/uqlm"):
+def rebuild_version_json(current_version, gh_pages_path, site_url="https://cvs-health.github.io/uqlm"):
     version_json_path = Path(gh_pages_path) / "versions.json"
     entries = []
 
@@ -13,7 +13,7 @@ def rebuild_version_json(current_version, gh_pages_path, site_url="https://dtsap
         if p.is_dir() and p.name.startswith("v")
     ]
 
-    folders = sorted(folders, key=lambda f: f.stat().st_ctime, reverse=True)
+    folders = sorted(folders, key=lambda f: tuple([ int(x) for x in f.name[1:].split('.')]), reverse=True)
 
     entries.append({
             "name": f"v{current_version} (latest)",
