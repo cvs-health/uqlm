@@ -38,7 +38,6 @@ jobs:
           sed -i "s/^release = .*/release = '${{ steps.version.outputs.clean_version }}'/" docs/source/conf.py
           head -n 20 docs/source/conf.py
 
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -69,12 +68,34 @@ jobs:
           poetry install --with docs
           eval $(poetry env activate)
 
+      - name: Checkout gh-pages branch to get version.json
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Copy version.json from gh-pages (if exists)
+        run: |
+          cp gh-pages/version.json version.json || echo "[]"> version.json
+
+      - name: Update version.json
+        run: |
+          VERSION=${{ steps.get_tag.outputs.tag }}
+          python .github/workflows/update_version_json.py "$VERSION" build/docs/version.json
+      
       - name: Build Sphinx docs
         run: |
           eval $(poetry env activate)
           make -C docs clean
           make -C docs html
 
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: version.json
+          keep_files: true
+      
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
