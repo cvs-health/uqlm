@@ -36,6 +36,7 @@ jobs:
       - name: Update conf.py release version
         run: |
           sed -i "s/^release = .*/release = '${{ steps.version.outputs.clean_version }}'/" docs/source/conf.py
+          head -n 20 docs/source/conf.py
 
 
       - name: Set up Python
