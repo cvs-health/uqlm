@@ -73,18 +73,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: gh-pages
-          path: gh-pages
-
-      - name: Copy version.json from gh-pages (if exists)
-        run: |
-          mkdir docsVersion
-          cp gh-pages/versions.json docsVersion/version.json           
+          path: gh-pages           
 
       - name: Update version.json
         run: |
           VERSION=${{ steps.version.outputs.clean_version }}
-          python .github/workflows/update_version_json.py "$VERSION" docsVersion/versions.json
-          cat docsVersion/versions.json
+          python .github/workflows/update_version_json.py "$VERSION" "gh-pages"
+          cat gh-pages/versions.json
+          mkdir docsVersion
+          cp gh-pages/versions.json docsVersion/version.json           
       
       - name: Build Sphinx docs
         run: |
