@@ -13,7 +13,11 @@ def rebuild_version_json(current_version, gh_pages_path, site_url="https://dtsap
         if p.is_dir() and p.name.startswith("v")
     ], reverse=True)  # newest first
 
-    current_version_exists = False
+    entries.append({
+            "name": f"v{current_version} (latest)",
+            "version": current_version,
+            "url": f"{site_url}/latest/"
+        })
     for folder in folders:
         version = folder.name[1:]  # strip leading 'v'
         entry = {
@@ -23,12 +27,6 @@ def rebuild_version_json(current_version, gh_pages_path, site_url="https://dtsap
         }
 
         entries.append(entry)
-
-    entries.append({
-            "name": f"v{current_version} (latest)",
-            "version": current_version,
-            "url": f"{site_url}/latest/"
-        })
 
     # Save version.json
     with open(version_json_path, "w") as f:
