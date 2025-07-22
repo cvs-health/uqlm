@@ -76,12 +76,12 @@ jobs:
 
       - name: Copy version.json from gh-pages (if exists)
         run: |
-          cp gh-pages/version.json version.json || echo "[]"> version.json
+          cp gh-pages/versions.json version.json || echo "[]"> versions.json
 
       - name: Update version.json
         run: |
           VERSION=${{ steps.get_tag.outputs.tag }}
-          python .github/workflows/update_version_json.py "$VERSION" version.json
+          python .github/workflows/update_version_json.py "$VERSION" versions.json
       
       - name: Build Sphinx docs
         run: |
