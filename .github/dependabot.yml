@@ -1,0 +1,12 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/" # Location of your requirements.txt or other package manifest
+    schedule:
+      interval: "daily" # Check for updates daily
+    target-branch: "main" # Target branch for updates
+  - package-ecosystem: "pip"
+    directory: "/" # Location of your requirements.txt or other package manifest
+    schedule:
+      interval: "daily" # Check for updates daily
+    target-branch: "develop" # Target branch for updates
