@@ -2,7 +2,7 @@ import json
 import sys
 from pathlib import Path
 
-def update_version_json(version, site_url="https://dtsapetis.github.io/uqlm", json_path="version.json"):
+def update_version_json(version, site_url="https://dtsapetis.github.io/uqlm", json_path="versions.json"):
     tag = f"v{version}"
     latest_entry = {
         "name": f"{tag} (latest)",
