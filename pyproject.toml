@@ -32,7 +32,7 @@ optuna = "^4.0.0"
 bert-score = "^0.3.0"
 pandas = "^2.2.3"
 sentence-transformers = "^3.4.0"
-datasets = "^3.3.2"
+datasets = ">=3.3.2,<5.0.0"
 
 
 [tool.poetry.group.dev]
@@ -53,7 +53,7 @@ ipykernel = "^6.29.5"
 langchain-openai = "^0.3.6"
 pytest = "^8.3.5"
 langchain-google-vertexai = "^2.0.14"
-datasets = "^3.3.2"
+datasets = ">=3.3.2,<5.0.0"
 pytest-asyncio = "^0.25.3"
 pytest-cov = "^6.0.0"
 bleurt = { git = "https://github.com/google-research/bleurt.git", branch = "master" }
