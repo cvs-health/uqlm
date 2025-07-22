@@ -94,7 +94,7 @@ class BLEURTScorer(SimilarityScorer):
         print(f"BLEURT checkpoint not found. Downloading to: {zip_file_path}")
 
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=(5, 60))
             if response.status_code == 200:
                 with open(zip_file_path, "wb") as f:
                     f.write(response.content)
