@@ -23,7 +23,7 @@ from uqlm.judges.judge import LLMJudge
 
 DEFAULT_BLACK_BOX_SCORERS = ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"]
 
-BLACK_BOX_SCORERS = DEFAULT_BLACK_BOX_SCORERS + ["bert_score", "bleurt"]
+BLACK_BOX_SCORERS = DEFAULT_BLACK_BOX_SCORERS + ["bert_score"]
 
 WHITE_BOX_SCORERS = ["normalized_probability", "min_probability"]
 
