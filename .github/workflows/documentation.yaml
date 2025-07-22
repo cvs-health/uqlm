@@ -4,7 +4,8 @@ name: Build & Deploy Sphinx Docs
 
 on:
   push:
-    branches: [main]
+    tags:
+      - 'v*'
 
 permissions:
   contents: write 
@@ -16,6 +17,26 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Get tag name
+        id: get_tag
+        run: echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Show tag
+        run: |
+          echo "Tag: ${{ steps.get_tag.outputs.tag }}"
+
+      - name: Extract version without "v"
+        id: version
+        run: |
+          RAW_TAG="${GITHUB_REF_NAME}"     
+          VERSION="${RAW_TAG#v}"          
+          echo "clean_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update conf.py release version
+        run: |
+          sed -i "s/^release = .*/release = '${{ steps.version.outputs.clean_version }}'/" docs/source/conf.py
+
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -52,7 +73,14 @@ jobs:
           eval $(poetry env activate)
           make -C docs clean
           make -C docs html
-          tree 
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/build/html
+          destination_dir: ${{ steps.get_tag.outputs.tag }}
+          keep_files: true
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
