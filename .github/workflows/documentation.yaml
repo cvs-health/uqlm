@@ -77,13 +77,14 @@ jobs:
 
       - name: Copy version.json from gh-pages (if exists)
         run: |
-          cp gh-pages/versions.json version.json           
+          mkdir docsVersion
+          cp gh-pages/versions.json docsVersion/version.json           
 
       - name: Update version.json
         run: |
           VERSION=${{ steps.version.outputs.clean_version }}
-          python .github/workflows/update_version_json.py "$VERSION" versions.json
-          cat versions.json
+          python .github/workflows/update_version_json.py "$VERSION" docsVersion/versions.json
+          cat docsVersion/versions.json
       
       - name: Build Sphinx docs
         run: |
@@ -95,7 +96,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: versions.json
+          publish_dir: ./docsVersion
           keep_files: true
       
       - name: Deploy to GitHub Pages
