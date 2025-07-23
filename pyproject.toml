@@ -31,7 +31,7 @@ matplotlib = "^3.9.2"
 optuna = "^4.0.0"
 bert-score = "^0.3.0"
 pandas = "^2.2.3"
-sentence-transformers = "^3.4.0"
+sentence-transformers = ">=3.4,<6.0"
 datasets = "^3.3.2"
 
 
