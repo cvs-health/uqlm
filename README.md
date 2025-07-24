@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/uqlm_flow_ds.png" />
-</p>
+![Copy of UQLM Graphics (4)](https://github.com/user-attachments/assets/a45021b1-c846-4c72-8153-effd92fcd36c)
 
 
 # uqlm: Uncertainty Quantification for Language Models
@@ -39,9 +37,8 @@ Below we provide illustrative code snippets and details about available scorers 
 
 These scorers assess uncertainty by measuring the consistency of multiple responses generated from the same prompt. They are compatible with any LLM, intuitive to use, and don't require access to internal model states or token probabilities.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/black_box_graphic.png" />
-</p>
+![black_box_graphic](https://github.com/user-attachments/assets/610b4a7f-b6d3-44bf-bffa-059f5b882fc6)
+
 
 **Example Usage:**
 Below is a sample of code illustrating how to use the `BlackBoxUQ` class to conduct hallucination detection.
@@ -56,9 +53,8 @@ bbuq = BlackBoxUQ(llm=llm, scorers=["semantic_negentropy"], use_best=True)
 results = await bbuq.generate_and_score(prompts=prompts, num_responses=5)
 results.to_df()
 ```
-<p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/black_box_output4.png" />
-</p>
+![black_box_output4](https://github.com/user-attachments/assets/5e25dfc0-9165-44e4-9ed9-95f0eddf2641)
+
 
 Above, `use_best=True` implements mitigation so that the uncertainty-minimized responses is selected. Note that although we use `ChatVertexAI` in this example, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used. For a more detailed demo, refer to our [Black-Box UQ Demo](./examples/black_box_demo.ipynb).
 
@@ -76,9 +72,8 @@ Above, `use_best=True` implements mitigation so that the uncertainty-minimized r
 
 These scorers leverage token probabilities to estimate uncertainty.  They are significantly faster and cheaper than black-box methods, but require access to the LLM's internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/white_box_graphic.png" />
-</p>
+![white_box_graphic](https://github.com/user-attachments/assets/0ebdd524-46c6-43ed-aa89-b3cab92e748e)
+
 
 **Example Usage:**
 Below is a sample of code illustrating how to use the `WhiteBoxUQ` class to conduct hallucination detection. 
@@ -93,9 +88,8 @@ wbuq = WhiteBoxUQ(llm=llm, scorers=["min_probability"])
 results = await wbuq.generate_and_score(prompts=prompts)
 results.to_df()
 ```
-<p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/white_box_output2.png" />
-</p>
+![white_box_output2](https://github.com/user-attachments/assets/d22753aa-adf5-47f8-a855-549e467cc122)
+
 
 Again, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used in place of `ChatVertexAI`. For a more detailed demo, refer to our [White-Box UQ Demo](./examples/white_box_demo.ipynb).
 
@@ -109,9 +103,8 @@ Again, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/cha
 
 These scorers use one or more LLMs to evaluate the reliability of the original LLM's response.  They offer high customizability through prompt engineering and the choice of judge LLM(s).
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/judges_graphic.png" />
-</p>
+![judges_graphic](https://github.com/user-attachments/assets/29cf143c-96d2-45d2-b088-1383d948c9d4)
+
 
 **Example Usage:**
 Below is a sample of code illustrating how to use the `LLMPanel` class to conduct hallucination detection using a panel of LLM judges. 
@@ -128,9 +121,8 @@ panel = LLMPanel(llm=llm1, judges=[llm1, llm2, llm3])
 results = await panel.generate_and_score(prompts=prompts)
 results.to_df()
 ```
-<p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/panel_output2.png" />
-</p>
+![panel_output2](https://github.com/user-attachments/assets/0ccfbe4f-08bb-428b-8a75-7c202dcbb04e)
+
 
 Note that although we use `ChatVertexAI` in this example, we can use any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) as judges. For a more detailed demo illustrating how to customize a panel of LLM judges, refer to our [LLM-as-a-Judge Demo](./examples/judges_demo.ipynb).
 
@@ -146,9 +138,8 @@ Note that although we use `ChatVertexAI` in this example, we can use any [LangCh
 
 These scorers leverage a weighted average of multiple individual scorers to provide a more robust uncertainty/confidence estimate. They offer high flexibility and customizability, allowing you to tailor the ensemble to specific use cases.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/uqensemble_generate_score.png" />
-</p>
+![uqensemble_generate_score](https://github.com/user-attachments/assets/a80e12df-31c9-4262-8ce8-ff7c9f621314)
+
 
 **Example Usage:**
 Below is a sample of code illustrating how to use the `UQEnsemble` class to conduct hallucination detection. 
@@ -178,9 +169,8 @@ tune_results = await uqe.tune(
 results = await uqe.generate_and_score(prompts=prompts)
 results.to_df()
 ```
-<p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/uqensemble_output2.png" />
-</p>
+![uqensemble_output2](https://github.com/user-attachments/assets/6a1d1e2a-79ee-4ee9-9ec8-be6fcf80fab0)
+
 
 As with the other examples, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used in place of `ChatVertexAI`. For more detailed demos, refer to our [Off-the-Shelf Ensemble Demo](./examples/ensemble_off_the_shelf_demo.ipynb) (quick start) or our [Ensemble Tuning Demo](./examples/ensemble_tuning_demo.ipynb) (advanced).
 
