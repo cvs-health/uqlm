@@ -48,7 +48,7 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "^1.0.1"
-ruff = "0.9.7"
+ruff = "0.12.5"
 pre-commit = "^4.1.0"
 ipykernel = "^6.29.5"
 
