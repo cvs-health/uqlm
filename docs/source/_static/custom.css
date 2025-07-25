@@ -1,0 +1,130 @@
+/* Custom styles */
+.wy-side-nav-search {
+    background-color: #2980B9;
+ }
+ .wy-nav-content {
+    max-width: 1200px;
+ }
+ .highlight {
+    background: #f8f9fa;
+ }
+ /* Custom admonitions */
+ .admonition.note {
+    background: #e7f2fa;
+ }
+ .admonition.warning {
+    background: #fff3cd;
+ }
+ /* Custom link colors */
+ a {
+    color: #2980B9;
+ }
+ a:hover {
+    color: #3091d1;
+ }
+ 
+ /* Custom styles for the gallery */
+ div.sphx-glr-thumbnails {
+   display: grid;
+   grid-template-columns: repeat(3, minmax(0, 1fr));
+   gap: 20px;
+   padding: 20px;
+ }
+ 
+ 
+ div.sphx-glr-thumbcontainer:hover {
+   border: 1px solid #0066cc;
+   box-shadow: 0 0 15px rgba(0,0,0,0.1);
+ }
+ 
+ .sphx-glr-footer {
+   text-align: center;
+   margin: 2em 0;
+ }
+ .sphx-glr-download {
+   margin: 1em 0;
+ }
+ 
+ 
+ .sphx-glr-thumbcontainer:hover {
+   border-color: #0066cc;
+ }
+ 
+ /* Make container relative for absolute positioning of link */
+ div.sphx-glr-thumbcontainer {
+   position: relative;
+   border: solid #ccc 1px;
+   border-radius: 4px;
+   overflow: hidden;
+   background: #212529;
+   display: flex;
+   flex-direction: column;  /* Stack children vertically */
+ }
+ 
+ /* Make the link cover the entire container */
+ div.sphx-glr-thumbcontainer a {
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   z-index: 1;
+ }
+ /* Force image to appear first */
+ div.sphx-glr-thumbcontainer img {
+   width: 100%;
+   height: 150px;
+   object-fit: contain;
+   padding: 5px;
+   order: 0;  /* This makes the image appear first */
+ }
+ 
+ /* Title/caption styling */
+ 
+ div.sphx-glr-thumbnail-title {
+   text-align: center;
+   color: #4FB6D6;
+   padding: 8px 5px;
+   margin: 0;
+   font-size: 0.9em;
+   background: #212529;
+   order: 1;  /* This makes the title appear after the image */
+ }
+ 
+ /* Hide doc captions ONLY in the gallery thumbnails */
+ .sphx-glr-thumbcontainer .docutils.container p,
+ .sphx-glr-thumbcontainer span.doc,
+ .sphx-glr-thumbcontainer .docutils.container .caption-text {
+    display: none !important;
+ }
+ /* Keep doc visible everywhere else */
+ .docutils.container p,
+ span.doc {
+    display: inline-block;  /* Default display for docs outside gallery */
+ }
+
+.responsive-img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Hide References section when it's empty */
+.references-section:empty,
+.references-section:only-child {
+    display: none;
+}
+
+/* Add some styling to make the References section less prominent */
+.references-section {
+    margin-top: 2em;
+    padding-top: 1em;
+    border-top: 1px solid #eee;
+}
+
+/* Make the References heading less prominent */
+.references-section .rubric {
+    font-size: 1.2em;
+    color: #666;
+}
