@@ -106,15 +106,20 @@ class UncertaintyQuantifier:
 
     async def _generate_responses(self, prompts: List[str], count: int, temperature: float = None, progress_bar: Optional[Progress] = None) -> List[str]:
         """Helper function to generate responses with LLM"""
-        if self.llm is None:
-            raise ValueError("""llm must be provided to generate responses.""")
-        llm_temperature = self.llm.temperature
-        if temperature:
-            self.llm.temperature = temperature
-        generator_object = ResponseGenerator(llm=self.llm, max_calls_per_min=self.max_calls_per_min, use_n_param=self.use_n_param)
-        with contextlib.redirect_stdout(io.StringIO()):
-            generations = await generator_object.generate_responses(prompts=prompts, count=count, system_prompt=self.system_prompt, progress_bar=progress_bar)
-        self.llm.temperature = llm_temperature
+        try:
+            if self.llm is None:
+                raise ValueError("""llm must be provided to generate responses.""")
+            llm_temperature = self.llm.temperature
+            if temperature:
+                self.llm.temperature = temperature
+            generator_object = ResponseGenerator(llm=self.llm, max_calls_per_min=self.max_calls_per_min, use_n_param=self.use_n_param)
+            with contextlib.redirect_stdout(io.StringIO()):
+                generations = await generator_object.generate_responses(prompts=prompts, count=count, system_prompt=self.system_prompt, progress_bar=progress_bar)
+            self.llm.temperature = llm_temperature
+        except Exception:
+            if progress_bar:
+                progress_bar.stop()
+            raise
         return {"responses": generations["data"]["response"], "logprobs": generations["metadata"]["logprobs"]}
 
     def _construct_judge(self, llm: Any = None) -> LLMJudge:

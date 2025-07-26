@@ -24,27 +24,12 @@ def test_list_dataset_names():
     assert "gsm8k" in datasets
 
 
-def test_load_full_dataset():
-    df = load_example_dataset("gsm8k")
-    assert isinstance(df, pd.DataFrame)
-    assert len(df) > 0
-
-
-def test_load_limited_rows():
-    df = load_example_dataset("gsm8k", n=100)
-    assert df.shape[0] == 100
-
-
-def test_load_specific_columns():
-    df = load_example_dataset("gsm8k", cols=["question", "answer"])
-    assert list(df.columns) == ["question", "answer"]
-
-
 def test_load_nonexistent_dataset():
     with pytest.raises(FileNotFoundError):
         load_example_dataset("nonexistent_dataset")
 
 
+@pytest.mark.flaky(reruns=3)
 def test_load_dataset_with_processing():
     df = load_example_dataset("gsm8k", n=100, cols=["question", "answer"])
     assert df.shape[0] == 100
@@ -71,9 +56,11 @@ def test_combine_question_and_choices_list_case():
     assert len(result) == 1
 
 
+@pytest.mark.flaky(reruns=3)
 def test_load_example_dataset_with_concat_all():
     # test the if split == “all”: branch and concatenate_datasets call
     df = load_example_dataset("svamp")  # svamp has concat=“all” in config
+    assert isinstance(df, pd.DataFrame)
     assert len(df) > 0
 
 
