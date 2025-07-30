@@ -28,8 +28,8 @@ KEYWORDS_TO_SCORES_DICT = {round(0.0, 1): ["incorrect", "not correct", "not righ
 
 LIKERT_TO_SCORES_DICT = {0.0: ["1", "completely incorrect", "not correct"], 0.25: ["2", "mostly incorrect", "somewhat correct"], 0.5: ["3", "partially correct", "moderately correct"], 0.75: ["4", "mostly correct", "very correct"], 1.0: ["5", "completely correct", "highly correct"]}
 
-CHOICES_2_CLASS = """\"Correct\", \"Incorrect\""""
-CHOICES_3_CLASS = CHOICES_2_CLASS + """, or \"I am not sure\""""
+CHOICES_2_CLASS = "\"Correct\", \"Incorrect\""
+CHOICES_3_CLASS = CHOICES_2_CLASS + ", or \"I am not sure\""
 
 CONTINUOUS_SCORE_INSTRUCTION = """
 How likely is the above answer to be correct? Analyze the answer and give your confidence in this answer between 0 (lowest) and 100 (highest), with 100 being certain the answer is correct, and 0 being certain the answer is incorrect. THE CONFIDENCE RATING YOU PROVIDE MUST BE BETWEEN 0 and 100. ONLY RETURN YOUR NUMERICAL SCORE WITH NO SURROUNDING TEXT OR EXPLANATION.
