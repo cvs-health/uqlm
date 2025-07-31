@@ -19,9 +19,14 @@ import warnings
 from collections import deque, Counter
 from typing import Any, Dict, List, Optional
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import logging
+logging.set_verbosity_error()
+        
 import time
 from rich.progress import Progress
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
+
+
 
 
 class NLIScorer(SimilarityScorer):

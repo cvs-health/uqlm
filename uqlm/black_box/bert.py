@@ -29,7 +29,8 @@ class BertScorer(SimilarityScorer):
         Class for computing BERTScore values between original responses and candidates. For more on
         BERTScore, refer to Zhang et al.(2020) :footcite:`zhang2020bertscoreevaluatingtextgeneration`.
         """
-        pass
+        from transformers import logging
+        logging.set_verbosity_error()
 
     def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[Progress] = None) -> List[float]:
         """
@@ -65,6 +66,7 @@ class BertScorer(SimilarityScorer):
     @staticmethod
     def _compute_score(response: str, candidates: List[str]) -> float:
         """Compute mean BERTScore between a response and candidate responses"""
-        duplicated_response = [response] * len(candidates)
-        P, R, F1 = bert_score.score(list(duplicated_response), refs=list(candidates), lang="en", verbose=False)
+        num_responses = len(candidates)
+        duplicated_response = [response] * num_responses
+        P, R, F1 = bert_score.score(list(duplicated_response), refs=list(candidates), lang="en", verbose=False, batch_size=num_responses)
         return np.mean([float(f) for f in F1])
