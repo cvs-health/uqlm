@@ -30,6 +30,7 @@ class BertScorer(SimilarityScorer):
         BERTScore, refer to Zhang et al.(2020) :footcite:`zhang2020bertscoreevaluatingtextgeneration`.
         """
         from transformers import logging
+
         logging.set_verbosity_error()
 
     def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[Progress] = None) -> List[float]:
