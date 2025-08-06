@@ -12,12 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.black_box.bert import BertScorer
+from uqlm.benchmarks.factscore import FactScoreBenchmark
 
-from uqlm.black_box.bleurt import BLEURTScorer  # deprecated in v0.2.0
-from uqlm.black_box.cosine import CosineScorer
-from uqlm.black_box.match import MatchScorer
-from uqlm.black_box.nli import NLIScorer
-from uqlm.black_box.luq import LUQScorer
-
-__all__ = ["BertScorer", "CosineScorer", "BLEURTScorer", "MatchScorer", "NLIScorer", "LUQScorer"]
+__all__ = ["FactScoreBenchmark"]
