@@ -40,7 +40,7 @@ def math_postprocessor(input_string: str) -> str:
     return result
 
 
-def claims_postprocessor(self, llm: BaseChatModel, responses: list[str] | str, progress: bool = True) -> list[dict]:
+def claims_postprocessor(llm: BaseChatModel, responses: list[str] | str, progress: bool = True) -> list[dict]:
         """
         Parameters
         ----------
@@ -66,14 +66,14 @@ def claims_postprocessor(self, llm: BaseChatModel, responses: list[str] | str, p
                     progress.update(task, description="Processing response(s)...")
                     res = llm.invoke(get_claim_breakdown_template(response))
                     if res.content:
-                        claims.extend(re.findall(r"### (.*)", res.content))
+                        claims.append(re.findall(r"### (.*)", res.content))
                     progress.update(task, advance=1)
         else:
             claims = []
             for response in responses:
                 res = llm.invoke(get_claim_breakdown_template(response))
                 if res.content:
-                    claims.extend(re.findall(r"### (.*)", res.content))
+                    claims.append(re.findall(r"### (.*)", res.content))
         return claims
 
 

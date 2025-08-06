@@ -25,7 +25,7 @@ from uqlm.judges.judge import LLMJudge
 from uqlm.utils.display import ConditionalBarColumn, ConditionalTimeElapsedColumn, ConditionalTextColumn, ConditionalSpinnerColumn
 
 DEFAULT_BLACK_BOX_SCORERS = ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"]
-
+DEFAULT_LONG_FORM_SCORERS = ["luq"]
 BLACK_BOX_SCORERS = DEFAULT_BLACK_BOX_SCORERS + ["bert_score"]
 
 WHITE_BOX_SCORERS = ["normalized_probability", "min_probability"]
@@ -70,6 +70,7 @@ class UncertaintyQuantifier:
         self.black_box_names = BLACK_BOX_SCORERS
         self.white_box_names = WHITE_BOX_SCORERS
         self.default_black_box_names = DEFAULT_BLACK_BOX_SCORERS
+        self.default_long_form_names = DEFAULT_LONG_FORM_SCORERS
         self.progress_bar = None
 
     async def generate_original_responses(self, prompts: List[str], progress_bar: Optional[Progress] = None) -> List[str]:

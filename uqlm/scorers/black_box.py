@@ -203,7 +203,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         result = {"data": data, "metadata": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "scorers": self.scorers}}
         return UQResult(result)
 
-    def _validate_scorers(self, scorers: List[Any]) -> None:
+    def _validate_scorers(self, scorers: Optional[List[str]]) -> None:
         "Validate scorers and construct applicable scorer attributes"
         self.scorer_objects = {}
         if scorers is None:
