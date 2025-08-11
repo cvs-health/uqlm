@@ -87,7 +87,7 @@ def get_claim_breakdown_template(response: str) -> str:
 
     return claim_breakdown_template
 
-def get_entailment_template(claim: str, source_text: str) -> str:
+def get_binary_entailment_template(claim: str, source_text: str) -> str:
     """
     Parameters
     ----------

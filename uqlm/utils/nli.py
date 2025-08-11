@@ -2,9 +2,10 @@ from typing import Any
 import warnings
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
+from uqlm.utils.prompt_templates import get_binary_entailment_template
+from langchain_core.language_models.chat_models import BaseChatModel
 
-
-class NLI():
+class NLI:
     def __init__(self,
                  nli_model_name: str = "microsoft/deberta-large-mnli",
                  max_length: int = 2000,
@@ -34,7 +35,7 @@ class NLI():
         self.model = model.to(self.device) if self.device else model
         self.label_mapping = ["contradiction", "neutral", "entailment"]
 
-    def predict(self, hypothesis: str, premise: str) -> Any:
+    def predict(self, hypothesis: str, premise: str, return_probabilities: bool = True) -> Any:
         """
         This method compute probability of contradiction on the provide inputs.
 
@@ -60,4 +61,38 @@ class NLI():
         logits = self.model(**encoded_inputs).logits
         np_logits = logits.detach().cpu().numpy() if self.device else logits.detach().numpy()
         probabilites = np.exp(np_logits) / np.exp(np_logits).sum(axis=-1, keepdims=True)
-        return probabilites
+        if return_probabilities:
+            return probabilites
+        else:
+            if self.label_mapping[probabilites.argmax()] == "entailment":
+                return True
+            else:
+                return False
+
+class EntailmentLLMJudge:
+    def __init__(self, 
+                 llm: BaseChatModel,
+                 ) -> None:
+        self.llm = llm
+
+    async def predict(self, hypothesis: str | list[str], premise: str | list[str]) -> Any:
+        """
+        This method compute probability of contradiction on the provide inputs.
+        """
+        if isinstance(hypothesis, str):
+            hypothesis = [hypothesis]
+        if isinstance(premise, str):
+            premise = [premise]
+        prompts = []
+        results = []
+        for h,p in zip(hypothesis,premise):
+            prompts.append(get_binary_entailment_template(h, p))
+        responses = await self.llm.ainvoke(prompts)
+        for res in responses:
+            if "true" in res.content.lower():
+                results.append(True)
+            elif "false" in res.content.lower():
+                results.append(False)
+            else:
+                results.append(None)
+        return results

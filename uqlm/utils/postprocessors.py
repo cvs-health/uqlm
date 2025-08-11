@@ -40,7 +40,7 @@ def math_postprocessor(input_string: str) -> str:
     return result
 
 
-def claims_postprocessor(llm: BaseChatModel, responses: list[str] | str, progress: bool = True) -> list[dict]:
+async def claims_postprocessor(llm: BaseChatModel, responses: list[str] | str) -> list[dict]:
         """
         Parameters
         ----------
@@ -51,29 +51,18 @@ def claims_postprocessor(llm: BaseChatModel, responses: list[str] | str, progres
         """
         if isinstance(responses, str):
             responses = [responses]
-        if progress:
-            with Progress(
-                TextColumn("{task.description}"),
-                BarColumn(),
-                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-                TextColumn("({task.completed}/{task.total})"),
-                TimeElapsedColumn(),
-                console=Console()
-            ) as progress:
-                claims = []
-                task = progress.add_task("Processing", total=len(responses))
-                for response in responses:
-                    progress.update(task, description="Processing response(s)...")
-                    res = llm.invoke(get_claim_breakdown_template(response))
-                    if res.content:
-                        claims.append(re.findall(r"### (.*)", res.content))
-                    progress.update(task, advance=1)
-        else:
-            claims = []
-            for response in responses:
-                res = llm.invoke(get_claim_breakdown_template(response))
-                if res.content:
-                    claims.append(re.findall(r"### (.*)", res.content))
+        prompts = []
+        for response in responses:
+            prompts.append(get_claim_breakdown_template(response))
+            
+        responses = await llm.ainvoke(prompts)
+        print(f"Claim responses length: {len(responses)}")
+        claims = []
+        for i, res in enumerate(responses):
+            if res.content:
+                claims.append(re.findall(r"### (.*)", res.content))
+            else:
+                claims.append([])
         return claims
 
 
