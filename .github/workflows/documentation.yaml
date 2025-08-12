@@ -49,7 +49,7 @@ jobs:
         run: |
           pip install poetry
 
-      - name: Download and install Pandoc 3.7.0.2
+      - name: Download and install Pandoc
         run: |
           FILE="pandoc-${PANDOC_VERSION}-1-amd64.deb"
           URL="https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/${FILE}"
