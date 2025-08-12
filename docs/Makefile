@@ -22,9 +22,6 @@ help:
 # Get the parent dir name which is this docs' version
 VERSION := $(notdir $(CURDIR))
 
-install:
-	@pip install -r requirements.txt
-
 github:
 	@rm -rf build/html build/doctrees source/_autosummary/*.rst
 	@cp -rf ../../assets/* source/_static/
