@@ -100,7 +100,7 @@ class UQEnsemble(UncertaintyQuantifier):
         nli_model_name : str, default="microsoft/deberta-large-mnli"
             Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
-            
+
         scoring_templates : List[str], default=None
              Specifies which off-the-shelf template to use for each judge. Four off-the-shelf templates offered:
              incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), continuous score (0 to 1), and likert scale score ( 1-5 scale, normalized to 0/0.25/0.5/0.75/1).
