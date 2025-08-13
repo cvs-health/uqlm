@@ -92,3 +92,14 @@ def load_llm_config(llm_config: Dict[str, Any]) -> BaseChatModel:
         return llm_class(**llm_params)
     except Exception as e:
         raise ValueError(f"Could not recreate LLM from config: {e}") from e
+
+def get_llm_name(llm: BaseChatModel) -> str:
+    """
+    Get the name of the LLM.
+    """
+    if hasattr(llm, 'model_name') and llm.model_name:
+        return llm.model_name
+    elif hasattr(llm, 'model') and llm.model:
+        return llm.model
+    else:
+        return llm.__class__.__name__

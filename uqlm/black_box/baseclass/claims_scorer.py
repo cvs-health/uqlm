@@ -14,9 +14,26 @@
 
 from abc import ABC, abstractmethod
 from typing import List
+from dataclasses import dataclass
+import numpy as np
 
+@dataclass
+class ClaimScores:
+    """
+    ClaimsScore is a dataclass that contains the aggregated score and the raw scores for each claim set.
+    """
+    response_scores: List[float]
+    claim_scores: List[np.ndarray]
+    entailment_scores: List[np.ndarray]
+    
+    def to_dict(self) -> dict:
+        return {
+            "response_scores": self.response_scores,
+            "claim_scores": self.claim_scores,
+            "entailment_scores": self.entailment_scores
+        }
 
-class SimilarityScorer(ABC):
+class ClaimScorer(ABC):
     """Abstract class for text similarity scorers"""
 
     @abstractmethod
@@ -25,7 +42,7 @@ class SimilarityScorer(ABC):
         pass
 
     @abstractmethod
-    def evaluate(self, responses: List[str], sampled_responses: List[str]) -> List[float]:
+    def evaluate(self, claim_sets: List[List[str]], sampled_responses: List[List[str]]) -> ClaimScores:
         """Abstract method for metric computation"""
         pass
 
