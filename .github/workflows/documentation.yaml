@@ -32,7 +32,8 @@ jobs:
         id: version
         run: |
           RAW_TAG="${GITHUB_REF_NAME}"     
-          VERSION="${RAW_TAG#v}"          
+          VERSION="${RAW_TAG#v}"
+          VERSION="${VERSION%.*}"
           echo "clean_version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Update conf.py release version
