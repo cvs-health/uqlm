@@ -103,7 +103,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/build/html
           destination_dir: ${{ steps.get_tag.outputs.tag }}
-          keep_files: true
+          keep_files: false
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
@@ -111,4 +111,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/build/html
           destination_dir: latest
-          keep_files: true
+          keep_files: false
