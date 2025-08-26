@@ -35,6 +35,7 @@ jobs:
           VERSION="${RAW_TAG#v}"
           VERSION="${VERSION%.*}"
           echo "clean_version=$VERSION" >> $GITHUB_OUTPUT
+          echo $clean_version
 
       - name: Update conf.py release version
         run: |
@@ -102,8 +103,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/build/html
-          destination_dir: ${{ steps.get_tag.outputs.tag }}
-          keep_files: false
+          destination_dir: v${{ steps.version.outputs.clean_version }}
+          keep_files: true
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
@@ -111,4 +112,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/build/html
           destination_dir: latest
-          keep_files: false
+          keep_files: true
