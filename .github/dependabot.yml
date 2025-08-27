@@ -1,7 +1,11 @@
+# See https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference
 version: 2
 updates:
   - package-ecosystem: "pip"
-    directory: "/" # Location of your requirements.txt or other package manifest
+    directory: "/"
     schedule:
-      interval: "weekly" # Check for updates daily
-    target-branch: "develop" # Target branch for updates
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"

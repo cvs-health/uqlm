@@ -1,0 +1,104 @@
+header:
+  schema-version: 2.0.0
+  last-updated: '2025-07-22'
+  last-reviewed: '2025-07-22'
+  url: https://github.com/cvs-health/uqlm
+
+project:
+  documentation:
+    code-of-conduct: https://github.com/cvs-health/uqlm/blob/main/CODE_OF_CONDUCT.md
+    quickstart-guide: https://cvs-health.github.io/uqlm/latest/getstarted.html
+  homepage: https://cvs-health.github.io/uqlm/
+  name: "uqlm: Uncertainty Quantification for Language Models"
+  administrators:
+    - name: Dylan Bouchard
+      affiliation: CVS Health
+      email: dylan.bouchard@cvshealth.com
+      primary: true
+    - name: Mohit Singh Chauhan
+      affiliation: CVS Health
+      email: mohitsingh.chauhan@cvshealth.com
+      primary: false
+    - name: David Skarbrevik
+      affiliation: CVS Health
+      email: david.skarbrevik@cvshealth.com
+    - name: Viren Bajaj
+      affiliation: CVS Health
+      email: bajajv@aetna.com
+    - name: Ho-Kyeong Ra
+      affiliation: CVS Health
+      email: doyajii1@gmail.com
+    - name: Zeya Ahmad
+      affiliation: CVS Health
+      email: zeya.ahmad@cvshealth.com
+  repositories:
+    - name: LangFair
+      url: https://github.com/cvs-health/uqlm
+      comment: cvs-health/uqlm is the primary repository for uqlm.
+  vulnerability-reporting:
+    bug-bounty-available: false
+    contact:
+      name: Dylan Bouchard
+      affiliation: CVS Health
+      email: dylan.bouchard@cvshealth.com
+      primary: true
+    reports-accepted: true
+    # security-policy: TODO: Add security policy URL
+
+repository:
+  url: https://github.com/cvs-health/uqlm
+  status: active
+  accepts-change-request: true
+  accepts-automated-change-request: true
+  core-team:
+    - name:        Dylan Bouchard
+      affiliation: CVS Health
+      email: dylan.bouchard@cvshealth.com
+      primary:     true
+  documentation:
+    contributing-guide: https://github.com/cvs-health/uqlm/blob/main/CONTRIBUTING.md
+  license:
+    url: https://github.com/cvs-health/uqlm/blob/main/LICENSE
+    expression: "Apache-2.0"
+  security:
+    assessments:
+      self:
+        comment: Self assessment with SCA, SAST and secret leak tools completed July 2025 to establish baseline.
+        date: '2025-07-22'
+    tools:
+      - name: Dependabot
+        type: SCA
+        version: "2"
+        rulesets:
+          - built-in
+        results:
+          adhoc:
+            name: Scheduled SCA Scan Results
+            predicate-uri: https://docs.github.com/en/graphql/reference/objects#repositoryvulnerabilityalert
+            location: https://github.com/cvs-health/uqlm/security/dependabot
+            comment: |
+              The results of the scheduled SCA scan are available in the Dependabot tab of the Security Insights page.
+        integration:
+          adhoc: true
+          ci: false
+          release: false
+      - name: bandit
+        comment: Used in pre-commit and CI to check for security issues in Python code.
+        type: SAST
+        version: "1.8.6"
+        rulesets:
+          - bandit.yml
+        integration:
+          adhoc: true
+          ci: true
+          release: true
+      - name: Snyk Open Source
+        comment: Used in pre-commit to check for vulnerabilities in dependencies.
+        type: SCA
+        version: "1.1298.0"
+        rulesets:
+          - default
+        integration:
+          adhoc: true
+          ci: false
+          release: false
