@@ -1,0 +1,115 @@
+# .github/workflows/docs.yml
+
+name: Build & Deploy Sphinx Docs
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write 
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    env:
+      PANDOC_VERSION: ${{ vars.PANDOC_VERSION }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get tag name
+        id: get_tag
+        run: echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Show tag
+        run: |
+          echo "Tag: ${{ steps.get_tag.outputs.tag }}"
+
+      - name: Extract version without "v"
+        id: version
+        run: |
+          RAW_TAG="${GITHUB_REF_NAME}"     
+          VERSION="${RAW_TAG#v}"
+          VERSION="${VERSION%.*}"
+          echo "clean_version=$VERSION" >> $GITHUB_OUTPUT
+          echo $clean_version
+
+      - name: Update conf.py release version
+        run: |
+          sed -i "s/^release = .*/release = '${{ steps.version.outputs.clean_version }}'/" docs/source/conf.py
+          head -n 20 docs/source/conf.py
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install Poetry
+        run: |
+          pip install poetry
+
+      - name: Download and install Pandoc
+        run: |
+          FILE="pandoc-${PANDOC_VERSION}-1-amd64.deb"
+          URL="https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/${FILE}"
+
+          echo "Downloading $FILE..."
+          curl -L -o pandoc.deb "$URL"
+
+          echo "Installing Pandoc..."
+          sudo dpkg -i pandoc.deb
+
+      - name: Verify Pandoc version
+        run: pandoc --version
+
+      - name: Install dependencies
+        run: |
+          poetry lock
+          poetry install --with docs
+          eval $(poetry env activate)
+
+      - name: Checkout gh-pages branch to get versions.json
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages           
+
+      - name: Update version.json
+        run: |
+          VERSION=${{ steps.version.outputs.clean_version }}
+          python .github/workflows/update_version_json.py "$VERSION" "gh-pages"
+          cat gh-pages/versions.json
+          mkdir docsVersion
+          cp gh-pages/versions.json docsVersion/versions.json           
+      
+      - name: Build Sphinx docs
+        run: |
+          eval $(poetry env activate)
+          make -C docs clean
+          make -C docs html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docsVersion
+          keep_files: true
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/build/html
+          destination_dir: v${{ steps.version.outputs.clean_version }}
+          keep_files: true
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/build/html
+          destination_dir: latest
+          keep_files: true
