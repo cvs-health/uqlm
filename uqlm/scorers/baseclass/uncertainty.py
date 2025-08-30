@@ -18,10 +18,12 @@ import contextlib
 import pandas as pd
 from typing import Any, Dict, List, Optional
 from rich.progress import Progress, TextColumn
+from sklearn.metrics import roc_auc_score
 
 from uqlm.utils.response_generator import ResponseGenerator
 from uqlm.black_box.nli import NLIScorer
 from uqlm.judges.judge import LLMJudge
+from uqlm.utils.plots import ranked_bar_plot
 from uqlm.utils.display import ConditionalBarColumn, ConditionalTimeElapsedColumn, ConditionalTextColumn, ConditionalSpinnerColumn
 
 DEFAULT_BLACK_BOX_SCORERS = ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"]
@@ -285,3 +287,52 @@ class UQResult:
         rename_dict = {col: col[:-1] for col in self.result_dict["data"].keys() if col.endswith("s") and col not in ["sampled_responses", "raw_sampled_responses"]}
 
         return pd.DataFrame(self.result_dict["data"]).rename(columns=rename_dict)
+
+    def visualize(self, correct_responses: List[bool], fs: int = 10, fn: str = "Arial") -> None:
+        """
+        Visualizes the result
+
+        Parameters
+        ----------
+        correct_responses : list of bool
+            A list of booleans indicating whether the response is correct.
+        fs : int, default=10
+            Font size for the plot.
+        fn : str, default="Arial"
+            Font name for the plot.
+
+        Returns
+        -------
+        None
+        """
+        if correct_responses is None:
+            raise ValueError("correct_responses must be provided")
+        if len(correct_responses) != len(self.data["responses"]):
+            raise ValueError("correct_responses must be the same length as the number of responses")
+
+        black_box_scorers = ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"]
+        white_box_scorers = ["normalized_probability", "min_probability"]
+        judges = ["judge_"]
+        ensemble = ["ensemble_scores"]
+        ignore_columns = ["prompts", "responses", "sampled_responses", "raw_sampled_responses", "raw_responses", "logprobs"]
+        method_names = {"semantic_negentropy": "Semantic Negentropy", "noncontradiction": "Non-Contradiction", "exact_match": "Exact Match", "cosine_sim": "Cosine Similarity", "normalized_probability": "Normalized Probability", "min_probability": "Min Probability", "ensemble_scores": "Ensemble"}
+        # Initialize scores dictionary
+        scores = {"Black-box": {}, "White-box": {}, "Judges": {}, "Ensemble": {}}
+        for col in self.data.keys():
+            if col not in ignore_columns:
+                tmp = roc_auc_score(correct_responses, self.data[col])
+                if col in black_box_scorers:
+                    scores["Black-box"][method_names[col]] = tmp
+                elif col in white_box_scorers:
+                    scores["White-box"][method_names[col]] = tmp
+                elif col[:6] in judges:
+                    scores["Judges"][f"Judge {col[6:]}"] = tmp
+                elif col in ensemble:
+                    scores["Ensemble"][method_names[col]] = tmp
+
+        # Remove any empty dictionaries from scores
+        empty_keys = [k for k, v in scores.items() if not v]
+        for k in empty_keys:
+            del scores[k]
+
+        ranked_bar_plot(scores, fs=fs, fn=fn)

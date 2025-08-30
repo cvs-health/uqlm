@@ -105,3 +105,130 @@ def plot_model_accuracies(scores: ArrayLike, correct_indicators: ArrayLike, thre
     if write_path:
         plt.savefig(f"{write_path}", dpi=300)
     plt.show()
+
+
+def ranked_bar_plot(scores: dict, weights: ArrayLike = None, title: str = None, write_path: Optional[str] = None, bar_colors: list = ["C0", "C2", "C3", "C4"], fs: int = 10, fn: str = "Arial") -> plt.Axes:
+    """
+    Parameters
+    ----------
+    scores : dict of dict
+        A dictionary where each key is a method name and each value is a dictionary
+        containing information about different scorers.
+        Example:
+            {
+                "White-box": {"scorer1": 0.85, "scorer2": 0.72, ...},
+                "Black-box": {"scorer1": 0.85, "scorer2": 0.72, ...},
+                "Judges": {"scorer1": 0.85, "scorer2": 0.72, ...},
+                "Ensemble": {"scorer": 0.85},
+            }
+
+    write_path : Optional[str], default=None
+        The path to save the plot
+
+    weights : ArrayLike, default=None
+        The weights of the scorers
+
+    fs : int, default=10
+        The font size of the plot
+
+    fn : str, default="Arial"
+        The font name of the plot
+
+    title : str, default=None
+        The title of the plot
+
+    Returns
+    -------
+    ax : matplotlib.axes.Axes
+        The axes object of the plot
+    """
+    _, ax = plt.subplots()
+    cols, values = [], []
+    for key in scores:
+        for scorer in scores[key]:
+            cols.append(scorer)
+            values.append(scores[key][scorer])
+
+    if weights is not None:
+        sorted_tuples = sorted(zip(values, cols, weights))
+        sorted_values, sorted_cols, sorted_weights = zip(*sorted_tuples)
+    else:
+        sorted_values, sorted_cols = zip(*sorted(zip(values, cols)))
+
+    for i in range(len(sorted_values)):
+        if sorted_cols[i] in scores.get("Black-box", {}):
+            c = bar_colors[0]
+        elif sorted_cols[i] in scores.get("White-box", {}):
+            c = bar_colors[1]
+        elif sorted_cols[i] in scores.get("Judges", {}):
+            c = bar_colors[2]
+        else:
+            c = bar_colors[3]
+        ax.barh(sorted_cols[i], sorted_values[i], color=c)
+
+    ax.set_xlim(sorted_values[0] - 0.2, sorted_values[-1] + 0.04)
+    ax.tick_params(axis="x", labelsize=fs - 3)
+    ax.tick_params(axis="y", labelsize=fs - 3)
+    ax.grid()
+    ax.set_title(title, fontsize=fs, y=-0.22, fontname=fn)
+
+    # Add labels to the right of each bar
+    if weights is not None:
+        for i in range(len(sorted_values)):
+            bar_value = sorted_values[i]
+            bar_label = f"{sorted_cols[i]} ({sorted_weights[i]:.2f})"
+            ax.text(bar_value + 0.01, sorted_cols[i], bar_label, va="center", ha="left", fontsize=fs - 3, fontname=fn)
+
+    if write_path:
+        plt.savefig(f"{write_path}", dpi=300)
+    plt.show()
+    return ax
+
+
+def plot_filtered_accuracy(top_scores: dict, response_correct: list, fs=12) -> plt.Axes:
+    """
+    Plot the filtered accuracy for the given top_scores.
+    top_scores: dict
+        Dictionary containing the top scores for each technique.
+        Example:
+        {
+            'White-Box UQ': [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0],
+            'Black-Box UQ': [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0],
+            'Judge': [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0]
+        }
+    response_correct: list
+        List of response correctness.
+    fs: int
+        Font size for the plot.
+
+    Returns
+    -------
+    ax : matplotlib.axes.Axes
+        The axes object of the plot
+    """
+    _, ax = plt.subplots()
+    thresholds = np.arange(0, 1, 0.1)
+
+    accuracy = {}
+    for key in top_scores:
+        y_true = response_correct
+        y_score = top_scores[key]
+        accuracy[key] = list()
+        for thresh in thresholds:
+            accuracy[key].append(np.mean([y_true[i] for i in range(0, len(y_true)) if y_score[i] >= thresh]))
+
+    marker = {"White-Box UQ": "o", "Black-Box UQ": "s", "Judge": "^"}
+    color = {"White-Box UQ": "C2", "Black-Box UQ": "C0", "Judge": "C3"}
+    ax.hlines(accuracy[key][0], 0, 0.9, color="k", linestyles="dashed", label="Baseline LLM Accuracy")
+    for key in accuracy:
+        ax.plot(thresholds, accuracy[key], marker=marker[key], label=key, color=color[key])
+    ax.hlines(accuracy[key][0], 0, 0.9, color="k", linestyles="dashed")
+
+    ax.set_xlim(-0.05, 0.95)
+    ax.tick_params(axis="both", labelsize=fs - 3)  # Increase tick label font size
+    ax.set_xlabel("Confidence Score Threshold", fontsize=fs)
+    ax.set_ylabel("LLM Filtered Accuracy", fontsize=fs)
+    ax.legend(fontsize=fs - 3, bbox_to_anchor=(1.05, 1.1), ncol=4)
+    ax.grid()
+    plt.show()
+    return ax
