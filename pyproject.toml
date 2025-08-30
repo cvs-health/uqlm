@@ -74,8 +74,11 @@ pytest = "^8.3.5"
 langchain-google-vertexai = "^2.0.14"
 pytest-asyncio = ">=0.25.3,<1.2.0"
 pytest-cov = "^6.0.0"
+pytest-rerunfailures = "^16.0"
 
 [tool.pytest.ini_options]
+reruns = 3
+reruns_delay = 2.0
 markers = [
     "asyncio"
 ]
