@@ -14,6 +14,8 @@ on:
 
 jobs:
   run-tests:
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -30,15 +32,20 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5.6
         with:
           python-version: ${{matrix.python-version}}
 
       - name: Install dependencies
-        run: python -m pip install pytest pytest-asyncio pytest-rerunfailures langchain-openai .
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install --all-groups
 
       - name: Run tests
-        run: pytest -v
+        run: poetry run pytest -v
