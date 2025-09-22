@@ -32,7 +32,7 @@ class ClaimScores:
         return {"claim_entail_scores": self.claim_entail_scores, "claim_noncontradict_scores": self.claim_noncontradict_scores, "claim_constrast_entail_scores": self.claim_constrast_entail_scores}
 
 class ClaimScorer(ABC):
-    """Abstract class for text similarity scorers"""
+    """Abstract class for claim entailment scorers"""
 
     @abstractmethod
     def __init__(self):
