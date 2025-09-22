@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "uqlm"
-version = "0.2.2"
+version = "0.2.6"
 description = "UQLM (Uncertainty Quantification for Language Models) is a Python package for UQ-based LLM hallucination detection."
 authors = ["Dylan Bouchard <dylan.bouchard@cvshealth.com>", "Mohit Singh Chauhan <mohitsingh.chauhan@cvshealth.com>"]
 maintainers = [
@@ -11,15 +11,28 @@ maintainers = [
     "Viren Bajaj <virenbajaj4@gmail.com>",
     "Zeya Ahmad <zeyahmd@gmail.com>"
 ]
+repository = "https://github.com/cvs-health/uqlm"
+homepage = "https://github.com/cvs-health/uqlm"
+documentation = "https://cvs-health.github.io/uqlm/latest/index.html"
+license = "Apache-2.0"
 readme = "assets/README_PYPI.md"
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
 packages = [
     { include = "uqlm" },
     { include = "uqlm/scorers" },
     { include = "uqlm/judges" },
     { include = "uqlm/black_box" },
+    { include = "uqlm/longform" },
     { include = "uqlm/resources" },
     { include = "uqlm/utils" },
 ]
+exclude = ["docs", "docs_src"] # never include documentation in build
+keywords = ["LLM", "large language model", "LLM evaluation", "hallucination", "uncertainty quantification"]  # Add your keywords here
 
 [tool.poetry.dependencies]
 python = ">=3.9, <4.0"

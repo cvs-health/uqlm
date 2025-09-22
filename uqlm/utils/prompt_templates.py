@@ -16,15 +16,16 @@
 This module is used to store LLM prompt templates that can be used for various tasks.
 """
 
+
 # The claim_brekadown_template is a modified version of the prompt from "Atomic Calibration of LLMs in Long-Form Generations"
 # @misc{zhang2025atomiccalibrationllmslongform,
-#       title={Atomic Calibration of LLMs in Long-Form Generations}, 
+#       title={Atomic Calibration of LLMs in Long-Form Generations},
 #       author={Caiqi Zhang and Ruihan Yang and Zhisong Zhang and Xinting Huang and Sen Yang and Dong Yu and Nigel Collier},
 #       year={2025},
 #       eprint={2410.13246},
 #       archivePrefix={arXiv},
 #       primaryClass={cs.CL},
-#       url={https://arxiv.org/abs/2410.13246}, 
+#       url={https://arxiv.org/abs/2410.13246},
 # }
 def get_claim_breakdown_template(response: str) -> str:
     """
@@ -87,7 +88,8 @@ def get_claim_breakdown_template(response: str) -> str:
 
     return claim_breakdown_template
 
-def get_binary_entailment_template(claim: str, source_text: str) -> str:
+
+def get_entailment_template(claim: str, source_text: str) -> str:
     """
     Parameters
     ----------

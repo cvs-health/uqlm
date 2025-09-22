@@ -5,12 +5,9 @@ import numpy as np
 from uqlm.utils.prompt_templates import get_binary_entailment_template
 from langchain_core.language_models.chat_models import BaseChatModel
 
+
 class NLI:
-    def __init__(self,
-                 nli_model_name: str = "microsoft/deberta-large-mnli",
-                 max_length: int = 2000,
-                 device: Any = None,
-                 ) -> None:
+    def __init__(self, nli_model_name: str = "microsoft/deberta-large-mnli", max_length: int = 2000, device: Any = None) -> None:
         """
         A class to compute NLI predictions.
 
@@ -23,7 +20,7 @@ class NLI:
         max_length : int, default=2000
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
-        
+
         device : torch.device input or torch.device object, default=None
             Specifies the device that classifiers use for prediction. Set to "cuda" for classifiers to be able to
             leverage the GPU.
@@ -49,8 +46,8 @@ class NLI:
 
         Returns
         -------
-        numpy.ndarray
-            Probabilities computed by NLI model for each label
+        numpy.ndarray or bool
+            Probabilities for each label.
         """
         if len(hypothesis) > self.max_length or len(premise) > self.max_length:
             warnings.warn("Maximum response length exceeded for NLI comparison. Truncation will occur. To adjust, change the value of max_length")
@@ -61,38 +58,4 @@ class NLI:
         logits = self.model(**encoded_inputs).logits
         np_logits = logits.detach().cpu().numpy() if self.device else logits.detach().numpy()
         probabilites = np.exp(np_logits) / np.exp(np_logits).sum(axis=-1, keepdims=True)
-        if return_probabilities:
-            return probabilites
-        else:
-            if self.label_mapping[probabilites.argmax()] == "entailment":
-                return True
-            else:
-                return False
-
-class EntailmentLLMJudge:
-    def __init__(self, 
-                 llm: BaseChatModel,
-                 ) -> None:
-        self.llm = llm
-
-    async def predict(self, hypothesis: str | list[str], premise: str | list[str]) -> Any:
-        """
-        This method compute probability of contradiction on the provide inputs.
-        """
-        if isinstance(hypothesis, str):
-            hypothesis = [hypothesis]
-        if isinstance(premise, str):
-            premise = [premise]
-        prompts = []
-        results = []
-        for h,p in zip(hypothesis,premise):
-            prompts.append(get_binary_entailment_template(h, p))
-        responses = await self.llm.ainvoke(prompts)
-        for res in responses:
-            if "true" in res.content.lower():
-                results.append(True)
-            elif "false" in res.content.lower():
-                results.append(False)
-            else:
-                results.append(None)
-        return results
+        return probabilites

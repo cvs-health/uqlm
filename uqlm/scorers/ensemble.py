@@ -46,8 +46,10 @@ class UQEnsemble(UncertaintyQuantifier):
         nli_model_name: str = "microsoft/deberta-large-mnli",
         use_best: bool = True,
         sampling_temperature: float = 1.0,
+        scoring_templates: Optional[List[str]] = None,
         max_length: int = 2000,
         verbose: bool = False,
+        return_responses: str = "all",
     ) -> None:
         """
         Class for detecting bad and speculative answer from a pretrained Large Language Model (LLM Hallucination).
@@ -69,7 +71,7 @@ class UQEnsemble(UncertaintyQuantifier):
 
         postprocessor : callable, default=None
             A user-defined function that takes a string input and returns a string. Used for postprocessing
-            outputs.
+            outputs before black-box comparisons.
 
         use_best : bool, default=True
             Specifies whether to swap the original response for the uncertainty-minimized response
@@ -99,9 +101,20 @@ class UQEnsemble(UncertaintyQuantifier):
             Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
 
+        scoring_templates : List[str], default=None
+             Specifies which off-the-shelf template to use for each judge. Four off-the-shelf templates offered:
+             incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), continuous score (0 to 1), and likert scale score ( 1-5 scale, normalized to 0/0.25/0.5/0.75/1).
+             These templates are respectively specified as 'true_false_uncertain', 'true_false', 'continuous', and 'likert'
+             If specified, must be of equal length to `judges` list. Defaults to 'true_false_uncertain' template
+             used by Chen and Mueller (2023) :footcite:`chen2023quantifyinguncertaintyanswerslanguage` for each judge.
+
         max_length : int, default=2000
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
+
+        return_responses : str, default="all"
+            If a postprocessor is used, specifies whether to return only postprocessed responses, only raw responses,
+            or both. Specified with 'postprocessed', 'raw', or 'all', respectively.
 
         verbose : bool, default=False
             Specifies whether to print the index of response currently being scored.
@@ -114,6 +127,8 @@ class UQEnsemble(UncertaintyQuantifier):
         self.sampling_temperature = sampling_temperature
         self.use_best = use_best
         self.max_length = max_length
+        self.return_responses = return_responses
+        self.scoring_templates = scoring_templates
         self.tuner = Tuner()
         self._validate_components(scorers)
         self._validate_weights()
@@ -151,7 +166,7 @@ class UQEnsemble(UncertaintyQuantifier):
 
         responses = await self.generate_original_responses(prompts, progress_bar=self.progress_bar)
         if self.black_box_components:
-            sampled_responses = await self.generate_candidate_responses(prompts, progress_bar=self.progress_bar)
+            sampled_responses = await self.generate_candidate_responses(prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
         else:
             sampled_responses = None
 
@@ -457,7 +472,10 @@ class UQEnsemble(UncertaintyQuantifier):
 
     def _construct_result(self) -> Any:
         """Constructs UQResult from dictionary"""
-        data = {"prompts": self.prompts, "responses": self.responses, "sampled_responses": self.sampled_responses if self.sampled_responses else [None] * len(self.responses)}
+        if self.black_box_components:
+            data = self._construct_black_box_return_data()
+        else:
+            data = {"prompts": self.prompts, "responses": self.responses, "sampled_responses": self.sampled_responses if self.sampled_responses else [None] * len(self.responses)}
         data["ensemble_scores"] = self._compute_ensemble_scores(score_dict=self.component_scores, weights=self.weights)
         data.update(self.component_scores)
         result = {"data": data, "metadata": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "thresh": self.thresh, "weights": self.weights, "logprobs": self.logprobs}}
@@ -508,7 +526,7 @@ class UQEnsemble(UncertaintyQuantifier):
         if self.white_box_components:
             self.white_box_object = WhiteBoxUQ()
         if self.judges:
-            self.judges_object = LLMPanel(judges=self.judges, max_calls_per_min=self.max_calls_per_min)
+            self.judges_object = LLMPanel(judges=self.judges, max_calls_per_min=self.max_calls_per_min, scoring_templates=self.scoring_templates)
         self.components = components
 
     def _validate_weights(self) -> None:

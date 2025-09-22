@@ -28,4 +28,3 @@ class SimilarityScorer(ABC):
     def evaluate(self, responses: List[str], sampled_responses: List[str]) -> List[float]:
         """Abstract method for metric computation"""
         pass
-

@@ -13,9 +13,9 @@
 # limitations under the License.
 
 
-import bert_score
 import numpy as np
-from typing import List, Optional
+from typing import Any, List, Optional
+from bert_score import BERTScorer
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
@@ -24,14 +24,21 @@ from rich.progress import Progress
 
 
 class BertScorer(SimilarityScorer):
-    def __init__(self) -> None:
+    def __init__(self, device: Any = None) -> None:
         """
         Class for computing BERTScore values between original responses and candidates. For more on
         BERTScore, refer to Zhang et al.(2020) :footcite:`zhang2020bertscoreevaluatingtextgeneration`.
+
+        Parameters
+        ----------
+        device : torch.device input or torch.device object, default=None
+            Specifies the device that classifiers use for prediction. Set to "cuda" for classifiers to be able to
+            leverage the GPU.
         """
         from transformers import logging
 
         logging.set_verbosity_error()
+        self.bert_scorer = BERTScorer(device=device, lang="en")
 
     def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[Progress] = None) -> List[float]:
         """
@@ -54,7 +61,7 @@ class BertScorer(SimilarityScorer):
             Mean BertScore values
         """
         if progress_bar:
-            progress_task = progress_bar.add_task("  - [black]Scoring responses with BERTScore...", total=len(responses))
+            progress_task = progress_bar.add_task("  - Scoring responses with BERTScore...", total=len(responses))
         results = []
         for i in range(len(responses)):
             score = self._compute_score(response=responses[i], candidates=sampled_responses[i])
@@ -64,10 +71,9 @@ class BertScorer(SimilarityScorer):
         time.sleep(0.1)
         return results
 
-    @staticmethod
-    def _compute_score(response: str, candidates: List[str]) -> float:
+    def _compute_score(self, response: str, candidates: List[str]) -> float:
         """Compute mean BERTScore between a response and candidate responses"""
         num_responses = len(candidates)
         duplicated_response = [response] * num_responses
-        P, R, F1 = bert_score.score(list(duplicated_response), refs=list(candidates), lang="en", verbose=False, batch_size=num_responses)
+        P, R, F1 = self.bert_scorer.score(list(duplicated_response), refs=list(candidates))
         return np.mean([float(f) for f in F1])

@@ -38,13 +38,11 @@ class WhiteBoxUQ(UncertaintyQuantifier):
         system_prompt : str or None, default="You are a helpful assistant."
             Optional argument for user to provide custom system prompt
 
-        scorers : subset of {
-            "imperplexity", "geometric_mean_probability", "min_probability", "max_probability",
-        }, default=None
-            Specifies which black box (consistency) scorers to include. If None, defaults to all.
+        scorers : subset of {"min_probability", "normalized_probability"}, default=None
+            Specifies which white box (token-probability-based) scorers to include. If None, defaults to all.
         """
         super().__init__(llm=llm, max_calls_per_min=max_calls_per_min, system_prompt=system_prompt)
-        self.scorers = scorers if scorers else self.white_box_names
+        self._validate_scorers(scorers)
 
     async def generate_and_score(self, prompts: List[str], show_progress_bars: Optional[bool] = True) -> UQResult:
         """
@@ -132,8 +130,22 @@ class WhiteBoxUQ(UncertaintyQuantifier):
         return min(self._get_probs(logprobs))
 
     def avg_logprob(self, logprobs: List[Dict[str, Any]]) -> float:
-        "Compute average logprob"
+        """Compute average logprob"""
         return np.mean(self.get_logprobs(logprobs))
+
+    def _validate_scorers(self, scorers: List[str]) -> None:
+        """Validate scorer list"""
+        if not scorers:
+            self.scorers = self.white_box_names
+        else:
+            for scorer in scorers:
+                if scorer not in ["min_probability", "normalized_probability"]:
+                    raise ValueError(
+                        f"""
+                        Invalid scorer: {scorer}. Must be one of ["min_probability", "normalized_probability"]
+                        """
+                    )
+            self.scorers = scorers
 
     @staticmethod
     def _get_probs(logprobs):

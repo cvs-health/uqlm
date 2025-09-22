@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.benchmarks.factscore import FactScoreBenchmark
+from uqlm.longform.black_box.luq import LUQScorer
 
-__all__ = ["FactScoreBenchmark"]
+__all__ = ["LUQScorer"]

@@ -25,7 +25,7 @@ def scale(values, upper, lower):
     return [lower + (val - min_v) * (upper - lower) / (max_v - min_v) for val in values]
 
 
-def plot_model_accuracies(scores: ArrayLike, correct_indicators: ArrayLike, thresholds: ArrayLike = np.linspace(0, 0.9, num=10), axis_buffer: float = 0.1, title: str = "LLM Accuracy by Confidence Score Threshold", write_path: Optional[str] = None):
+def plot_model_accuracies(scores: ArrayLike, correct_indicators: ArrayLike, thresholds: ArrayLike = np.linspace(0, 0.9, num=10), axis_buffer: float = 0.1, title: str = "LLM Accuracy by Confidence Score Threshold", write_path: Optional[str] = None, bar_width=0.05, display_percentage: bool = False):
     """
     Parameters
     ----------
@@ -47,27 +47,32 @@ def plot_model_accuracies(scores: ArrayLike, correct_indicators: ArrayLike, thre
     write_path : Optional[str], default=None
         Destination path for image file.
 
+    bar_width : float, default=0.05
+        The width of the bars in the plot
+
+    display_percentage : bool, default=False
+        Whether to display the sample size as a percentage
+
     Returns
     -------
     None
     """
-    if len(scores) != len(correct_indicators):
+    n_samples = len(scores)
+    if n_samples != len(correct_indicators):
         raise ValueError("scores and correct_indicators must be the same length")
 
     accuracies, sample_sizes = [], []
+    denominator = n_samples / 100 if display_percentage else 1
     for t in thresholds:
         grades_t = [correct_indicators[i] for i in range(0, len(scores)) if scores[i] >= t]
         accuracies.append(np.mean(grades_t))
-        sample_sizes.append(len(grades_t))
+        sample_sizes.append(len(grades_t) / denominator)
 
     min_acc = min(accuracies)
     max_acc = max(accuracies)
 
     # Create a single figure and axis
-    fig, ax = plt.subplots()
-
-    # Define the width of the bars
-    bar_width = 0.025
+    _, ax = plt.subplots()
 
     # Plot the first dataset (original)
     ax.scatter(thresholds, accuracies, s=15, marker="s", label="Accuracy", color="blue")
@@ -77,18 +82,20 @@ def plot_model_accuracies(scores: ArrayLike, correct_indicators: ArrayLike, thre
     normalized_sample_1 = scale(sample_sizes, upper=max_acc, lower=min_acc)
 
     # Adjust x positions for the first dataset
-    bar_positions = np.array(thresholds) - bar_width / 2
-    pps1 = ax.bar(bar_positions, normalized_sample_1, label="Sample Size", alpha=0.2, width=bar_width)
+    bar_positions = np.array(thresholds)
+    label = "Sample Size" if not display_percentage else "Sample Size (%)"
+    pps1 = ax.bar(bar_positions, normalized_sample_1, label=label, alpha=0.2, width=bar_width)
 
     # Annotate the bars for the first dataset
     count = 0
     for p in pps1:
         height = p.get_height()
-        ax.text(x=p.get_x() + p.get_width() / 2, y=height - 0.015, s="{}".format(sample_sizes[count]), ha="center", fontsize=8, rotation=90)
+        s_ = "{:.0f} %".format(sample_sizes[count]) if display_percentage else "{:.0f}".format(sample_sizes[count])
+        ax.text(x=p.get_x() + p.get_width() / 2, y=height - (height - min_acc * (1 - axis_buffer)) / 50, s=s_, ha="center", fontsize=8, rotation=90, va="top")
         count += 1
 
     # Set x and y ticks, limits, labels, and title
-    plt.xticks(np.arange(0, 1, 0.1))
+    ax.set_xticks(np.arange(0, 1, 0.1))
     ax.set_xlim([-0.04, 0.95])
     ax.set_ylim([min_acc * (1 - axis_buffer), max_acc * (1 + axis_buffer)])
     ax.legend()

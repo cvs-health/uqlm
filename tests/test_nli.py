@@ -39,7 +39,7 @@ def nli_model_cpu():
 
 @pytest.mark.flaky(reruns=3)
 def test_nli(text1, text2, nli_model):
-    probabilities = nli_model.predict(text1, text2)
+    probabilities = nli_model.nli_model.predict(text1, text2)
     del nli_model
     gc.collect()
     assert abs(float(probabilities[0][0]) - 0.00159405) < 1e-5
@@ -58,7 +58,7 @@ def test_nli3(text1, text2, nli_model_cpu):
     expected_warning = "Maximum response length exceeded for NLI comparison. Truncation will occur. To adjust, change the value of max_length"
 
     with pytest.warns(UserWarning, match=expected_warning):
-        nli_model_cpu.predict(text1 * 50, text2)
+        nli_model_cpu.nli_model.predict(text1 * 50, text2)
     del nli_model_cpu
     gc.collect()
 

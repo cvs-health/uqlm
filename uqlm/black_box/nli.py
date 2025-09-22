@@ -15,14 +15,13 @@
 
 import math
 import numpy as np
-import warnings
 from collections import deque, Counter
 from typing import Any, Dict, List, Optional
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from transformers import logging
 import time
 from rich.progress import Progress
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
+from uqlm.utils.nli import NLI
 
 logging.set_verbosity_error()
 
@@ -51,41 +50,9 @@ class NLIScorer(SimilarityScorer):
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
         """
-        self.device = device
         self.verbose = verbose
-        self.max_length = max_length
-        self.tokenizer = AutoTokenizer.from_pretrained(nli_model_name)
-        model = AutoModelForSequenceClassification.from_pretrained(nli_model_name)
-        self.model = model.to(self.device) if self.device else model
+        self.nli_model = NLI(nli_model_name=nli_model_name, max_length=max_length, device=device)
         self.label_mapping = ["contradiction", "neutral", "entailment"]
-
-    def predict(self, response1: str, response2: str) -> Any:
-        """
-        This method compute probability of contradiction on the provide inputs.
-
-        Parameters
-        ----------
-        response1 : str
-            An input for the sequence classification DeBERTa model.
-
-        response2 : str
-            An input for the sequence classification DeBERTa model.
-
-        Returns
-        -------
-        numpy.ndarray
-            Probabilities computed by NLI model
-        """
-        if len(response1) > self.max_length or len(response2) > self.max_length:
-            warnings.warn("Maximum response length exceeded for NLI comparison. Truncation will occur. To adjust, change the value of max_length")
-        concat = response1[0 : self.max_length] + " [SEP] " + response2[0 : self.max_length]
-        encoded_inputs = self.tokenizer(concat, padding=True, return_tensors="pt")
-        if self.device:
-            encoded_inputs = {name: tensor.to(self.device) for name, tensor in encoded_inputs.items()}
-        logits = self.model(**encoded_inputs).logits
-        np_logits = logits.detach().cpu().numpy() if self.device else logits.detach().numpy()
-        probabilites = np.exp(np_logits) / np.exp(np_logits).sum(axis=-1, keepdims=True)
-        return probabilites
 
     def evaluate(self, responses: List[str], sampled_responses: List[List[str]], responses_logprobs: List[List[Dict[str, Any]]] = None, sampled_responses_logprobs: List[List[List[Dict[str, Any]]]] = None, use_best: bool = False, compute_entropy: bool = False, best_response_selection: str = "discrete", progress_bar: Optional[Progress] = None) -> Dict[str, Any]:
         """
@@ -137,7 +104,7 @@ class NLIScorer(SimilarityScorer):
             sampled_responses[i] = oc_result_i["candidates"]  # Replace with updated candidates if use_best
 
         if progress_bar:
-            progress_task = progress_bar.add_task("  - [black]Scoring responses with NLI...", total=len(responses))
+            progress_task = progress_bar.add_task("  - Scoring responses with NLI...", total=len(responses))
         for i, response in enumerate(responses):
             _process_i(i, response)
             if progress_bar:
@@ -221,10 +188,10 @@ class NLIScorer(SimilarityScorer):
         if response1 == response2:
             avg_nli_score, entailment = 1, True
         else:
-            left = self.predict(response1=response1, response2=response2)
+            left = self.nli_model.predict(hypothesis=response1, premise=response2)
             left_label = self.label_mapping[left.argmax(axis=1)[0]]
 
-            right = self.predict(response1=response2, response2=response1)
+            right = self.nli_model.predict(hypothesis=response2, premise=response1)
             right_label = self.label_mapping[right.argmax(axis=1)[0]]
             s1, s2 = 1 - left[:, 0], 1 - right[:, 0]
 

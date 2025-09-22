@@ -60,7 +60,7 @@ class CosineScorer(SimilarityScorer):
             Mean cosine similarity values
         """
         if progress_bar:
-            progress_task = progress_bar.add_task("  - [black]Scoring responses with Cosine Similarity...", total=len(responses))
+            progress_task = progress_bar.add_task("  - Scoring responses with Cosine Similarity...", total=len(responses))
         results = []
         for i in range(len(responses)):
             score = self._compute_score(response=responses[i], candidates=sampled_responses[i])

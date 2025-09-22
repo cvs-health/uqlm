@@ -51,7 +51,7 @@ class MatchScorer(SimilarityScorer):
             Exact match rates
         """
         if progress_bar:
-            progress_task = progress_bar.add_task("  - [black]Scoring responses with Exact Match...", total=len(responses))
+            progress_task = progress_bar.add_task("  - Scoring responses with Exact Match...", total=len(responses))
         results = []
         for i, (response, candidates) in enumerate(zip(responses, sampled_responses)):
             score = self._compute_score(response=response, candidates=candidates)

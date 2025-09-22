@@ -12,11 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.utils.prompt_templates import get_claim_breakdown_template
-from rich.progress import Progress, TextColumn, BarColumn, TimeElapsedColumn, Console
-from langchain_core.language_models.chat_models import BaseChatModel
-import re
-
 
 def math_postprocessor(input_string: str) -> str:
     """
@@ -38,54 +33,3 @@ def math_postprocessor(input_string: str) -> str:
         elif char == ".":
             break
     return result
-
-
-async def claims_postprocessor(llm: BaseChatModel, responses: list[str] | str) -> list[dict]:
-        """
-        Parameters
-        ----------
-        responses: list[str] | str
-            LLM response that will be decomposed into independent claims.
-        progress: bool
-            Whether to show a progress bar.
-        """
-        if isinstance(responses, str):
-            responses = [responses]
-        prompts = []
-        for response in responses:
-            prompts.append(get_claim_breakdown_template(response))
-            
-        responses = await llm.ainvoke(prompts)
-        print(f"Claim responses length: {len(responses)}")
-        claims = []
-        for i, res in enumerate(responses):
-            if res.content:
-                claims.append(re.findall(r"### (.*)", res.content))
-            else:
-                claims.append([])
-        return claims
-
-
-
-# def claims_postprocessor(input_string: str) -> str:
-#     """
-#     Parameters
-#     ----------
-
-#     input_string: str
-#         LLM response that will be decomposed into independent claims.
-#     """
-
-#     df_subset = df.iloc[:2]
-#     max_entity_len = df_subset["entity"].str.len().max()+2
-#     responses = []
-#     task = progress.add_task("[cyan]Processing", total=len(df_subset))
-#     for i,row in df_subset.iterrows():
-#         progress.update(task, description=f"Generating llm response for entity: '{row["entity"]:<{max_entity_len}}'")
-#         prompt = row["factscore_prompt"]
-#         response = test_llm.invoke(prompt)
-#         responses.append(response.content)
-#         current_progress = progress.tasks[task].completed
-#         total_progress = progress.tasks[task].total
-#         print(f"Debug: Iteration {i+1}, Progress: {current_progress}/{total_progress}")
-#         progress.update(task, advance=1)

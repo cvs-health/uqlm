@@ -33,6 +33,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         system_prompt: str = "You are a helpful assistant.",
         max_calls_per_min: Optional[int] = None,
         sampling_temperature: float = 1.0,
+        return_responses: str = "all",
         use_n_param: bool = False,
         max_length: int = 2000,
         verbose: bool = False,
@@ -73,7 +74,11 @@ class BlackBoxUQ(UncertaintyQuantifier):
 
         postprocessor : callable, default=None
             A user-defined function that takes a string input and returns a string. Used for postprocessing
-            outputs.
+            outputs before black-box comparisons.
+
+        return_responses : str, default="all"
+            If a postprocessor is used, specifies whether to return only postprocessed responses, only raw responses,
+            or both. Specified with 'postprocessed', 'raw', or 'all', respectively.
 
         system_prompt : str or None, default="You are a helpful assistant."
             Optional argument for user to provide custom system prompt
@@ -104,6 +109,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.sampling_temperature = sampling_temperature
         self.nli_model_name = nli_model_name
         self.sentence_transformer = sentence_transformer
+        self.return_responses = return_responses
         self._validate_scorers(scorers)
         self.use_nli = ("semantic_negentropy" in self.scorers) or ("noncontradiction" in self.scorers)
         if self.use_nli:
@@ -136,7 +142,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self._display_generation_header(show_progress_bars)
 
         responses = await self.generate_original_responses(prompts=prompts, progress_bar=self.progress_bar)
-        sampled_responses = await self.generate_candidate_responses(prompts=prompts, progress_bar=self.progress_bar)
+        sampled_responses = await self.generate_candidate_responses(prompts=prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
         result = self.score(responses=responses, sampled_responses=sampled_responses, show_progress_bars=show_progress_bars)
         return result
 
@@ -174,9 +180,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
             compute_entropy = "semantic_negentropy" in self.scorers
             nli_scores = self.nli_scorer.evaluate(responses=self.responses, sampled_responses=self.sampled_responses, use_best=self.use_best, compute_entropy=compute_entropy, progress_bar=self.progress_bar)
             if self.use_best:
-                self.original_responses = self.responses.copy()
-                self.responses = nli_scores["responses"]
-                self.sampled_responses = nli_scores["sampled_responses"]
+                self._update_best(nli_scores["responses"], include_logprobs=False)
 
             for key in ["semantic_negentropy", "noncontradiction"]:
                 if key in self.scorers:
@@ -196,11 +200,9 @@ class BlackBoxUQ(UncertaintyQuantifier):
 
     def _construct_result(self) -> Any:
         """Constructs UQResult object"""
-        data = {"responses": self.responses, "sampled_responses": self.sampled_responses}
-        if self.prompts:
-            data["prompts"] = self.prompts
-        data.update(self.scores_dict)
-        result = {"data": data, "metadata": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "scorers": self.scorers}}
+        data_to_return = self._construct_black_box_return_data()
+        data_to_return.update(self.scores_dict)
+        result = {"data": data_to_return, "metadata": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "scorers": self.scorers}}
         return UQResult(result)
 
     def _validate_scorers(self, scorers: Optional[List[str]]) -> None:
@@ -212,7 +214,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
             if scorer == "exact_match":
                 self.scorer_objects["exact_match"] = MatchScorer()
             elif scorer == "bert_score":
-                self.scorer_objects["bert_score"] = BertScorer()
+                self.scorer_objects["bert_score"] = BertScorer(device=self.device)
             elif scorer == "cosine_sim":
                 self.scorer_objects["cosine_sim"] = CosineScorer(transformer=self.sentence_transformer)
             elif scorer in ["semantic_negentropy", "noncontradiction"]:
@@ -221,8 +223,8 @@ class BlackBoxUQ(UncertaintyQuantifier):
                 if scorer == "bleurt":
                     print("bleurt is deprecated as of v0.2.0")
                 raise ValueError(
-                    """
-                    scorers must be one of ['semantic_negentropy', 'noncontradiction', 'exact_match', 'bert_score', 'cosine_sim']
+                    f"""
+                    Invalid scorer: {scorer}. Must be one of ['semantic_negentropy', 'noncontradiction', 'exact_match', 'bert_score', 'cosine_sim']
                     """
                 )
         self.scorers = scorers

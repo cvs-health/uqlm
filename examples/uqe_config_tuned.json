@@ -1,12 +1,12 @@
 {
   "weights": [
-    0.22327447238385534,
-    0.4457037749845452,
-    0.06588339748923952,
-    0.10109651592627841,
-    0.1640418392160814
+    0.034383095868634986,
+    0.3877900507516945,
+    0.46051891782005466,
+    0.013597156880779636,
+    0.10371077867883627
   ],
-  "thresh": 0.61,
+  "thresh": 0.51,
   "components": [
     "exact_match",
     "noncontradiction",
@@ -19,13 +19,14 @@
     "module": "langchain_openai.chat_models.azure",
     "deployment_name": "gpt-4o",
     "logprobs": true,
-    "max_retries": 2,
     "model_version": "",
     "n": 5,
     "openai_api_type": "azure",
     "openai_api_version": "2024-02-15-preview",
+    "output_version": "v0",
     "streaming": false,
     "temperature": 1.0,
+    "use_previous_response_id": false,
     "verbose": false
   },
   "llm_scorers": {
@@ -34,26 +35,25 @@
       "module": "langchain_openai.chat_models.azure",
       "deployment_name": "gpt-4o",
       "logprobs": true,
-      "max_retries": 2,
       "model_version": "",
       "n": 5,
       "openai_api_type": "azure",
       "openai_api_version": "2024-02-15-preview",
+      "output_version": "v0",
       "streaming": false,
       "temperature": 1.0,
+      "use_previous_response_id": false,
       "verbose": false
     },
     "judge_2": {
       "class_name": "ChatVertexAI",
       "module": "langchain_google_vertexai.chat_models",
-      "convert_system_message_to_human": false,
       "default_metadata": [],
       "endpoint_version": "v1beta1",
       "full_model_name": "projects/anbc-dev/locations/us-central1/publishers/google/models/gemini-1.5-flash",
       "location": "us-central1",
       "logprobs": false,
       "max_retries": 6,
-      "model_family": "2",
       "model_name": "gemini-1.5-flash",
       "n": 1,
       "perform_literal_eval_on_string_raw_content": true,

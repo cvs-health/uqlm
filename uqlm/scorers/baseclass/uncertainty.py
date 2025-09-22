@@ -25,7 +25,7 @@ from uqlm.judges.judge import LLMJudge
 from uqlm.utils.display import ConditionalBarColumn, ConditionalTimeElapsedColumn, ConditionalTextColumn, ConditionalSpinnerColumn
 
 DEFAULT_BLACK_BOX_SCORERS = ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"]
-DEFAULT_LONG_FORM_SCORERS = ["luq"]
+DEFAULT_LONG_FORM_SCORERS = ["luq_atomic"]
 BLACK_BOX_SCORERS = DEFAULT_BLACK_BOX_SCORERS + ["bert_score"]
 
 WHITE_BOX_SCORERS = ["normalized_probability", "min_probability"]
@@ -72,35 +72,68 @@ class UncertaintyQuantifier:
         self.default_black_box_names = DEFAULT_BLACK_BOX_SCORERS
         self.default_long_form_names = DEFAULT_LONG_FORM_SCORERS
         self.progress_bar = None
+        self.raw_responses = None
+        self.raw_sampled_responses = None
 
     async def generate_original_responses(self, prompts: List[str], progress_bar: Optional[Progress] = None) -> List[str]:
         """
         This method generates original responses for uncertainty
         estimation. If specified in the child class, all responses are postprocessed
         using the callable function defined by the user.
+
+        Parameters
+        ----------
+        prompts : list of str
+            A list of input prompts for the model.
+
+        progress_bar : rich.progress.Progress, default=None
+            A progress bar object to display progress.
+
+        Returns
+        -------
+        list of str
+            A list of original responses for each prompt.
         """
         generations = await self._generate_responses(prompts, count=1, progress_bar=progress_bar)
         responses = generations["responses"]
         self.logprobs = generations["logprobs"]
         if self.postprocessor:
+            self.raw_responses = responses
             responses = [self.postprocessor(r) for r in responses]
         return responses
 
-    async def generate_candidate_responses(self, prompts: List[str], progress_bar: Optional[Progress] = None) -> List[List[str]]:
+    async def generate_candidate_responses(self, prompts: List[str], num_responses: int = 5, progress_bar: Optional[Progress] = None) -> List[List[str]]:
         """
         This method generates multiple responses for uncertainty
         estimation. If specified in the child class, all responses are postprocessed
         using the callable function defined by the user.
+
+        Parameters
+        ----------
+        prompts : list of str
+            A list of input prompts for the model.
+
+        num_responses : int, default=5
+            The number of sampled responses used to compute consistency.
+
+        progress_bar : rich.progress.Progress, default=None
+            A progress bar object to display progress.
+
+        Returns
+        -------
+        list of list of str
+            A list of sampled responses for each prompt.
         """
         llm_temperature = self.llm.temperature
-        generations = await self._generate_responses(prompts=prompts, count=self.num_responses, temperature=self.sampling_temperature, progress_bar=progress_bar)
+        generations = await self._generate_responses(prompts=prompts, count=num_responses, temperature=self.sampling_temperature, progress_bar=progress_bar)
         tmp_mr, tmp_lp = generations["responses"], generations["logprobs"]
         sampled_responses, self.multiple_logprobs = [], []
         for i in range(len(prompts)):
-            sampled_responses.append(tmp_mr[i * self.num_responses : (i + 1) * self.num_responses])
+            sampled_responses.append(tmp_mr[i * num_responses : (i + 1) * num_responses])
             if len(tmp_lp) == len(tmp_mr):
-                self.multiple_logprobs.append(tmp_lp[i * self.num_responses : (i + 1) * self.num_responses])
+                self.multiple_logprobs.append(tmp_lp[i * num_responses : (i + 1) * num_responses])
         if self.postprocessor:
+            self.raw_sampled_responses = sampled_responses
             sampled_responses = [[self.postprocessor(r) for r in m] for m in sampled_responses]
         self.llm.temperature = llm_temperature
         return sampled_responses
@@ -140,21 +173,46 @@ class UncertaintyQuantifier:
         """Set up NLI scorer"""
         self.nli_scorer = NLIScorer(nli_model_name=self.nli_model_name, device=self.device, max_length=self.max_length, verbose=self.verbose)
 
-    def _update_best(self, best_responses: List[str]) -> None:
+    def _update_best(self, best_responses: List[str], include_logprobs: bool = True) -> None:
         """Updates best"""
         self.original_responses = self.responses.copy()
         for i, response in enumerate(self.responses):
             all_candidates = [response] + self.sampled_responses[i]
-            all_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i]
-            best_logprobs = all_logprobs[all_candidates.index(best_responses[i])]
+            index_of_best = all_candidates.index(best_responses[i])
 
             all_candidates.remove(best_responses[i])
             self.responses[i] = best_responses[i]
             self.sampled_responses[i] = all_candidates
 
-            all_logprobs.remove(best_logprobs)
-            self.logprobs[i] = best_logprobs
-            self.multiple_logprobs[i] = all_logprobs
+            if include_logprobs:
+                all_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i]
+                best_logprobs = all_logprobs[index_of_best]
+                all_logprobs.remove(best_logprobs)
+                self.logprobs[i] = best_logprobs
+                self.multiple_logprobs[i] = all_logprobs
+
+            if self.postprocessor:
+                all_raw_candidates = [self.raw_responses[i]] + self.raw_sampled_responses[i]
+                best_raw_response = all_raw_candidates[index_of_best]
+                all_raw_candidates.remove(best_raw_response)
+                self.raw_responses[i] = best_raw_response
+                self.raw_sampled_responses[i] = all_raw_candidates
+
+    def _construct_black_box_return_data(self):
+        """Helper function to prepare black box return data"""
+        data_to_return = {"responses": self.responses, "sampled_responses": self.sampled_responses}
+        if self.postprocessor:
+            if self.return_responses == "all":
+                data_to_return["raw_responses"] = self.raw_responses
+                data_to_return["raw_sampled_responses"] = self.raw_sampled_responses
+            elif self.return_responses == "raw":
+                data_to_return["responses"] = self.raw_responses
+                data_to_return["sampled_responses"] = self.raw_sampled_responses
+
+        if self.prompts:
+            data_to_return["prompts"] = self.prompts
+
+        return data_to_return
 
     def _construct_progress_bar(self, show_progress_bars: bool, _existing_progress_bar: Any = None) -> None:
         """Constructs and starts progress bar"""
@@ -213,10 +271,6 @@ class UQResult:
         """
         self.data = result.get("data")
         self.metadata = result.get("metadata")
-        self.parameters = result.get("parameters")
-        self.confidence_scores = self.data.get("confidence_scores")
-        self.responses = self.data.get("responses")
-        self.sampled_responses = None if not self.data.get("responses") else self.data.get("responses")
         self.result_dict = result
 
     def to_dict(self) -> Dict[str, Any]:
@@ -229,6 +283,6 @@ class UQResult:
         """
         Returns result in pd.DataFrame
         """
-        rename_dict = {col: col[:-1] for col in self.result_dict["data"].keys() if col.endswith("s") and col != "sampled_responses"}
+        rename_dict = {col: col[:-1] for col in self.result_dict["data"].keys() if col.endswith("s") and col not in ["sampled_responses", "raw_sampled_responses"]}
 
         return pd.DataFrame(self.result_dict["data"]).rename(columns=rename_dict)
