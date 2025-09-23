@@ -41,18 +41,21 @@ class LongFormUQ(UncertaintyQuantifier):
             A langchain llm `BaseChatModel`. User is responsible for specifying temperature and other
             relevant parameters to the constructor of their `llm` object.
 
-        scorers : subset of {"luq", "luq_atomic"}, default=None
-            Specifies which black box (consistency) scorers to include. If None, defaults to
-            ["semantic_negentropy", "noncontradiction", "exact_match", "cosine_sim"].
+        scorers : list of str, default=None
+            Specifies which black box (consistency) scorers to include. Available scorers are:
+            - Sentence-level: ["response_sent_entail", "response_sent_noncontradict", "response_sent_contrast_entail"]
+            - Claim-level: ["response_claim_entail", "response_claim_noncontradict", "response_claim_contrast_entail"]  
+            - Matched-claim: ["matched_claim_entail", "matched_claim_noncontradict", "matched_claim_contrast_entail"]
+            If None, defaults to sentence-level scorers.
 
         claim_decomposition_llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims
-            or 'factoids'. If a scorer that requires claim decomposition (e.g., "luq_atomic") is specified
+            or 'factoids'. If a scorer that requires claim decomposition (e.g., claim-level or matched-claim scorers) is specified
             and claim_decomposition_llm is None, the provided `llm` will be used for claim decomposition.
 
-        device: str or torch.device input or torch.device object, default="cpu"
-            Specifies the device that NLI model use for prediction. Applies to 'luq', 'luq_atomic'
-            scorers. Pass a torch.device to leverage GPU.
+        device: str or torch.device input or torch.device object, default=None
+            Specifies the device that NLI models use for prediction. Pass a torch.device or "cuda" to leverage GPU.
+            If None, defaults to CPU.
 
         nli_model_name : str, default="microsoft/deberta-large-mnli"
             Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
@@ -90,6 +93,7 @@ class LongFormUQ(UncertaintyQuantifier):
         self.sampling_temperature = sampling_temperature
         self.nli_model_name = nli_model_name
         self.claim_decomposition_llm = claim_decomposition_llm
+        self.return_responses = return_responses
         self.default_long_form_scorers = SENTENCE_BLACKBOX_SCORERS
         self.decomposer = ResponseDecomposer(claim_decomposition_llm=claim_decomposition_llm if claim_decomposition_llm else llm)
         self.prompts = None
@@ -197,9 +201,7 @@ class LongFormUQ(UncertaintyQuantifier):
          
     def _construct_result(self) -> Any:
         """Constructs UQResult object"""
-        data = {"responses": self.responses, "sampled_responses": self.sampled_responses}
-        if self.prompts:
-            data["prompts"] = self.prompts
+        data = self._construct_black_box_return_data()
         if self.claim_sets:
             data["claim_sets"] = self.claim_sets
         if self.sentence_sets:

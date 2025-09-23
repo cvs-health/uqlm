@@ -2,7 +2,7 @@ from typing import Any
 import warnings
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
-from uqlm.utils.prompt_templates import get_binary_entailment_template
+from uqlm.utils.prompt_templates import get_entailment_template
 from langchain_core.language_models.chat_models import BaseChatModel
 
 
