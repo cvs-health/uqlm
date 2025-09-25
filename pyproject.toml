@@ -78,7 +78,7 @@ sphinxcontrib-bibtex = "2.6.3"
 sphinx-autodoc-typehints = "2.2.0"
 sphinx-gallery = "0.18.0"
 sphinx-favicon = "1.0.1"
-nbsphinx = "0.9.6"
+nbsphinx = "0.9.7"
 
 
 [tool.poetry.group.test]
