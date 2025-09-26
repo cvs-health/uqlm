@@ -133,9 +133,55 @@ class ResponseDecomposer:
             sentences[i] = sentence.strip()
         return sentences
     
-    async def _get_claims_from_response(self, response: str, progress_bar: Optional[Progress] = None) -> Dict[str, str]:
-        """Decompose sigle response into claims"""
+    async def _get_claims_from_response(self, response: str, progress_bar: Optional[Progress] = None) -> List[str]:
+        """Decompose single response into claims using LLM and extract claims from the result"""
+        # Get LLM decomposition
         decomposed_response = await self.claim_decomposition_llm.ainvoke(get_claim_breakdown_template(response))
         if progress_bar:
             progress_bar.update(self.progress_task, advance=1)
-        return re.split(r"### ", decomposed_response.content)[1:]
+        
+        # Extract claims from LLM response
+        llm_response = decomposed_response.content
+
+        # SCENARIO 1: LLM couldn't find any claims
+        if self._is_none_response(llm_response):
+            return []
+        
+        # SCENARIO 2: LLM didn't follow the template format
+        if "###" not in llm_response:
+            return []
+        
+        # SCENARIO 3: LLM followed the template format and potentially found claims
+        # Split on ### markers and extract claims
+        raw_claims = re.split(r"###\s*", llm_response)
+        # Skip the first element (content before first ###)
+        raw_claims = raw_claims[1:] if raw_claims else []
+        
+        # Clean and collect non-empty claims
+        claims = []
+        for claim in raw_claims:
+            # Basic whitespace cleanup
+            cleaned_claim = re.sub(r'\s+', ' ', claim.strip())
+            if cleaned_claim:  # Skip empty claims
+                claims.append(cleaned_claim)
+        
+        return claims
+    
+    def _is_none_response(self, llm_response: str) -> bool:
+        """
+        Check if the LLM response indicates no claims are present.
+        
+        Detects the template-instructed "### NONE" response and common variations.
+        
+        Parameters
+        ----------
+        llm_response : str
+            The raw response from the LLM
+            
+        Returns
+        -------
+        bool
+            True if the response indicates no claims, False otherwise
+        """
+        # Check for the template-instructed "### NONE" pattern (case-insensitive)
+        return bool(re.search(r'###\s*none\b', llm_response.strip(), re.IGNORECASE))

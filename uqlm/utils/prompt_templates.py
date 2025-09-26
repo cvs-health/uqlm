@@ -49,6 +49,8 @@ def get_claim_breakdown_template(response: str) -> str:
 
     Step 3: Each atomic fact should be self-contained. Do not use pronouns as the subject of a piece of fact, such as he, she, it, this that, use the original subject whenever possible.
 
+    Step 4: If the sentence does not contain any independent fact, you should output "### NONE".
+
     Here are some examples:
 
     Example 1:
@@ -78,6 +80,10 @@ def get_claim_breakdown_template(response: str) -> str:
     ### Emory University competes in the Atlantic Coast Conference.
     ### Emory University is part of the ACC.
     ### Emory University's mascot is the Eagle.
+
+    Example 4:
+    Hi
+    ### NONE
 
     Now it's your turn. Here is the passage: 
 
