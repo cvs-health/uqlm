@@ -81,10 +81,7 @@ _dataset_default_params = {
             "subset_columns": ["question", "answer"],
         },
     },
-    "factscore": {
-        "load_params": {"path": "dskar/FActScore", "split": "test"},
-        "extra_processing": {},
-    },
+    "factscore": {"load_params": {"path": "dskar/FActScore", "split": "test"}, "extra_processing": {}},
 }
 
 

@@ -25,26 +25,26 @@ import logging
 import json
 import os
 
+
 class FactScoreBenchmark:
-    def __init__(self, 
-                judge_llm: BaseChatModel,
-                entailment_method: str = "nli",
-                data_dir: str = "~/.uqlm/benchmark_results"):
+    def __init__(self, judge_llm: BaseChatModel, entailment_method: str = "nli", data_dir: str = "~/.uqlm/benchmark_results"):
         self.judge_llm = judge_llm
         self.judge_llm_name = get_llm_name(judge_llm)
         self.entailment_method = entailment_method
         self.benchmark_data = {}
         self.data_dir = Path(data_dir)
 
-    async def evaluate_scorers(self, 
-                        llms: list[BaseChatModel] | BaseChatModel,
-                        scorers: list[SimilarityScorer | ClaimScorer] | SimilarityScorer | ClaimScorer, 
-                        sampling_temperature: float = 0.7, 
-                        num_responses: int = 4,
-                        save_results: bool = True,
-                        show_results: bool = False, # TODO: add visualization logic
-                        use_cached_results: bool = True, # TODO: add caching logic
-                        progress: bool = True) -> dict:
+    async def evaluate_scorers(
+        self,
+        llms: list[BaseChatModel] | BaseChatModel,
+        scorers: list[SimilarityScorer | ClaimScorer] | SimilarityScorer | ClaimScorer,
+        sampling_temperature: float = 0.7,
+        num_responses: int = 4,
+        save_results: bool = True,
+        show_results: bool = False,  # TODO: add visualization logic
+        use_cached_results: bool = True,  # TODO: add caching logic
+        progress: bool = True,
+    ) -> dict:
         """
         Parameters
         ----------
@@ -112,10 +112,7 @@ class FactScoreBenchmark:
             llm.temperature = sampling_temperature
             sampled_responses = await self._get_responses(llm=llm, prompts=prompts, num_responses=num_responses, progress=progress)
             for i, prompt_id in enumerate(prompt_ids):
-                self.benchmark_data["data"][llm_name][prompt_id] = {
-                    "original_response": original_responses[i],
-                    "sampled_responses": sampled_responses[i]
-                }
+                self.benchmark_data["data"][llm_name][prompt_id] = {"original_response": original_responses[i], "sampled_responses": sampled_responses[i]}
 
             # Decompose responses into claims
             claims_responses = await claims_postprocessor(llm=self.judge_llm, responses=original_responses)
@@ -133,8 +130,7 @@ class FactScoreBenchmark:
                 self.benchmark_data["data"][llm_name][prompt_id]["sampled_response_entailment"] = sampled_response_entailment[i]
                 self.benchmark_data["data"][llm_name][prompt_id]["source_text_entailment"] = source_text_entailment[i]
 
-            # get 
-
+            # get
 
         return results
 
@@ -143,7 +139,7 @@ class FactScoreBenchmark:
         Get responses from LLMs.
         """
         rg = ResponseGenerator(llm=llm, max_calls_per_min=250)
-        generations = await rg.generate_responses(prompts=prompts, count=num_responses)     
+        generations = await rg.generate_responses(prompts=prompts, count=num_responses)
         return generations["data"]["response"]
 
     async def _find_entailment(self, claims: list[str] | str, source_texts: list[str] | str, method: str = "nli") -> list[dict]:
@@ -166,21 +162,19 @@ class FactScoreBenchmark:
         results = []
         if method == "nli":
             nli = NLI()
-            for claims,source_text in zip(claims,source_texts):
-                    tmp_res = []
-                    for claim in claims:
-
-                        entailment = nli.predict(claim, source_text)
-                        tmp_res.append(entailment)
-                    results.append(tmp_res)
+            for claims, source_text in zip(claims, source_texts):
+                tmp_res = []
+                for claim in claims:
+                    entailment = nli.predict(claim, source_text)
+                    tmp_res.append(entailment)
+                results.append(tmp_res)
         elif method == "llm":
             nli = EntailmentLLMJudge(llm=self.judge_llm)
-            results = await nli.predict(claims,source_texts)
+            results = await nli.predict(claims, source_texts)
         else:
             raise ValueError(f"Invalid method: {method}")
-        
-        return results
 
+        return results
 
     def _save_results(self, results: dict, run_id: str) -> None:
         """

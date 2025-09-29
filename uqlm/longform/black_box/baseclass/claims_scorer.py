@@ -31,6 +31,7 @@ class ClaimScores:
     def to_dict(self) -> dict:
         return {"claim_entail_scores": self.claim_entail_scores, "claim_noncontradict_scores": self.claim_noncontradict_scores, "claim_constrast_entail_scores": self.claim_constrast_entail_scores}
 
+
 class ClaimScorer(ABC):
     """Abstract class for claim entailment scorers"""
 

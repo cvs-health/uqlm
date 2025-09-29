@@ -54,7 +54,7 @@ class LUQScorer(ClaimScorer):
 
         sampled_responses : list of list of strings
             Candidate responses to be compared to the decomposed original responses
-            
+
         sampled_claims : list of list of list of strings
             Decomposed responses to be compared to the decomposed original responses
 
@@ -71,18 +71,16 @@ class LUQScorer(ClaimScorer):
         claim_entail_score_lists, claim_noncontradict_score_lists, claim_constrast_entail_score_lists = [], [], []
         if sampled_responses and sampled_claims:
             raise ValueError("Only one of sampled_responses and sampled_claims may be provided.")
-        if sampled_responses: # For response-to-claim or response-to-sentence comparisons
+        if sampled_responses:  # For response-to-claim or response-to-sentence comparisons
             if sampled_claims:
-                raise ValueError("Only one of sampled_responses and sampled_claims may be provided.")     
-            samples_for_comparison = sampled_responses 
+                raise ValueError("Only one of sampled_responses and sampled_claims may be provided.")
+            samples_for_comparison = sampled_responses
             matched_claims = False
         else:  # For matched claim-to-claim comparisons
-            samples_for_comparison = sampled_claims   
+            samples_for_comparison = sampled_claims
             matched_claims = True
-        for (claim_set, sample_for_comparison) in zip(claim_sets, samples_for_comparison):
-            claim_entail_scores, claim_noncontradict_scores, claim_constrast_entail_scores = self._compute_claim_level_scores(
-                claims=claim_set, candidates=sample_for_comparison, matched_claims=matched_claims
-            )
+        for claim_set, sample_for_comparison in zip(claim_sets, samples_for_comparison):
+            claim_entail_scores, claim_noncontradict_scores, claim_constrast_entail_scores = self._compute_claim_level_scores(claims=claim_set, candidates=sample_for_comparison, matched_claims=matched_claims)
             claim_entail_score_lists.append(claim_entail_scores)
             claim_noncontradict_score_lists.append(claim_noncontradict_scores)
             claim_constrast_entail_score_lists.append(claim_constrast_entail_scores)
@@ -91,9 +89,9 @@ class LUQScorer(ClaimScorer):
         time.sleep(0.1)
         return ClaimScores(claim_entail_scores=claim_entail_score_lists, claim_noncontradict_scores=claim_noncontradict_score_lists, claim_constrast_entail_scores=claim_constrast_entail_score_lists)
 
-    def _compute_claim_level_scores(self, claims: List[str], candidates: List[str]| List[List[str]], matched_claims: bool) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def _compute_claim_level_scores(self, claims: List[str], candidates: List[str] | List[List[str]], matched_claims: bool) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Evaluate the LUQ score and claim scores for a list of claims and candidate responses."""
-        shape=(len(claims), len(candidates))
+        shape = (len(claims), len(candidates))
         entail_scores = np.zeros(shape=shape)
         noncontradict_scores = np.zeros(shape=shape)
         contrast_entail_scores = np.zeros(shape=shape)
@@ -110,20 +108,17 @@ class LUQScorer(ClaimScorer):
         claim_noncontradict_scores = noncontradict_scores.mean(axis=1)
         claim_constrast_entail_scores = contrast_entail_scores.mean(axis=1)
         return claim_entail_scores, claim_noncontradict_scores, claim_constrast_entail_scores
-    
+
     def _compute_matched_nli_scores(self, claim: str, candidate_claims: List[str]) -> float:
         """Compute maximum matched-claim NLI score"""
         max_entailment_prob, max_noncontradict_prob, max_contrast_entail_prob = 0, 0, 0
         for candidate in candidate_claims:
-            entail_prob, non_contradict_prob, contrast_entail_prob = self._compute_nli_scores(
-                claim=claim, candidate=candidate
-            )
+            entail_prob, non_contradict_prob, contrast_entail_prob = self._compute_nli_scores(claim=claim, candidate=candidate)
             max_entailment_prob = max(max_entailment_prob, float(entail_prob))
             max_noncontradict_prob = max(max_noncontradict_prob, float(non_contradict_prob))
             max_contrast_entail_prob = max(max_contrast_entail_prob, float(contrast_entail_prob))
         return max_entailment_prob, max_noncontradict_prob, max_contrast_entail_prob
-        
-        
+
     def _compute_nli_scores(self, claim: str, candidate: str) -> float:
         """Compute probabilities from NLI model"""
         nli_probabilities = self.nli.predict(hypothesis=candidate, premise=claim)
