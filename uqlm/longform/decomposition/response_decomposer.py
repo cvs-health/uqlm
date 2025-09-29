@@ -143,25 +143,19 @@ class ResponseDecomposer:
         # Extract claims from LLM response
         llm_response = decomposed_response.content
 
-        # SCENARIO 1: LLM couldn't find any claims
+        # Case where LLM couldn't find any claims (responds with ### NONE)
         if self._is_none_response(llm_response):
             return []
         
-        # SCENARIO 2: LLM didn't follow the template format
-        if "###" not in llm_response:
-            return []
-        
-        # SCENARIO 3: LLM followed the template format and potentially found claims
-        # Split on ### markers and extract claims
-        raw_claims = re.split(r"###\s*", llm_response)
-        # Skip the first element (content before first ###)
-        raw_claims = raw_claims[1:] if raw_claims else []
+        # Look for ### markers that are at the start of lines
+        claim_pattern = r'(?:^|\n)\s*###\s*(.+?)(?=\n\s*###|\n\s*$|$)'
+        matches = re.findall(claim_pattern, llm_response, re.MULTILINE | re.DOTALL)
         
         # Clean and collect non-empty claims
         claims = []
-        for claim in raw_claims:
+        for match in matches:
             # Basic whitespace cleanup
-            cleaned_claim = re.sub(r'\s+', ' ', claim.strip())
+            cleaned_claim = re.sub(r'\s+', ' ', match.strip())
             if cleaned_claim:  # Skip empty claims
                 claims.append(cleaned_claim)
         
