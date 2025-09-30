@@ -14,8 +14,8 @@
 from langchain_core.language_models.chat_models import BaseChatModel
 from uqlm.utils.nli import EntailmentLLMJudge, NLI
 from uqlm.utils.postprocessors import claims_postprocessor
-from uqlm.blackbox.baseclass.similarity_scorer import SimilarityScorer
-from uqlm.blackbox.baseclass.claims_scorer import ClaimScorer
+from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
+from uqlm.longform.black_box.baseclass.claims_scorer import ClaimScorer
 from uqlm.utils.response_generator import ResponseGenerator
 from uqlm.utils.llm_config import get_llm_name
 from datetime import datetime
