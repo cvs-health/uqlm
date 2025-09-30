@@ -51,7 +51,7 @@ async def test_bbuq(monkeypatch, mock_llm):
 
     monkeypatch.setattr(uqe, "generate_original_responses", mock_generate_original_responses)
     monkeypatch.setattr(uqe, "generate_candidate_responses", mock_generate_candidate_responses)
-    for show_progress_bars in [True, False]:
+    for show_progress_bars in [False, True]:
         results = await uqe.generate_and_score(prompts=PROMPTS, num_responses=5, show_progress_bars=show_progress_bars)
 
         assert all([results.data["exact_match"][i] == pytest.approx(data["exact_match"][i]) for i in range(len(PROMPTS))])

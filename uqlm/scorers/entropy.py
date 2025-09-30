@@ -13,10 +13,12 @@
 # limitations under the License.
 
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 import warnings
+from langchain_core.messages import BaseMessage
 
-from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
+from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
+from uqlm.utils.results import UQResult
 import time
 
 
@@ -28,7 +30,7 @@ class SemanticEntropy(UncertaintyQuantifier):
         device: Any = None,
         use_best: bool = True,
         best_response_selection: str = "discrete",
-        system_prompt: str = "You are a helpful assistant.",
+        system_prompt: Optional[str] = None,
         max_calls_per_min: Optional[int] = None,
         use_n_param: bool = False,
         sampling_temperature: float = 1.0,
@@ -61,8 +63,9 @@ class SemanticEntropy(UncertaintyQuantifier):
         best_response_selection : str, default="discrete"
             Specifies the type of entropy confidence score to compute best response. Must be one of "discrete" or "token-based".
 
-        system_prompt : str or None, default="You are a helpful assistant."
-            Optional argument for user to provide custom system prompt
+        system_prompt : str, default=None
+            Optional argument for user to provide custom system prompt. If prompts are list of strings and system_prompt is None,
+            defaults to "You are a helpful assistant."
 
         max_calls_per_min : int, default=None
             Specifies how many api calls to make per minute to avoid a rate limit error. By default, no
@@ -103,14 +106,15 @@ class SemanticEntropy(UncertaintyQuantifier):
         self.logprobs = None
         self.multiple_logprobs = None
 
-    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, show_progress_bars: Optional[bool] = True) -> UQResult:
+    async def generate_and_score(self, prompts: List[Union[str, List[BaseMessage]]], num_responses: int = 5, show_progress_bars: Optional[bool] = True) -> UQResult:
         """
         Evaluate discrete semantic entropy score on LLM responses for the provided prompts.
 
         Parameters
         ----------
-        prompts : list of str
-            A list of input prompts for the model.
+        prompts : List[Union[str, List[BaseMessage]]]
+            List of prompts from which LLM responses will be generated. Prompts in list may be strings or lists of BaseMessage. If providing
+            input type List[List[BaseMessage]], refer to https://python.langchain.com/docs/concepts/messages/#langchain-messages for support.
 
         num_responses : int, default=5
             The number of sampled responses used to compute consistency.

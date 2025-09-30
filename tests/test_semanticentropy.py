@@ -48,7 +48,7 @@ async def test_semanticentropy(monkeypatch):
     monkeypatch.setattr(se_object, "generate_original_responses", mock_generate_original_responses)
     monkeypatch.setattr(se_object, "generate_candidate_responses", mock_generate_candidate_responses)
 
-    for show_progress_bars in [True, False]:
+    for show_progress_bars in [False, True]:
         se_results = await se_object.generate_and_score(prompts=PROMPTS, show_progress_bars=show_progress_bars)
         se_object.logprobs = None
         se_results = se_object.score(responses=MOCKED_RESPONSES, sampled_responses=MOCKED_SAMPLED_RESPONSES)

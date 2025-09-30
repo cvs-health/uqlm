@@ -19,11 +19,13 @@ import numpy as np
 import pandas as pd
 import time
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import BaseMessage
 import rich
 from rich import print as rprint
 
 from uqlm.judges.judge import LLMJudge
-from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
+from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
+from uqlm.utils.results import UQResult
 from uqlm.scorers.panel import LLMPanel
 from uqlm.scorers.black_box import BlackBoxUQ
 from uqlm.scorers.white_box import WhiteBoxUQ
@@ -38,7 +40,7 @@ class UQEnsemble(UncertaintyQuantifier):
         scorers: Optional[List[Union[str, BaseChatModel, LLMJudge]]] = None,
         device: Any = None,
         postprocessor: Any = None,
-        system_prompt: str = "You are a helpful assistant.",
+        system_prompt: Optional[str] = None,
         max_calls_per_min: Optional[int] = None,
         use_n_param: bool = False,
         thresh: float = 0.5,
@@ -80,8 +82,9 @@ class UQEnsemble(UncertaintyQuantifier):
         sampling_temperature : float, default=1.0
             The 'temperature' parameter for llm model to generate sampled LLM responses. Must be greater than 0.
 
-        system_prompt : str or None, default="You are a helpful assistant."
-            Optional argument for user to provide custom system prompt
+        system_prompt : str, default=None
+            Optional argument for user to provide custom system prompt. If prompts are list of strings and system_prompt is None,
+            defaults to "You are a helpful assistant."
 
         max_calls_per_min : int, default=None
             Specifies how many api calls to make per minute to avoid a rate limit error. By default, no
@@ -133,14 +136,16 @@ class UQEnsemble(UncertaintyQuantifier):
         self._validate_components(scorers)
         self._validate_weights()
 
-    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, show_progress_bars: Optional[bool] = True, _existing_progress_bar: Optional[rich.progress.Progress] = None) -> UQResult:
+    async def generate_and_score(self, prompts: List[Union[str, List[BaseMessage]]], num_responses: int = 5, show_progress_bars: Optional[bool] = True, _existing_progress_bar: Optional[rich.progress.Progress] = None) -> UQResult:
         """
         Generate LLM responses from provided prompts and compute confidence scores.
 
         Parameters
         ----------
-        prompts : list of str
-            A list of input prompts for the model.
+        prompts : List[Union[str, List[BaseMessage]]]
+            List of prompts from which LLM responses will be generated. Prompts in list may be strings or lists of BaseMessage. If providing
+            input type List[List[BaseMessage]], refer to https://python.langchain.com/docs/concepts/messages/#langchain-messages for support.
+            Must be list of strings if including LLM judges in ensemble.
 
         num_responses : int, default=5
             The number of sampled responses used to compute consistency.
@@ -161,6 +166,9 @@ class UQEnsemble(UncertaintyQuantifier):
             """
             self.llm.logprobs = True
 
+        if self.judges:
+            if not all(isinstance(item, str) for item in prompts):
+                raise ValueError("prompts must be list of strings when using LLM judges with UQEnsemble")
         self._construct_progress_bar(show_progress_bars, _existing_progress_bar=_existing_progress_bar)
         self._display_generation_header(show_progress_bars)
 

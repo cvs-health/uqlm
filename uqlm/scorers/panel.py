@@ -18,11 +18,12 @@ from typing import List, Optional, Union
 from langchain_core.language_models.chat_models import BaseChatModel
 
 from uqlm.judges.judge import LLMJudge
-from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
+from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
+from uqlm.utils.results import UQResult
 
 
 class LLMPanel(UncertaintyQuantifier):
-    def __init__(self, judges: List[Union[LLMJudge, BaseChatModel]], llm: Optional[BaseChatModel] = None, system_prompt: str = "You are a helpful assistant.", max_calls_per_min: Optional[int] = None, scoring_templates: Optional[List[str]] = None) -> None:
+    def __init__(self, judges: List[Union[LLMJudge, BaseChatModel]], llm: Optional[BaseChatModel] = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, scoring_templates: Optional[List[str]] = None, explanations: bool = False) -> None:
         """
         Class for aggregating multiple instances of LLMJudge using min, max, or majority voting
 
@@ -39,8 +40,8 @@ class LLMPanel(UncertaintyQuantifier):
             Used to control rate limiting. Will be used for original llm and any judges constructed
             from instances of BaseChatModel in judges
 
-        system_prompt : str or None, default="You are a helpful assistant."
-            Optional argument for user to provide custom system prompt
+        system_prompt : str, default=None
+            Optional argument for user to provide custom system prompt. If None, defaults to "You are a helpful assistant."
 
         scoring_templates : List[str], default=None
              Specifies which off-the-shelf template to use for each judge. Four off-the-shelf templates offered:
@@ -48,8 +49,13 @@ class LLMPanel(UncertaintyQuantifier):
              These templates are respectively specified as 'true_false_uncertain', 'true_false', 'continuous', and 'likert'
              If specified, must be of equal length to `judges` list. Defaults to 'true_false_uncertain' template
              used by Chen and Mueller (2023) :footcite:`chen2023quantifyinguncertaintyanswerslanguage` for each judge.
+
+        explanations : bool, default=False
+            If True, judges will be instructed to provide explanations along with scores.
+            When enabled, explanation columns will be included in the output DataFrame.
         """
         super().__init__(llm=llm, max_calls_per_min=max_calls_per_min, system_prompt=system_prompt)
+        self.explanations = explanations
         self.scoring_templates = scoring_templates
         if self.scoring_templates:
             if len(self.scoring_templates) != len(judges):
@@ -81,6 +87,8 @@ class LLMPanel(UncertaintyQuantifier):
         UQResult
             UQResult containing prompts, responses, Q/A concatenations, judge responses, and judge scores
         """
+        if not all(isinstance(item, str) for item in prompts):
+            raise ValueError("prompts must be list of strings when using LLMPanel")
         self._construct_progress_bar(show_progress_bars)
         self._display_generation_header(show_progress_bars)
 
@@ -118,9 +126,14 @@ class LLMPanel(UncertaintyQuantifier):
         judge_count = 1
         scores_lists = []
         for judge in self.judges:
-            tmp = await judge.judge_responses(prompts=prompts, responses=responses, progress_bar=self.progress_bar)
+            tmp = await judge.judge_responses(prompts=prompts, responses=responses, progress_bar=self.progress_bar, explanations=self.explanations)
             scores_lists.append(tmp["scores"])
             data[f"judge_{judge_count}"] = tmp["scores"]
+
+            # Add explanation columns if explanations are enabled
+            if self.explanations and "explanations" in tmp:
+                data[f"judge_{judge_count}_explanation"] = tmp["explanations"]
+
             judge_count += 1
 
         scores_dict = {"avg": [np.mean(scores) for scores in zip(*scores_lists)], "max": [np.max(scores) for scores in zip(*scores_lists)], "min": [np.min(scores) for scores in zip(*scores_lists)], "median": [np.median(scores) for scores in zip(*scores_lists)]}

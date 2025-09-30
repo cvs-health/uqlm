@@ -87,9 +87,9 @@ def test_assertions_and_static_methods():
     # Test prompt type assertion
     mock_object.temperature = 1  # Fix temperature
     generator_object = ResponseGenerator(llm=mock_object)
-    with pytest.raises(AssertionError) as assert_error:
+    with pytest.raises(ValueError) as err:
         asyncio.run(generator_object.generate_responses(prompts=[123], count=1))
-    assert "If using custom prompts, please ensure `prompts` is of type list[str]" in str(assert_error.value)
+    assert "prompts must be list of strings or list of lists of BaseMessage instances. For support with LangChain BaseMessage usage, refer here: https://python.langchain.com/docs/concepts/messages" in str(err.value)
     # Test static methods
     assert ResponseGenerator._enforce_strings([123, "hi"]) == ["123", "hi"]
     assert list(ResponseGenerator._split([1, 2, 3, 4, 5], 2)) == [[1, 2], [3, 4], [5]]

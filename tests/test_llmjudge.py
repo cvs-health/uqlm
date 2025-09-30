@@ -150,3 +150,67 @@ def test_custom_validate_inputs3(mock_llm):
     with pytest.raises(ValueError) as value_error:
         LLMJudge(llm=mock_llm, scoring_template="wrong")
     assert "If provided, scoring_template must be one of 'true_false_uncertain', 'true_false', 'continuous', 'likert'. Otherwise, valid template_ques_ans and keywords_to_scores_dict must be provided" == str(value_error.value)
+
+
+def test_parse_structured_response_malformed(mock_llm):
+    """Test parsing of malformed structured responses"""
+    judge = LLMJudge(llm=mock_llm, scoring_template="true_false_uncertain")
+
+    # Test missing Score line
+    response = "Explanation: This is just an explanation without a score."
+    score, explanation = judge._parse_structured_response(response)
+    assert np.isnan(score)
+    assert explanation == "No explanation provided"
+
+    # Test missing Explanation line
+    response = "Score: correct"
+    score, explanation = judge._parse_structured_response(response)
+    assert score == 1.0
+    assert explanation == "No explanation provided"
+
+
+@pytest.mark.asyncio
+async def test_judge_responses_with_explanations(monkeypatch, mock_llm):
+    """Test judge_responses with explanations enabled"""
+    judge = LLMJudge(llm=mock_llm, scoring_template="true_false_uncertain")
+
+    prompts = ["Question 1", "Question 2"]
+    responses = ["Answer 1", "Answer 2"]
+
+    # Mock the generate_responses method
+    mock_responses = {"data": {"prompt": ["Question 1", "Question 2"], "response": ["Score: correct\nExplanation: This is correct.", "Score: incorrect\nExplanation: This is incorrect."]}}
+
+    async def mock_generate_responses(*args, **kwargs):
+        return mock_responses
+
+    monkeypatch.setattr(judge, "generate_responses", mock_generate_responses)
+
+    result = await judge.judge_responses(prompts=prompts, responses=responses, explanations=True)
+
+    assert "scores" in result
+    assert "explanations" in result
+    assert result["scores"] == [1.0, 0.0]
+    assert result["explanations"] == ["This is correct.", "This is incorrect."]
+
+
+@pytest.mark.asyncio
+async def test_judge_responses_without_explanations(monkeypatch, mock_llm):
+    """Test judge_responses without explanations (backward compatibility)"""
+    judge = LLMJudge(llm=mock_llm, scoring_template="true_false_uncertain")
+
+    prompts = ["Question 1", "Question 2"]
+    responses = ["Answer 1", "Answer 2"]
+
+    # Mock the generate_responses method
+    mock_responses = {"data": {"prompt": ["Question 1", "Question 2"], "response": ["correct", "incorrect"]}}
+
+    async def mock_generate_responses(*args, **kwargs):
+        return mock_responses
+
+    monkeypatch.setattr(judge, "generate_responses", mock_generate_responses)
+
+    result = await judge.judge_responses(prompts=prompts, responses=responses, explanations=False)
+
+    assert "scores" in result
+    assert "explanations" not in result
+    assert result["scores"] == [1.0, 0.0]
