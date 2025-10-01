@@ -120,10 +120,10 @@ class BenchmarkRunner:
             raise
 
         # Get all benchmark metadata from the benchmark itself
-        benchmark_name = benchmark.get_name()
-        benchmark_category = benchmark.get_supported_category()
-        dataset_name = benchmark.get_dataset_name()
-        dataset_version = benchmark.get_dataset_version()
+        benchmark_name = benchmark.name
+        benchmark_category = benchmark.category
+        dataset_name = benchmark.dataset_name
+        dataset_version = benchmark.version
 
         # Validate scorers are compatible with benchmark category
         try:

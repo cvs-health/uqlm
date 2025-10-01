@@ -50,14 +50,14 @@ class FactScoreBenchmark(BaseBenchmark):
         max_samples : int, optional
             Maximum number of samples to use (for testing)
         """
+        super().__init__()
         self.judge_llm = judge_llm
         self.dataset_split = dataset_split
         self.max_samples = max_samples
-        self._dataset = None
         self._prompts = None
 
-    @classmethod
-    def get_supported_category(cls) -> str:
+    @property
+    def category(self) -> str:
         """
         FactScore supports longform UQ evaluation.
 
@@ -68,9 +68,10 @@ class FactScoreBenchmark(BaseBenchmark):
         """
         return "longform"
 
-    def get_dataset_name(self) -> str:
+    @property
+    def dataset_name(self) -> str:
         """
-        Get the HuggingFace dataset name.
+        The HuggingFace dataset name.
 
         Returns:
         --------
@@ -78,24 +79,6 @@ class FactScoreBenchmark(BaseBenchmark):
             "dskar/FActScore"
         """
         return "dskar/FActScore"
-
-    def get_dataset_version(self) -> Optional[str]:
-        """
-        Get the dataset version from HuggingFace dataset info.
-
-        Returns:
-        --------
-        Optional[str]
-            Dataset version if available, extracted from dataset info
-        """
-        if self._dataset is not None:
-            # HF datasets have version info in dataset.info.version
-            try:
-                if hasattr(self._dataset, "info") and hasattr(self._dataset.info, "version"):
-                    return str(self._dataset.info.version)
-            except Exception:
-                pass
-        return None
 
     def _load_dataset(self):
         """Load the FActScore dataset."""

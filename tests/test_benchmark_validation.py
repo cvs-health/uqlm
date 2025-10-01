@@ -24,17 +24,22 @@ from uqlm.benchmarks.datasets import BaseBenchmark
 class MockValidBenchmark(BaseBenchmark):
     """A valid mock benchmark for testing."""
 
+    def __init__(self):
+        super().__init__()
+
     def get_prompts(self) -> List[str]:
         return ["test prompt 1", "test prompt 2"]
 
-    @classmethod
-    def get_supported_category(cls) -> str:
+    @property
+    def category(self) -> str:
         return "longform"
 
-    def get_dataset_name(self) -> str:
+    @property
+    def dataset_name(self) -> str:
         return "mock/dataset"
 
-    def get_dataset_version(self) -> Optional[str]:
+    @property
+    def version(self) -> Optional[str]:
         return "1.0.0"
 
 
@@ -61,8 +66,8 @@ def test_validate_benchmark_implementation_missing_methods():
 
     error_msg = str(exc_info.value)
     assert "INVALID BENCHMARK IMPLEMENTATION" in error_msg
-    assert "get_supported_category" in error_msg
-    assert "get_dataset_name" in error_msg
+    assert "category" in error_msg
+    assert "dataset_name" in error_msg
 
 
 def test_validate_benchmark_scorers_valid_longform():
