@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Benchmark implementations."""
+"""Benchmark dataset implementations."""
 
-from uqlm.benchmarks.implementations.base import BaseBenchmark
-from uqlm.benchmarks.implementations.factscore import FactScoreBenchmark
+from uqlm.benchmarks.datasets.base import BaseBenchmark
+from uqlm.benchmarks.datasets.factscore import FactScoreBenchmark
 
 __all__ = ["BaseBenchmark", "FactScoreBenchmark"]
-

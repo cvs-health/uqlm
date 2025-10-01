@@ -227,13 +227,13 @@ class UncertaintyQuantifier:
             except (AttributeError, RuntimeError, OSError):
                 pass
             try:
-                if hasattr(self.progress_bar, 'live') and self.progress_bar.live is not None:
+                if hasattr(self.progress_bar, "live") and self.progress_bar.live is not None:
                     self.progress_bar.live.stop()
             except (AttributeError, RuntimeError, OSError):
                 pass
             # Always reset after cleanup attempt
             self.progress_bar = None
-        
+
         # Handle externally provided progress bar
         if _existing_progress_bar:
             self.progress_bar = _existing_progress_bar
@@ -294,7 +294,7 @@ class UncertaintyQuantifier:
                 pass
             # Also ensure the live display is cleaned up
             try:
-                if hasattr(self.progress_bar, 'live') and self.progress_bar.live is not None:
+                if hasattr(self.progress_bar, "live") and self.progress_bar.live is not None:
                     self.progress_bar.live.stop()
             except (AttributeError, RuntimeError, OSError):
                 pass

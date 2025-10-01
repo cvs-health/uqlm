@@ -19,19 +19,14 @@ Main classes:
 - BenchmarkRunner: Run benchmarks with caching and incremental saving
 - BenchmarkAnalyzer: Analyze and visualize benchmark results
 
-Benchmark implementations:
+Benchmark datasets:
 - FactScoreBenchmark: Longform generation benchmark using FActScore dataset
-- BaseBenchmark: Base class for creating custom benchmarks
+- BaseBenchmark: Base class for creating custom benchmark datasets
 """
 
 from uqlm.benchmarks.runner import BenchmarkRunner
 from uqlm.benchmarks.analyzer import BenchmarkAnalyzer
-from uqlm.benchmarks.implementations import BaseBenchmark, FactScoreBenchmark
+from uqlm.benchmarks.datasets import BaseBenchmark, FactScoreBenchmark
+from uqlm.benchmarks.validation import BenchmarkValidationError, get_valid_scorers_for_category
 
-__all__ = [
-    "BenchmarkRunner",
-    "BenchmarkAnalyzer",
-    "BaseBenchmark",
-    "FactScoreBenchmark",
-]
-
+__all__ = ["BenchmarkRunner", "BenchmarkAnalyzer", "BaseBenchmark", "FactScoreBenchmark", "BenchmarkValidationError", "get_valid_scorers_for_category"]

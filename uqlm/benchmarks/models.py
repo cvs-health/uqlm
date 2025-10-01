@@ -23,45 +23,37 @@ import json
 
 class BenchmarkConfig(BaseModel):
     """Configuration for a benchmark run."""
-    
+
     benchmark_name: str
-    llm_names: List[str]
+    benchmark_category: str  # e.g., "longform", "short_form"
+    llm_names: List[str]  # Extracted from LLM objects for storage
     scorer_names: List[str]
     dataset_name: str
     dataset_version: Optional[str] = None
     sampling_temperature: float = 0.7
     num_responses: int = 5
     additional_params: Dict[str, Any] = Field(default_factory=dict)
-    
+
     def compute_hash(self) -> str:
         """
         Compute deterministic hash for caching.
-        
+
         Returns a hash based on all configuration parameters to identify
         duplicate runs.
         """
         # Create a sorted, deterministic representation
-        hash_dict = {
-            "benchmark_name": self.benchmark_name,
-            "llm_names": sorted(self.llm_names),
-            "scorer_names": sorted(self.scorer_names),
-            "dataset_name": self.dataset_name,
-            "dataset_version": self.dataset_version,
-            "sampling_temperature": self.sampling_temperature,
-            "num_responses": self.num_responses,
-            "additional_params": self.additional_params,
-        }
-        
+        hash_dict = {"benchmark_name": self.benchmark_name, "benchmark_category": self.benchmark_category, "llm_names": sorted(self.llm_names), "scorer_names": sorted(self.scorer_names), "dataset_name": self.dataset_name, "dataset_version": self.dataset_version, "sampling_temperature": self.sampling_temperature, "num_responses": self.num_responses, "additional_params": self.additional_params}
+
         # Create deterministic JSON string
         hash_string = json.dumps(hash_dict, sort_keys=True)
-        
+
         # Return SHA256 hash
         return hashlib.sha256(hash_string.encode()).hexdigest()
 
 
 class RunMetadata(BaseModel):
     """Metadata about a benchmark run."""
-    
+
     run_id: str
     config_hash: str
     created_at: datetime
@@ -73,7 +65,7 @@ class RunMetadata(BaseModel):
 
 class PromptResult(BaseModel):
     """Results for a single prompt."""
-    
+
     prompt_id: int
     prompt: str
     llm_name: str
@@ -85,16 +77,15 @@ class PromptResult(BaseModel):
 
 class BenchmarkRun(BaseModel):
     """Complete benchmark run with all results."""
-    
+
     metadata: RunMetadata
     results: List[PromptResult] = Field(default_factory=list)
-    
+
     def to_dict(self) -> dict:
         """Serialize for storage."""
         return self.model_dump()
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> "BenchmarkRun":
         """Deserialize from storage."""
         return cls.model_validate(data)
-
