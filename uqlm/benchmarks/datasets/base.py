@@ -27,7 +27,7 @@ class BaseBenchmark(ABC):
     Subclasses must implement the following abstract properties:
     1. dataset_name - The HuggingFace dataset identifier
     2. category - The benchmark category (e.g., "longform", "short_form")
-    
+
     And the abstract method:
     3. get_prompts() - Return the list of prompts for evaluation
 
@@ -44,7 +44,7 @@ class BaseBenchmark(ABC):
     When loading HuggingFace datasets, subclasses should follow this pattern:
     - Store the raw HF dataset object in self._dataset_raw (for metadata access)
     - Store the processed data (e.g., pandas DataFrame) in self._dataset
-    
+
     Example:
         class MyBenchmark(BaseBenchmark):
             def __init__(self, judge_llm, max_samples=None):
@@ -55,7 +55,7 @@ class BaseBenchmark(ABC):
             @property
             def dataset_name(self) -> str:
                 return "my_dataset"
-            
+
             @property
             def category(self) -> str:
                 return "longform"
@@ -78,11 +78,11 @@ class BaseBenchmark(ABC):
     def __init__(self):
         """
         Initialize the benchmark with standard dataset attributes.
-        
+
         Subclasses should call super().__init__() in their constructors.
         """
         self._dataset_raw = None  # Raw HuggingFace dataset object
-        self._dataset = None      # Processed dataset (e.g., pandas DataFrame)
+        self._dataset = None  # Processed dataset (e.g., pandas DataFrame)
 
     @abstractmethod
     def get_prompts(self) -> List[str]:
@@ -139,7 +139,7 @@ class BaseBenchmark(ABC):
         1. From self._dataset_raw if already loaded (the raw HF dataset object)
         2. By loading the dataset builder (metadata only, no data download)
         3. Returns None if version is unavailable
-        
+
         This property is available immediately upon instantiation (uses lazy metadata loading).
         Override this property if you need custom version logic.
 
@@ -155,17 +155,17 @@ class BaseBenchmark(ABC):
                     return str(self._dataset_raw.info.version)
             except Exception:
                 pass
-        
+
         # Try loading just the metadata (no data download)
         try:
             builder = load_dataset_builder(self.dataset_name)
-            
+
             if hasattr(builder, "info") and hasattr(builder.info, "version"):
                 return str(builder.info.version)
         except Exception:
             # If we can't get metadata, that's okay
             pass
-        
+
         return None
 
     @property
@@ -181,4 +181,3 @@ class BaseBenchmark(ABC):
             Benchmark name
         """
         return self.__class__.__name__.lower()
-

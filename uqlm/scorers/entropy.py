@@ -35,7 +35,7 @@ class SemanticEntropy(UncertaintyQuantifier):
         use_n_param: bool = False,
         sampling_temperature: float = 1.0,
         verbose: bool = False,
-        nli_model_name: str = "microsoft/deberta-large-mnli",
+        nli_model: Any = "microsoft/deberta-large-mnli",
         max_length: int = 2000,
         return_responses: str = "all",
     ) -> None:
@@ -94,14 +94,14 @@ class SemanticEntropy(UncertaintyQuantifier):
             avoid OutOfMemoryError
         """
         super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor)
-        self.nli_model_name = nli_model_name
+        self.nli_model = nli_model
         self.max_length = max_length
         self.verbose = verbose
         self.use_best = use_best
         self.sampling_temperature = sampling_temperature
         self.best_response_selection = best_response_selection
         self.return_responses = return_responses
-        self._setup_nli(nli_model_name)
+        self._setup_nli(nli_model)
         self.prompts = None
         self.logprobs = None
         self.multiple_logprobs = None

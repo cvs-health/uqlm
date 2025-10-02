@@ -27,7 +27,7 @@ This module is used to store LLM prompt templates that can be used for various t
 #       primaryClass={cs.CL},
 #       url={https://arxiv.org/abs/2410.13246},
 # }
-def get_claim_breakdown_template(response: str) -> str:
+def get_claim_breakdown_prompt(response: str) -> str:
     """
     Parameters
     ----------
@@ -40,7 +40,7 @@ def get_claim_breakdown_template(response: str) -> str:
         The prompt template for breaking down the response into fact pieces.
     """
 
-    claim_breakdown_template = f"""
+    claim_breakdown_prompt = f"""
     Please breakdown the following passage into independent fact pieces. 
 
     Step 1: For each sentence, you should break it into several fact pieces. Each fact piece should only contain one single independent fact. Normally the format of a fact piece is "subject + verb + object". If the sentence does not contain a verb, you can use "be" as the verb.
@@ -92,55 +92,4 @@ def get_claim_breakdown_template(response: str) -> str:
     You should only return the final answer. Now your answer is:
     """
 
-    return claim_breakdown_template
-
-
-def get_entailment_template(claim: str, source_text: str) -> str:
-    """
-    Parameters
-    ----------
-    claim: str
-        The claim to be evaluated.
-    source_text: str
-        The source text to be evaluated.
-
-    Returns
-    -------
-    str
-        The prompt template for evaluating the entailment of a claim and a source text.
-    """
-
-    entailment_template = """
-
-    You are a helpful assistant that can evaluate the entailment of a claim and a source text.
-
-    You will be given a claim and a source text. You need to evaluate if the claim is entailed by the source text.
-
-    You should return one of the following categorizations:
-
-    true - if the claim is entailed by the source text.
-    false - if the claim is not entailed by the source text.
-
-    Example:
-
-    Source text:
-    Emory University has a strong athletics program, competing in the National Collegiate Athletic Association (NCAA) Division I Atlantic Coast Conference (ACC). The university's mascot is the Eagle.
-
-    Claim:
-    Emory University is part of the ACC.
-
-    Categorization:
-    true
-
-    Only return the categorization label (true or false). Do not include any other text.
-
-    Source text:
-    {source_text}
-
-    Claim:
-    {claim}
-
-    Categorization:
-
-    """
-    return entailment_template
+    return claim_breakdown_prompt

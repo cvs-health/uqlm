@@ -27,7 +27,7 @@ logging.set_verbosity_error()
 
 
 class NLIScorer(SimilarityScorer):
-    def __init__(self, device: Any = None, verbose: bool = False, nli_model_name: str = "microsoft/deberta-large-mnli", max_length: int = 2000) -> None:
+    def __init__(self, device: Any = None, verbose: bool = False, nli_model: Any = "microsoft/deberta-large-mnli", max_length: int = 2000) -> None:
         """
         A class to computing NLI-based confidence scores. This class offers two types of confidence scores, namely
         noncontradiction probability :footcite:`chen2023quantifyinguncertaintyanswerslanguage` and semantic entropy
@@ -51,7 +51,7 @@ class NLIScorer(SimilarityScorer):
             avoid OutOfMemoryError
         """
         self.verbose = verbose
-        self.nli_model = NLI(nli_model_name=nli_model_name, max_length=max_length, device=device)
+        self.nli_model = NLI(nli_model=nli_model, max_length=max_length, device=device)
         self.label_mapping = ["contradiction", "neutral", "entailment"]
 
     def evaluate(self, responses: List[str], sampled_responses: List[List[str]], responses_logprobs: List[List[Dict[str, Any]]] = None, sampled_responses_logprobs: List[List[List[Dict[str, Any]]]] = None, use_best: bool = False, compute_entropy: bool = False, best_response_selection: str = "discrete", progress_bar: Optional[Progress] = None) -> Dict[str, Any]:

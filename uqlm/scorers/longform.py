@@ -21,7 +21,7 @@ class LongFormUQ(UncertaintyQuantifier):
         scorers: Optional[List[str]] = None,
         claim_decomposition_llm: Optional[BaseChatModel] = None,
         device: Any = None,
-        nli_model_name: str = "microsoft/deberta-large-mnli",
+        nli_model: Any = "microsoft/deberta-large-mnli",
         system_prompt: str = "You are a helpful assistant.",
         max_calls_per_min: Optional[int] = None,
         sampling_temperature: float = 1.0,
@@ -56,9 +56,11 @@ class LongFormUQ(UncertaintyQuantifier):
             Specifies the device that NLI models use for prediction. Pass a torch.device or "cuda" to leverage GPU.
             If None, defaults to CPU.
 
-        nli_model_name : str, default="microsoft/deberta-large-mnli"
-            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
-            AutoModelForSequenceClassification.from_pretrained()
+        nli_model : str or BaseChatModel, default="microsoft/deberta-large-mnli"
+            Specifies which NLI model to use. Can be either:
+            - A string: interpreted as a HuggingFace model name. Must be acceptable input to
+              AutoTokenizer.from_pretrained() and AutoModelForSequenceClassification.from_pretrained()
+            - A BaseChatModel: a LangChain chat model for LLM-based NLI inference
 
         postprocessor : callable, default=None
             A user-defined function that takes a string input and returns a string. Used for postprocessing
@@ -90,7 +92,7 @@ class LongFormUQ(UncertaintyQuantifier):
         super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor)
         self.max_length = max_length
         self.sampling_temperature = sampling_temperature
-        self.nli_model_name = nli_model_name
+        self.nli_model = nli_model
         self.claim_decomposition_llm = claim_decomposition_llm
         self.return_responses = return_responses
         self.default_long_form_scorers = SENTENCE_BLACKBOX_SCORERS
@@ -229,7 +231,7 @@ class LongFormUQ(UncertaintyQuantifier):
         for scorer in scorers:
             if scorer in NLI_SCORERS:
                 if not self.luq_scorer:
-                    self.luq_scorer = LUQScorer(nli_model_name=self.nli_model_name, device=self.device, max_length=self.max_length)
+                    self.luq_scorer = LUQScorer(nli_model=self.nli_model, device=self.device, max_length=self.max_length)
                 else:
                     continue
             else:

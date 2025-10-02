@@ -29,7 +29,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         scorers: Optional[List[str]] = None,
         device: Any = None,
         use_best: bool = True,
-        nli_model_name: str = "microsoft/deberta-large-mnli",
+        nli_model: Any = "microsoft/deberta-large-mnli",
         sentence_transformer: str = "all-MiniLM-L6-v2",
         postprocessor: Any = None,
         system_prompt: Optional[str] = None,
@@ -110,13 +110,13 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.verbose = verbose
         self.use_best = use_best
         self.sampling_temperature = sampling_temperature
-        self.nli_model_name = nli_model_name
+        self.nli_model = nli_model
         self.sentence_transformer = sentence_transformer
         self.return_responses = return_responses
         self._validate_scorers(scorers)
         self.use_nli = ("semantic_negentropy" in self.scorers) or ("noncontradiction" in self.scorers)
         if self.use_nli:
-            self._setup_nli(nli_model_name)
+            self._setup_nli(nli_model)
 
     async def generate_and_score(self, prompts: List[Union[str, List[BaseMessage]]], num_responses: int = 5, show_progress_bars: Optional[bool] = True) -> UQResult:
         """

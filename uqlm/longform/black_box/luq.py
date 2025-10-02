@@ -21,7 +21,7 @@ from uqlm.longform.black_box.baseclass.claims_scorer import ClaimScorer, ClaimSc
 
 
 class LUQScorer(ClaimScorer):
-    def __init__(self, nli_model_name: str = "microsoft/deberta-large-mnli", device: Any = None, max_length: int = 2000):
+    def __init__(self, nli_model: Any = "microsoft/deberta-large-mnli", device: Any = None, max_length: int = 2000):
         """
         LUQScorer calculates variations of the LUQ, LUQ-Atomic, or LUQ-Pair scores.
 
@@ -39,9 +39,9 @@ class LUQScorer(ClaimScorer):
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
         """
-        self.nli_model_name = nli_model_name
+        self.nli_model = nli_model
         self.device = device
-        self.nli = NLI(device=device, nli_model_name=nli_model_name, max_length=max_length)
+        self.nli = NLI(device=device, nli_model=nli_model, max_length=max_length)
 
     def evaluate(self, claim_sets: List[List[str]], sampled_responses: Optional[List[List[str]]] = None, sampled_claims: Optional[List[List[List[str]]]] = None, progress_bar: Optional[Progress] = None) -> ClaimScores:
         """

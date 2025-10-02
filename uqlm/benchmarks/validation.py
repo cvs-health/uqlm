@@ -14,7 +14,7 @@
 
 """Validation utilities for benchmark configurations."""
 
-from typing import List, Set, Dict, Any
+from typing import List, Set, Dict
 
 from uqlm.benchmarks.datasets.base import BaseBenchmark
 

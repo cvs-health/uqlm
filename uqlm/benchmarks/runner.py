@@ -89,7 +89,11 @@ class BenchmarkRunner:
         save_results : bool, default=True
             If True, save results to database after completion
         save_interval : int, default=10
-            Save intermediate results every N prompts (only if save_results=True)
+            Process and save prompts in batches of N. This controls both:
+            1. The async parallelism level (N concurrent API calls per batch)
+            2. The checkpoint granularity (results saved after each batch)
+            Larger values = faster execution but less frequent saves.
+            Only applies if save_results=True.
         resume_run_id : Optional[str], default=None
             Explicitly resume a specific run by ID. If provided, the run must exist
             and have status 'pending' or 'failed'. Completed runs cannot be resumed.
@@ -242,7 +246,7 @@ class BenchmarkRunner:
 
             raise
 
-    async def _execute_benchmark(self, benchmark_category: str, benchmark: Any, llms: List[BaseChatModel], scorers: List[str], config: BenchmarkConfig, run_id: str, save_results: bool, save_interval: int, completed_prompts: Dict[str, set] = None) -> List[PromptResult]:
+    async def _execute_benchmark(self, benchmark_category: str, benchmark: Any, llms: List[BaseChatModel], scorers: List[str], config: BenchmarkConfig, run_id: str, save_results: bool, save_interval: int = 10, completed_prompts: Dict[str, set] = None) -> List[PromptResult]:
         """
         Execute the benchmark based on category.
 
@@ -338,29 +342,40 @@ class BenchmarkRunner:
 
             logger.info(f"Running benchmark for LLM: {llm_name} ({len(prompts_to_process)}/{len(prompts)} prompts remaining)")
 
-            # Extract just the prompts (without indices) for UQ scoring
-            prompts_list = [p for _, p in prompts_to_process]
+            # Process prompts in batches to enable incremental saving
+            # This maintains async parallelism within each batch while providing resilience
+            for batch_start in range(0, len(prompts_to_process), save_interval):
+                batch_end = min(batch_start + save_interval, len(prompts_to_process))
+                batch = prompts_to_process[batch_start:batch_end]
 
-            # Run UQ scoring on remaining prompts only
-            uq_result = await uq.generate_and_score(prompts=prompts_list, num_responses=config.num_responses, show_progress_bars=True)
+                # Extract just the prompts (without indices) for UQ scoring
+                batch_prompts = [p for _, p in batch]
 
-            # Convert UQ results to PromptResult objects, using original indices
-            for result_idx, (original_idx, prompt) in enumerate(prompts_to_process):
-                prompt_result = PromptResult(
-                    prompt_id=original_idx,  # Use original index from dataset
-                    prompt=prompt,
-                    llm_name=llm_name,
-                    original_response=uq_result.data["response"][result_idx],
-                    sampled_responses=uq_result.data["sampled_responses"][result_idx],
-                    scores={scorer: uq_result.data[scorer][result_idx] for scorer in scorers if scorer in uq_result.data},
-                    metadata={"temperature": uq_result.metadata.get("temperature"), "sampling_temperature": uq_result.metadata.get("sampling_temperature")},
-                )
-                all_results.append(prompt_result)
+                logger.info(f"Processing batch {batch_start // save_interval + 1}/{(len(prompts_to_process) + save_interval - 1) // save_interval} ({len(batch)} prompts) for {llm_name}")
 
-            # Save incrementally if requested
-            if save_results and len(all_results) % save_interval == 0:
-                logger.debug(f"Saving incremental results ({len(all_results)} completed)")
-                self.db.append_results(run_id, all_results[-save_interval:])
+                # Run UQ scoring on this batch (async parallelism maintained within batch)
+                uq_result = await uq.generate_and_score(prompts=batch_prompts, num_responses=config.num_responses, show_progress_bars=True)
+
+                # Convert UQ results to PromptResult objects, using original indices
+                batch_results = []
+                for result_idx, (original_idx, prompt) in enumerate(batch):
+                    prompt_result = PromptResult(
+                        prompt_id=original_idx,  # Use original index from dataset
+                        prompt=prompt,
+                        llm_name=llm_name,
+                        original_response=uq_result.data["response"][result_idx],
+                        sampled_responses=uq_result.data["sampled_responses"][result_idx],
+                        scores={scorer: uq_result.data[scorer][result_idx] for scorer in scorers if scorer in uq_result.data},
+                        metadata={"temperature": uq_result.metadata.get("temperature"), "sampling_temperature": uq_result.metadata.get("sampling_temperature")},
+                    )
+                    batch_results.append(prompt_result)
+
+                all_results.extend(batch_results)
+
+                # Save batch results immediately
+                if save_results:
+                    logger.info(f"Saving batch results ({len(batch_results)} prompts, {len(all_results)} total for this LLM)")
+                    self.db.append_results(run_id, batch_results)
 
         logger.info(f"Benchmark execution completed. Total new results: {len(all_results)}")
         return all_results

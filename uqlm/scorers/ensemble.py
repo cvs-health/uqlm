@@ -45,7 +45,7 @@ class UQEnsemble(UncertaintyQuantifier):
         use_n_param: bool = False,
         thresh: float = 0.5,
         weights: List[float] = None,
-        nli_model_name: str = "microsoft/deberta-large-mnli",
+        nli_model: Any = "microsoft/deberta-large-mnli",
         use_best: bool = True,
         sampling_temperature: float = 1.0,
         scoring_templates: Optional[List[str]] = None,
@@ -123,7 +123,7 @@ class UQEnsemble(UncertaintyQuantifier):
             Specifies whether to print the index of response currently being scored.
         """
         super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor)
-        self.nli_model_name = nli_model_name
+        self.nli_model = nli_model
         self.thresh = thresh
         self.weights = weights
         self.verbose = verbose
@@ -530,7 +530,7 @@ class UQEnsemble(UncertaintyQuantifier):
                         """
                     )
         if self.black_box_components:
-            self.black_box_object = BlackBoxUQ(scorers=self.black_box_components, device=self.device, nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=self.use_best)
+            self.black_box_object = BlackBoxUQ(scorers=self.black_box_components, device=self.device, nli_model=self.nli_model, max_length=self.max_length, use_best=self.use_best)
         if self.white_box_components:
             self.white_box_object = WhiteBoxUQ()
         if self.judges:
