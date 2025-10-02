@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Any, Tuple, Optional
+from typing import List, Any, Tuple, Optional, Union
 import numpy as np
 import time
 from rich.progress import Progress
@@ -91,7 +91,7 @@ class LUQScorer(ClaimScorer):
         time.sleep(0.1)
         return ClaimScores(claim_entail_scores=claim_entail_score_lists, claim_noncontradict_scores=claim_noncontradict_score_lists, claim_constrast_entail_scores=claim_constrast_entail_score_lists)
 
-    def _compute_claim_level_scores(self, claims: List[str], candidates: List[str]| List[List[str]], matched_claims: bool) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def _compute_claim_level_scores(self, claims: List[str], candidates: Union[List[str], List[List[str]]], matched_claims: bool) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Evaluate the LUQ score and claim scores for a list of claims and candidate responses."""
         shape=(len(claims), len(candidates))
         entail_scores = np.zeros(shape=shape)

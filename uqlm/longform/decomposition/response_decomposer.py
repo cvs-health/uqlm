@@ -15,14 +15,13 @@
 import asyncio
 import time
 from typing import Dict, List, Optional
-from uqlm.utils.prompt_templates import get_claim_breakdown_template
 from rich.progress import Progress
 from langchain_core.language_models.chat_models import BaseChatModel
 import re
 
 
 class ResponseDecomposer:
-    def __init__(self, claim_decomposition_llm: Optional[BaseChatModel] = None) -> None:
+    def __init__(self, claim_decomposition_llm: Optional[BaseChatModel] = None, response_template: callable = None) -> None:
         """
         Class for decomposing responses into individual claims or sentences. This class is used as an intermediate
         step for longform UQ methods.
@@ -34,6 +33,7 @@ class ResponseDecomposer:
             relevant parameters to the constructor of their `llm` object.
         """
         self.claim_decomposition_llm = claim_decomposition_llm
+        self.response_template = response_template
         
     def decompose_sentences(self, responses: List[str], progress_bar: Optional[Progress] = None) -> List[List[str]]:
         """
@@ -56,22 +56,28 @@ class ResponseDecomposer:
         time.sleep(0.1)
         return sentence_lists
     
-    async def decompose_claims(self, responses: List[str], progress_bar: Optional[Progress] = None) -> List[List[str]]:
+    async def decompose_claims(self, responses: List[str], response_template: callable = None, progress_bar: Optional[Progress] = None) -> List[List[str]]:
         """
         Parameters
         ----------
         responses: List[str]
             LLM response that will be decomposed into independent claims.
 
+        response_template: callable
+            A function that takes a response and returns a list of sentences.
+
         progress_bar : rich.progress.Progress, default=None
             If provided, displays a progress bar while scoring responses
         """
+        if response_template is not None:
+            self.response_template = response_template
         if not self.claim_decomposition_llm:
             raise ValueError("llm must be provided to decompose responses into claims")
         if progress_bar:
             self.progress_task = progress_bar.add_task(" - Decomposing responses into claims...", total=len(responses))
         claim_sets = await self._decompose_claims(responses=responses, progress_bar=progress_bar)
         time.sleep(0.1)
+        print("Claim sets: ", claim_sets)
         return claim_sets
 
     async def decompose_candidate_claims(self, sampled_responses: List[List[str]], progress_bar: Optional[Progress] = None) -> List[List[List[str]]]:
@@ -135,7 +141,7 @@ class ResponseDecomposer:
     
     async def _get_claims_from_response(self, response: str, progress_bar: Optional[Progress] = None) -> Dict[str, str]:
         """Decompose sigle response into claims"""
-        decomposed_response = await self.claim_decomposition_llm.ainvoke(get_claim_breakdown_template(response))
+        decomposed_response = await self.claim_decomposition_llm.ainvoke(self.response_template(response))
         if progress_bar:
             progress_bar.update(self.progress_task, advance=1)
         return re.split(r"### ", decomposed_response.content)[1:]
