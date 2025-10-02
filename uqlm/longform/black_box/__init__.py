@@ -13,5 +13,6 @@
 # limitations under the License.
 
 from uqlm.longform.black_box.luq import LUQScorer
+from uqlm.longform.black_box.claimqa import ClaimQAScorer
 
-__all__ = ["LUQScorer"]
+__all__ = ["LUQScorer", "ClaimQAScorer"]

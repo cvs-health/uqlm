@@ -138,3 +138,90 @@ def get_entailment_template(claim: str, source_text: str) -> str:
 
     """
     return entailment_template
+
+
+def get_factoid_template(response: str) -> str:
+    """
+    Parameters
+    ----------
+    response: str
+        The response to be broken down into fact pieces.
+    """
+
+    factoid_template = f"""Please list the specific factual propositions included in the paragraph below. Be complete and do not leave any factual claims out. Provide each claim as a separate sentence in a separate bullet point. Do this for all the sentences. Output each piece of fact in one single line starting with ###. Do not include other formatting.
+
+    Here are some examples:
+
+    Example 1:
+    Sir Paul McCartney is a renowned English musician, singer, and songwriter who gained worldwide fame as a member of The Beatles, one of the most influential and successful bands in the history of popular music. Born on June 18, 1942, in Liverpool, England, McCartney's career spans over six decades, during which he has become renowned not only for his role as a bass guitarist and vocalist with The Beatles but also for his songwriting partnership with John Lennon, which produced some of the most celebrated songs of the 20th century. After The Beatles disbanded in 1970, McCartney pursued a successful solo career and formed the band Wings with his late wife, Linda McCartney. His contributions to music have been recognized with numerous awards, including multiple Grammys and an induction into the Rock and Roll Hall of Fame both as a member of The Beatles and as a solo artist. Known for his melodic bass lines, versatile vocals, and enduring performances, McCartney continues to captivate audiences around the world with his artistry and dedication to his craft.
+    ### Sir Paul McCartney is a renowned English musician and songwriter who gained worldwide fame as a member of The Beatles.
+    ### He formed the band Wings after The Beatles disbanded and has had a successful solo career.
+
+    Example 2:
+    John Lennon was an iconic English musician, singer, and songwriter, best known as one of the founding members of The Beatles, the most commercially successful and critically acclaimed band in the history of popular music. Born on October 9, 1940, in Liverpool, Lennon grew up to become a pivotal figure in the cultural revolution of the 1960s. His songwriting partnership with Paul McCartney produced enduring classics that helped define the era. Known for his wit and outspoken personality, Lennon was also a passionate peace activist whose pursuit of social justice resonated with millions worldwide. After The Beatles disbanded, Lennon continued his musical career as a solo artist, producing hits like "Imagine," which became an anthem for peace. Tragically, his life was cut short on December 8, 1980, when he was assassinated in New York City, but his legacy continues to influence generations and inspire artists around the globe.
+    ### John Lennon was an iconic English musician, singer, and songwriter. He was best known as one of the founding members of The Beatles.
+    ### Born on October 9, 1940, in Liverpool, Lennon grew up to become a pivotal figure in the cultural revolution of the 1960s. His songwriting partnership with Paul McCartney produced enduring classics that helped define the era.
+    ### Lennon was also a passionate peace activist whose pursuit of social justice resonated with millions worldwide. After The Beatles disbanded, Lennon continued his musical career as a solo artist, producing hits like "Imagine."
+
+    Here is the paragraph:
+
+    {response}
+
+    You should only return the final answer. Now your answer is:
+    """
+
+    return factoid_template
+
+
+def get_question_template(response: str, factoid_i: str, num_questions: int = 3) -> str:
+    """
+    Parameters
+    ----------
+    response: str
+        The response to be broken down into fact pieces.
+    factoid_i: str
+        The factoid to be used as a question.
+    num_questions: int
+        The number of questions to generate.
+    """
+
+    question_template = f"""
+    
+    Following this text:
+    
+    {response}
+    
+    You see the sentence:
+
+    {factoid_i}
+    
+    Generate a list of {num_questions} questions, that might have generated the sentence in the context of the preceding original text, as well as their answers. Please do not use specific facts that appear in the follow-up sentence when formulating the question. Make the questions and answers diverse. Avoid yes-no questions. The answers should not be a full sentence and as short as possible, e.g. only a name, place, or thing. Output each question in one single line starting with ###. Do not include other formatting.
+
+    You should only return the final answer. Now your answer is:
+    """
+
+    return question_template
+
+def get_answer_template(prompt: str, response: str, question: str) -> str:
+    """
+    Parameters
+    ----------
+    prompt: str
+        The prompt to be used for generating the answer.
+    response: str
+        The response to be used for generating the answer.
+    question: str
+        The question to be used for generating the answer.
+    """
+
+    answer_template = f"""
+    We are writing an answer to the question “{prompt}”. So far we have written:
+    {response}
+    The next sentence should be the answer to the following question:
+    {question}
+    Please answer this question. Do not answer in a full sentence. Answer with as few words as possible, e.g. only a name, place, or thing.
+
+    You should only return the final answer. Now your answer is:
+    """
+
+    return answer_template
