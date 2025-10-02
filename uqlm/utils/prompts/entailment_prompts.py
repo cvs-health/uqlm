@@ -67,7 +67,7 @@ def get_entailment_prompt(claim: str, source_text: str, style: str) -> str:
         
         Answer Yes or No:
         """
-        
+
     elif style == "p_neutral":
         entailment_prompt = f"""
         Source text:
