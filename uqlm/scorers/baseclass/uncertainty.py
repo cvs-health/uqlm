@@ -171,9 +171,9 @@ class UncertaintyQuantifier:
         else:
             return LLMJudge(llm=llm)
 
-    def _setup_nli(self, nli_model: Any) -> None:
+    def _setup_nli(self, nli_model_name: str, nli_llm: Optional[BaseChatModel] = None) -> None:
         """Set up NLI scorer"""
-        self.nli_scorer = NLIScorer(nli_model=nli_model, device=self.device, max_length=self.max_length, verbose=self.verbose)
+        self.nli_scorer = NLIScorer(nli_model_name=nli_model_name, nli_llm=nli_llm, device=self.device, max_length=self.max_length, verbose=self.verbose)
 
     def _update_best(self, best_responses: List[str], include_logprobs: bool = True) -> None:
         """Updates best"""

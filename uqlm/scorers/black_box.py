@@ -29,7 +29,8 @@ class BlackBoxUQ(UncertaintyQuantifier):
         scorers: Optional[List[str]] = None,
         device: Any = None,
         use_best: bool = True,
-        nli_model: Any = "microsoft/deberta-large-mnli",
+        nli_model_name: str = "microsoft/deberta-large-mnli",
+        nli_llm: Optional[BaseChatModel] = None,
         sentence_transformer: str = "all-MiniLM-L6-v2",
         postprocessor: Any = None,
         system_prompt: Optional[str] = None,
@@ -66,8 +67,11 @@ class BlackBoxUQ(UncertaintyQuantifier):
             based on semantic entropy clusters. Only used if `scorers` includes 'semantic_negentropy' or 'noncontradiction'.
 
         nli_model_name : str, default="microsoft/deberta-large-mnli"
-            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
+            Specifies which HuggingFace NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
+
+        nli_llm : BaseChatModel, default=None
+            A LangChain chat model for LLM-based NLI inference. Cannot be used together with nli_model_name.
 
         sentence_transformer : str, default="all-MiniLM-L6-v2"
             Specifies which huggingface sentence transformer to use when computing cosine similarity. See
@@ -110,13 +114,14 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self.verbose = verbose
         self.use_best = use_best
         self.sampling_temperature = sampling_temperature
-        self.nli_model = nli_model
+        self.nli_model_name = nli_model_name
+        self.nli_llm = nli_llm
         self.sentence_transformer = sentence_transformer
         self.return_responses = return_responses
         self._validate_scorers(scorers)
         self.use_nli = ("semantic_negentropy" in self.scorers) or ("noncontradiction" in self.scorers)
         if self.use_nli:
-            self._setup_nli(nli_model)
+            self._setup_nli(nli_model_name, nli_llm)
 
     async def generate_and_score(self, prompts: List[Union[str, List[BaseMessage]]], num_responses: int = 5, show_progress_bars: Optional[bool] = True) -> UQResult:
         """

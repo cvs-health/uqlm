@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any, Optional
 import warnings
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
@@ -8,17 +8,19 @@ from uqlm.utils.prompts.entailment_prompts import get_entailment_prompt
 
 
 class NLI:
-    def __init__(self, nli_model: Union[str, BaseChatModel] = "microsoft/deberta-large-mnli", max_length: int = 2000, device: Any = None) -> None:
+    def __init__(self, nli_model_name: Optional[str] = "microsoft/deberta-large-mnli", nli_llm: Optional[BaseChatModel] = None, max_length: int = 2000, device: Any = None) -> None:
         """
         A class to compute NLI predictions.
 
         Parameters
         ----------
-        nli_model : str or BaseChatModel, default="microsoft/deberta-large-mnli"
-            Specifies which NLI model to use. Can be either:
-            - A string: interpreted as a HuggingFace model name. Must be acceptable input to
-              AutoTokenizer.from_pretrained() and AutoModelForSequenceClassification.from_pretrained()
-            - A BaseChatModel: a LangChain chat model for LLM-based NLI inference
+        nli_model_name : str, default="microsoft/deberta-large-mnli"
+            Specifies which HuggingFace NLI model to use. Must be acceptable input to 
+            AutoTokenizer.from_pretrained() and AutoModelForSequenceClassification.from_pretrained().
+            Cannot be used together with nli_llm.
+
+        nli_llm : BaseChatModel, default=None
+            A LangChain chat model for LLM-based NLI inference. Cannot be used together with nli_model_name.
 
         max_length : int, default=2000
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to
@@ -28,22 +30,28 @@ class NLI:
             Specifies the device that classifiers use for prediction. Set to "cuda" for classifiers to be able to
             leverage the GPU. Only applies to HuggingFace models.
         """
-        self.nli_model = nli_model
-        self.is_hf_model = isinstance(nli_model, str)
+        # Validate that only one model type is provided
+        if nli_model_name is not None and nli_llm is not None:
+            raise ValueError("Cannot specify both nli_model_name and nli_llm. Please provide only one.")
+        
+        if nli_model_name is None and nli_llm is None:
+            raise ValueError("Must specify either nli_model_name or nli_llm.")
+        
+        self.is_hf_model = nli_llm is None
         self.max_length = max_length
         self.label_mapping = ["contradiction", "neutral", "entailment"]
-
+        
         if self.is_hf_model:
             # Initialize HuggingFace model
-            self.tokenizer = AutoTokenizer.from_pretrained(nli_model)
-            model = AutoModelForSequenceClassification.from_pretrained(nli_model)
+            self.tokenizer = AutoTokenizer.from_pretrained(nli_model_name)
+            model = AutoModelForSequenceClassification.from_pretrained(nli_model_name)
             self.device = device
             self.model = model.to(self.device) if self.device else model
         else:
             # LangChain model
             self.device = None
             self.tokenizer = None
-            self.model = nli_model
+            self.model = nli_llm
 
     def predict(self, hypothesis: str, premise: str, return_probabilities: bool = True) -> Any:
         """

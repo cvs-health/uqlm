@@ -45,7 +45,8 @@ class UQEnsemble(UncertaintyQuantifier):
         use_n_param: bool = False,
         thresh: float = 0.5,
         weights: List[float] = None,
-        nli_model: Any = "microsoft/deberta-large-mnli",
+        nli_model_name: str = "microsoft/deberta-large-mnli",
+        nli_llm: Optional[BaseChatModel] = None,
         use_best: bool = True,
         sampling_temperature: float = 1.0,
         scoring_templates: Optional[List[str]] = None,
@@ -101,8 +102,11 @@ class UQEnsemble(UncertaintyQuantifier):
             ["noncontradiction", "exact_match","self_reflection"] with respective weights of [0.56, 0.14, 0.3].
 
         nli_model_name : str, default="microsoft/deberta-large-mnli"
-            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
+            Specifies which HuggingFace NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
+
+        nli_llm : BaseChatModel, default=None
+            A LangChain chat model for LLM-based NLI inference. Cannot be used together with nli_model_name.
 
         scoring_templates : List[str], default=None
              Specifies which off-the-shelf template to use for each judge. Four off-the-shelf templates offered:
@@ -123,7 +127,8 @@ class UQEnsemble(UncertaintyQuantifier):
             Specifies whether to print the index of response currently being scored.
         """
         super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor)
-        self.nli_model = nli_model
+        self.nli_model_name = nli_model_name
+        self.nli_llm = nli_llm
         self.thresh = thresh
         self.weights = weights
         self.verbose = verbose
@@ -530,7 +535,7 @@ class UQEnsemble(UncertaintyQuantifier):
                         """
                     )
         if self.black_box_components:
-            self.black_box_object = BlackBoxUQ(scorers=self.black_box_components, device=self.device, nli_model=self.nli_model, max_length=self.max_length, use_best=self.use_best)
+            self.black_box_object = BlackBoxUQ(scorers=self.black_box_components, device=self.device, nli_model_name=self.nli_model_name, nli_llm=self.nli_llm, max_length=self.max_length, use_best=self.use_best)
         if self.white_box_components:
             self.white_box_object = WhiteBoxUQ()
         if self.judges:

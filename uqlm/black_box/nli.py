@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional
 from transformers import logging
 import time
 from rich.progress import Progress
+from langchain_core.language_models.chat_models import BaseChatModel
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 from uqlm.utils.nli import NLI
 
@@ -27,7 +28,7 @@ logging.set_verbosity_error()
 
 
 class NLIScorer(SimilarityScorer):
-    def __init__(self, device: Any = None, verbose: bool = False, nli_model: Any = "microsoft/deberta-large-mnli", max_length: int = 2000) -> None:
+    def __init__(self, device: Any = None, verbose: bool = False, nli_model_name: str = "microsoft/deberta-large-mnli", nli_llm: Optional[BaseChatModel] = None, max_length: int = 2000) -> None:
         """
         A class to computing NLI-based confidence scores. This class offers two types of confidence scores, namely
         noncontradiction probability :footcite:`chen2023quantifyinguncertaintyanswerslanguage` and semantic entropy
@@ -43,15 +44,18 @@ class NLIScorer(SimilarityScorer):
             Specifies whether to print verbose status updates of NLI scoring process
 
         nli_model_name : str, default="microsoft/deberta-large-mnli"
-            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
+            Specifies which HuggingFace NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
+
+        nli_llm : BaseChatModel, default=None
+            A LangChain chat model for LLM-based NLI inference. Cannot be used together with nli_model_name.
 
         max_length : int, default=2000
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
         """
         self.verbose = verbose
-        self.nli_model = NLI(nli_model=nli_model, max_length=max_length, device=device)
+        self.nli_model = NLI(nli_model_name=nli_model_name, nli_llm=nli_llm, max_length=max_length, device=device)
         self.label_mapping = ["contradiction", "neutral", "entailment"]
 
     def evaluate(self, responses: List[str], sampled_responses: List[List[str]], responses_logprobs: List[List[Dict[str, Any]]] = None, sampled_responses_logprobs: List[List[List[Dict[str, Any]]]] = None, use_best: bool = False, compute_entropy: bool = False, best_response_selection: str = "discrete", progress_bar: Optional[Progress] = None) -> Dict[str, Any]:

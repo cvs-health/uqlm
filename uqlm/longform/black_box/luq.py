@@ -16,12 +16,13 @@ from typing import List, Any, Tuple, Optional
 import numpy as np
 import time
 from rich.progress import Progress
+from langchain_core.language_models.chat_models import BaseChatModel
 from uqlm.utils.nli import NLI
 from uqlm.longform.black_box.baseclass.claims_scorer import ClaimScorer, ClaimScores
 
 
 class LUQScorer(ClaimScorer):
-    def __init__(self, nli_model: Any = "microsoft/deberta-large-mnli", device: Any = None, max_length: int = 2000):
+    def __init__(self, nli_model_name: str = "microsoft/deberta-large-mnli", nli_llm: Optional[BaseChatModel] = None, device: Any = None, max_length: int = 2000):
         """
         LUQScorer calculates variations of the LUQ, LUQ-Atomic, or LUQ-Pair scores.
 
@@ -32,16 +33,20 @@ class LUQScorer(ClaimScorer):
             leverage the GPU.
 
         nli_model_name : str, default="microsoft/deberta-large-mnli"
-            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
+            Specifies which HuggingFace NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
+
+        nli_llm : BaseChatModel, default=None
+            A LangChain chat model for LLM-based NLI inference. Cannot be used together with nli_model_name.
 
         max_length : int, default=2000
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
         """
-        self.nli_model = nli_model
+        self.nli_model_name = nli_model_name
+        self.nli_llm = nli_llm
         self.device = device
-        self.nli = NLI(device=device, nli_model=nli_model, max_length=max_length)
+        self.nli = NLI(nli_model_name=nli_model_name, nli_llm=nli_llm, device=device, max_length=max_length)
 
     def evaluate(self, claim_sets: List[List[str]], sampled_responses: Optional[List[List[str]]] = None, sampled_claims: Optional[List[List[List[str]]]] = None, progress_bar: Optional[Progress] = None) -> ClaimScores:
         """
