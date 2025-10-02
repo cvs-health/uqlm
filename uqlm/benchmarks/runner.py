@@ -23,7 +23,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 
 from uqlm.benchmarks.models import BenchmarkConfig, BenchmarkRun, RunMetadata, PromptResult
 from uqlm.benchmarks.storage import BenchmarkResultsDB
-from uqlm.benchmarks.validation import validate_benchmark_implementation, validate_benchmark_scorers, BenchmarkValidationError
+from uqlm.benchmarks.validation import validate_benchmark_scorers, BenchmarkValidationError
 from uqlm.benchmarks.datasets import BaseBenchmark
 from uqlm.scorers.longform import LongFormUQ
 from uqlm.utils.llm_config import get_llm_name
@@ -111,15 +111,8 @@ class BenchmarkRunner:
         BenchmarkValidationError
             If benchmark or scorers are invalid for the category.
         """
-        # Validate benchmark implementation
-        logger.info("Validating benchmark configuration...")
-        try:
-            validate_benchmark_implementation(benchmark)
-        except BenchmarkValidationError as e:
-            logger.error(f"Benchmark validation failed: {e}")
-            raise
-
         # Get all benchmark metadata from the benchmark itself
+        logger.info("Validating benchmark configuration...")
         benchmark_name = benchmark.name
         benchmark_category = benchmark.category
         dataset_name = benchmark.dataset_name
@@ -321,10 +314,7 @@ class BenchmarkRunner:
         # Get dataset from benchmark
         logger.info(f"Loading dataset: {config.dataset_name}")
 
-        if hasattr(benchmark, "get_prompts"):
-            prompts = benchmark.get_prompts()
-        else:
-            raise NotImplementedError(f"Benchmark {benchmark.__class__.__name__} must implement get_prompts() method")
+        prompts = benchmark.get_prompts()
 
         # Execute benchmark for each LLM
         all_results = []
@@ -334,11 +324,17 @@ class BenchmarkRunner:
             completed_for_llm = completed_prompts.get(llm_name, set())
 
             # Create list of (original_index, prompt) for prompts that need processing
-            prompts_to_process = [(i, prompt) for i, prompt in enumerate(prompts) if i not in completed_for_llm]
-
-            if not prompts_to_process:
+            # Use early exit for new runs (no completed prompts) to avoid unnecessary iteration
+            if not completed_for_llm:
+                # New run: process all prompts
+                prompts_to_process = list(enumerate(prompts))
+            elif len(completed_for_llm) == len(prompts):
+                # All prompts completed: skip this LLM
                 logger.info(f"All prompts already completed for LLM: {llm_name}, skipping")
                 continue
+            else:
+                # Resuming: filter out completed prompts
+                prompts_to_process = [(i, prompt) for i, prompt in enumerate(prompts) if i not in completed_for_llm]
 
             logger.info(f"Running benchmark for LLM: {llm_name} ({len(prompts_to_process)}/{len(prompts)} prompts remaining)")
 
@@ -363,7 +359,7 @@ class BenchmarkRunner:
 
             # Save incrementally if requested
             if save_results and len(all_results) % save_interval == 0:
-                logger.info(f"Saving incremental results ({len(all_results)} completed)")
+                logger.debug(f"Saving incremental results ({len(all_results)} completed)")
                 self.db.append_results(run_id, all_results[-save_interval:])
 
         logger.info(f"Benchmark execution completed. Total new results: {len(all_results)}")

@@ -17,7 +17,7 @@
 import pytest
 from typing import List, Optional
 
-from uqlm.benchmarks.validation import validate_benchmark_implementation, validate_benchmark_scorers, get_valid_scorers_for_category, BenchmarkValidationError, LONGFORM_SCORERS, BLACK_BOX_SCORERS, WHITE_BOX_SCORERS
+from uqlm.benchmarks.validation import validate_benchmark_scorers, get_valid_scorers_for_category, BenchmarkValidationError, LONGFORM_SCORERS, BLACK_BOX_SCORERS, WHITE_BOX_SCORERS
 from uqlm.benchmarks.datasets import BaseBenchmark
 
 
@@ -41,33 +41,6 @@ class MockValidBenchmark(BaseBenchmark):
     @property
     def version(self) -> Optional[str]:
         return "1.0.0"
-
-
-class MockIncompleteBenchmark:
-    """A mock benchmark missing required methods."""
-
-    def get_prompts(self) -> List[str]:
-        return ["test"]
-
-
-def test_validate_benchmark_implementation_valid():
-    """Test validation passes for valid benchmark."""
-    benchmark = MockValidBenchmark()
-    # Should not raise
-    validate_benchmark_implementation(benchmark)
-
-
-def test_validate_benchmark_implementation_missing_methods():
-    """Test validation fails for benchmark missing required methods."""
-    benchmark = MockIncompleteBenchmark()
-
-    with pytest.raises(BenchmarkValidationError) as exc_info:
-        validate_benchmark_implementation(benchmark)
-
-    error_msg = str(exc_info.value)
-    assert "INVALID BENCHMARK IMPLEMENTATION" in error_msg
-    assert "category" in error_msg
-    assert "dataset_name" in error_msg
 
 
 def test_validate_benchmark_scorers_valid_longform():

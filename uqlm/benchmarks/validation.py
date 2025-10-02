@@ -16,6 +16,8 @@
 
 from typing import List, Set, Dict, Any
 
+from uqlm.benchmarks.datasets.base import BaseBenchmark
+
 
 # Define available scorers by category
 LONGFORM_SCORERS = {
@@ -53,7 +55,7 @@ class BenchmarkValidationError(Exception):
     pass
 
 
-def validate_benchmark_scorers(benchmark: Any, scorers: List[str], benchmark_category: str) -> None:
+def validate_benchmark_scorers(benchmark: BaseBenchmark, scorers: List[str], benchmark_category: str) -> None:
     """
     Validate that the requested scorers are compatible with the benchmark category.
 
@@ -90,35 +92,6 @@ def validate_benchmark_scorers(benchmark: Any, scorers: List[str], benchmark_cat
         scorer_desc = SCORER_DESCRIPTIONS.get(benchmark_category, "")
 
         raise BenchmarkValidationError(f"\n{'=' * 70}\nINCOMPATIBLE SCORERS for {benchmark_name}\n{'=' * 70}\n\nThe benchmark '{benchmark_name}' supports category '{benchmark_category}',\nbut the following scorers are not compatible:\n\n  ❌ {', '.join(invalid_scorers)}\n\n{scorer_desc}\n\nPlease select scorers that match the benchmark category.\n{'=' * 70}")
-
-
-def validate_benchmark_implementation(benchmark: Any) -> None:
-    """
-    Validate that the benchmark implements all required methods.
-
-    Parameters:
-    -----------
-    benchmark : Any
-        The benchmark instance to validate
-
-    Raises:
-    -------
-    BenchmarkValidationError
-        If the benchmark is missing required methods
-    """
-    required_attributes = [("name", "Get the benchmark name"), ("category", "Declare the supported benchmark category"), ("dataset_name", "Get the HuggingFace dataset name"), ("get_prompts", "Retrieve prompts for evaluation")]
-
-    missing_attributes = []
-    for attr_name, description in required_attributes:
-        if not hasattr(benchmark, attr_name):
-            missing_attributes.append(f"  - {attr_name}: {description}")
-
-    if missing_attributes:
-        raise BenchmarkValidationError(f"\n{'=' * 70}\nINVALID BENCHMARK IMPLEMENTATION\n{'=' * 70}\n\nThe benchmark {benchmark.__class__.__name__} is missing required attributes/methods:\n\n{chr(10).join(missing_attributes)}\n\nAll benchmarks must inherit from BaseBenchmark and implement these.\n{'=' * 70}")
-
-    # Validate that get_prompts is callable (it's a method, not a property)
-    if not callable(getattr(benchmark, "get_prompts", None)):
-        raise BenchmarkValidationError(f"Benchmark {benchmark.__class__.__name__}: get_prompts exists but is not callable.")
 
 
 def get_valid_scorers_for_category(category: str) -> Set[str]:
