@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "uqlm"
-version = "0.2.6"
+version = "0.3.0"
 description = "UQLM (Uncertainty Quantification for Language Models) is a Python package for UQ-based LLM hallucination detection."
 authors = ["Dylan Bouchard <dylan.bouchard@cvshealth.com>", "Mohit Singh Chauhan <mohitsingh.chauhan@cvshealth.com>"]
 maintainers = [
@@ -28,6 +28,7 @@ packages = [
     { include = "uqlm/judges" },
     { include = "uqlm/black_box" },
     { include = "uqlm/longform" },
+    { include = "uqlm/calibration" },
     { include = "uqlm/resources" },
     { include = "uqlm/utils" },
 ]
@@ -55,6 +56,7 @@ sentence-transformers = ">=3.4,<6.0"
 datasets = ">=3.3.2,<5.0.0"
 rich = "^13.8.0"
 ipywidgets = "^8.1.7"
+langchain-core = "^0.3.75"
 
 [tool.poetry.group.dev]
 optional = true
@@ -64,6 +66,21 @@ python-dotenv = "^1.0.1"
 ruff = "0.9.7"
 pre-commit = "^4.1.0"
 ipykernel = "^6.29.5"
+langchain-openai = "^0.3.30"
+langchain-google-vertexai = "^2.0.28"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx= "7.4.7"
+pydata_sphinx_theme = "0.16.1"
+sphinxcontrib-bibtex = "2.6.3"
+sphinx-autodoc-typehints = "2.2.0"
+sphinx-gallery = "0.18.0"
+sphinx-favicon = "1.0.1"
+nbsphinx = "0.9.6"
+
 
 [tool.poetry.group.test]
 optional = true
@@ -75,8 +92,13 @@ pytest = "^8.3.5"
 langchain-google-vertexai = "^2.0.14"
 pytest-asyncio = ">=0.25.3,<1.2.0"
 pytest-cov = "^6.0.0"
+pytest-rerunfailures = "^16.0"
+
+
 
 [tool.pytest.ini_options]
+reruns = 3
+reruns_delay = 2.0
 markers = [
     "asyncio"
 ]

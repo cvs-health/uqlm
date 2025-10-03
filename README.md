@@ -65,7 +65,7 @@ results = await bbuq.generate_and_score(prompts=prompts, num_responses=5)
 results.to_df()
 ```
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/black_box_output4.png" />
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/main/assets/images/black_box_output4.png" />
 </p>
 
 Above, `use_best=True` implements mitigation so that the uncertainty-minimized responses is selected. Note that although we use `ChatVertexAI` in this example, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used. For a more detailed demo, refer to our [Black-Box UQ Demo](./examples/black_box_demo.ipynb).
@@ -106,7 +106,7 @@ results = await wbuq.generate_and_score(prompts=prompts)
 results.to_df()
 ```
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/white_box_output2.png" />
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/main/assets/images/white_box_output2.png" />
 </p>
 
 Again, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used in place of `ChatVertexAI`. For a more detailed demo, refer to our [White-Box UQ Demo](./examples/white_box_demo.ipynb).
@@ -145,7 +145,7 @@ results = await panel.generate_and_score(prompts=prompts)
 results.to_df()
 ```
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/panel_output2.png" />
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/main/assets/images/panel_output2.png" />
 </p>
 
 Note that although we use `ChatVertexAI` in this example, we can use any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) as judges. For a more detailed demo illustrating how to customize a panel of LLM judges, refer to our [LLM-as-a-Judge Demo](./examples/judges_demo.ipynb).
@@ -199,7 +199,7 @@ results = await uqe.generate_and_score(prompts=prompts)
 results.to_df()
 ```
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/uqensemble_output2.png" />
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/main/assets/images/uqensemble_output2.png" />
 </p>
 
 As with the other examples, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used in place of `ChatVertexAI`. For more detailed demos, refer to our [Off-the-Shelf Ensemble Demo](./examples/ensemble_off_the_shelf_demo.ipynb) (quick start) or our [Ensemble Tuning Demo](./examples/ensemble_tuning_demo.ipynb) (advanced).
@@ -216,13 +216,14 @@ Check out our [documentation site](https://cvs-health.github.io/uqlm/latest/inde
 ## Example notebooks
 Explore the following demo notebooks to see how to use UQLM for various hallucination detection methods:
 
-- [Black-Box Uncertainty Quantification](https://github.com/cvs-health/uqlm/blob/develop/examples/black_box_demo.ipynb): A notebook demonstrating hallucination detection with black-box (consistency) scorers.
-- [White-Box Uncertainty Quantification](https://github.com/cvs-health/uqlm/blob/develop/examples/white_box_demo.ipynb): A notebook demonstrating hallucination detection with white-box (token probability-based) scorers.
-- [LLM-as-a-Judge](https://github.com/cvs-health/uqlm/blob/develop/examples/judges_demo.ipynb): A notebook demonstrating hallucination detection with LLM-as-a-Judge.
-- [Tunable UQ Ensemble](https://github.com/cvs-health/uqlm/blob/develop/examples/ensemble_tuning_demo.ipynb): A notebook demonstrating hallucination detection with a tunable ensemble of UQ scorers ([Bouchard & Chauhan, 2025](https://arxiv.org/abs/2504.19254)).
-- [Off-the-Shelf UQ Ensemble](https://github.com/cvs-health/uqlm/blob/develop/examples/ensemble_off_the_shelf_demo.ipynb): A notebook demonstrating hallucination detection using BS Detector ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175)) off-the-shelf ensemble.
-- [Semantic Entropy](https://github.com/cvs-health/uqlm/blob/develop/examples/semantic_entropy_demo.ipynb): A notebook demonstrating token-probability-based semantic entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0); [Kuhn et al., 2023](https://arxiv.org/abs/2302.09664)), which combines elements of black-box UQ and white-box UQ to compute confidence scores.
-
+- [Black-Box Uncertainty Quantification](https://github.com/cvs-health/uqlm/blob/main/examples/black_box_demo.ipynb): A notebook demonstrating hallucination detection with black-box (consistency) scorers.
+- [White-Box Uncertainty Quantification](https://github.com/cvs-health/uqlm/blob/main/examples/white_box_demo.ipynb): A notebook demonstrating hallucination detection with white-box (token probability-based) scorers.
+- [LLM-as-a-Judge](https://github.com/cvs-health/uqlm/blob/main/examples/judges_demo.ipynb): A notebook demonstrating hallucination detection with LLM-as-a-Judge.
+- [Tunable UQ Ensemble](https://github.com/cvs-health/uqlm/blob/main/examples/ensemble_tuning_demo.ipynb): A notebook demonstrating hallucination detection with a tunable ensemble of UQ scorers ([Bouchard & Chauhan, 2025](https://arxiv.org/abs/2504.19254)).
+- [Off-the-Shelf UQ Ensemble](https://github.com/cvs-health/uqlm/blob/main/examples/ensemble_off_the_shelf_demo.ipynb): A notebook demonstrating hallucination detection using BS Detector ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175)) off-the-shelf ensemble.
+- [Semantic Entropy](https://github.com/cvs-health/uqlm/blob/main/examples/semantic_entropy_demo.ipynb): A notebook demonstrating token-probability-based semantic entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0); [Kuhn et al., 2023](https://arxiv.org/abs/2302.09664)), which combines elements of black-box UQ and white-box UQ to compute confidence scores.
+- [Multimodal Uncertainty Quantification](https://github.com/cvs-health/uqlm/blob/main/examples/multimodal_demo.ipynb): A notebook demonstrating UQLM's scoring approach with multimodal inputs (compatible with black-box UQ and white-box UQ).
+- [Score Calibration](https://github.com/cvs-health/uqlm/blob/main/examples/score_calibration_demo.ipynb): A notebook illustrating transformation of confidence scores into calibrated probabilities that better reflect the true likelihood of correctness.
 
 ## Associated Research
 A technical description of the `uqlm` scorers and extensive experiment results are contained in this **[this paper](https://arxiv.org/abs/2504.19254)**. If you use our framework or toolkit, we would appreciate citations to the following paper:

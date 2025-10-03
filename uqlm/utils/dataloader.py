@@ -81,6 +81,7 @@ _dataset_default_params = {
             "subset_columns": ["question", "answer"],
         },
     },
+    "factscore": {"load_params": {"path": "dskar/FActScore", "split": "test"}, "extra_processing": {}},
 }
 
 
@@ -97,7 +98,7 @@ def list_dataset_names() -> list:
     -------
     >>> from uqlm.utils.dataloader import list_dataset_names
     >>> list_dataset_names()
-    ['ai2_arc', 'csqa', 'dialogue_sum', 'gsm8k', 'nq_open', 'popqa', 'svamp', 'triviaqa']
+    ['ai2_arc', 'csqa', 'dialogue_sum', 'gsm8k', 'nq_open', 'popqa', 'svamp', 'triviaqa', 'factscore']
     """
     return list(_dataset_default_params.keys())
 

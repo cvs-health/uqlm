@@ -15,8 +15,8 @@
 
 import io
 import contextlib
-import pandas as pd
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional, Union
+from langchain_core.messages import BaseMessage
 from rich.progress import Progress, TextColumn
 
 from uqlm.utils.response_generator import ResponseGenerator
@@ -32,7 +32,7 @@ WHITE_BOX_SCORERS = ["normalized_probability", "min_probability"]
 
 
 class UncertaintyQuantifier:
-    def __init__(self, llm: Any = None, device: Any = None, system_prompt: str = "You are a helpful assistant", max_calls_per_min: Optional[int] = None, use_n_param: bool = False, postprocessor: Optional[Any] = None) -> None:
+    def __init__(self, llm: Any = None, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, postprocessor: Optional[Any] = None) -> None:
         """
         Parent class for uncertainty quantification of LLM responses
 
@@ -46,8 +46,9 @@ class UncertaintyQuantifier:
             Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction'
             scorers. Pass a torch.device to leverage GPU.
 
-        system_prompt : str or None, default="You are a helpful assistant."
-            Optional argument for user to provide custom system prompt
+        system_prompt : str, default=None
+            Optional argument for user to provide custom system prompt. If prompts are list of strings and system_prompt is None,
+            defaults to "You are a helpful assistant."
 
         max_calls_per_min : int, default=None
             Specifies how many api calls to make per minute to avoid a rate limit error. By default, no
@@ -75,7 +76,7 @@ class UncertaintyQuantifier:
         self.raw_responses = None
         self.raw_sampled_responses = None
 
-    async def generate_original_responses(self, prompts: List[str], progress_bar: Optional[Progress] = None) -> List[str]:
+    async def generate_original_responses(self, prompts: List[Union[str, List[BaseMessage]]], progress_bar: Optional[Progress] = None) -> List[str]:
         """
         This method generates original responses for uncertainty
         estimation. If specified in the child class, all responses are postprocessed
@@ -83,8 +84,9 @@ class UncertaintyQuantifier:
 
         Parameters
         ----------
-        prompts : list of str
-            A list of input prompts for the model.
+        prompts : List[Union[str, List[BaseMessage]]]
+            List of prompts from which LLM responses will be generated. Prompts in list may be strings or lists of BaseMessage. If providing
+            input type List[List[BaseMessage]], refer to https://python.langchain.com/docs/concepts/messages/#langchain-messages for support.
 
         progress_bar : rich.progress.Progress, default=None
             A progress bar object to display progress.
@@ -102,7 +104,7 @@ class UncertaintyQuantifier:
             responses = [self.postprocessor(r) for r in responses]
         return responses
 
-    async def generate_candidate_responses(self, prompts: List[str], num_responses: int = 5, progress_bar: Optional[Progress] = None) -> List[List[str]]:
+    async def generate_candidate_responses(self, prompts: List[Union[str, List[BaseMessage]]], num_responses: int = 5, progress_bar: Optional[Progress] = None) -> List[List[str]]:
         """
         This method generates multiple responses for uncertainty
         estimation. If specified in the child class, all responses are postprocessed
@@ -110,8 +112,9 @@ class UncertaintyQuantifier:
 
         Parameters
         ----------
-        prompts : list of str
-            A list of input prompts for the model.
+        prompts : List[Union[str, List[BaseMessage]]]
+            List of prompts from which LLM responses will be generated. Prompts in list may be strings or lists of BaseMessage. If providing
+            input type List[List[BaseMessage]], refer to https://python.langchain.com/docs/concepts/messages/#langchain-messages for support.
 
         num_responses : int, default=5
             The number of sampled responses used to compute consistency.
@@ -138,7 +141,7 @@ class UncertaintyQuantifier:
         self.llm.temperature = llm_temperature
         return sampled_responses
 
-    async def _generate_responses(self, prompts: List[str], count: int, temperature: float = None, progress_bar: Optional[Progress] = None) -> List[str]:
+    async def _generate_responses(self, prompts: List[Union[str, List[BaseMessage]]], count: int, temperature: float = None, progress_bar: Optional[Progress] = None) -> List[str]:
         """Helper function to generate responses with LLM"""
         try:
             if self.llm is None:
@@ -216,73 +219,94 @@ class UncertaintyQuantifier:
 
     def _construct_progress_bar(self, show_progress_bars: bool, _existing_progress_bar: Any = None) -> None:
         """Constructs and starts progress bar"""
+        # Clean up any existing progress bar before creating/using a new one
+        # Note: We don't try to reuse progress bars because after interruption in notebooks,
+        # they can be in a broken state where is_started=True but they're not actually displaying
+        if self.progress_bar is not None:
+            try:
+                self.progress_bar.stop()
+            except (AttributeError, RuntimeError, OSError):
+                pass
+            try:
+                if hasattr(self.progress_bar, "live") and self.progress_bar.live is not None:
+                    self.progress_bar.live.stop()
+            except (AttributeError, RuntimeError, OSError):
+                pass
+            # Always reset after cleanup attempt
+            self.progress_bar = None
+
+        # Handle externally provided progress bar
         if _existing_progress_bar:
             self.progress_bar = _existing_progress_bar
-            self.progress_bar.start()
+            try:
+                self.progress_bar.start()
+            except (AttributeError, RuntimeError, OSError):
+                # If starting fails, fall through to create a new one
+                self.progress_bar = None
 
-        elif show_progress_bars and not self.progress_bar:
-            completion_text = "[progress.percentage]{task.completed}/{task.total}"
-            self.progress_bar = Progress(ConditionalSpinnerColumn(), TextColumn("[progress.description]{task.description}"), ConditionalBarColumn(), ConditionalTextColumn(completion_text), ConditionalTimeElapsedColumn())
-            self.progress_bar.start()
+        # Create a new progress bar if needed
+        if show_progress_bars and not self.progress_bar:
+            try:
+                completion_text = "[progress.percentage]{task.completed}/{task.total}"
+                self.progress_bar = Progress(ConditionalSpinnerColumn(), TextColumn("[progress.description]{task.description}"), ConditionalBarColumn(), ConditionalTextColumn(completion_text), ConditionalTimeElapsedColumn())
+                self.progress_bar.start()
+            except Exception as e:
+                # If progress bar creation fails, continue without it
+                print(f"Could not create progress bar: {e}")
+                self.progress_bar = None
 
     def _display_generation_header(self, show_progress_bars: bool, white_box: bool = False) -> None:
         """Displays generation header"""
-        if show_progress_bars:
-            self.progress_bar.start()
-            display_text = "🤖 Generation" if not white_box else "🤖📈 Generation & Scoring"
-            self.progress_bar.add_task(display_text)
+        if show_progress_bars and self.progress_bar:
+            try:
+                display_text = "🤖 Generation" if not white_box else "🤖📈 Generation & Scoring"
+                self.progress_bar.add_task(display_text)
+            except (AttributeError, RuntimeError, OSError):
+                # If progress bar fails, just continue without it
+                pass
 
     def _display_scoring_header(self, show_progress_bars: bool) -> None:
         """Displays scoring header"""
-        if show_progress_bars:
-            self.progress_bar.start()
-            self.progress_bar.add_task("")
-            self.progress_bar.add_task("📈 Scoring")
+        if show_progress_bars and self.progress_bar:
+            try:
+                self.progress_bar.add_task("")
+                self.progress_bar.add_task("📈 Scoring")
+            except (AttributeError, RuntimeError, OSError):
+                # If progress bar fails, just continue without it
+                pass
 
     def _display_optimization_header(self, show_progress_bars: bool) -> None:
         """Displays optimization header"""
-        if show_progress_bars:
-            self.progress_bar.start()
-            self.progress_bar.add_task("")
-            self.progress_bar.add_task("⚙️ Optimization")
+        if show_progress_bars and self.progress_bar:
+            try:
+                self.progress_bar.add_task("")
+                self.progress_bar.add_task("⚙️ Optimization")
+            except (AttributeError, RuntimeError, OSError):
+                # If progress bar fails, just continue without it
+                pass
 
     def _stop_progress_bar(self, _existing_progress_bar: Any = None) -> None:
         """Stop progress bar"""
-        if self.progress_bar:
-            self.progress_bar.stop()
+        if self.progress_bar is not None:
+            try:
+                self.progress_bar.stop()
+            except (AttributeError, RuntimeError, OSError):
+                # If progress bar fails, just continue without it
+                pass
+            # Also ensure the live display is cleaned up
+            try:
+                if hasattr(self.progress_bar, "live") and self.progress_bar.live is not None:
+                    self.progress_bar.live.stop()
+            except (AttributeError, RuntimeError, OSError):
+                pass
         if not _existing_progress_bar:
             self.progress_bar = None
 
     def _start_progress_bar(self) -> None:
         """Start progress bar"""
-        if self.progress_bar:
-            self.progress_bar.start()
-
-
-class UQResult:
-    def __init__(self, result: Dict[str, Any]) -> None:
-        """
-        Class that characterizes result of an UncertaintyQuantifier.
-
-        Parameters
-        ----------
-        result: dict
-            A dictionary that is defined during `evaluate` or `tune_params` method
-        """
-        self.data = result.get("data")
-        self.metadata = result.get("metadata")
-        self.result_dict = result
-
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Returns result in dictionary form
-        """
-        return self.result_dict
-
-    def to_df(self) -> pd.DataFrame:
-        """
-        Returns result in pd.DataFrame
-        """
-        rename_dict = {col: col[:-1] for col in self.result_dict["data"].keys() if col.endswith("s") and col not in ["sampled_responses", "raw_sampled_responses"]}
-
-        return pd.DataFrame(self.result_dict["data"]).rename(columns=rename_dict)
+        if self.progress_bar is not None:
+            try:
+                self.progress_bar.start()
+            except (AttributeError, RuntimeError, OSError):
+                # If progress bar fails, just continue without it
+                pass

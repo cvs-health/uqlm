@@ -14,7 +14,8 @@
 
 import pytest
 import json
-from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
+from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
+from uqlm.utils.results import UQResult
 from uqlm.judges.judge import LLMJudge
 from langchain_openai import AzureChatOpenAI
 

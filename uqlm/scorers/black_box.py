@@ -14,9 +14,11 @@
 
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from typing import Any, List, Optional
+from langchain_core.messages import BaseMessage
+from typing import Any, List, Optional, Union
 
-from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
+from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
+from uqlm.utils.results import UQResult
 from uqlm.black_box import BertScorer, CosineScorer, MatchScorer
 
 
@@ -30,7 +32,7 @@ class BlackBoxUQ(UncertaintyQuantifier):
         nli_model_name: str = "microsoft/deberta-large-mnli",
         sentence_transformer: str = "all-MiniLM-L6-v2",
         postprocessor: Any = None,
-        system_prompt: str = "You are a helpful assistant.",
+        system_prompt: Optional[str] = None,
         max_calls_per_min: Optional[int] = None,
         sampling_temperature: float = 1.0,
         return_responses: str = "all",
@@ -80,8 +82,9 @@ class BlackBoxUQ(UncertaintyQuantifier):
             If a postprocessor is used, specifies whether to return only postprocessed responses, only raw responses,
             or both. Specified with 'postprocessed', 'raw', or 'all', respectively.
 
-        system_prompt : str or None, default="You are a helpful assistant."
-            Optional argument for user to provide custom system prompt
+        system_prompt : str, default=None
+            Optional argument for user to provide custom system prompt. If prompts are list of strings and system_prompt is None,
+            defaults to "You are a helpful assistant."
 
         max_calls_per_min : int, default=None
             Specifies how many api calls to make per minute to avoid a rate limit error. By default, no
@@ -115,14 +118,15 @@ class BlackBoxUQ(UncertaintyQuantifier):
         if self.use_nli:
             self._setup_nli(nli_model_name)
 
-    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, show_progress_bars: Optional[bool] = True) -> UQResult:
+    async def generate_and_score(self, prompts: List[Union[str, List[BaseMessage]]], num_responses: int = 5, show_progress_bars: Optional[bool] = True) -> UQResult:
         """
         Generate LLM responses, sampled LLM (candidate) responses, and compute confidence scores with specified scorers for the provided prompts.
 
         Parameters
         ----------
-        prompts : list of str
-            A list of input prompts for the model.
+        prompts : List[Union[str, List[BaseMessage]]]
+            List of prompts from which LLM responses will be generated. Prompts in list may be strings or lists of BaseMessage. If providing
+            input type List[List[BaseMessage]], refer to https://python.langchain.com/docs/concepts/messages/#langchain-messages for support.
 
         num_responses : int, default=5
             The number of sampled responses used to compute consistency.

@@ -12,16 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 import math
 import numpy as np
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import BaseMessage
 
-from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier, UQResult
+from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
+from uqlm.utils.results import UQResult
 
 
 class WhiteBoxUQ(UncertaintyQuantifier):
-    def __init__(self, llm: Optional[BaseChatModel] = None, system_prompt: str = "You are a helpful assistant.", max_calls_per_min: Optional[int] = None, scorers: Optional[List[str]] = None) -> None:
+    def __init__(self, llm: Optional[BaseChatModel] = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, scorers: Optional[List[str]] = None) -> None:
         """
         Class for computing white-box UQ confidence scores. This class offers two confidence scores, normalized
         probability :footcite:`malinin2021uncertaintyestimationautoregressivestructured` and minimum probability :footcite:`manakul2023selfcheckgptzeroresourceblackboxhallucination`.
@@ -35,8 +37,9 @@ class WhiteBoxUQ(UncertaintyQuantifier):
         max_calls_per_min : int, default=None
             Used to control rate limiting.
 
-        system_prompt : str or None, default="You are a helpful assistant."
-            Optional argument for user to provide custom system prompt
+        system_prompt : str, default=None
+            Optional argument for user to provide custom system prompt. If prompts are list of strings and system_prompt is None,
+            defaults to "You are a helpful assistant."
 
         scorers : subset of {"min_probability", "normalized_probability"}, default=None
             Specifies which white box (token-probability-based) scorers to include. If None, defaults to all.
@@ -44,14 +47,15 @@ class WhiteBoxUQ(UncertaintyQuantifier):
         super().__init__(llm=llm, max_calls_per_min=max_calls_per_min, system_prompt=system_prompt)
         self._validate_scorers(scorers)
 
-    async def generate_and_score(self, prompts: List[str], show_progress_bars: Optional[bool] = True) -> UQResult:
+    async def generate_and_score(self, prompts: List[Union[str, List[BaseMessage]]], show_progress_bars: Optional[bool] = True) -> UQResult:
         """
         Generate responses and compute white-box confidence scores based on extracted token probabilities.
 
         Parameters
         ----------
-        prompts : list of str
-            A list of input prompts for the model.
+        prompts : List[Union[str, List[BaseMessage]]]
+            List of prompts from which LLM responses will be generated. Prompts in list may be strings or lists of BaseMessage. If providing
+            input type List[List[BaseMessage]], refer to https://python.langchain.com/docs/concepts/messages/#langchain-messages for support.
 
         show_progress_bars : bool, default=True
             If True, displays a progress bar while generating and scoring responses
