@@ -8,7 +8,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from uqlm.utils.response_generator import ResponseGenerator
 from uqlm.longform.decomposition.response_decomposer import ResponseDecomposer
 from uqlm.utils.prompt_templates import get_factoid_template, get_question_template, get_answer_template
-from uqlm.scorers.baseclass.uncertainty import UQResult
+from uqlm.utils.results import UQResult
 
 
 class ClaimQAScorer():
@@ -84,14 +84,13 @@ class ClaimQAScorer():
         if progress_bar:
             progress_task = progress_bar.add_task("  - Decomposing responses into factoids...", total=len(responses))
 
+        # TODO: Add a parameter to define number of claims/factoids
         decomposer = ResponseDecomposer(claim_decomposition_llm=self.llm_decomposer, response_template=self.response_template)
-        self.factoids = []
         for i, response in enumerate(responses):
-            factoids = await decomposer.decompose_claims(responses=[response], progress_bar=progress_bar)
-            self.factoids.append(factoids)
+            self.factoids = await decomposer.decompose_claims(responses=[response], progress_bar=progress_bar)
 
         if progress_bar:
-            progress_task = progress_bar.add_task("  - Computing ClaimQA Score...", total=len(factoids))
+            progress_task = progress_bar.add_task("  - Computing ClaimQA Score...", total=len(self.factoids))
         self.response_scores = {key: [] for key in self.bb_scorer.scorers}
         for i, response in enumerate(responses):
             tmp = await self._compute_factoid_scores(prompt=self.prompts[i], response=responses[i], factoids=self.factoids[i])
@@ -122,6 +121,7 @@ class ClaimQAScorer():
             A dictionary of ClaimQA scores for the given set of factoids.
         """
         claim_qa_scores = {key: [] for key in self.bb_scorer.scorers}
+        print("Factoids for ith response: ", factoids)
         for factoid_i in factoids:
             #Generate questions on each factoid
             prompt = get_question_template(response, factoid_i, self.num_questions)
