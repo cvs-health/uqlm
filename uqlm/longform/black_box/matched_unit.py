@@ -108,7 +108,7 @@ class MatchedUnitScorer(ClaimScorer):
             for j, candidate in enumerate(candidates):
                 cosine_scores[i, j] = self._compute_matched_cosine_scores(claim, candidate)
         return cosine_scores
-    
+
     def _compute_matched_cosine_scores(self, claim: str, candidate_claims: List[str]) -> float:
         """Compute maximum matched-unit cosine similarity score"""
         max_cosine_sim = 0

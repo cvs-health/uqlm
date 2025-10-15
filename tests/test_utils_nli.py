@@ -124,7 +124,7 @@ class TestNLIPredictHuggingFaceTernary:
         nli = NLI()
         # Similar sentences should favor entailment
         result = nli.predict(hypothesis="There is a full moon tonight.", premise="The moon is visible in the sky tonight.", style="ternary")
-        assert np.argmax(result.ternary_probabilities) != 2 # Not entailment
+        assert np.argmax(result.ternary_probabilities) != 2  # Not entailment
 
 
 class TestNLIPredictHuggingFaceBinary:
@@ -220,7 +220,7 @@ class TestNLIPredictLangChainTernary:
         nli = NLI()
         # Similar sentences should favor entailment
         result = nli.predict(hypothesis="There is a full moon tonight.", premise="The moon is visible in the sky tonight.", style="ternary")
-        assert np.argmax(result.ternary_probabilities) != 2 # Not entailment
+        assert np.argmax(result.ternary_probabilities) != 2  # Not entailment
 
     def test_predict_error_handling(self):
         """Test that errors and unclear responses are handled gracefully."""
@@ -359,7 +359,7 @@ class TestNLIAsyncMethods:
 
         mock_llm.ainvoke = ainvoke_error
         nli = NLI(nli_llm=mock_llm)
-        
+
         with pytest.warns(UserWarning):
             result = await nli.apredict("Test", "Test", return_probabilities=True)
 

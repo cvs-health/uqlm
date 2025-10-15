@@ -24,6 +24,7 @@ class ClaimScores:
     """
     ClaimsScores is a dataclass that contains the aggregated score and the raw scores for each claim set.
     """
+
     def __init__(self, entailment_score_lists: List[np.ndarray] = None, noncontradict_score_lists: List[np.ndarray] = None, contrasted_entailment_score_lists: List[np.ndarray] = None, cosine_similarity_lists: List[np.ndarray] = None, bert_score_lists: List[np.ndarray] = None) -> None:
         self.entailment_score_lists = entailment_score_lists
         self.noncontradict_score_lists = noncontradict_score_lists
@@ -35,7 +36,7 @@ class ClaimScores:
         """Return results in dictionary form"""
         claim_scores_dict = {"entailment": self.entailment_score_lists, "noncontradiction": self.noncontradict_score_lists, "contrasted_entailment": self.contrasted_entailment_score_lists, "cosine_sim": self.cosine_similarity_lists, "bert_score": self.bert_score_lists}
         return {key: self._format_result(value, return_all) for key, value in claim_scores_dict.items() if value is not None}
-        
+
     @staticmethod
     def _format_result(score_arrays: List[np.ndarray], return_all: bool = False) -> List[Any]:
         """Formats list of score arrays"""
