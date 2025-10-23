@@ -444,12 +444,18 @@
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="uqlm.resources.html">uqlm.resources</a></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="uqlm.utils.html">uqlm.utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.calibration.html">uqlm.utils.calibration</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.calibration.evaluate_calibration.html">uqlm.utils.calibration.evaluate_calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.calibration.ScoreCalibrator.html">uqlm.utils.calibration.ScoreCalibrator</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="uqlm.calibration.html">uqlm.calibration</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.calibration.evaluate.html">uqlm.calibration.evaluate</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.calibration.evaluate.evaluate_calibration.html">uqlm.calibration.evaluate.evaluate_calibration</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.calibration.score_calibrator.html">uqlm.calibration.score_calibrator</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.calibration.score_calibrator.ScoreCalibrator.html">uqlm.calibration.score_calibrator.ScoreCalibrator</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="uqlm.utils.html">uqlm.utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.dataloader.html">uqlm.utils.dataloader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.dataloader.list_dataset_names.html">uqlm.utils.dataloader.list_dataset_names</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.dataloader.load_example_dataset.html">uqlm.utils.dataloader.load_example_dataset</a></li>
@@ -572,7 +578,7 @@
 <h1>uqlm.utils.plots.plot_ranked_auc<a class="headerlink" href="#uqlm-utils-plots-plot-ranked-auc" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="uqlm.utils.plots.plot_ranked_auc">
-<span class="sig-prename descclassname"><span class="pre">uqlm.utils.plots.</span></span><span class="sig-name descname"><span class="pre">plot_ranked_auc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uq_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct_indicators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scorers_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Hallucination</span> <span class="pre">Detection:</span> <span class="pre">Scorer-specific</span> <span class="pre">AUROC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auroc'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.utils.plots.plot_ranked_auc" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">uqlm.utils.plots.</span></span><span class="sig-name descname"><span class="pre">plot_ranked_auc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uq_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">correct_indicators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scorers_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Hallucination</span> <span class="pre">Detection:</span> <span class="pre">Scorer-specific</span> <span class="pre">AUROC'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fontname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auroc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.utils.plots.plot_ranked_auc" title="Link to this definition">#</a></dt>
 <dd><p>Plot the ranked bar plot for hallucination detection AUROC/AUPRC of the given scorers.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -588,6 +594,7 @@
 - “auroc”: Plot only AUROC scores (Area Under ROC Curve)
 - “auprc”: Plot only AUPRC scores (Area Under Precision-Recall Curve)
 - “both”: Plot both AUROC and AUPRC side by side in subplots</p></li>
+<li><p><strong>baseline</strong> (<em>float</em><em>, </em><em>default=0.5</em>) – The baseline value to show as a dotted line (typically 0.5 for AUROC)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

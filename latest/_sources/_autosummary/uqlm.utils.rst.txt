@@ -28,7 +28,6 @@
    :template: module.rst
    :recursive:
 
-   calibration
    dataloader
    display
    llm_config

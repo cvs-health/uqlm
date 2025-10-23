@@ -10,4 +10,5 @@ API
     uqlm.judges
     uqlm.scorers
     uqlm.resources
+    uqlm.calibration
     uqlm.utils

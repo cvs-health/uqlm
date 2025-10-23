@@ -56,8 +56,8 @@
     <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="uqlm.utils.calibration" href="uqlm.utils.calibration.html" />
-    <link rel="prev" title="uqlm.resources" href="uqlm.resources.html" />
+    <link rel="next" title="uqlm.utils.dataloader" href="uqlm.utils.dataloader.html" />
+    <link rel="prev" title="uqlm.calibration.score_calibrator.ScoreCalibrator" href="uqlm.calibration.score_calibrator.ScoreCalibrator.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -444,12 +444,18 @@
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="uqlm.resources.html">uqlm.resources</a></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">uqlm.utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.calibration.html">uqlm.utils.calibration</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.calibration.evaluate_calibration.html">uqlm.utils.calibration.evaluate_calibration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.calibration.ScoreCalibrator.html">uqlm.utils.calibration.ScoreCalibrator</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="uqlm.calibration.html">uqlm.calibration</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.calibration.evaluate.html">uqlm.calibration.evaluate</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.calibration.evaluate.evaluate_calibration.html">uqlm.calibration.evaluate.evaluate_calibration</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.calibration.score_calibrator.html">uqlm.calibration.score_calibrator</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.calibration.score_calibrator.ScoreCalibrator.html">uqlm.calibration.score_calibrator.ScoreCalibrator</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">uqlm.utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.dataloader.html">uqlm.utils.dataloader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.dataloader.list_dataset_names.html">uqlm.utils.dataloader.list_dataset_names</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.dataloader.load_example_dataset.html">uqlm.utils.dataloader.load_example_dataset</a></li>
@@ -567,37 +573,34 @@
 <p class="rubric">Modules</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.calibration.html#module-uqlm.utils.calibration" title="uqlm.utils.calibration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration</span></code></a></p></td>
-<td><p>Score calibration module for uncertainty quantification confidence scores.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="uqlm.utils.dataloader.html#module-uqlm.utils.dataloader" title="uqlm.utils.dataloader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataloader</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.dataloader.html#module-uqlm.utils.dataloader" title="uqlm.utils.dataloader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataloader</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.display.html#module-uqlm.utils.display" title="uqlm.utils.display"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="uqlm.utils.display.html#module-uqlm.utils.display" title="uqlm.utils.display"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="uqlm.utils.llm_config.html#module-uqlm.utils.llm_config" title="uqlm.utils.llm_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">llm_config</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.llm_config.html#module-uqlm.utils.llm_config" title="uqlm.utils.llm_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">llm_config</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.plots.html#module-uqlm.utils.plots" title="uqlm.utils.plots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plots</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="uqlm.utils.plots.html#module-uqlm.utils.plots" title="uqlm.utils.plots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plots</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="uqlm.utils.postprocessors.html#module-uqlm.utils.postprocessors" title="uqlm.utils.postprocessors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">postprocessors</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.postprocessors.html#module-uqlm.utils.postprocessors" title="uqlm.utils.postprocessors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">postprocessors</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.prompts.html#module-uqlm.utils.prompts" title="uqlm.utils.prompts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prompts</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="uqlm.utils.prompts.html#module-uqlm.utils.prompts" title="uqlm.utils.prompts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prompts</span></code></a></p></td>
 <td><p>Prompt templates for LLM-as-a-Judge scorers.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="uqlm.utils.response_generator.html#module-uqlm.utils.response_generator" title="uqlm.utils.response_generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">response_generator</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.response_generator.html#module-uqlm.utils.response_generator" title="uqlm.utils.response_generator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">response_generator</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.results.html#module-uqlm.utils.results" title="uqlm.utils.results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">results</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="uqlm.utils.results.html#module-uqlm.utils.results" title="uqlm.utils.results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">results</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="uqlm.utils.tuner.html#module-uqlm.utils.tuner" title="uqlm.utils.tuner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tuner</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.tuner.html#module-uqlm.utils.tuner" title="uqlm.utils.tuner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tuner</span></code></a></p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.warn.html#module-uqlm.utils.warn" title="uqlm.utils.warn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">warn</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="uqlm.utils.warn.html#module-uqlm.utils.warn" title="uqlm.utils.warn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">warn</span></code></a></p></td>
 <td><p></p></td>
 </tr>
 </tbody>
@@ -616,20 +619,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="uqlm.resources.html"
+       href="uqlm.calibration.score_calibrator.ScoreCalibrator.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">uqlm.resources</p>
+        <p class="prev-next-title">uqlm.calibration.score_calibrator.ScoreCalibrator</p>
       </div>
     </a>
     <a class="right-next"
-       href="uqlm.utils.calibration.html"
+       href="uqlm.utils.dataloader.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">uqlm.utils.calibration</p>
+        <p class="prev-next-title">uqlm.utils.dataloader</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="../_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="../_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="../_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>uqlm.black_box.match.MatchScorer &#8212; uqlm 0.3 documentation</title>
+    <title>uqlm.calibration.evaluate &#8212; uqlm 0.3 documentation</title>
   
   
   
@@ -45,7 +45,7 @@
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/uqlm.black_box.match.MatchScorer';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/uqlm.calibration.evaluate';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
@@ -56,8 +56,8 @@
     <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="uqlm.black_box.nli" href="uqlm.black_box.nli.html" />
-    <link rel="prev" title="uqlm.black_box.match" href="uqlm.black_box.match.html" />
+    <link rel="next" title="uqlm.calibration.evaluate.evaluate_calibration" href="uqlm.calibration.evaluate.evaluate_calibration.html" />
+    <link rel="prev" title="uqlm.calibration" href="uqlm.calibration.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -383,7 +383,7 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="uqlm.black_box.html">uqlm.black_box</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="uqlm.black_box.html">uqlm.black_box</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.black_box.bert.html">uqlm.black_box.bert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.black_box.bert.BertScorer.html">uqlm.black_box.bert.BertScorer</a></li>
 </ul>
@@ -396,8 +396,8 @@
 <li class="toctree-l3"><a class="reference internal" href="uqlm.black_box.cosine.CosineScorer.html">uqlm.black_box.cosine.CosineScorer</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="uqlm.black_box.match.html">uqlm.black_box.match</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">uqlm.black_box.match.MatchScorer</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.black_box.match.html">uqlm.black_box.match</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.black_box.match.MatchScorer.html">uqlm.black_box.match.MatchScorer</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.black_box.nli.html">uqlm.black_box.nli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -444,8 +444,8 @@
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="uqlm.resources.html">uqlm.resources</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="uqlm.calibration.html">uqlm.calibration</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.calibration.evaluate.html">uqlm.calibration.evaluate</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="uqlm.calibration.html">uqlm.calibration</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">uqlm.calibration.evaluate</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.calibration.evaluate.evaluate_calibration.html">uqlm.calibration.evaluate.evaluate_calibration</a></li>
 </ul>
 </details></li>
@@ -552,12 +552,9 @@
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API</a></li>
     
     
-    <li class="breadcrumb-item"><a href="uqlm.black_box.html" class="nav-link">uqlm.black_box</a></li>
+    <li class="breadcrumb-item"><a href="uqlm.calibration.html" class="nav-link">uqlm.calibration</a></li>
     
-    
-    <li class="breadcrumb-item"><a href="uqlm.black_box.match.html" class="nav-link">uqlm.black_box.match</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">uqlm.black_box.match.MatchScorer</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">uqlm.calibration.evaluate</span></li>
   </ul>
 </nav>
 </div>
@@ -574,65 +571,19 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="uqlm-black-box-match-matchscorer">
-<h1>uqlm.black_box.match.MatchScorer<a class="headerlink" href="#uqlm-black-box-match-matchscorer" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="uqlm.black_box.match.MatchScorer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uqlm.black_box.match.</span></span><span class="sig-name descname"><span class="pre">MatchScorer</span></span><a class="headerlink" href="#uqlm.black_box.match.MatchScorer" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SimilarityScorer</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="uqlm.black_box.match.MatchScorer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.black_box.match.MatchScorer.__init__" title="Link to this definition">#</a></dt>
-<dd><p>Class for computing exact match rates between original responses and candidates. This
-method is based on Cole et al.(2023) <a class="footnote-reference brackets" href="#footcite-cole2023selectivelyansweringambiguousquestions" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
-</dd></dl>
-
-<p class="rubric">Methods</p>
+  <section id="module-uqlm.calibration.evaluate">
+<span id="uqlm-calibration-evaluate"></span><h1>uqlm.calibration.evaluate<a class="headerlink" href="#module-uqlm.calibration.evaluate" title="Link to this heading">#</a></h1>
+<p>Score calibration module for uncertainty quantification confidence scores.</p>
+<p>This module provides calibration methods to transform raw confidence scores
+into better-calibrated probabilities using Platt Scaling and Isotonic Regression.</p>
+<p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#uqlm.black_box.match.MatchScorer.__init__" title="uqlm.black_box.match.MatchScorer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
-<td><p>Class for computing exact match rates between original responses and candidates.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#uqlm.black_box.match.MatchScorer.evaluate" title="uqlm.black_box.match.MatchScorer.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a>(responses, sampled_responses[, ...])</p></td>
-<td><p>This method computes exact match rates for the provided pairs of texts.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.calibration.evaluate.evaluate_calibration.html#uqlm.calibration.evaluate.evaluate_calibration" title="uqlm.calibration.evaluate.evaluate_calibration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_calibration</span></code></a>(uq_result, ...[, plot, ...])</p></td>
+<td><p>Evaluate the calibration quality of the scores.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="uqlm.black_box.match.MatchScorer.evaluate">
-<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampled_responses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.black_box.match.MatchScorer.evaluate" title="Link to this definition">#</a></dt>
-<dd><p>This method computes exact match rates for the provided pairs of texts.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-<dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>responses</strong> (<em>list</em><em> of </em><em>strings</em>) – Original LLM response</p></li>
-<li><p><strong>sampled_responses</strong> (<em>list</em><em> of </em><em>list</em><em> of </em><em>strings</em>) – Candidate responses to be compared to the original response</p></li>
-<li><p><strong>progress_bar</strong> (<em>rich.progress.Progress</em><em>, </em><em>default=None</em>) – If provided, displays a progress bar while scoring responses</p></li>
-</ul>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Exact match rates</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>List of float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<p class="rubric">References</p>
-<div class="docutils container" id="id2">
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="footcite-cole2023selectivelyansweringambiguousquestions" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>Jeremy R. Cole, Michael J. Q. Zhang, Daniel Gillick, Julian Martin Eisenschlos, Bhuwan Dhingra, and Jacob Eisenstein. Selectively answering ambiguous questions. 2023. URL: <a class="reference external" href="https://arxiv.org/abs/2305.14613">https://arxiv.org/abs/2305.14613</a>, <a class="reference external" href="https://arxiv.org/abs/2305.14613">arXiv:2305.14613</a>.</p>
-</aside>
-</aside>
 </div>
 </section>
 
@@ -647,20 +598,20 @@ method is based on Cole et al.(2023) <a class="footnote-reference brackets" href
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="uqlm.black_box.match.html"
+       href="uqlm.calibration.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">uqlm.black_box.match</p>
+        <p class="prev-next-title">uqlm.calibration</p>
       </div>
     </a>
     <a class="right-next"
-       href="uqlm.black_box.nli.html"
+       href="uqlm.calibration.evaluate.evaluate_calibration.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">uqlm.black_box.nli</p>
+        <p class="prev-next-title">uqlm.calibration.evaluate.evaluate_calibration</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -676,26 +627,10 @@ method is based on Cole et al.(2023) <a class="footnote-reference brackets" href
 
 
   <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.black_box.match.MatchScorer"><code class="docutils literal notranslate"><span class="pre">MatchScorer</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.black_box.match.MatchScorer.__init__"><code class="docutils literal notranslate"><span class="pre">MatchScorer.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.black_box.match.MatchScorer.evaluate"><code class="docutils literal notranslate"><span class="pre">MatchScorer.evaluate()</span></code></a></li>
-</ul>
-</li>
-</ul>
-  </nav></div>
-
-  <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/_autosummary/uqlm.black_box.match.MatchScorer.rst.txt"
+      <li><a href="../_sources/_autosummary/uqlm.calibration.evaluate.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
