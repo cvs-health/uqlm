@@ -70,7 +70,7 @@ class ClaimScorer(ABC):
 
     def _get_nli_agreement_scores(self, claim: str, candidate: str) -> float:
         """Compute probabilities from NLI model"""
-        nli_result = self.nli.predict(hypothesis=candidate, premise=claim)
+        nli_result = self.nli.predict(hypothesis=claim, premise=candidate)
         entail_prob = nli_result.entailment_probability
         contradict_prob = nli_result.contradiction_probability
         contrast_entail_prob = entail_prob / (entail_prob + contradict_prob)
@@ -97,9 +97,9 @@ class ClaimScorer(ABC):
         for i, claim in enumerate(claims):
             for j, candidate in enumerate(candidates):
                 if self.matched_claim:
-                    entail_scores[i, j], noncontradict_scores[i, j], contrast_entail_scores[i, j] = self._compute_matched_nli_scores(claim, candidate)
+                    entail_scores[i, j], noncontradict_scores[i, j], contrast_entail_scores[i, j] = self._compute_matched_nli_scores(claim=claim, candidate_claims=candidate)
                 else:
-                    entail_scores[i, j], noncontradict_scores[i, j], contrast_entail_scores[i, j] = self._get_nli_agreement_scores(claim, candidate)
+                    entail_scores[i, j], noncontradict_scores[i, j], contrast_entail_scores[i, j] = self._get_nli_agreement_scores(claim=claim, candidate=candidate)
         return entail_scores, noncontradict_scores, contrast_entail_scores
 
     def _compute_matched_nli_scores(self, claim: str, candidate_claims: List[str]) -> float:
