@@ -18,6 +18,7 @@ import contextlib
 from typing import Any, List, Optional, Union
 from langchain_core.messages import BaseMessage
 from rich.progress import Progress, TextColumn
+from rich.errors import LiveError
 
 from uqlm.utils.response_generator import ResponseGenerator
 from uqlm.black_box.semantic import SemanticScorer
@@ -219,41 +220,19 @@ class UncertaintyQuantifier:
 
     def _construct_progress_bar(self, show_progress_bars: bool, _existing_progress_bar: Any = None) -> None:
         """Constructs and starts progress bar"""
-        # Clean up any existing progress bar before creating/using a new one
-        # Note: We don't try to reuse progress bars because after interruption in notebooks,
-        # they can be in a broken state where is_started=True but they're not actually displaying
-        if self.progress_bar is not None:
-            try:
-                self.progress_bar.stop()
-            except (AttributeError, RuntimeError, OSError):
-                pass
-            try:
-                if hasattr(self.progress_bar, "live") and self.progress_bar.live is not None:
-                    self.progress_bar.live.stop()
-            except (AttributeError, RuntimeError, OSError):
-                pass
-            # Always reset after cleanup attempt
-            self.progress_bar = None
-
-        # Handle externally provided progress bar
-        if _existing_progress_bar:
-            self.progress_bar = _existing_progress_bar
-            try:
+        try:
+            if _existing_progress_bar:
+                self.progress_bar = _existing_progress_bar
                 self.progress_bar.start()
-            except (AttributeError, RuntimeError, OSError):
-                # If starting fails, fall through to create a new one
-                self.progress_bar = None
 
-        # Create a new progress bar if needed
-        if show_progress_bars and not self.progress_bar:
-            try:
+            elif show_progress_bars and not self.progress_bar:
                 completion_text = "[progress.percentage]{task.completed}/{task.total}"
                 self.progress_bar = Progress(ConditionalSpinnerColumn(), TextColumn("[progress.description]{task.description}"), ConditionalBarColumn(), ConditionalTextColumn(completion_text), ConditionalTimeElapsedColumn())
                 self.progress_bar.start()
-            except Exception as e:
-                # If progress bar creation fails, continue without it
-                print(f"Could not create progress bar: {e}")
-                self.progress_bar = None
+        except LiveError:
+            print("Could not create progress bar")
+            self.progress_bar = None
+            pass
 
     def _display_generation_header(self, show_progress_bars: bool, white_box: bool = False) -> None:
         """Displays generation header"""
