@@ -96,11 +96,13 @@ class NLI:
             model = AutoModelForSequenceClassification.from_pretrained(nli_model_name)
             self.device = device
             self.model = model.to(self.device) if self.device else model
+            self.logprobs_available = True
         else:
             # LangChain model
             self.device = None
             self.tokenizer = None
             self.model = nli_llm
+            self.logprobs_available = False
             self._activate_logprobs()  # Attempt to activate logprobs
 
     def predict(self, hypothesis: str, premise: str, style: str = "ternary", return_probabilities: bool = True) -> Any:
@@ -596,5 +598,6 @@ class NLI:
             return
         if hasattr(self.model, "logprobs"):
             self.model.logprobs = True
+            self.logprobs_available = True
         else:
             warnings.warn("Logprobs are not supported for this model. Please use a model that supports logprobs.")

@@ -36,7 +36,7 @@ exclude = ["docs", "docs_src"] # never include documentation in build
 keywords = ["LLM", "large language model", "LLM evaluation", "hallucination", "uncertainty quantification"]  # Add your keywords here
 
 [tool.poetry.dependencies]
-python = ">=3.9, <4.0"
+python = ">=3.10, <4.0"
 langchain = "^0.3.7"
 transformers = "^4.45.2"
 scikit-learn = [
@@ -58,6 +58,7 @@ rich = "^13.8.0"
 ipywidgets = "^8.1.7"
 langchain-core = "^0.3.75"
 pydantic = "^2.12.0"
+networkx = "^3.4.0"
 
 [tool.poetry.group.dev]
 optional = true
@@ -73,6 +74,7 @@ pytest = "^8.3.5"
 pytest-asyncio = ">=0.25.3,<1.2.0"
 pytest-cov = "^6.0.0"
 pytest-rerunfailures = "^16.0"
+plotly = "^5.18.0"
 
 [tool.poetry.group.docs]
 optional = true
