@@ -114,9 +114,6 @@ class GraphUQScorer(ClaimScorer):
 
         num_response_sets = len(response_sets)
 
-        # Process all response sets step-by-step (batched by step)
-        # This avoids shared state issues with ResponseGenerator and NLI
-
         # Step 1: Dedup claims for all response sets
         logger.debug("Step 1: Deduplicating claims for all response sets...")
         master_claim_sets = await self._dedup_claims(
@@ -157,65 +154,127 @@ class GraphUQScorer(ClaimScorer):
     def _calculate_claim_node_graph_metrics(self, G: nx.Graph, num_claims: int, num_responses: int) -> dict:
         """
         Calculate claim node graph metrics.
+        
         Args:
-            G: A NetworkX graph.
+            G: A NetworkX graph with edge weights representing confidence (1=strong, 0=none).
             num_claims: The number of claims.
             num_responses: The number of responses.
+            
         Returns:
             A dictionary of claim node graph metrics.
+            
+        Notes:
+            - Edge weights represent confidence/strength (1.0 = strong connection, 0.0 = no connection)
+            - For distance-based metrics (betweenness, closeness), weights are inverted
+            - For strength-based metrics (PageRank, eigenvector), weights are used as-is
+            - Bipartite-specific functions don't support weights, so we use standard versions
         """
 
         # Calculate raw degree (number of connections) for each node
         raw_degrees = dict(G.degree())
         logger.debug(f"Raw degrees (number of connections): {raw_degrees}")
+        
+        # Calculate weighted degree (sum of edge weights) for each node
+        weighted_degrees = dict(G.degree(weight="weight"))
+        logger.debug(f"Weighted degrees (sum of edge weights): {weighted_degrees}")
 
-        # Calculate bipartite degree centrality (normalized by the size of the opposite node set)
-        # For claim nodes, this is degree / num_responses
-        # For response nodes, this is degree / num_claims
+        # Calculate bipartite degree centrality (normalized by opposite set size)
+        # Note: nx.bipartite.degree_centrality doesn't support weights
         claim_nodes = set(range(num_claims))
+        response_nodes = set(range(num_claims, num_claims + num_responses))
+        
+        # Unweighted bipartite degree centrality
         degree_centrality = nx.bipartite.degree_centrality(G, claim_nodes)
-        logger.debug(f"Bipartite degree centrality (normalized) for all nodes: {degree_centrality}")
+        logger.debug(f"Bipartite degree centrality (unweighted): {degree_centrality}")
+        
+        # Weighted degree centrality (manual calculation)
+        # For claim nodes: normalize by num_responses
+        # For response nodes: normalize by num_claims
+        weighted_degree_centrality = {}
+        for node in claim_nodes:
+            weighted_degree_centrality[node] = weighted_degrees[node] / num_responses if num_responses > 0 else 0.0
+        for node in response_nodes:
+            weighted_degree_centrality[node] = weighted_degrees[node] / num_claims if num_claims > 0 else 0.0
+        logger.debug(f"Weighted bipartite degree centrality: {weighted_degree_centrality}")
 
-        # Calculate betweenness centrality (bipartite-aware)
-        # In bipartite graphs, shortest paths alternate between node sets
-        betweenness_centrality = nx.bipartite.betweenness_centrality(G, claim_nodes)
-        logger.debug(f"Bipartite betweenness centrality for all nodes: {betweenness_centrality}")
+        # For distance-based metrics, we need to invert weights
+        # Our weights: 1.0 = strong confidence/connection, 0.0 = no connection
+        # Distance metrics need: low value = short distance = strong connection
+        # So we invert: confidence 1.0 -> distance 1.0, confidence 0.1 -> distance 10.0
+        G_distance = G.copy()
+        for u, v, data in G_distance.edges(data=True):
+            if 'weight' in data and data['weight'] > 0:
+                data['weight'] = 1.0 / data['weight']
+            else:
+                # No connection or zero weight -> infinite distance
+                data['weight'] = float('inf')
 
-        # Calculate PageRank (standard version works for bipartite)
+        # Calculate betweenness centrality using standard (non-bipartite) version
+        # Note: nx.bipartite.betweenness_centrality doesn't support weights (hardcoded weight=None)
+        # We use inverted weights so high confidence = short distance
+        betweenness_centrality = nx.betweenness_centrality(G_distance, normalized=True, weight="weight")
+        logger.debug(f"Betweenness centrality (weighted): {betweenness_centrality}")
+
+        # Calculate PageRank (uses weights as connection strength - no inversion needed)
         # Random walks naturally respect bipartite structure
-        page_rank = nx.pagerank(G)
-        logger.debug(f"PageRank for all nodes: {page_rank}")
+        page_rank = nx.pagerank(G, weight="weight")
+        logger.debug(f"PageRank (weighted): {page_rank}")
 
-        # Calculate closeness centrality (bipartite-aware)
-        # In bipartite graphs, nodes in same set have min distance = 2
-        closeness_centrality = nx.bipartite.closeness_centrality(G, claim_nodes)
-        logger.debug(f"Bipartite closeness centrality for all nodes: {closeness_centrality}")
+        # Calculate closeness centrality using standard (non-bipartite) version
+        # Note: nx.bipartite.closeness_centrality doesn't support weights
+        # We use inverted weights so high confidence = short distance
+        closeness_centrality = nx.closeness_centrality(G_distance, distance="weight")
+        logger.debug(f"Closeness centrality (weighted): {closeness_centrality}")
 
-        # Note: Eigenvector centrality removed - not well-defined for bipartite graphs
-        # The principal eigenvector alternates in sign between the two node sets
+        # Calculate eigenvector centrality (uses weights as connection strength - no inversion needed)
+        # Note: This can fail to converge in some graph configurations (e.g., disconnected components)
+        try:
+            eigenvector_centrality = nx.eigenvector_centrality(G, max_iter=1000, weight="weight")
+            logger.debug(f"Eigenvector centrality (weighted): {eigenvector_centrality}")
+        except (nx.PowerIterationFailedConvergence, nx.NetworkXError) as e:
+            logger.warning(f"Eigenvector centrality failed to converge: {e}. Using zeros.")
+            eigenvector_centrality = {node: 0.0 for node in G.nodes()}
 
-        # # Calculate harmonic centrality for claim nodes
-        # harmonic_centrality = nx.harmonic_centrality(G)
-        # logger.debug(f"Harmonic centrality for claim nodes: {harmonic_centrality}")
+        # Calculate HITS (Hubs & Authorities) - Specifically designed for bipartite-like structures
+        # Hubs: nodes that connect to many important authorities (responses supporting important claims)
+        # Authorities: nodes that are connected to by many important hubs (claims supported by important responses)
+        try:
+            hubs, authorities = nx.hits(G, max_iter=100, normalized=True)
+            logger.debug(f"HITS hubs (responses supporting important claims): {hubs}")
+            logger.debug(f"HITS authorities (claims supported by important responses): {authorities}")
+        except nx.PowerIterationFailedConvergence as e:
+            logger.warning(f"HITS algorithm failed to converge: {e}. Using zeros.")
+            hubs = {node: 0.0 for node in G.nodes()}
+            authorities = {node: 0.0 for node in G.nodes()}
 
-        # # Calculate load centrality for claim nodes
-        # load_centrality = nx.load_centrality(G)
-        # logger.debug(f"Load centrality for claim nodes: {load_centrality}")
+        # Calculate Harmonic Centrality - Better than closeness for potentially disconnected graphs
+        # Uses inverted weights so high confidence = short distance
+        harmonic_centrality = nx.harmonic_centrality(G_distance, distance="weight")
+        logger.debug(f"Harmonic centrality (weighted): {harmonic_centrality}")
 
-        # # Calculate communicability centrality for claim nodes
-        # communicability_centrality = nx.communicability_centrality(G)
-        # logger.debug(f"Communicability centrality for claim nodes: {communicability_centrality}")
-
-        # # Calculate current flow betweenness centrality for claim nodes
-        # current_flow_betweenness_centrality = nx.current_flow_betweenness_centrality(G)
-        # logger.debug(f"Current flow betweenness centrality for claim nodes: {current_flow_betweenness_centrality}")
+        # Calculate Katz Centrality - More robust alternative to eigenvector centrality
+        # Uses weights as connection strength (no inversion needed)
+        try:
+            # Alpha must be less than 1/lambda_max. Start with a small conservative value
+            katz_centrality = nx.katz_centrality(G, alpha=0.01, beta=1.0, weight="weight", max_iter=1000)
+            logger.debug(f"Katz centrality (weighted): {katz_centrality}")
+        except (nx.PowerIterationFailedConvergence, nx.NetworkXError) as e:
+            logger.warning(f"Katz centrality failed to converge: {e}. Using zeros.")
+            katz_centrality = {node: 0.0 for node in G.nodes()}
 
         return {
             "raw_degrees": raw_degrees,
+            "weighted_degrees": weighted_degrees,
             "degree_centrality": degree_centrality,
+            "weighted_degree_centrality": weighted_degree_centrality,
             "betweenness_centrality": betweenness_centrality,
             "closeness_centrality": closeness_centrality,
             "page_rank": page_rank,
+            "eigenvector_centrality": eigenvector_centrality,
+            "hits_hubs": hubs,
+            "hits_authorities": authorities,
+            "harmonic_centrality": harmonic_centrality,
+            "katz_centrality": katz_centrality,
         }
 
     def _construct_bipartite_graph(self, biadjacency_matrix: np.ndarray, num_claims: int, num_responses: int) -> nx.Graph:
@@ -574,11 +633,18 @@ class GraphUQScorer(ClaimScorer):
                 original_response=is_original,
                 scorer_type="graphuq",
                 scores={
-                    "raw_degree": gmetrics["raw_degrees"][node_idx],
-                    "degree_centrality": gmetrics["degree_centrality"][node_idx],
-                    "betweenness_centrality": gmetrics["betweenness_centrality"][node_idx],
-                    "closeness_centrality": gmetrics["closeness_centrality"][node_idx],
-                    "page_rank": gmetrics["page_rank"][node_idx],
+                    "raw_degree": round(gmetrics["raw_degrees"][node_idx], 5),
+                    "weighted_degree": round(gmetrics["weighted_degrees"][node_idx], 5),
+                    "degree_centrality": round(gmetrics["degree_centrality"][node_idx], 5),
+                    "weighted_degree_centrality": round(gmetrics["weighted_degree_centrality"][node_idx], 5),
+                    "betweenness_centrality": round(gmetrics["betweenness_centrality"][node_idx], 5),
+                    "closeness_centrality": round(gmetrics["closeness_centrality"][node_idx], 5),
+                    "harmonic_centrality": round(gmetrics["harmonic_centrality"][node_idx], 5),
+                    "page_rank": round(gmetrics["page_rank"][node_idx], 5),
+                    "eigenvector_centrality": round(gmetrics["eigenvector_centrality"][node_idx], 5),
+                    "katz_centrality": round(gmetrics["katz_centrality"][node_idx], 5),
+                    "hits_hub": round(gmetrics["hits_hubs"][node_idx], 5),
+                    "hits_authority": round(gmetrics["hits_authorities"][node_idx], 5),
                 },
             )
             claim_scores.append(claim_score)

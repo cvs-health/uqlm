@@ -286,7 +286,25 @@ class LongFormUQ(UncertaintyQuantifier):
     def _convert_graphuq_scores(self, claim_score_lists: List[List[Any]]) -> Dict[str, List[List[float]]]:
         """Convert GraphUQ ClaimScore objects to dict format."""
         # Initialize dict for all metrics
-        metrics = ["raw_degree", "degree_centrality", "betweenness_centrality", "closeness_centrality", "page_rank"]
+        # Metrics are organized by category for clarity
+        metrics = [
+            # Degree metrics
+            "raw_degree",
+            "weighted_degree",
+            "degree_centrality",
+            "weighted_degree_centrality",
+            # Path-based metrics
+            "betweenness_centrality",
+            "closeness_centrality",
+            "harmonic_centrality",
+            # Influence/importance metrics
+            "page_rank",
+            "eigenvector_centrality",
+            "katz_centrality",
+            # Bipartite-specific metrics (HITS)
+            "hits_hub",
+            "hits_authority",
+        ]
         score_results = {f"graphuq_{metric}": [] for metric in metrics}
 
         # Extract scores for each response set
