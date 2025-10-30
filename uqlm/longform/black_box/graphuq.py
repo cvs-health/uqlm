@@ -37,9 +37,7 @@ class GraphUQScorer(ClaimScorer):
     ) -> None:
         self.nli_model_name = nli_model_name
         self.nli_llm = nli_llm
-        self.nli = NLI(
-            nli_model_name=nli_model_name, nli_llm=nli_llm, device=device, max_length=max_length
-        )
+        self.nli = NLI(nli_model_name=nli_model_name, nli_llm=nli_llm, device=device, max_length=max_length)
         self.rg = ResponseGenerator(llm=judge_llm, max_calls_per_min=max_calls_per_min)
 
         logger.info(f"Initialized GraphUQScorer")
@@ -104,9 +102,7 @@ class GraphUQScorer(ClaimScorer):
         logger.debug(f"Starting evaluation for {len(response_sets)} response sets.")
 
         if len(response_sets) > 10 and show_graph:
-            logger.warning(
-                "More than 10 response sets and show_graph is True. This will be slow and may cause memory issues."
-            )
+            logger.warning("More than 10 response sets and show_graph is True. This will be slow and may cause memory issues.")
 
         if claim_dedup_method not in ["sequential", "one_shot", "exact_match", None]:
             logger.warning(f"Invalid claim dedup method: {claim_dedup_method}. Skipping claim deduplication process.")
@@ -120,12 +116,12 @@ class GraphUQScorer(ClaimScorer):
 
         # Process all response sets step-by-step (batched by step)
         # This avoids shared state issues with ResponseGenerator and NLI
-        
+
         # Step 1: Dedup claims for all response sets
         logger.debug("Step 1: Deduplicating claims for all response sets...")
         master_claim_sets = await self._dedup_claims(
-            original_claim_sets, 
-            sampled_claim_sets, 
+            original_claim_sets,
+            sampled_claim_sets,
             claim_dedup_method,
             progress_bar,
         )
@@ -155,12 +151,10 @@ class GraphUQScorer(ClaimScorer):
 
         # Small delay to ensure progress bar UI updates before function completes
         await asyncio.sleep(0.1)
-        
+
         return claim_score_lists
 
-    def _calculate_claim_node_graph_metrics(
-        self, G: nx.Graph, num_claims: int, num_responses: int
-    ) -> dict:
+    def _calculate_claim_node_graph_metrics(self, G: nx.Graph, num_claims: int, num_responses: int) -> dict:
         """
         Calculate claim node graph metrics.
         Args:
@@ -224,9 +218,7 @@ class GraphUQScorer(ClaimScorer):
             "page_rank": page_rank,
         }
 
-    def _construct_bipartite_graph(
-        self, biadjacency_matrix: np.ndarray, num_claims: int, num_responses: int
-    ) -> nx.Graph:
+    def _construct_bipartite_graph(self, biadjacency_matrix: np.ndarray, num_claims: int, num_responses: int) -> nx.Graph:
         """
         Construct a bipartite graph from a biadjacency matrix.
         Args:
@@ -260,26 +252,21 @@ class GraphUQScorer(ClaimScorer):
         progress_bar: Optional[Progress] = None,
     ) -> List[List[str]]:
         """Process claim deduplication for response sets.
-        
+
         Leverages ResponseGenerator's ability to handle multiple prompts at once
         by collecting dedup prompts and making batch calls.
         """
         num_response_sets = len(original_claim_sets)
-        
+
         # Create progress task if progress bar is provided
         progress_task = None
         if progress_bar and claim_dedup_method and claim_dedup_method != "exact_match":
-            progress_task = progress_bar.add_task(
-                "  - Deduplicating claims...", total=num_response_sets
-            )
-        
+            progress_task = progress_bar.add_task("  - Deduplicating claims...", total=num_response_sets)
+
         if not claim_dedup_method:
             # No dedup, just concatenate for all response sets
-            master_claim_sets = [
-                original_claim_sets[i] + [claim for claim_set in sampled_claim_sets[i] for claim in claim_set]
-                for i in range(num_response_sets)
-            ]
-        
+            master_claim_sets = [original_claim_sets[i] + [claim for claim_set in sampled_claim_sets[i] for claim in claim_set] for i in range(num_response_sets)]
+
         elif claim_dedup_method == "exact_match":
             # Exact match, no LLM calls needed
             master_claim_sets = []
@@ -289,89 +276,83 @@ class GraphUQScorer(ClaimScorer):
                 logger.debug(f"[Response set {i}] Initial master claim set size: {len(original_claim_sets[i])}")
                 logger.debug(f"[Response set {i}] Master claim set size after dedup: {len(master_claim_set)}")
                 master_claim_sets.append(master_claim_set)
-        
+
         elif claim_dedup_method == "one_shot":
             # One-shot: Batch ALL prompts across ALL response sets
             prompts = []
             prompt_metadata = []  # Track which response set each prompt belongs to
-            
+
             for i in range(num_response_sets):
                 all_sampled_claims = [claim for claim_set in sampled_claim_sets[i] for claim in claim_set]
                 unique_sampled_claims = list(set(all_sampled_claims) - set(original_claim_sets[i]))
-                
+
                 logger.debug(f"[Response set {i}] Initial master claim set size: {len(original_claim_sets[i])}")
                 logger.debug(f"[Response set {i}] Found {len(unique_sampled_claims)} unique sampled claims to process")
-                
+
                 if unique_sampled_claims:
                     prompts.append(get_claim_dedup_prompt(original_claim_sets[i], unique_sampled_claims))
                     prompt_metadata.append((i, original_claim_sets[i], all_sampled_claims))
                 else:
                     prompt_metadata.append((i, original_claim_sets[i], all_sampled_claims))
-            
+
             # Make single batch call to ResponseGenerator for all prompts
             if prompts:
                 result = await self.rg.generate_responses(prompts=prompts)
                 responses = result["data"]["response"]
             else:
                 responses = []
-            
+
             # Process results and build master_claim_sets
             master_claim_sets = [None] * num_response_sets
             response_idx = 0
-            
+
             for i, original_set, all_sampled in prompt_metadata:
                 unique_sampled = list(set(all_sampled) - set(original_set))
-                
+
                 if unique_sampled and response_idx < len(responses):
                     # Extract new claims from LLM response
                     response_text = responses[response_idx]
                     new_claims = re.findall(r"^\s*-\s*(.+)", response_text, re.MULTILINE)
-                    
+
                     if new_claims:
                         logger.debug(f"[Response set {i}] Adding {len(new_claims)} new claims to master set")
                         master_claim_set = original_set + new_claims
                     else:
                         logger.debug(f"[Response set {i}] No new claims extracted from LLM response")
                         master_claim_set = original_set
-                    
+
                     response_idx += 1
                 else:
                     master_claim_set = original_set
-                
+
                 logger.debug(f"[Response set {i}] Master claim set size after dedup: {len(master_claim_set)}")
-                logger.debug(
-                    f"[Response set {i}] Original claims missing: {len(set(original_set) - set(master_claim_set))}"
-                )
-                logger.debug(
-                    f"[Response set {i}] Entirely new claims added: {len(set(master_claim_set) - set(original_set + all_sampled))}"
-                )
-                
+                logger.debug(f"[Response set {i}] Original claims missing: {len(set(original_set) - set(master_claim_set))}")
+                logger.debug(f"[Response set {i}] Entirely new claims added: {len(set(master_claim_set) - set(original_set + all_sampled))}")
+
                 master_claim_sets[i] = master_claim_set
-                
+
                 # Update progress
                 if progress_bar and progress_task is not None:
                     progress_bar.update(progress_task, advance=1)
-        
+
         elif claim_dedup_method == "sequential":
             # Sequential: Batch across response sets at each iteration
             master_claim_sets = [original_claim_sets[i] for i in range(num_response_sets)]
             max_iterations = max(len(sampled_set) for sampled_set in sampled_claim_sets)
-            
+
             for iteration in range(max_iterations):
                 prompts = []
                 prompt_metadata = []  # (response_set_idx, has_prompt)
-                
+
                 for i in range(num_response_sets):
                     logger.debug(f"[Response set {i}] Initial master claim set size: {len(original_claim_sets[i])}")
-                    
+
                     if iteration < len(sampled_claim_sets[i]):
                         sampled_claims = sampled_claim_sets[i][iteration]
                         unique_sampled_claims = list(set(sampled_claims) - set(master_claim_sets[i]))
-                        
-                        logger.debug(
-                            f"[Response set {i}][Iteration {iteration}] Found {len(unique_sampled_claims)} unique claims"
-                        )
-                        
+
+                        logger.debug(f"[Response set {i}][Iteration {iteration}] Found {len(unique_sampled_claims)} unique claims")
+
                         if unique_sampled_claims:
                             prompts.append(get_claim_dedup_prompt(master_claim_sets[i], unique_sampled_claims))
                             prompt_metadata.append((i, True, master_claim_sets[i], sampled_claims))
@@ -379,53 +360,43 @@ class GraphUQScorer(ClaimScorer):
                             prompt_metadata.append((i, False, master_claim_sets[i], sampled_claims))
                     else:
                         prompt_metadata.append((i, False, master_claim_sets[i], []))
-                
+
                 # Batch call for this iteration across all response sets
                 if prompts:
                     result = await self.rg.generate_responses(prompts=prompts)
                     responses = result["data"]["response"]
                 else:
                     responses = []
-                
+
                 # Update master_claim_sets with results
                 response_idx = 0
                 for i, has_prompt, current_master, sampled_claims in prompt_metadata:
                     if has_prompt and response_idx < len(responses):
                         response_text = responses[response_idx]
                         new_claims = re.findall(r"^\s*-\s*(.+)", response_text, re.MULTILINE)
-                        
+
                         if new_claims:
-                            logger.debug(
-                                f"[Response set {i}][Iteration {iteration}] Adding {len(new_claims)} new claims"
-                            )
+                            logger.debug(f"[Response set {i}][Iteration {iteration}] Adding {len(new_claims)} new claims")
                             master_claim_sets[i] = current_master + new_claims
                         else:
-                            logger.debug(
-                                f"[Response set {i}][Iteration {iteration}] No new claims extracted"
-                            )
-                        
+                            logger.debug(f"[Response set {i}][Iteration {iteration}] No new claims extracted")
+
                         response_idx += 1
-            
+
             # Log final stats and update progress
             for i in range(num_response_sets):
                 all_sampled_claims = [claim for claim_set in sampled_claim_sets[i] for claim in claim_set]
-                logger.debug(
-                    f"[Response set {i}] Master claim set size after dedup: {len(master_claim_sets[i])}"
-                )
-                logger.debug(
-                    f"[Response set {i}] Original claims missing: {len(set(original_claim_sets[i]) - set(master_claim_sets[i]))}"
-                )
-                logger.debug(
-                    f"[Response set {i}] Entirely new claims added: {len(set(master_claim_sets[i]) - set(original_claim_sets[i] + all_sampled_claims))}"
-                )
-                
+                logger.debug(f"[Response set {i}] Master claim set size after dedup: {len(master_claim_sets[i])}")
+                logger.debug(f"[Response set {i}] Original claims missing: {len(set(original_claim_sets[i]) - set(master_claim_sets[i]))}")
+                logger.debug(f"[Response set {i}] Entirely new claims added: {len(set(master_claim_sets[i]) - set(original_claim_sets[i] + all_sampled_claims))}")
+
                 # Update progress
                 if progress_bar and progress_task is not None:
                     progress_bar.update(progress_task, advance=1)
-        
+
         else:
             raise ValueError(f"Unknown claim_dedup_method: {claim_dedup_method}")
-        
+
         return master_claim_sets
 
     async def _compute_adjacency_matrices(
@@ -438,38 +409,34 @@ class GraphUQScorer(ClaimScorer):
         progress_bar: Optional[Progress] = None,
     ) -> List[np.ndarray]:
         """Compute adjacency matrices for response sets.
-        
+
         Collects NLI tasks across response sets and executes them concurrently
         using asyncio.gather, then reconstructs the adjacency matrices.
         """
         num_response_sets = len(response_sets)
-        
+
         # Create progress task if progress bar is provided
         progress_task = None
         if progress_bar:
-            progress_task = progress_bar.add_task(
-                "  - Building claim-response biadjacency matrices...", total=num_response_sets
-            )
-        
+            progress_task = progress_bar.add_task("  - Building claim-response biadjacency matrices...", total=num_response_sets)
+
         # Collect all NLI tasks across all response sets
         all_nli_tasks = []
         task_metadata = []  # Track which (response_set_idx, claim_idx, response_idx) each task corresponds to
-        
+
         for i in range(num_response_sets):
             master_claim_set = master_claim_sets[i]
             responses = response_sets[i]
             entailment_score_set = entailment_score_sets[i]
-            
+
             logger.debug(f"[Response set {i}] Computing entailment scores for master claim set...")
-            
+
             # Determine which claim-response pairs need NLI computation
             if entailment_score_set is None:
                 # All pairs need computation
                 for claim_idx, claim in enumerate(master_claim_set):
                     for response_idx, response in enumerate(responses):
-                        all_nli_tasks.append(
-                            self.nli.apredict(hypothesis=claim, premise=response, style="binary")
-                        )
+                        all_nli_tasks.append(self.nli.apredict(hypothesis=claim, premise=response, style="binary"))
                         task_metadata.append((i, claim_idx, response_idx))
             else:
                 # Only missing pairs need computation
@@ -479,32 +446,28 @@ class GraphUQScorer(ClaimScorer):
                         if len(scores) != len(responses):
                             # Wrong number of scores, compute all for this claim
                             for response_idx, response in enumerate(responses):
-                                all_nli_tasks.append(
-                                    self.nli.apredict(hypothesis=claim, premise=response, style="binary")
-                                )
+                                all_nli_tasks.append(self.nli.apredict(hypothesis=claim, premise=response, style="binary"))
                                 task_metadata.append((i, claim_idx, response_idx))
                     else:
                         # Claim not in entailment_score_set, compute all
                         for response_idx, response in enumerate(responses):
-                            all_nli_tasks.append(
-                                self.nli.apredict(hypothesis=claim, premise=response, style="binary")
-                            )
+                            all_nli_tasks.append(self.nli.apredict(hypothesis=claim, premise=response, style="binary"))
                             task_metadata.append((i, claim_idx, response_idx))
-        
+
         # Execute all NLI tasks concurrently
         logger.debug(f"Executing {len(all_nli_tasks)} NLI predictions concurrently...")
         if all_nli_tasks:
             nli_results = await asyncio.gather(*all_nli_tasks)
         else:
             nli_results = []
-        
+
         # Build adjacency matrices for each response set
         biadjacency_matrices = []
         for i in range(num_response_sets):
             num_claims = len(master_claim_sets[i])
             num_responses = len(response_sets[i])
             biadjacency_matrix = np.zeros((num_claims, num_responses))
-            
+
             # First, fill in provided scores if available
             if entailment_score_sets[i] is not None:
                 for claim_idx, claim in enumerate(master_claim_sets[i]):
@@ -514,34 +477,28 @@ class GraphUQScorer(ClaimScorer):
                             for response_idx, score in enumerate(scores):
                                 if score >= 0:
                                     biadjacency_matrix[claim_idx, response_idx] = score
-            
+
             biadjacency_matrices.append(biadjacency_matrix)
-        
+
         # Now fill in the NLI results
         for (resp_set_idx, claim_idx, response_idx), nli_result in zip(task_metadata, nli_results):
             if use_entailment_prob:
                 biadjacency_matrices[resp_set_idx][claim_idx, response_idx] = nli_result.entailment_probability
             else:
-                biadjacency_matrices[resp_set_idx][claim_idx, response_idx] = (
-                    1.0 if nli_result.binary_label else 0.0
-                )
-        
+                biadjacency_matrices[resp_set_idx][claim_idx, response_idx] = 1.0 if nli_result.binary_label else 0.0
+
         # Apply edge weight threshold to all matrices
         filtered_matrices = []
         for i, biadjacency_matrix in enumerate(biadjacency_matrices):
             logger.debug(f"[Response set {i}] Biadjacency matrix shape: {biadjacency_matrix.shape}")
-            biadjacency_matrix_filtered = np.where(
-                biadjacency_matrix > edge_weight_threshold, biadjacency_matrix, 0
-            )
-            logger.debug(
-                f"[Response set {i}] Filtered {np.sum(biadjacency_matrix > 0) - np.sum(biadjacency_matrix_filtered > 0)} edges below threshold {edge_weight_threshold}"
-            )
+            biadjacency_matrix_filtered = np.where(biadjacency_matrix > edge_weight_threshold, biadjacency_matrix, 0)
+            logger.debug(f"[Response set {i}] Filtered {np.sum(biadjacency_matrix > 0) - np.sum(biadjacency_matrix_filtered > 0)} edges below threshold {edge_weight_threshold}")
             filtered_matrices.append(biadjacency_matrix_filtered)
-            
+
             # Update progress
             if progress_bar and progress_task is not None:
                 progress_bar.update(progress_task, advance=1)
-        
+
         return filtered_matrices
 
     def _construct_graphs_and_calculate_scores(
@@ -556,14 +513,12 @@ class GraphUQScorer(ClaimScorer):
     ) -> List[List[ClaimScore]]:
         """Construct bipartite graphs and calculate claim scores for all response sets."""
         num_response_sets = len(response_sets)
-        
+
         # Create progress task if progress bar is provided
         progress_task = None
         if progress_bar:
-            progress_task = progress_bar.add_task(
-                "  - Constructing graphs and calculating scores...", total=num_response_sets
-            )
-        
+            progress_task = progress_bar.add_task("  - Constructing graphs and calculating scores...", total=num_response_sets)
+
         claim_score_lists = []
         for i in range(num_response_sets):
             claim_scores = self._process_single_graph(
@@ -576,11 +531,11 @@ class GraphUQScorer(ClaimScorer):
                 show_graph,
             )
             claim_score_lists.append(claim_scores)
-            
+
             # Update progress
             if progress_bar and progress_task is not None:
                 progress_bar.update(progress_task, advance=1)
-        
+
         return claim_score_lists
 
     def _process_single_graph(
@@ -601,18 +556,14 @@ class GraphUQScorer(ClaimScorer):
         logger.debug(f"[Response set {index}] Constructing bipartite graph...")
         G = self._construct_bipartite_graph(biadjacency_matrix, num_claims, num_responses)
 
-        logger.debug(
-            f"[Response set {index}] Bipartite graph constructed: {G.number_of_nodes()} nodes ({num_claims} claims, {num_responses} responses), {G.number_of_edges()} edges"
-        )
+        logger.debug(f"[Response set {index}] Bipartite graph constructed: {G.number_of_nodes()} nodes ({num_claims} claims, {num_responses} responses), {G.number_of_edges()} edges")
 
         # Calculate claim node graph metrics
         logger.debug(f"[Response set {index}] Calculating claim node graph metrics...")
         gmetrics = self._calculate_claim_node_graph_metrics(G, num_claims, num_responses)
 
         # Gather claim scores into list of ClaimScore objects
-        logger.debug(
-            f"[Response set {index}] Gathering claim scores into list of ClaimScore objects..."
-        )
+        logger.debug(f"[Response set {index}] Gathering claim scores into list of ClaimScore objects...")
         claim_scores = []
         for node_idx in range(num_claims):
             claim_text = master_claim_set[node_idx]
@@ -635,9 +586,7 @@ class GraphUQScorer(ClaimScorer):
         # Optional: visualize graph
         if show_graph or save_graph_path:
             if not PLOTLY_AVAILABLE:
-                logger.warning(
-                    "Plotly is not installed. Falling back to matplotlib. To use interactive HTML visualizations, install plotly: pip install plotly"
-                )
+                logger.warning("Plotly is not installed. Falling back to matplotlib. To use interactive HTML visualizations, install plotly: pip install plotly")
                 self._visualize_bipartite_graph_matplotlib(
                     G,
                     num_claims,
@@ -769,11 +718,7 @@ class GraphUQScorer(ClaimScorer):
         # Calculate claim node degrees for color mapping
         claim_degrees = []
         for claim_idx in claim_nodes:
-            degree = sum(
-                1
-                for resp_idx in response_nodes
-                if biadjacency_matrix[claim_idx, resp_idx - num_claims] > 0
-            )
+            degree = sum(1 for resp_idx in response_nodes if biadjacency_matrix[claim_idx, resp_idx - num_claims] > 0)
             claim_degrees.append(degree)
 
         # Normalize degrees for color mapping
@@ -837,13 +782,9 @@ class GraphUQScorer(ClaimScorer):
             x, y = pos[node_idx]
             # Truncate long responses for display
             response_text = response_texts[i]
-            display_text = (
-                (response_text[:40] + "...") if len(response_text) > 40 else response_text
-            )
+            display_text = (response_text[:40] + "...") if len(response_text) > 40 else response_text
 
-            ax.scatter(
-                x, y, s=600, c="#fc8d62", marker="o", edgecolors="#e34a33", linewidths=2, zorder=3
-            )
+            ax.scatter(x, y, s=600, c="#fc8d62", marker="o", edgecolors="#e34a33", linewidths=2, zorder=3)
             ax.text(
                 x,
                 y,
@@ -928,9 +869,7 @@ class GraphUQScorer(ClaimScorer):
         """Create interactive Plotly visualization of the bipartite graph"""
 
         if not PLOTLY_AVAILABLE:
-            raise ImportError(
-                "Plotly is required for interactive HTML visualizations. Install it with: pip install plotly"
-            )
+            raise ImportError("Plotly is required for interactive HTML visualizations. Install it with: pip install plotly")
 
         # Create bipartite layout: claims on left, responses on right
         claim_nodes = list(range(num_claims))
@@ -976,16 +915,8 @@ class GraphUQScorer(ClaimScorer):
                     x1, y1 = pos[response_idx]
 
                     # Truncate texts for hover
-                    claim_text_short = (
-                        (claim_texts[claim_idx][:60] + "...")
-                        if len(claim_texts[claim_idx]) > 60
-                        else claim_texts[claim_idx]
-                    )
-                    response_text_short = (
-                        (response_texts[response_idx - num_claims][:60] + "...")
-                        if len(response_texts[response_idx - num_claims]) > 60
-                        else response_texts[response_idx - num_claims]
-                    )
+                    claim_text_short = (claim_texts[claim_idx][:60] + "...") if len(claim_texts[claim_idx]) > 60 else claim_texts[claim_idx]
+                    response_text_short = (response_texts[response_idx - num_claims][:60] + "...") if len(response_texts[response_idx - num_claims]) > 60 else response_texts[response_idx - num_claims]
 
                     # Normalize weight to [0, 1] based on actual range in this graph
                     if weight_range > 0:
@@ -1020,9 +951,7 @@ class GraphUQScorer(ClaimScorer):
                         x=[mid_x],
                         y=[mid_y],
                         mode="markers",
-                        marker=dict(
-                            size=12, color="rgba(150, 150, 150, 0.01)"
-                        ),  # Nearly invisible but clickable
+                        marker=dict(size=12, color="rgba(150, 150, 150, 0.01)"),  # Nearly invisible but clickable
                         hovertemplate=f"<b>Weight: {weight:.4f}</b><br>"
                         + f"Normalized: {normalized_weight:.2f}<br>"
                         + f"C{claim_idx} → R{response_idx - num_claims}<br>"
@@ -1035,11 +964,7 @@ class GraphUQScorer(ClaimScorer):
         # Calculate claim node degrees for color mapping
         claim_degrees = []
         for claim_idx in claim_nodes:
-            degree = sum(
-                1
-                for resp_idx in response_nodes
-                if biadjacency_matrix[claim_idx, resp_idx - num_claims] > 0
-            )
+            degree = sum(1 for resp_idx in response_nodes if biadjacency_matrix[claim_idx, resp_idx - num_claims] > 0)
             claim_degrees.append(degree)
 
         # Normalize degrees for color mapping
@@ -1050,9 +975,7 @@ class GraphUQScorer(ClaimScorer):
         # Create claim node trace with color based on degree
         claim_x = [pos[node][0] for node in claim_nodes]
         claim_y = [pos[node][1] for node in claim_nodes]
-        claim_text = [
-            f"<b>C{i}</b><br>Degree: {claim_degrees[i]}<br>{claim_texts[i]}" for i in claim_nodes
-        ]
+        claim_text = [f"<b>C{i}</b><br>Degree: {claim_degrees[i]}<br>{claim_texts[i]}" for i in claim_nodes]
 
         # Generate color scale (light blue to dark blue)
         claim_colors = []
@@ -1071,9 +994,7 @@ class GraphUQScorer(ClaimScorer):
             x=claim_x,
             y=claim_y,
             mode="markers+text",
-            marker=dict(
-                size=20, color=claim_colors, line=dict(width=2, color="#2171b5"), symbol="square"
-            ),
+            marker=dict(size=20, color=claim_colors, line=dict(width=2, color="#2171b5"), symbol="square"),
             text=[f"C{i}" for i in claim_nodes],
             textposition="middle center",
             textfont=dict(size=10, color="white", family="Arial Black"),
@@ -1092,9 +1013,7 @@ class GraphUQScorer(ClaimScorer):
             x=response_x,
             y=response_y,
             mode="markers+text",
-            marker=dict(
-                size=20, color="#fc8d62", line=dict(width=2, color="#e34a33"), symbol="circle"
-            ),
+            marker=dict(size=20, color="#fc8d62", line=dict(width=2, color="#e34a33"), symbol="circle"),
             text=[f"R{i}" for i in range(num_responses)],
             textposition="middle center",
             textfont=dict(size=10, color="white", family="Arial Black"),

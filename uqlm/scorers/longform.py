@@ -110,7 +110,9 @@ class LongFormUQ(UncertaintyQuantifier):
         self.sampled_sentence_sets = None
         self.num_responses = None
 
-    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, show_progress_bars: Optional[bool] = True, show_graph: bool = False, save_graph_path: Optional[str] = None) -> UQResult:
+    async def generate_and_score(
+        self, prompts: List[str], num_responses: int = 5, show_progress_bars: Optional[bool] = True, show_graph: bool = False, save_graph_path: Optional[str] = None
+    ) -> UQResult:
         """
         Generate LLM responses, sampled LLM (candidate) responses, and compute confidence scores with specified scorers for the provided prompts.
 
@@ -124,10 +126,10 @@ class LongFormUQ(UncertaintyQuantifier):
 
         show_progress_bars : bool, default=True
             If True, displays progress bars while generating and scoring responses
-        
+
         show_graph : bool, default=False
             For GraphUQ mode: If True, displays the bipartite graph visualization
-        
+
         save_graph_path : str, optional
             For GraphUQ mode: If provided, saves the graph visualization to this path
 
@@ -147,7 +149,9 @@ class LongFormUQ(UncertaintyQuantifier):
         result = await self.score(responses=responses, sampled_responses=sampled_responses, show_progress_bars=show_progress_bars, show_graph=show_graph, save_graph_path=save_graph_path)
         return result
 
-    async def score(self, responses: List[str], sampled_responses: List[List[str]], show_progress_bars: Optional[bool] = True, show_graph: bool = False, save_graph_path: Optional[str] = None) -> UQResult:
+    async def score(
+        self, responses: List[str], sampled_responses: List[List[str]], show_progress_bars: Optional[bool] = True, show_graph: bool = False, save_graph_path: Optional[str] = None
+    ) -> UQResult:
         """
         Compute confidence scores with specified scorers on provided LLM responses. Should only be used if responses and sampled responses
         are already generated. Otherwise, use `generate_and_score`.
@@ -163,10 +167,10 @@ class LongFormUQ(UncertaintyQuantifier):
 
         show_progress_bars : bool, default=True
             If True, displays a progress bar while scoring responses
-        
+
         show_graph : bool, default=False
             For GraphUQ mode: If True, displays the bipartite graph visualization
-        
+
         save_graph_path : str, optional
             For GraphUQ mode: If provided, saves the graph visualization to this path
 
@@ -183,14 +187,37 @@ class LongFormUQ(UncertaintyQuantifier):
         await self._decompose_responses(show_progress_bars)
         self._display_scoring_header(show_progress_bars)
 
-        score_result = await self._score_from_decomposed(claim_sets=self.claim_sets, sentence_sets=self.sentence_sets, responses=responses, sampled_responses=self.sampled_responses, sampled_claim_sets=self.sampled_claim_sets, progress_bar=self.progress_bar, show_graph=show_graph, save_graph_path=save_graph_path)
+        score_result = await self._score_from_decomposed(
+            claim_sets=self.claim_sets,
+            sentence_sets=self.sentence_sets,
+            responses=responses,
+            sampled_responses=self.sampled_responses,
+            sampled_claim_sets=self.sampled_claim_sets,
+            progress_bar=self.progress_bar,
+            show_graph=show_graph,
+            save_graph_path=save_graph_path,
+        )
 
         self._stop_progress_bar()
         self.progress_bar = None
 
         return score_result
 
-    async def _score_from_decomposed(self, claim_sets: List[List[str]], sentence_sets: List[List[str]], responses: List[str], sampled_responses: Optional[List[List[str]]] = None, sampled_claim_sets: Optional[List[List[List[str]]]] = None, progress_bar: Optional[Progress] = None, entailment_score_sets: Optional[List[Dict[str, List[float]]]] = None, claim_dedup_method: Optional[str] = "sequential", use_entailment_prob: bool = False, edge_weight_threshold: float = 0.001, show_graph: bool = False, save_graph_path: Optional[str] = None) -> UQResult:
+    async def _score_from_decomposed(
+        self,
+        claim_sets: List[List[str]],
+        sentence_sets: List[List[str]],
+        responses: List[str],
+        sampled_responses: Optional[List[List[str]]] = None,
+        sampled_claim_sets: Optional[List[List[List[str]]]] = None,
+        progress_bar: Optional[Progress] = None,
+        entailment_score_sets: Optional[List[Dict[str, List[float]]]] = None,
+        claim_dedup_method: Optional[str] = "sequential",
+        use_entailment_prob: bool = False,
+        edge_weight_threshold: float = 0.001,
+        show_graph: bool = False,
+        save_graph_path: Optional[str] = None,
+    ) -> UQResult:
         """
         Compute confidence scores with specified scorers on provided LLM responses. Should only be used if responses and sampled responses
         are already generated. Otherwise, use `generate_and_score`.
@@ -208,16 +235,16 @@ class LongFormUQ(UncertaintyQuantifier):
 
         sampled_claim_sets : list of list of list of strings
             Decomposed responses to be compared to the decomposed original responses
-            
+
         entailment_score_sets : list of dicts, optional
             For GraphUQ mode: pre-computed entailment scores for claims
-            
+
         claim_dedup_method : str, default="sequential"
             For GraphUQ mode: method for claim deduplication ("sequential", "one_shot", "exact_match", or None)
-            
+
         use_entailment_prob : bool, default=False
             For GraphUQ mode: whether to use entailment probabilities for edge weights
-            
+
         edge_weight_threshold : float, default=0.001
             For GraphUQ mode: threshold for filtering out low-weight edges
 
@@ -227,7 +254,7 @@ class LongFormUQ(UncertaintyQuantifier):
             UQResult containing data (responses and scores) and metadata
         """
         claim_sets = self.claim_sets if self.granularity == "claim" else self.sentence_sets
-        
+
         if self.mode == "unit_response":
             score_results = self.unit_response_scorer.evaluate(claim_sets=claim_sets, sampled_responses=sampled_responses, progress_bar=progress_bar).to_dict()
         elif self.mode == "matched_unit":
@@ -255,19 +282,19 @@ class LongFormUQ(UncertaintyQuantifier):
         for scorer, scores in score_results.items():
             self.scores_dict[scorer] = self._aggregate_scores(scores)
         return self._construct_result()
-    
+
     def _convert_graphuq_scores(self, claim_score_lists: List[List[Any]]) -> Dict[str, List[List[float]]]:
         """Convert GraphUQ ClaimScore objects to dict format."""
         # Initialize dict for all metrics
         metrics = ["raw_degree", "degree_centrality", "betweenness_centrality", "closeness_centrality", "page_rank"]
         score_results = {f"graphuq_{metric}": [] for metric in metrics}
-        
+
         # Extract scores for each response set
         for claim_scores in claim_score_lists:
             for metric in metrics:
                 metric_scores = [cs.scores[metric] for cs in claim_scores]
                 score_results[f"graphuq_{metric}"].append(metric_scores)
-        
+
         return score_results
 
     async def _decompose_responses(self, show_progress_bars) -> None:
@@ -300,7 +327,17 @@ class LongFormUQ(UncertaintyQuantifier):
         if self.sentence_sets:
             data["sentence_sets"] = self.sentence_sets
         data.update(self.scores_dict)
-        result = {"data": data, "metadata": {"mode": self.mode, "granularity": self.granularity, "aggregation_method": self.aggregation_method, "temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses}}
+        result = {
+            "data": data,
+            "metadata": {
+                "mode": self.mode,
+                "granularity": self.granularity,
+                "aggregation_method": self.aggregation_method,
+                "temperature": None if not self.llm else self.llm.temperature,
+                "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature,
+                "num_responses": self.num_responses,
+            },
+        }
         return UQResult(result)
 
     def _display_decomposition_header(self, show_progress_bars: bool) -> None:
@@ -315,14 +352,14 @@ class LongFormUQ(UncertaintyQuantifier):
         self.matched_unit_scorer = None
         self.unit_response_scorer = None
         self.graphuq_scorer = None
-        
+
         if self.granularity not in ["sentence", "claim"]:
             raise ValueError(
                 f"""
                 Invalid granularity: {self.granularity}. Must be one of "sentence", "claim"
                 """
             )
-        
+
         if self.mode == "unit_response":
             self.unit_response_scorer = UnitResponseScorer(nli_model_name=self.nli_model_name, device=self.device, max_length=self.max_length)
         elif self.mode == "matched_unit":
