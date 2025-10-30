@@ -14,8 +14,10 @@
 
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
 from uqlm.utils.results import UQResult
-from typing import Any, Optional, List
+from uqlm.utils.cluster import Cluster
+from typing import Any, Optional, List, Dict
 import time
+import numpy as np
 
 
 class SemanticDensity(UncertaintyQuantifier):
@@ -74,6 +76,7 @@ class SemanticDensity(UncertaintyQuantifier):
         self.return_responses = return_responses
         self._setup_nli(nli_model_name)
         self.prompts = None
+        self.cluster = Cluster(nli_scorer=self.nli_scorer)
 
     async def generate_and_score(self, prompts: List[str], num_responses: int = 5, show_progress_bars: Optional[bool] = True) -> UQResult:
         """
@@ -147,7 +150,7 @@ class SemanticDensity(UncertaintyQuantifier):
 
             candidates = self.sampled_responses[i]
             candidate_logprobs = self.multiple_logprobs[i]
-            semantic_density[i], _ = self.nli_scorer._semantic_density_process(prompt=prompt, original_response=original_response, candidates=candidates, i=i, logprobs_results=candidate_logprobs)
+            semantic_density[i], _ = self._semantic_density_process(prompt=prompt, original_response=original_response, candidates=candidates, i=i, logprobs_results=candidate_logprobs)
 
         self._construct_progress_bar(show_progress_bars)
         self._display_scoring_header(show_progress_bars)
@@ -169,3 +172,35 @@ class SemanticDensity(UncertaintyQuantifier):
         self._stop_progress_bar()
         self.progress_bar = None  # if re-run ensure the same progress object is not used
         return UQResult(result)
+
+    def _semantic_density_process(self, prompt: str, original_response: str, candidates: List[str], i: int = None, logprobs_results: List[List[Dict[str, Any]]] = None) -> Any:
+        """
+        Executes complete process for semantic density and returns SD score, and dictionary
+        of NLI scores for response pairs
+        """
+        if self.verbose and i is not None:
+            print("Question No. - ", i + 1)
+
+        # Get the length-normalized tokenwise probability for each candidate response
+        tokenprob_response_probabilities, _ = self.cluster.compute_response_probabilities(logprobs_results=logprobs_results, num_responses=len(candidates))
+
+        # Compute entailment of each candidate response by the original response,
+        # conditioned on prompt
+        nli_inputs = [(f"{prompt}\n{original_response}", f"{prompt}\n{candidate}") for candidate in candidates]
+        nli_scores = [self.nli_scorer.predict(*input) for input in nli_inputs]
+
+        # Use NLI model to estimate semantic distance between each candidate response
+        # and the original response
+        contradiction_index, neutral_index = (self.nli_scorer.label_mapping.index("contradiction"), self.nli_scorer.label_mapping.index("neutral"))
+
+        semantic_distance_expectation = np.array([nli_score[0, contradiction_index] + nli_score[0, neutral_index] * (np.sqrt(2) / 2) for nli_score in nli_scores])
+        semantic_squared_distance_expectation = np.array([nli_score[0, contradiction_index] + nli_score[0, neutral_index] / 2 for nli_score in nli_scores])
+
+        # Evaluate the kernel function for each candidate response
+        indicator = semantic_distance_expectation <= 1
+        kernel_values = (1 - semantic_squared_distance_expectation) * indicator
+
+        # Calculate final semantic density score
+        semantic_density = np.average(kernel_values, weights=tokenprob_response_probabilities)
+
+        return (semantic_density, nli_scores)

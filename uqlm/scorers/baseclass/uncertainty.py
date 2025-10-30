@@ -21,7 +21,7 @@ from rich.progress import Progress, TextColumn
 from rich.errors import LiveError
 
 from uqlm.utils.response_generator import ResponseGenerator
-from uqlm.black_box.nli import NLIScorer
+from uqlm.nli.nli import NLIScorer
 from uqlm.judges.judge import LLMJudge
 from uqlm.utils.display import ConditionalBarColumn, ConditionalTimeElapsedColumn, ConditionalTextColumn, ConditionalSpinnerColumn
 
