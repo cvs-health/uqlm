@@ -19,7 +19,8 @@ from typing import Any, List, Optional, Union
 
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
 from uqlm.utils.results import UQResult
-from uqlm.black_box import BertScorer, CosineScorer, MatchScorer
+from uqlm.black_box import BertScorer, CosineScorer, MatchScorer, NonContradictionScorer
+from uqlm.scorers.entropy import SemanticEntropy
 
 
 class BlackBoxUQ(UncertaintyQuantifier):
@@ -180,21 +181,19 @@ class BlackBoxUQ(UncertaintyQuantifier):
         self._construct_progress_bar(show_progress_bars)
         self._display_scoring_header(show_progress_bars and _display_header)
 
-        if self.use_nli:
-            compute_entropy = "semantic_negentropy" in self.scorers
-            nli_scores = self.nli_scorer.evaluate(responses=self.responses, sampled_responses=self.sampled_responses, use_best=self.use_best, compute_entropy=compute_entropy, progress_bar=self.progress_bar)
-            if self.use_best:
-                self._update_best(nli_scores["responses"], include_logprobs=False)
-
-            for key in ["semantic_negentropy", "noncontradiction"]:
-                if key in self.scorers:
-                    if key == "semantic_negentropy":
-                        nli_scores[key] = [1 - s for s in self.nli_scorer._normalize_entropy(nli_scores["discrete_semantic_entropy"])]  # Convert to confidence score
-                    self.scores_dict[key] = nli_scores[key]
-
-        # similarity scorers that follow the same pattern
-        for scorer_key in ["exact_match", "bert_score", "cosine_sim"]:
-            if scorer_key in self.scorer_objects:
+        for scorer_key in self.scorer_objects:
+            available_nli_scores = dict()
+            if scorer_key == "semantic_negentropy":
+                se_tmp = self.scorer_objects[scorer_key].score(responses=self.responses, sampled_responses=self.sampled_responses, show_progress_bars=self.progress_bar)
+                self.scores_dict[scorer_key] = [1 - s for s in self.scorer_objects[scorer_key]._normalize_entropy(se_tmp.data["discrete_entropy_values"])] # Convert to confidence score
+                available_nli_scores = self.scorer_objects[scorer_key].cluster.nli_scores
+                if self.use_best:
+                    self._update_best(se_tmp.data["responses"], include_logprobs=False)
+            elif scorer_key == "noncontradiction":
+                self.scorer_objects[scorer_key].use_best = False
+                nc_tmp = self.scorer_objects[scorer_key].evaluate(responses=self.responses, sampled_responses=self.sampled_responses, available_nli_scores=available_nli_scores, progress_bar=self.progress_bar)
+                self.scores_dict[scorer_key] = nc_tmp["noncontradiction"]
+            elif scorer_key in ["exact_match", "bert_score", "cosine_sim"]:
                 self.scores_dict[scorer_key] = self.scorer_objects[scorer_key].evaluate(responses=self.responses, sampled_responses=self.sampled_responses, progress_bar=self.progress_bar)
         result = self._construct_result()
 
@@ -221,8 +220,10 @@ class BlackBoxUQ(UncertaintyQuantifier):
                 self.scorer_objects["bert_score"] = BertScorer(device=self.device)
             elif scorer == "cosine_sim":
                 self.scorer_objects["cosine_sim"] = CosineScorer(transformer=self.sentence_transformer)
-            elif scorer in ["semantic_negentropy", "noncontradiction"]:
-                continue
+            elif scorer == "noncontradiction":
+                self.scorer_objects["noncontradiction"] = NonContradictionScorer(nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=self.use_best)
+            elif scorer == "semantic_negentropy":
+                self.scorer_objects["semantic_negentropy"] = SemanticEntropy(llm=self.llm, nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=self.use_best)
             else:
                 if scorer == "bleurt":
                     print("bleurt is deprecated as of v0.2.0")
