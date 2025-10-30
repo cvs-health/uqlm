@@ -50,11 +50,12 @@ class GraphUQScorer(ClaimScorer):
         original_claim_sets: List[List[str]],
         sampled_claim_sets: List[List[List[str]]],
         entailment_score_sets: Optional[List[Dict[str, List[float]]]] = None,
-        progress_bar: Optional[Progress] = None,
+        claim_dedup_method: Optional[str] = "sequential",
         save_graph_path: Optional[str] = None,
         show_graph: bool = False,
         use_entailment_prob: bool = False,
         edge_weight_threshold: float = 0.001,
+        progress_bar: Optional[Progress] = None,
     ) -> List[List[ClaimScore]]:
         """Evaluate the GraphUQ score and claim scores for a list of response sets.
 
@@ -63,11 +64,12 @@ class GraphUQScorer(ClaimScorer):
             original_claim_sets: The list of original claim sets.
             sampled_claim_sets: The list of sampled claim sets.
             entailment_score_sets: The list of entailment score sets.
-            progress_bar: The progress bar.
+            claim_dedup_method: The method to deduplicate claims. Options: "sequential", "one_shot", "exact_match" or None.
             save_graph_path: The path to save the graph.
             show_graph: Whether to show the graph.
             use_entailment_prob: Whether to use entailment probabilities.
-            edge_weight_threshold: The threshold for filtering out very small weights.
+            edge_weight_threshold: The threshold for filtering out very small claim-response weights.
+            progress_bar: The progress bar.
         Returns:
             A list of lists of ClaimScore objects, one for each response set.
         """
@@ -78,6 +80,7 @@ class GraphUQScorer(ClaimScorer):
                 sampled_claim_sets,
                 entailment_score_sets,
                 progress_bar,
+                claim_dedup_method,
                 save_graph_path,
                 show_graph,
                 use_entailment_prob,
@@ -91,11 +94,12 @@ class GraphUQScorer(ClaimScorer):
         original_claim_sets: List[List[str]],
         sampled_claim_sets: List[List[List[str]]],
         entailment_score_sets: Optional[List[Dict[str, List[float]]]] = None,
-        progress_bar: Optional[Progress] = None,
+        claim_dedup_method: Optional[str] = "sequential",
         save_graph_path: Optional[str] = None,
         show_graph: bool = False,
         use_entailment_prob: bool = False,
         edge_weight_threshold: float = 0.001,
+        progress_bar: Optional[Progress] = None,
     ) -> List[List[ClaimScore]]:
         logger.debug(f"Starting evaluation for {len(response_sets)} response sets.")
 
@@ -104,167 +108,55 @@ class GraphUQScorer(ClaimScorer):
                 "More than 10 response sets and show_graph is True. This will be slow and may cause memory issues."
             )
 
+        if claim_dedup_method not in ["sequential", "one_shot", "exact_match", None]:
+            logger.warning(f"Invalid claim dedup method: {claim_dedup_method}. Skipping claim deduplication process.")
+            claim_dedup_method = None
+
         # Handle None values for entailment_score_sets
         if entailment_score_sets is None:
             entailment_score_sets = [None] * len(response_sets)
 
-        # Create progress task if progress bar is provided
-        progress_task = None
-        if progress_bar:
-            progress_task = progress_bar.add_task(
-                "  - Scoring claims/sentences with GraphUQ...", total=len(response_sets)
-            )
+        num_response_sets = len(response_sets)
 
-        # Create tasks for all response sets to run concurrently
-        tasks = [
-            self._process_single_response_set(
-                i,
-                responses,
-                original_claim_set,
-                sampled_claim_set,
-                entailment_score_set,
-                use_entailment_prob,
-                edge_weight_threshold,
-                save_graph_path,
-                show_graph,
-                progress_bar,
-                progress_task,
-            )
-            for i, (
-                responses,
-                original_claim_set,
-                sampled_claim_set,
-                entailment_score_set,
-            ) in enumerate(
-                zip(response_sets, original_claim_sets, sampled_claim_sets, entailment_score_sets)
-            )
-        ]
+        # Process all response sets step-by-step (batched by step)
+        # This avoids shared state issues with ResponseGenerator and NLI
+        
+        # Step 1: Dedup claims for all response sets
+        logger.debug("Step 1: Deduplicating claims for all response sets...")
+        master_claim_sets = await self._dedup_claims(
+            original_claim_sets, 
+            sampled_claim_sets, 
+            claim_dedup_method,
+            progress_bar,
+        )
 
-        # Run all tasks concurrently
-        claim_score_lists = await asyncio.gather(*tasks)
+        # Step 2: Compute adjacency matrices for all response sets
+        logger.debug("Step 2: Computing adjacency matrices for all response sets...")
+        biadjacency_matrices = await self._compute_adjacency_matrices(
+            response_sets,
+            master_claim_sets,
+            entailment_score_sets,
+            use_entailment_prob,
+            edge_weight_threshold,
+            progress_bar,
+        )
 
+        # Step 3: Construct graphs and calculate scores for all response sets
+        logger.debug("Step 3: Constructing graphs and calculating scores for all response sets...")
+        claim_score_lists = self._construct_graphs_and_calculate_scores(
+            response_sets,
+            original_claim_sets,
+            master_claim_sets,
+            biadjacency_matrices,
+            save_graph_path,
+            show_graph,
+            progress_bar,
+        )
+
+        # Small delay to ensure progress bar UI updates before function completes
+        await asyncio.sleep(0.1)
+        
         return claim_score_lists
-
-    async def _process_single_response_set(
-        self,
-        index: int,
-        responses: List[str],
-        original_claim_set: List[str],
-        sampled_claim_set: List[List[str]],
-        entailment_score_set: Optional[Dict[str, List[float]]],
-        use_entailment_prob: bool,
-        edge_weight_threshold: float,
-        save_graph_path: Optional[str],
-        show_graph: bool,
-        progress_bar: Optional[Progress],
-        progress_task: Optional[Any],
-    ) -> List[ClaimScore]:
-        """Process a single response set and return its claim scores."""
-
-        claim_scores = []
-        master_claim_set = original_claim_set
-
-        # Step 1) iterate through claim dedup/merge process
-        logger.debug(
-            f"[Response set {index}] Initial master claim set size: {len(master_claim_set)}"
-        )
-        for sampled_claims in sampled_claim_set:
-            master_claim_set = await self._dedup_claims(master_claim_set, sampled_claims)
-
-        logger.debug(
-            f"[Response set {index}] Master claim set size after dedup: {len(master_claim_set)}"
-        )
-        logger.debug(
-            f"[Response set {index}] Original claims missing from master claim set: {len(set(original_claim_set) - set(master_claim_set))}"
-        )
-        all_sampled_claims = [claim for claim_set in sampled_claim_set for claim in claim_set]
-        logger.debug(
-            f"[Response set {index}] Entirely new claims added by LLM: {len(set(master_claim_set) - set(original_claim_set + all_sampled_claims))}"
-        )
-        num_claims = len(master_claim_set)
-        num_responses = len(responses)
-
-        # Step 2) compute entailment scores for master claim set
-        logger.debug(f"[Response set {index}] Computing entailment scores for master claim set...")
-        if entailment_score_set is None:
-            biadjacency_matrix = await self._calculate_adjacency_matrix(
-                master_claim_set, responses, use_entailment_prob, edge_weight_threshold
-            )
-        else:
-            biadjacency_matrix = self._build_adjacency_matrix(
-                master_claim_set, responses, entailment_score_set
-            )
-
-        # Step 3) construct bipartite graph
-        logger.debug(f"[Response set {index}] Constructing bipartite graph...")
-
-        G = self._construct_bipartite_graph(biadjacency_matrix, num_claims, num_responses)
-
-        logger.debug(
-            f"[Response set {index}] Bipartite graph constructed: {G.number_of_nodes()} nodes ({num_claims} claims, {num_responses} responses), {G.number_of_edges()} edges"
-        )
-
-        # Step 4) calculate claim node graph metrics
-        logger.debug(f"[Response set {index}] Calculating claim node graph metrics...")
-        gmetrics = self._calculate_claim_node_graph_metrics(G, num_claims, num_responses)
-
-        # Step 5) gather claim scores into list of ClaimScore objects
-        logger.debug(
-            f"[Response set {index}] Gathering claim scores into list of ClaimScore objects..."
-        )
-        claim_scores = []
-        for node_idx in range(num_claims):
-            claim_text = master_claim_set[node_idx]
-            # Check if this claim was in the original claim set
-            is_original = claim_text in original_claim_set
-
-            claim_score = ClaimScore(
-                claim=claim_text,
-                original_response=is_original,
-                scorer_type="graphuq",
-                scores={
-                    "raw_degree": gmetrics["raw_degrees"][node_idx],
-                    "degree_centrality": gmetrics["degree_centrality"][node_idx],
-                    "betweenness_centrality": gmetrics["betweenness_centrality"][node_idx],
-                    "closeness_centrality": gmetrics["closeness_centrality"][node_idx],
-                    "page_rank": gmetrics["page_rank"][node_idx],
-                },
-            )
-            claim_scores.append(claim_score)
-
-        # Step 6) [optional] print visual graph for debugging
-        if show_graph or save_graph_path:
-            if not PLOTLY_AVAILABLE:
-                logger.warning(
-                    "Plotly is not installed. Falling back to matplotlib. To use interactive HTML visualizations, install plotly: pip install plotly"
-                )
-                self._visualize_bipartite_graph_matplotlib(
-                    G,
-                    num_claims,
-                    num_responses,
-                    master_claim_set,
-                    responses,
-                    biadjacency_matrix,
-                    save_graph_path,
-                    show_graph,
-                )
-            else:
-                self._visualize_bipartite_graph_plotly(
-                    G,
-                    num_claims,
-                    num_responses,
-                    master_claim_set,
-                    responses,
-                    biadjacency_matrix,
-                    save_graph_path,
-                    show_graph,
-                )
-
-        # Update progress bar
-        if progress_bar and progress_task is not None:
-            progress_bar.update(progress_task, advance=1)
-
-        return claim_scores
 
     def _calculate_claim_node_graph_metrics(
         self, G: nx.Graph, num_claims: int, num_responses: int
@@ -360,193 +252,415 @@ class GraphUQScorer(ClaimScorer):
 
         return G
 
-    async def _build_adjacency_matrix(
+    async def _dedup_claims(
         self,
-        master_claim_set: List[str],
-        responses: List[str],
-        entailment_score_set: Dict[str, List[float]],
-        use_entailment_prob: bool = False,
-        edge_weight_threshold: float = 0.001,
-    ) -> np.ndarray:
+        original_claim_sets: List[List[str]],
+        sampled_claim_sets: List[List[List[str]]],
+        claim_dedup_method: Optional[str],
+        progress_bar: Optional[Progress] = None,
+    ) -> List[List[str]]:
+        """Process claim deduplication for response sets.
+        
+        Leverages ResponseGenerator's ability to handle multiple prompts at once
+        by collecting dedup prompts and making batch calls.
         """
-        This covers the scenario where the entailment scores are already computed and provided.
-        Because the dedup/merging process may have added new claims, we need to match the entailment scores to the new claims.
-        If a claim is not in the entailment score set, we compute the entailment scores with the NLI model.
-        """
-
-        num_claims = len(master_claim_set)
-        num_responses = len(responses)
-        biadjacency_matrix = np.zeros((num_claims, num_responses))
-
-        # Track which scores we need to compute with NLI (for missing claims or invalid scores)
-        nli_tasks = []
-        nli_indices = []
-
-        # First pass: use provided scores where available
-        for claim_idx, claim in enumerate(master_claim_set):
-            if claim in entailment_score_set:
-                scores = entailment_score_set[claim]
-                # Validate that we have the right number of scores
-                if len(scores) == num_responses:
-                    for response_idx, score in enumerate(scores):
-                        # Use valid scores (>= 0), mark others for NLI computation
-                        if score >= 0:
-                            biadjacency_matrix[claim_idx, response_idx] = score
-                        else:
-                            # Mark this (claim, response) pair for NLI computation
-                            nli_tasks.append(
-                                self.nli.apredict(
-                                    hypothesis=claim,
-                                    premise=responses[response_idx],
-                                    style="binary",
-                                )
-                            )
-                            nli_indices.append((claim_idx, response_idx))
+        num_response_sets = len(original_claim_sets)
+        
+        # Create progress task if progress bar is provided
+        progress_task = None
+        if progress_bar and claim_dedup_method and claim_dedup_method != "exact_match":
+            progress_task = progress_bar.add_task(
+                "  - Deduplicating claims...", total=num_response_sets
+            )
+        
+        if not claim_dedup_method:
+            # No dedup, just concatenate for all response sets
+            master_claim_sets = [
+                original_claim_sets[i] + [claim for claim_set in sampled_claim_sets[i] for claim in claim_set]
+                for i in range(num_response_sets)
+            ]
+        
+        elif claim_dedup_method == "exact_match":
+            # Exact match, no LLM calls needed
+            master_claim_sets = []
+            for i in range(num_response_sets):
+                all_sampled_claims = [claim for claim_set in sampled_claim_sets[i] for claim in claim_set]
+                master_claim_set = list(set(original_claim_sets[i] + all_sampled_claims))
+                logger.debug(f"[Response set {i}] Initial master claim set size: {len(original_claim_sets[i])}")
+                logger.debug(f"[Response set {i}] Master claim set size after dedup: {len(master_claim_set)}")
+                master_claim_sets.append(master_claim_set)
+        
+        elif claim_dedup_method == "one_shot":
+            # One-shot: Batch ALL prompts across ALL response sets
+            prompts = []
+            prompt_metadata = []  # Track which response set each prompt belongs to
+            
+            for i in range(num_response_sets):
+                all_sampled_claims = [claim for claim_set in sampled_claim_sets[i] for claim in claim_set]
+                unique_sampled_claims = list(set(all_sampled_claims) - set(original_claim_sets[i]))
+                
+                logger.debug(f"[Response set {i}] Initial master claim set size: {len(original_claim_sets[i])}")
+                logger.debug(f"[Response set {i}] Found {len(unique_sampled_claims)} unique sampled claims to process")
+                
+                if unique_sampled_claims:
+                    prompts.append(get_claim_dedup_prompt(original_claim_sets[i], unique_sampled_claims))
+                    prompt_metadata.append((i, original_claim_sets[i], all_sampled_claims))
                 else:
-                    logger.debug(
-                        f"Claim '{claim}' has {len(scores)} scores but expected {num_responses}. Using NLI for this claim."
-                    )
-                    # Need to compute all scores for this claim
+                    prompt_metadata.append((i, original_claim_sets[i], all_sampled_claims))
+            
+            # Make single batch call to ResponseGenerator for all prompts
+            if prompts:
+                result = await self.rg.generate_responses(prompts=prompts)
+                responses = result["data"]["response"]
+            else:
+                responses = []
+            
+            # Process results and build master_claim_sets
+            master_claim_sets = [None] * num_response_sets
+            response_idx = 0
+            
+            for i, original_set, all_sampled in prompt_metadata:
+                unique_sampled = list(set(all_sampled) - set(original_set))
+                
+                if unique_sampled and response_idx < len(responses):
+                    # Extract new claims from LLM response
+                    response_text = responses[response_idx]
+                    new_claims = re.findall(r"^\s*-\s*(.+)", response_text, re.MULTILINE)
+                    
+                    if new_claims:
+                        logger.debug(f"[Response set {i}] Adding {len(new_claims)} new claims to master set")
+                        master_claim_set = original_set + new_claims
+                    else:
+                        logger.debug(f"[Response set {i}] No new claims extracted from LLM response")
+                        master_claim_set = original_set
+                    
+                    response_idx += 1
+                else:
+                    master_claim_set = original_set
+                
+                logger.debug(f"[Response set {i}] Master claim set size after dedup: {len(master_claim_set)}")
+                logger.debug(
+                    f"[Response set {i}] Original claims missing: {len(set(original_set) - set(master_claim_set))}"
+                )
+                logger.debug(
+                    f"[Response set {i}] Entirely new claims added: {len(set(master_claim_set) - set(original_set + all_sampled))}"
+                )
+                
+                master_claim_sets[i] = master_claim_set
+                
+                # Update progress
+                if progress_bar and progress_task is not None:
+                    progress_bar.update(progress_task, advance=1)
+        
+        elif claim_dedup_method == "sequential":
+            # Sequential: Batch across response sets at each iteration
+            master_claim_sets = [original_claim_sets[i] for i in range(num_response_sets)]
+            max_iterations = max(len(sampled_set) for sampled_set in sampled_claim_sets)
+            
+            for iteration in range(max_iterations):
+                prompts = []
+                prompt_metadata = []  # (response_set_idx, has_prompt)
+                
+                for i in range(num_response_sets):
+                    logger.debug(f"[Response set {i}] Initial master claim set size: {len(original_claim_sets[i])}")
+                    
+                    if iteration < len(sampled_claim_sets[i]):
+                        sampled_claims = sampled_claim_sets[i][iteration]
+                        unique_sampled_claims = list(set(sampled_claims) - set(master_claim_sets[i]))
+                        
+                        logger.debug(
+                            f"[Response set {i}][Iteration {iteration}] Found {len(unique_sampled_claims)} unique claims"
+                        )
+                        
+                        if unique_sampled_claims:
+                            prompts.append(get_claim_dedup_prompt(master_claim_sets[i], unique_sampled_claims))
+                            prompt_metadata.append((i, True, master_claim_sets[i], sampled_claims))
+                        else:
+                            prompt_metadata.append((i, False, master_claim_sets[i], sampled_claims))
+                    else:
+                        prompt_metadata.append((i, False, master_claim_sets[i], []))
+                
+                # Batch call for this iteration across all response sets
+                if prompts:
+                    result = await self.rg.generate_responses(prompts=prompts)
+                    responses = result["data"]["response"]
+                else:
+                    responses = []
+                
+                # Update master_claim_sets with results
+                response_idx = 0
+                for i, has_prompt, current_master, sampled_claims in prompt_metadata:
+                    if has_prompt and response_idx < len(responses):
+                        response_text = responses[response_idx]
+                        new_claims = re.findall(r"^\s*-\s*(.+)", response_text, re.MULTILINE)
+                        
+                        if new_claims:
+                            logger.debug(
+                                f"[Response set {i}][Iteration {iteration}] Adding {len(new_claims)} new claims"
+                            )
+                            master_claim_sets[i] = current_master + new_claims
+                        else:
+                            logger.debug(
+                                f"[Response set {i}][Iteration {iteration}] No new claims extracted"
+                            )
+                        
+                        response_idx += 1
+            
+            # Log final stats and update progress
+            for i in range(num_response_sets):
+                all_sampled_claims = [claim for claim_set in sampled_claim_sets[i] for claim in claim_set]
+                logger.debug(
+                    f"[Response set {i}] Master claim set size after dedup: {len(master_claim_sets[i])}"
+                )
+                logger.debug(
+                    f"[Response set {i}] Original claims missing: {len(set(original_claim_sets[i]) - set(master_claim_sets[i]))}"
+                )
+                logger.debug(
+                    f"[Response set {i}] Entirely new claims added: {len(set(master_claim_sets[i]) - set(original_claim_sets[i] + all_sampled_claims))}"
+                )
+                
+                # Update progress
+                if progress_bar and progress_task is not None:
+                    progress_bar.update(progress_task, advance=1)
+        
+        else:
+            raise ValueError(f"Unknown claim_dedup_method: {claim_dedup_method}")
+        
+        return master_claim_sets
+
+    async def _compute_adjacency_matrices(
+        self,
+        response_sets: List[List[str]],
+        master_claim_sets: List[List[str]],
+        entailment_score_sets: List[Optional[Dict[str, List[float]]]],
+        use_entailment_prob: bool,
+        edge_weight_threshold: float,
+        progress_bar: Optional[Progress] = None,
+    ) -> List[np.ndarray]:
+        """Compute adjacency matrices for response sets.
+        
+        Collects NLI tasks across response sets and executes them concurrently
+        using asyncio.gather, then reconstructs the adjacency matrices.
+        """
+        num_response_sets = len(response_sets)
+        
+        # Create progress task if progress bar is provided
+        progress_task = None
+        if progress_bar:
+            progress_task = progress_bar.add_task(
+                "  - Building claim-response biadjacency matrices...", total=num_response_sets
+            )
+        
+        # Collect all NLI tasks across all response sets
+        all_nli_tasks = []
+        task_metadata = []  # Track which (response_set_idx, claim_idx, response_idx) each task corresponds to
+        
+        for i in range(num_response_sets):
+            master_claim_set = master_claim_sets[i]
+            responses = response_sets[i]
+            entailment_score_set = entailment_score_sets[i]
+            
+            logger.debug(f"[Response set {i}] Computing entailment scores for master claim set...")
+            
+            # Determine which claim-response pairs need NLI computation
+            if entailment_score_set is None:
+                # All pairs need computation
+                for claim_idx, claim in enumerate(master_claim_set):
                     for response_idx, response in enumerate(responses):
-                        nli_tasks.append(
+                        all_nli_tasks.append(
                             self.nli.apredict(hypothesis=claim, premise=response, style="binary")
                         )
-                        nli_indices.append((claim_idx, response_idx))
+                        task_metadata.append((i, claim_idx, response_idx))
             else:
-                # Claim not in entailment_score_set, compute all claim-response entailment scores
-                for response_idx, response in enumerate(responses):
-                    nli_tasks.append(
-                        self.nli.apredict(hypothesis=claim, premise=response, style="binary")
-                    )
-                    nli_indices.append((claim_idx, response_idx))
+                # Only missing pairs need computation
+                for claim_idx, claim in enumerate(master_claim_set):
+                    if claim in entailment_score_set:
+                        scores = entailment_score_set[claim]
+                        if len(scores) != len(responses):
+                            # Wrong number of scores, compute all for this claim
+                            for response_idx, response in enumerate(responses):
+                                all_nli_tasks.append(
+                                    self.nli.apredict(hypothesis=claim, premise=response, style="binary")
+                                )
+                                task_metadata.append((i, claim_idx, response_idx))
+                    else:
+                        # Claim not in entailment_score_set, compute all
+                        for response_idx, response in enumerate(responses):
+                            all_nli_tasks.append(
+                                self.nli.apredict(hypothesis=claim, premise=response, style="binary")
+                            )
+                            task_metadata.append((i, claim_idx, response_idx))
+        
+        # Execute all NLI tasks concurrently
+        logger.debug(f"Executing {len(all_nli_tasks)} NLI predictions concurrently...")
+        if all_nli_tasks:
+            nli_results = await asyncio.gather(*all_nli_tasks)
+        else:
+            nli_results = []
+        
+        # Build adjacency matrices for each response set
+        biadjacency_matrices = []
+        for i in range(num_response_sets):
+            num_claims = len(master_claim_sets[i])
+            num_responses = len(response_sets[i])
+            biadjacency_matrix = np.zeros((num_claims, num_responses))
+            
+            # First, fill in provided scores if available
+            if entailment_score_sets[i] is not None:
+                for claim_idx, claim in enumerate(master_claim_sets[i]):
+                    if claim in entailment_score_sets[i]:
+                        scores = entailment_score_sets[i][claim]
+                        if len(scores) == num_responses:
+                            for response_idx, score in enumerate(scores):
+                                if score >= 0:
+                                    biadjacency_matrix[claim_idx, response_idx] = score
+            
+            biadjacency_matrices.append(biadjacency_matrix)
+        
+        # Now fill in the NLI results
+        for (resp_set_idx, claim_idx, response_idx), nli_result in zip(task_metadata, nli_results):
+            if use_entailment_prob:
+                biadjacency_matrices[resp_set_idx][claim_idx, response_idx] = nli_result.entailment_probability
+            else:
+                biadjacency_matrices[resp_set_idx][claim_idx, response_idx] = (
+                    1.0 if nli_result.binary_label else 0.0
+                )
+        
+        # Apply edge weight threshold to all matrices
+        filtered_matrices = []
+        for i, biadjacency_matrix in enumerate(biadjacency_matrices):
+            logger.debug(f"[Response set {i}] Biadjacency matrix shape: {biadjacency_matrix.shape}")
+            biadjacency_matrix_filtered = np.where(
+                biadjacency_matrix > edge_weight_threshold, biadjacency_matrix, 0
+            )
+            logger.debug(
+                f"[Response set {i}] Filtered {np.sum(biadjacency_matrix > 0) - np.sum(biadjacency_matrix_filtered > 0)} edges below threshold {edge_weight_threshold}"
+            )
+            filtered_matrices.append(biadjacency_matrix_filtered)
+            
+            # Update progress
+            if progress_bar and progress_task is not None:
+                progress_bar.update(progress_task, advance=1)
+        
+        return filtered_matrices
 
-        # Run NLI predictions for missing claims
-        if nli_tasks:
-            logger.debug(f"Computing {len(nli_tasks)} missing entailment scores with NLI...")
-            nli_results = await asyncio.gather(*nli_tasks)
-
-            # Complete the biadjacency matrix
-            for (claim_idx, response_idx), nli_result in zip(nli_indices, nli_results):
-                if use_entailment_prob:
-                    biadjacency_matrix[claim_idx, response_idx] = nli_result.entailment_probability
-                else:
-                    biadjacency_matrix[claim_idx, response_idx] = (
-                        1.0 if nli_result.binary_label else 0.0
-                    )
-
-        logger.debug(f"Biadjacency matrix shape: {biadjacency_matrix.shape}")
-        biadjacency_matrix_filtered = np.where(
-            biadjacency_matrix > edge_weight_threshold, biadjacency_matrix, 0
-        )
-        logger.debug(
-            f"Filtered {np.sum(biadjacency_matrix > 0) - np.sum(biadjacency_matrix_filtered > 0)} edges below threshold {edge_weight_threshold}"
-        )
-
-        return biadjacency_matrix_filtered
-
-    async def _calculate_adjacency_matrix(
+    def _construct_graphs_and_calculate_scores(
         self,
-        master_claim_set: List[str],
+        response_sets: List[List[str]],
+        original_claim_sets: List[List[str]],
+        master_claim_sets: List[List[str]],
+        biadjacency_matrices: List[np.ndarray],
+        save_graph_path: Optional[str],
+        show_graph: bool,
+        progress_bar: Optional[Progress] = None,
+    ) -> List[List[ClaimScore]]:
+        """Construct bipartite graphs and calculate claim scores for all response sets."""
+        num_response_sets = len(response_sets)
+        
+        # Create progress task if progress bar is provided
+        progress_task = None
+        if progress_bar:
+            progress_task = progress_bar.add_task(
+                "  - Constructing graphs and calculating scores...", total=num_response_sets
+            )
+        
+        claim_score_lists = []
+        for i in range(num_response_sets):
+            claim_scores = self._process_single_graph(
+                i,
+                response_sets[i],
+                original_claim_sets[i],
+                master_claim_sets[i],
+                biadjacency_matrices[i],
+                save_graph_path,
+                show_graph,
+            )
+            claim_score_lists.append(claim_scores)
+            
+            # Update progress
+            if progress_bar and progress_task is not None:
+                progress_bar.update(progress_task, advance=1)
+        
+        return claim_score_lists
+
+    def _process_single_graph(
+        self,
+        index: int,
         responses: List[str],
-        use_entailment_prob: bool = False,
-        edge_weight_threshold: float = 0.001,
-    ) -> np.ndarray:
-        """This is the default scenario where the entailment scores are not already computed and need to be calculated."""
+        original_claim_set: List[str],
+        master_claim_set: List[str],
+        biadjacency_matrix: np.ndarray,
+        save_graph_path: Optional[str],
+        show_graph: bool,
+    ) -> List[ClaimScore]:
+        """Process a single response set: construct graph and calculate claim scores."""
         num_claims = len(master_claim_set)
         num_responses = len(responses)
-        biadjacency_matrix = np.zeros((num_claims, num_responses))
 
-        # LangChain NLI
-        if not self.nli.is_hf_model:
-            # Check if the NLI LLM supports logprobs
-            if use_entailment_prob and not self.nli.logprobs_available:
-                logger.warning(
-                    "Entailment probabilities are requested but the NLI model does not support logprobs. Using binary labels instead."
-                )
-                use_entailment_prob = False
+        # Construct bipartite graph
+        logger.debug(f"[Response set {index}] Constructing bipartite graph...")
+        G = self._construct_bipartite_graph(biadjacency_matrix, num_claims, num_responses)
 
-            # Create all NLI prediction tasks
-            tasks = []
-            task_indices = []  # Track (claim_idx, response_idx) for each task
-
-            for claim_idx, claim in enumerate(master_claim_set):
-                for response_idx, response in enumerate(responses):
-                    tasks.append(
-                        self.nli.apredict(hypothesis=claim, premise=response, style="binary")
-                    )
-                    task_indices.append((claim_idx, response_idx))
-
-            # Execute all predictions concurrently
-            nli_results = await asyncio.gather(*tasks)
-
-            logger.debug("NLI predictions complete, building biadjacency matrix...")
-
-            # Fill the biadjacency matrix
-            for (claim_idx, response_idx), nli_result in zip(task_indices, nli_results):
-                if use_entailment_prob:
-                    # Use entailment probability (0.0 to 1.0) for weighted edges
-                    biadjacency_matrix[claim_idx, response_idx] = nli_result.entailment_probability
-                else:
-                    # Use binary label (1 if entailed, 0 if not) for unweighted edges
-                    biadjacency_matrix[claim_idx, response_idx] = (
-                        1.0 if nli_result.binary_label else 0.0
-                    )
-        # HF NLI
-        else:
-            # Synchronous HuggingFace model predictions
-            logger.debug(
-                f"Running {num_claims * num_responses} NLI predictions synchronously (HuggingFace)..."
-            )
-            for claim_idx, claim in enumerate(master_claim_set):
-                for response_idx, response in enumerate(responses):
-                    nli_result = self.nli.predict(
-                        hypothesis=claim, premise=response, style="binary"
-                    )
-                    if use_entailment_prob:
-                        biadjacency_matrix[claim_idx, response_idx] = (
-                            nli_result.entailment_probability
-                        )
-                    else:
-                        biadjacency_matrix[claim_idx, response_idx] = (
-                            1.0 if nli_result.binary_label else 0.0
-                        )
-
-        logger.debug(f"Biadjacency matrix shape: {biadjacency_matrix.shape}")
-        biadjacency_matrix_filtered = np.where(
-            biadjacency_matrix > edge_weight_threshold, biadjacency_matrix, 0
-        )
         logger.debug(
-            f"Filtered {np.sum(biadjacency_matrix > 0) - np.sum(biadjacency_matrix_filtered > 0)} edges below threshold {edge_weight_threshold}"
+            f"[Response set {index}] Bipartite graph constructed: {G.number_of_nodes()} nodes ({num_claims} claims, {num_responses} responses), {G.number_of_edges()} edges"
         )
 
-        return biadjacency_matrix_filtered
+        # Calculate claim node graph metrics
+        logger.debug(f"[Response set {index}] Calculating claim node graph metrics...")
+        gmetrics = self._calculate_claim_node_graph_metrics(G, num_claims, num_responses)
 
-    async def _dedup_claims(
-        self, master_claim_set: List[str], sampled_claim_set: List[str]
-    ) -> List[str]:
-        """Deduplicate claims in the master claim set with the sampled claim set"""
-        unique_sampled_claims = list(set(sampled_claim_set) - set(master_claim_set))
-        logger.debug(f"Found {len(unique_sampled_claims)} unique sampled claims to process")
-
-        if not unique_sampled_claims:
-            logger.debug("No unique claims to deduplicate, returning master claim set as-is")
-            return master_claim_set
-
-        result = await self.rg.generate_responses(
-            prompts=[get_claim_dedup_prompt(master_claim_set, unique_sampled_claims)]
+        # Gather claim scores into list of ClaimScore objects
+        logger.debug(
+            f"[Response set {index}] Gathering claim scores into list of ClaimScore objects..."
         )
-        response_text = result["data"]["response"][0]
+        claim_scores = []
+        for node_idx in range(num_claims):
+            claim_text = master_claim_set[node_idx]
+            is_original = claim_text in original_claim_set
 
-        # Extract claims that start with "- " (allowing optional leading whitespace)
-        new_claims = re.findall(r"^\s*-\s*(.+)", response_text, re.MULTILINE)
-        if new_claims:
-            logger.debug(f"Adding {len(new_claims)} new claims to master set")
-            logger.debug(f"New claims: {new_claims}")
-            master_claim_set = master_claim_set + new_claims
-        else:
-            logger.debug("No new claims extracted from LLM response")
+            claim_score = ClaimScore(
+                claim=claim_text,
+                original_response=is_original,
+                scorer_type="graphuq",
+                scores={
+                    "raw_degree": gmetrics["raw_degrees"][node_idx],
+                    "degree_centrality": gmetrics["degree_centrality"][node_idx],
+                    "betweenness_centrality": gmetrics["betweenness_centrality"][node_idx],
+                    "closeness_centrality": gmetrics["closeness_centrality"][node_idx],
+                    "page_rank": gmetrics["page_rank"][node_idx],
+                },
+            )
+            claim_scores.append(claim_score)
 
-        return master_claim_set
+        # Optional: visualize graph
+        if show_graph or save_graph_path:
+            if not PLOTLY_AVAILABLE:
+                logger.warning(
+                    "Plotly is not installed. Falling back to matplotlib. To use interactive HTML visualizations, install plotly: pip install plotly"
+                )
+                self._visualize_bipartite_graph_matplotlib(
+                    G,
+                    num_claims,
+                    num_responses,
+                    master_claim_set,
+                    responses,
+                    biadjacency_matrix,
+                    save_graph_path,
+                    show_graph,
+                )
+            else:
+                self._visualize_bipartite_graph_plotly(
+                    G,
+                    num_claims,
+                    num_responses,
+                    master_claim_set,
+                    responses,
+                    biadjacency_matrix,
+                    save_graph_path,
+                    show_graph,
+                )
+
+        return claim_scores
 
     def _visualize_bipartite_graph_matplotlib(
         self,

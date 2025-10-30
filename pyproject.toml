@@ -135,7 +135,7 @@ exclude = [
 extend-exclude = ["uqlm/utils/prompts"]
 
 # Core settings
-line-length = 120
+line-length = 200
 
 [tool.ruff.lint]
 #What rules to enable
@@ -158,4 +158,4 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "lf"
 docstring-code-format = true
-docstring-code-line-length = 120
+docstring-code-line-length = 200
