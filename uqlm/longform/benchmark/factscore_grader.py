@@ -32,7 +32,7 @@ class FactScoreGrader:
             Is the claim supported by the context above?
             Answer only Yes or No:
             """
-    
+
     def construct_subjective_prompt(self, claim: str) -> str:
         return f"""
             Input: {claim}
@@ -53,7 +53,7 @@ class FactScoreGrader:
         responses = generations["data"]["response"]
         formatted_grade_lists = self._format_outputs(flat_grades_list=responses, reference_structure=claim_sets)
         return formatted_grade_lists
-    
+
     async def evaluate_claim_objectivity(self, claim_sets: List[List[str]], progress_bar: Optional[Progress] = None) -> List[List[bool]]:
         prompts = []
         indices = []
@@ -66,14 +66,14 @@ class FactScoreGrader:
         self.generations = await self.rg.generate_responses(prompts=prompts, system_prompt=self.subjective_system_prompt, progress_bar=progress_bar)
         self.responses = self.generations["data"]["response"]
         formatted_grade_lists = self._format_outputs(flat_grades_list=self.responses, reference_structure=claim_sets, strings_to_check=["objective", "subjective"])
-        return formatted_grade_lists    
-        
+        return formatted_grade_lists
+
     def _str_to_bool(self, response: str, strings_to_check: List[str] = ["yes", "no"]) -> bool:
         """Parse LLM response to extract Yes/No answer and convert to boolean"""
         response_text = response.strip().lower()
-        if strings_to_check[0] in response_text: # either "yes" or "objective"
+        if strings_to_check[0] in response_text:  # either "yes" or "objective"
             return True
-        elif strings_to_check[1] in response_text: # either "no" or "subjective"
+        elif strings_to_check[1] in response_text:  # either "no" or "subjective"
             return False
         else:
             return False
