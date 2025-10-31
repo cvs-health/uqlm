@@ -13,14 +13,6 @@ import networkx as nx
 from scipy import sparse
 import matplotlib.pyplot as plt
 
-# Optional plotly import for interactive visualizations
-try:
-    import plotly.graph_objects as go
-
-    PLOTLY_AVAILABLE = True
-except ImportError:
-    PLOTLY_AVAILABLE = False
-
 # Create a logger for this module
 logger = logging.getLogger(__name__)
 
@@ -44,9 +36,9 @@ class GraphUQScorer(ClaimScorer):
 
     def evaluate(
         self,
-        response_sets: List[List[str]],
         original_claim_sets: List[List[str]],
-        sampled_claim_sets: List[List[List[str]]],
+        response_sets: Optional[List[List[str]]] = None,
+        sampled_claim_sets: Optional[List[List[List[str]]]] = None,
         entailment_score_sets: Optional[List[Dict[str, List[float]]]] = None,
         claim_dedup_method: Optional[str] = "sequential",
         save_graph_path: Optional[str] = None,
@@ -58,13 +50,15 @@ class GraphUQScorer(ClaimScorer):
         """Evaluate the GraphUQ score and claim scores for a list of response sets.
 
         Args:
-            response_sets: The list of response sets.
-            original_claim_sets: The list of original claim sets.
-            sampled_claim_sets: The list of sampled claim sets.
-            entailment_score_sets: The list of entailment score sets.
+            original_claim_sets: The list of original claim sets (required).
+            response_sets: The list of response sets. Optional if entailment_score_sets is provided.
+            sampled_claim_sets: The list of sampled claim sets. Optional if entailment_score_sets is provided.
+            entailment_score_sets: The list of entailment score sets. If provided, response_sets and 
+                sampled_claim_sets become optional (will be inferred from scores).
             claim_dedup_method: The method to deduplicate claims. Options: "sequential", "one_shot", "exact_match" or None.
-            save_graph_path: The path to save the graph.
-            show_graph: Whether to show the graph.
+                Ignored if sampled_claim_sets is not provided.
+            save_graph_path: The path to save the graph. Requires response_sets for visualization.
+            show_graph: Whether to show the graph. Requires response_sets for visualization.
             use_entailment_prob: Whether to use entailment probabilities.
             edge_weight_threshold: The threshold for filtering out very small claim-response weights.
             progress_bar: The progress bar.
@@ -73,24 +67,24 @@ class GraphUQScorer(ClaimScorer):
         """
         return asyncio.run(
             self.a_evaluate(
-                response_sets,
                 original_claim_sets,
+                response_sets,
                 sampled_claim_sets,
                 entailment_score_sets,
-                progress_bar,
                 claim_dedup_method,
                 save_graph_path,
                 show_graph,
                 use_entailment_prob,
                 edge_weight_threshold,
+                progress_bar,
             )
         )
 
     async def a_evaluate(
         self,
-        response_sets: List[List[str]],
         original_claim_sets: List[List[str]],
-        sampled_claim_sets: List[List[List[str]]],
+        response_sets: Optional[List[List[str]]] = None,
+        sampled_claim_sets: Optional[List[List[List[str]]]] = None,
         entailment_score_sets: Optional[List[Dict[str, List[float]]]] = None,
         claim_dedup_method: Optional[str] = "sequential",
         save_graph_path: Optional[str] = None,
@@ -99,20 +93,58 @@ class GraphUQScorer(ClaimScorer):
         edge_weight_threshold: float = 0.001,
         progress_bar: Optional[Progress] = None,
     ) -> List[List[ClaimScore]]:
-        logger.debug(f"Starting evaluation for {len(response_sets)} response sets.")
+        
+        # Step 0: Validate inputs and infer missing values
+        num_response_sets = len(original_claim_sets)
+        # Handle None values for entailment_score_sets
+        if entailment_score_sets is None:
+            entailment_score_sets = [None] * num_response_sets
+            # If no entailment scores provided, we must have response_sets to compute them
+            if response_sets is None:
+                raise ValueError("response_sets is required when entailment_score_sets is not provided")
+            if sampled_claim_sets is None:
+                raise ValueError("sampled_claim_sets is required when entailment_score_sets is not provided")
+        else:
+            # entailment_score_sets is provided
+            # Infer response_sets structure if not provided
+            if response_sets is None:
+                # Create placeholder response_sets with correct number of responses inferred from scores
+                response_sets = []
+                for i, (claim_set, score_set) in enumerate(zip(original_claim_sets, entailment_score_sets)):
+                    if score_set is None:
+                        raise ValueError(f"entailment_score_sets[{i}] is None but response_sets is not provided. Cannot infer number of responses.")
+                    if not score_set:
+                        raise ValueError(f"entailment_score_sets[{i}] is empty but response_sets is not provided. Cannot infer number of responses.")
+                    # Get number of responses from first claim's scores
+                    num_responses = len(next(iter(score_set.values())))
+                    # Create placeholder response strings
+                    response_sets.append([f"Response {j}" for j in range(num_responses)])
+                    logger.debug(f"[Response set {i}] Inferred {num_responses} responses from entailment scores")
+            
+            # Handle missing sampled_claim_sets
+            if sampled_claim_sets is None:
+                # Create empty sampled_claim_sets (dedup will infer claims from entailment_score_sets)
+                sampled_claim_sets = [[]] * num_response_sets
+                logger.debug("sampled_claim_sets not provided. Master claims will be inferred from entailment_score_sets keys.")
+                # Force dedup to None since we don't have sampled claims
+                if claim_dedup_method is not None:
+                    logger.info("claim_dedup_method ignored because sampled_claim_sets is not provided")
+                    claim_dedup_method = None
+        
+        logger.debug(f"Starting evaluation for {num_response_sets} response sets.")
 
-        if len(response_sets) > 10 and show_graph:
-            logger.warning("More than 10 response sets and show_graph is True. This will be slow and may cause memory issues.")
+        if num_response_sets > 10 and show_graph:
+            logger.warning("More than 10 response sets and show_graph is True. This may be slow and cause memory issues.")
+        
+        # Warn if visualization requested but no actual response text
+        if (show_graph or save_graph_path) and response_sets is not None:
+            # Check if response_sets contains placeholder text
+            if any("Response " in resp for resp_set in response_sets for resp in resp_set):
+                logger.warning("Visualization may show placeholder response text because response_sets was inferred from entailment_score_sets")
 
         if claim_dedup_method not in ["sequential", "one_shot", "exact_match", None]:
             logger.warning(f"Invalid claim dedup method: {claim_dedup_method}. Skipping claim deduplication process.")
             claim_dedup_method = None
-
-        # Handle None values for entailment_score_sets
-        if entailment_score_sets is None:
-            entailment_score_sets = [None] * len(response_sets)
-
-        num_response_sets = len(response_sets)
 
         # Step 1: Dedup claims for all response sets
         logger.debug("Step 1: Deduplicating claims for all response sets...")
@@ -120,6 +152,7 @@ class GraphUQScorer(ClaimScorer):
             original_claim_sets,
             sampled_claim_sets,
             claim_dedup_method,
+            entailment_score_sets,
             progress_bar,
         )
 
@@ -170,10 +203,6 @@ class GraphUQScorer(ClaimScorer):
             - Bipartite-specific functions don't support weights, so we use standard versions
         """
 
-        # Calculate raw degree (number of connections) for each node
-        raw_degrees = dict(G.degree())
-        logger.debug(f"Raw degrees (number of connections): {raw_degrees}")
-        
         # Calculate weighted degree (sum of edge weights) for each node
         weighted_degrees = dict(G.degree(weight="weight"))
         logger.debug(f"Weighted degrees (sum of edge weights): {weighted_degrees}")
@@ -242,7 +271,6 @@ class GraphUQScorer(ClaimScorer):
             katz_centrality = {node: np.nan for node in G.nodes()}
 
         return {
-            "raw_degrees": raw_degrees,
             "degree_centrality": degree_centrality,
             "betweenness_centrality": betweenness_centrality,
             "closeness_centrality": closeness_centrality,
@@ -285,14 +313,40 @@ class GraphUQScorer(ClaimScorer):
         original_claim_sets: List[List[str]],
         sampled_claim_sets: List[List[List[str]]],
         claim_dedup_method: Optional[str],
+        entailment_score_sets: Optional[List[Dict[str, List[float]]]] = None,
         progress_bar: Optional[Progress] = None,
     ) -> List[List[str]]:
         """Process claim deduplication for response sets.
 
         Leverages ResponseGenerator's ability to handle multiple prompts at once
         by collecting dedup prompts and making batch calls.
+        
+        If sampled_claim_sets contains only empty lists and entailment_score_sets is provided,
+        infers master claims from entailment_score_sets keys. Otherwise returns original_claim_sets.
         """
         num_response_sets = len(original_claim_sets)
+        
+        # Check if all sampled_claim_sets are empty
+        if all(not claim_set for claim_set in sampled_claim_sets):
+            # If entailment scores provided, infer master claims from score keys
+            if entailment_score_sets:
+                logger.debug("All sampled_claim_sets are empty. Inferring master claims from entailment_score_sets keys.")
+                master_claim_sets = []
+                for i, score_set in enumerate(entailment_score_sets):
+                    if score_set:
+                        # Use the keys from entailment_score_sets as the master claims
+                        master_claims = list(score_set.keys())
+                        master_claim_sets.append(master_claims)
+                        logger.debug(f"[Response set {i}] Inferred {len(master_claims)} claims from entailment_score_sets keys")
+                    else:
+                        # No scores provided, use original claims
+                        master_claim_sets.append(original_claim_sets[i])
+                        logger.debug(f"[Response set {i}] No entailment scores, using original {len(original_claim_sets[i])} claims")
+                return master_claim_sets
+            else:
+                # No sampled claims and no entailment scores - just return original claims
+                logger.debug("All sampled_claim_sets are empty. Returning original_claim_sets as master_claim_sets.")
+                return original_claim_sets
 
         # Create progress task if progress bar is provided
         progress_task = None
@@ -610,7 +664,6 @@ class GraphUQScorer(ClaimScorer):
                 original_response=is_original,
                 scorer_type="graphuq",
                 scores={
-                    "raw_degree": round(gmetrics["raw_degrees"][node_idx], 5),
                     "degree_centrality": round(gmetrics["degree_centrality"][node_idx], 5),
                     "betweenness_centrality": round(gmetrics["betweenness_centrality"][node_idx], 5),
                     "closeness_centrality": round(gmetrics["closeness_centrality"][node_idx], 5),
@@ -623,31 +676,21 @@ class GraphUQScorer(ClaimScorer):
             )
             claim_scores.append(claim_score)
 
+        # Validate that all graph metrics are in [0, 1] range
+        self._validate_graph_metrics(claim_scores)
+
         # Optional: visualize graph
         if show_graph or save_graph_path:
-            if not PLOTLY_AVAILABLE:
-                logger.warning("Plotly is not installed. Falling back to matplotlib. To use interactive HTML visualizations, install plotly: pip install plotly")
-                self._visualize_bipartite_graph_matplotlib(
-                    G,
-                    num_claims,
-                    num_responses,
-                    master_claim_set,
-                    responses,
-                    biadjacency_matrix,
-                    save_graph_path,
-                    show_graph,
-                )
-            else:
-                self._visualize_bipartite_graph_plotly(
-                    G,
-                    num_claims,
-                    num_responses,
-                    master_claim_set,
-                    responses,
-                    biadjacency_matrix,
-                    save_graph_path,
-                    show_graph,
-                )
+            self._visualize_bipartite_graph_matplotlib(
+                G,
+                num_claims,
+                num_responses,
+                master_claim_set,
+                responses,
+                biadjacency_matrix,
+                save_graph_path,
+                show_graph,
+            )
 
         return claim_scores
 
@@ -895,200 +938,20 @@ class GraphUQScorer(ClaimScorer):
         else:
             plt.close()
 
-    def _visualize_bipartite_graph_plotly(
-        self,
-        G,
-        num_claims,
-        num_responses,
-        claim_texts,
-        response_texts,
-        biadjacency_matrix,
-        save_path=None,
-        show_graph=False,
-    ):
-        """Create interactive Plotly visualization of the bipartite graph"""
-
-        if not PLOTLY_AVAILABLE:
-            raise ImportError("Plotly is required for interactive HTML visualizations. Install it with: pip install plotly")
-
-        # Create bipartite layout: claims on left, responses on right
-        claim_nodes = list(range(num_claims))
-        response_nodes = list(range(num_claims, num_claims + num_responses))
-
-        # Position nodes
-        pos = {}
-        spacing_y_claims = 1.0 if num_claims == 1 else 1.0 / (num_claims - 1)
-        spacing_y_responses = 1.0 if num_responses == 1 else 1.0 / (num_responses - 1)
-
-        for i, node in enumerate(claim_nodes):
-            pos[node] = (0, 1.0 - i * spacing_y_claims)
-
-        for i, node in enumerate(response_nodes):
-            pos[node] = (1, 1.0 - i * spacing_y_responses)
-
-        # Collect all non-zero weights to normalize visualization
-        all_weights = []
-        for claim_idx in claim_nodes:
-            for response_idx in response_nodes:
-                weight = biadjacency_matrix[claim_idx, response_idx - num_claims]
-                if weight > 0:
-                    all_weights.append(weight)
-
-        # Calculate weight range for normalization
-        if len(all_weights) > 0:
-            min_weight = min(all_weights)
-            max_weight = max(all_weights)
-            weight_range = max_weight - min_weight
-        else:
-            min_weight = 0
-            max_weight = 1
-            weight_range = 1
-
-        # Create edge traces with hover info
-        edge_traces = []
-        for claim_idx in claim_nodes:
-            for response_idx in response_nodes:
-                weight = biadjacency_matrix[claim_idx, response_idx - num_claims]
-                # Only draw edges that exist (filtering already done before graph construction)
-                if weight > 0:
-                    x0, y0 = pos[claim_idx]
-                    x1, y1 = pos[response_idx]
-
-                    # Truncate texts for hover
-                    claim_text_short = (claim_texts[claim_idx][:60] + "...") if len(claim_texts[claim_idx]) > 60 else claim_texts[claim_idx]
-                    response_text_short = (response_texts[response_idx - num_claims][:60] + "...") if len(response_texts[response_idx - num_claims]) > 60 else response_texts[response_idx - num_claims]
-
-                    # Normalize weight to [0, 1] based on actual range in this graph
-                    if weight_range > 0:
-                        normalized_weight = (weight - min_weight) / weight_range
-                    else:
-                        normalized_weight = 1.0  # All weights are the same
-
-                    # Map normalized weight to visual properties
-                    # Width: 1 (thin) to 6 (thick) based on normalized weight
-                    line_width = 1 + normalized_weight * 5
-                    # Opacity: 0.3 (faint) to 0.9 (solid) based on normalized weight
-                    opacity = 0.3 + normalized_weight * 0.6
-
-                    # Create edge trace
-                    edge_trace = go.Scatter(
-                        x=[x0, x1, None],
-                        y=[y0, y1, None],
-                        mode="lines",
-                        line=dict(width=line_width, color=f"rgba(100, 100, 100, {opacity:.6f})"),
-                        hovertemplate=f"<b>Weight: {weight:.4f}</b><br>"
-                        + f"Normalized: {normalized_weight:.2f}<br>"
-                        + f"Claim: {claim_text_short}<br>"
-                        + f"Response: {response_text_short}<extra></extra>",
-                        hoverinfo="text",
-                        showlegend=False,
+    def _validate_graph_metrics(self, claim_scores: List[ClaimScore]) -> None:
+        """
+        Validate that all graph metrics are between 0 and 1.
+        
+        Logs a warning if any metric value is outside the [0, 1] range.
+        
+        Args:
+            claim_scores: List of ClaimScore objects containing graph metrics
+        """
+        for claim_idx, claim_score in enumerate(claim_scores):
+            for metric_name, metric_value in claim_score.scores.items():
+                if metric_value < 0 or metric_value > 1:
+                    logger.warning(
+                        f"Claim {claim_idx} ('{claim_score.claim}'): Graph metric '{metric_name}' has value {metric_value:.6f} "
+                        f"which is outside the expected [0, 1] range. This may indicate an issue with "
+                        f"the graph construction or metric calculation."
                     )
-                    edge_traces.append(edge_trace)
-
-                    # Add invisible scatter point at edge midpoint for better hover detection
-                    mid_x, mid_y = (x0 + x1) / 2, (y0 + y1) / 2
-                    edge_midpoint = go.Scatter(
-                        x=[mid_x],
-                        y=[mid_y],
-                        mode="markers",
-                        marker=dict(size=12, color="rgba(150, 150, 150, 0.01)"),  # Nearly invisible but clickable
-                        hovertemplate=f"<b>Weight: {weight:.4f}</b><br>"
-                        + f"Normalized: {normalized_weight:.2f}<br>"
-                        + f"C{claim_idx} → R{response_idx - num_claims}<br>"
-                        + f"Claim: {claim_text_short}<br>"
-                        + f"Response: {response_text_short}<extra></extra>",
-                        showlegend=False,
-                    )
-                    edge_traces.append(edge_midpoint)
-
-        # Calculate claim node degrees for color mapping
-        claim_degrees = []
-        for claim_idx in claim_nodes:
-            degree = sum(1 for resp_idx in response_nodes if biadjacency_matrix[claim_idx, resp_idx - num_claims] > 0)
-            claim_degrees.append(degree)
-
-        # Normalize degrees for color mapping
-        max_degree = max(claim_degrees) if claim_degrees else 1
-        min_degree = min(claim_degrees) if claim_degrees else 0
-        degree_range = max_degree - min_degree if max_degree > min_degree else 1
-
-        # Create claim node trace with color based on degree
-        claim_x = [pos[node][0] for node in claim_nodes]
-        claim_y = [pos[node][1] for node in claim_nodes]
-        claim_text = [f"<b>C{i}</b><br>Degree: {claim_degrees[i]}<br>{claim_texts[i]}" for i in claim_nodes]
-
-        # Generate color scale (light blue to dark blue)
-        claim_colors = []
-        for i in claim_nodes:
-            if degree_range > 0:
-                normalized_degree = (claim_degrees[i] - min_degree) / degree_range
-            else:
-                normalized_degree = 1.0
-            # Map to RGB: light blue (173, 216, 230) to dark blue (25, 25, 112)
-            r = int(173 - normalized_degree * 148)  # 173 to 25
-            g = int(216 - normalized_degree * 191)  # 216 to 25
-            b = int(230 - normalized_degree * 118)  # 230 to 112
-            claim_colors.append(f"rgb({r}, {g}, {b})")
-
-        claim_trace = go.Scatter(
-            x=claim_x,
-            y=claim_y,
-            mode="markers+text",
-            marker=dict(size=20, color=claim_colors, line=dict(width=2, color="#2171b5"), symbol="square"),
-            text=[f"C{i}" for i in claim_nodes],
-            textposition="middle center",
-            textfont=dict(size=10, color="white", family="Arial Black"),
-            hovertemplate="%{customdata}<extra></extra>",
-            customdata=claim_text,
-            name="Claims",
-            showlegend=True,
-        )
-
-        # Create response node trace
-        response_x = [pos[node][0] for node in response_nodes]
-        response_y = [pos[node][1] for node in response_nodes]
-        response_text = [f"<b>R{i}</b><br>{response_texts[i]}" for i in range(num_responses)]
-
-        response_trace = go.Scatter(
-            x=response_x,
-            y=response_y,
-            mode="markers+text",
-            marker=dict(size=20, color="#fc8d62", line=dict(width=2, color="#e34a33"), symbol="circle"),
-            text=[f"R{i}" for i in range(num_responses)],
-            textposition="middle center",
-            textfont=dict(size=10, color="white", family="Arial Black"),
-            hovertemplate="%{customdata}<extra></extra>",
-            customdata=response_text,
-            name="Responses",
-            showlegend=True,
-        )
-
-        # Create figure
-        fig = go.Figure(data=edge_traces + [claim_trace, response_trace])
-
-        # Create informative title with weight range info
-        if weight_range > 0:
-            title_text = f"<b>Bipartite Graph: Claims ↔ Responses</b><br><sub>Claim color: darker = more connections • Edge weight range: {min_weight:.4f} - {max_weight:.4f}</sub>"
-        else:
-            title_text = "<b>Bipartite Graph: Claims ↔ Responses</b><br><sub>Claim color indicates connection count</sub>"
-
-        fig.update_layout(
-            title=dict(text=title_text, x=0.5, xanchor="center", font=dict(size=20)),
-            showlegend=True,
-            hovermode="closest",
-            margin=dict(b=20, l=100, r=100, t=80),
-            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            plot_bgcolor="white",
-            width=1200,
-            height=max(600, num_claims * 80, num_responses * 80),
-        )
-
-        # Save to file if path provided
-        if save_path:
-            fig.write_html(save_path)
-            logger.info(f"Interactive graph visualization (plotly) saved to: {save_path}")
-
-        # Display inline if requested
-        if show_graph:
-            fig.show()

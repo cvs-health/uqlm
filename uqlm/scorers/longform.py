@@ -264,16 +264,16 @@ class LongFormUQ(UncertaintyQuantifier):
             sampled_claim_sets = self.sampled_claim_sets if self.granularity == "claim" else self.sampled_sentence_sets
             response_sets = [sampled + [orig] for sampled, orig in zip(sampled_responses, self.responses)]
             claim_score_lists = await self.graphuq_scorer.a_evaluate(
-                response_sets=response_sets,
                 original_claim_sets=claim_sets,
+                response_sets=response_sets,
                 sampled_claim_sets=sampled_claim_sets,
                 entailment_score_sets=entailment_score_sets,
-                progress_bar=progress_bar,
                 claim_dedup_method=claim_dedup_method,
                 save_graph_path=save_graph_path,
                 show_graph=show_graph,
                 use_entailment_prob=use_entailment_prob,
                 edge_weight_threshold=edge_weight_threshold,
+                progress_bar=progress_bar,
             )
             # Convert to dict format with all graph metrics
             score_results = self._convert_graphuq_scores(claim_score_lists)
@@ -287,7 +287,6 @@ class LongFormUQ(UncertaintyQuantifier):
         """Convert GraphUQ ClaimScore objects to dict format."""
         # Initialize dict for all metrics
         metrics = [
-            "raw_degree",
             "degree_centrality",
             "betweenness_centrality",
             "closeness_centrality",

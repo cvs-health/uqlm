@@ -167,7 +167,6 @@ async def test_graphuq_basic_evaluation(monkeypatch, mock_llm, simple_test_data)
     for claim_score in results[0]:
         assert isinstance(claim_score, ClaimScore)
         assert claim_score.scorer_type == "graphuq"
-        assert "raw_degree" in claim_score.scores
         assert "degree_centrality" in claim_score.scores
         assert "page_rank" in claim_score.scores
         assert "betweenness_centrality" in claim_score.scores
@@ -177,15 +176,15 @@ async def test_graphuq_basic_evaluation(monkeypatch, mock_llm, simple_test_data)
         assert "katz_centrality" in claim_score.scores
         assert "hits_authority" in claim_score.scores
     
-    # Check that "The sky is blue." has high degree (appears in 3/4 responses)
+    # Check that "The sky is blue." has high degree centrality (appears in 3/4 responses)
     sky_blue_claims = [cs for cs in results[0] if cs.claim == "The sky is blue."]
     assert len(sky_blue_claims) == 1
-    assert sky_blue_claims[0].scores["raw_degree"] == 3
+    assert sky_blue_claims[0].scores["degree_centrality"] == 0.75  # 3/4 responses
     
-    # Check that "The ocean is pink." has low degree (appears in 1/4 responses)
+    # Check that "The ocean is pink." has low degree centrality (appears in 1/4 responses)
     ocean_pink_claims = [cs for cs in results[0] if cs.claim == "The ocean is pink."]
     assert len(ocean_pink_claims) == 1
-    assert ocean_pink_claims[0].scores["raw_degree"] == 1
+    assert ocean_pink_claims[0].scores["degree_centrality"] == 0.25  # 1/4 responses
 
 
 @pytest.mark.asyncio
@@ -452,9 +451,8 @@ def test_calculate_claim_node_graph_metrics(mock_llm):
     
     metrics = scorer._calculate_claim_node_graph_metrics(G, num_claims=2, num_responses=2)
     
-    # Check that all expected metrics are present (9 total metrics)
+    # Check that all expected metrics are present (8 total metrics)
     expected_metrics = [
-        "raw_degrees",
         "degree_centrality",
         "betweenness_centrality",
         "closeness_centrality",
@@ -467,10 +465,6 @@ def test_calculate_claim_node_graph_metrics(mock_llm):
     ]
     for metric in expected_metrics:
         assert metric in metrics, f"Missing metric: {metric}"
-    
-    # Check raw degrees
-    assert metrics["raw_degrees"][0] == 2  # Claim 0 has 2 connections
-    assert metrics["raw_degrees"][1] == 1  # Claim 1 has 1 connection
     
     # Check degree centrality (weighted degree normalized by num_responses=2)
     assert metrics["degree_centrality"][0] == 0.75  # (1.0 + 0.5) / 2 = 0.75
@@ -541,9 +535,9 @@ async def test_graphuq_minimal_response_set(monkeypatch, mock_llm):
     assert "First claim." in claim_texts
     assert "Second claim." in claim_texts
     
-    # Each claim should connect to exactly 1 response
+    # Each claim should connect to exactly 1 response (out of 2 total)
     for claim_score in results[0]:
-        assert claim_score.scores["raw_degree"] == 1
+        assert claim_score.scores["degree_centrality"] == 0.5  # 1/2 responses
 
 
 @pytest.mark.asyncio
@@ -634,4 +628,67 @@ async def test_graphuq_original_response_flag(monkeypatch, mock_llm, simple_test
             assert claim_score.original_response is True
         else:
             assert claim_score.original_response is False
+
+
+@pytest.mark.asyncio
+async def test_graphuq_with_only_entailment_scores(mock_llm):
+    """Test GraphUQ evaluation when only entailment_score_sets and original_claim_sets are provided.
+    
+    This tests the scenario where the user has already computed entailment scores
+    and doesn't need to provide response_sets or sampled_claim_sets.
+    """
+    scorer = GraphUQScorer(judge_llm=mock_llm)
+    
+    # Only provide original_claim_sets and entailment_score_sets
+    # response_sets and sampled_claim_sets will be inferred/skipped
+    entailment_score_sets = [{
+        "The sky is blue.": [1.0, 1.0, 1.0, 0.0],
+        "The grass is green.": [1.0, 0.0, 0.0, 0.0],
+        "The grass is red.": [0.0, 1.0, 0.0, 1.0],
+        "The ocean is pink.": [0.0, 0.0, 0.0, 1.0]
+    }]
+    
+    original_claim_sets = [["The sky is blue.", "The grass is green."]]
+    
+    results = await scorer.a_evaluate(
+        original_claim_sets=original_claim_sets,
+        entailment_score_sets=entailment_score_sets,
+        # response_sets and sampled_claim_sets are not provided
+    )
+    
+    # Check structure
+    assert len(results) == 1  # One response set
+    assert len(results[0]) == 4  # All 4 claims from entailment_score_sets keys
+    
+    # Check that all claims from entailment_score_sets are present
+    claim_texts = {cs.claim for cs in results[0]}
+    assert claim_texts == {
+        "The sky is blue.", 
+        "The grass is green.", 
+        "The grass is red.", 
+        "The ocean is pink."
+    }
+    
+    # Check that all results are ClaimScore objects with correct metrics
+    for claim_score in results[0]:
+        assert isinstance(claim_score, ClaimScore)
+        assert claim_score.scorer_type == "graphuq"
+        assert "degree_centrality" in claim_score.scores
+        assert "page_rank" in claim_score.scores
+        
+    # Check original_response flag is set correctly
+    for claim_score in results[0]:
+        if claim_score.claim in original_claim_sets[0]:
+            assert claim_score.original_response is True
+        else:
+            assert claim_score.original_response is False
+    
+    # Check degree centrality values are computed correctly
+    # "The sky is blue." appears in 3/4 responses
+    sky_blue = [cs for cs in results[0] if cs.claim == "The sky is blue."][0]
+    assert sky_blue.scores["degree_centrality"] == 0.75
+    
+    # "The grass is green." appears in 1/4 responses
+    grass_green = [cs for cs in results[0] if cs.claim == "The grass is green."][0]
+    assert grass_green.scores["degree_centrality"] == 0.25
 
