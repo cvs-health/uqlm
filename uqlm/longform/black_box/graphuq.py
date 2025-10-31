@@ -208,7 +208,7 @@ class GraphUQScorer(ClaimScorer):
         # Calculate eigenvector centrality (uses weights as connection strength)
         try:
             eigenvector_centrality = nx.eigenvector_centrality(G, max_iter=1000, weight="weight")
-            logger.debug(f"Eigenvector centrality (weighted): {eigenvector_centrality}")
+            logger.debug(f"Eigenvector centrality: {eigenvector_centrality}")
         except (nx.PowerIterationFailedConvergence, nx.NetworkXError) as e:
             logger.warning(f"Eigenvector centrality failed to converge: {e}. Using NaN to indicate calculation failure.")
             eigenvector_centrality = {node: np.nan for node in G.nodes()}
@@ -226,8 +226,11 @@ class GraphUQScorer(ClaimScorer):
             authorities = {node: np.nan for node in G.nodes()}
 
         # Calculate Harmonic Centrality
-        harmonic_centrality = nx.harmonic_centrality(G)
-        logger.debug(f"Harmonic centrality (unweighted): {harmonic_centrality}")
+        harmonic_centrality_raw = nx.harmonic_centrality(G)
+        total_nodes = num_claims + num_responses
+        normalization = total_nodes - 1 if total_nodes > 1 else 1
+        harmonic_centrality = {node: value / normalization for node, value in harmonic_centrality_raw.items()}
+        logger.debug(f"Harmonic centrality (normalized): {harmonic_centrality}")
 
         # Calculate Katz Centrality
         try:
