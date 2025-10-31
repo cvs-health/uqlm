@@ -216,27 +216,45 @@ class GraphUQScorer(ClaimScorer):
             degree_centrality[node] = weighted_degrees[node] / num_responses if num_responses > 0 else 0.0
         for node in response_nodes:
             degree_centrality[node] = weighted_degrees[node] / num_claims if num_claims > 0 else 0.0
-        logger.debug(f"Degree centrality (weighted, bipartite-normalized): {degree_centrality}")
+        logger.debug(f"Degree centrality: {degree_centrality}")
 
         # Calculate betweenness centrality
         betweenness_centrality = nx.bipartite.betweenness_centrality(G, claim_nodes)
-        logger.debug(f"Betweenness centrality (bipartite, unweighted): {betweenness_centrality}")
+        logger.debug(f"Betweenness centrality: {betweenness_centrality}")
 
         # Calculate PageRank (uses weights as connection strength)
         try:
             page_rank = nx.pagerank(G, weight="weight", max_iter=1000)
-            logger.debug(f"PageRank (weighted): {page_rank}")
+            logger.debug(f"PageRank: {page_rank}")
         except (nx.PowerIterationFailedConvergence, nx.NetworkXError) as e:
             logger.warning(f"PageRank failed to converge: {e}. Using NaN to indicate calculation failure.")
             page_rank = {node: np.nan for node in G.nodes()}
 
         # Calculate closeness centrality
-        closeness_centrality = nx.bipartite.closeness_centrality(G, claim_nodes)
-        logger.debug(f"Closeness centrality (bipartite, unweighted): {closeness_centrality}")
+        closeness_centrality_raw = nx.bipartite.closeness_centrality(G, claim_nodes, normalized=True)
+        max_closeness = max(closeness_centrality_raw.values()) if closeness_centrality_raw else 1.0
+        
+        # Normalize to [0, 1]
+        if max_closeness > 0:
+            closeness_centrality = {node: score / max_closeness for node, score in closeness_centrality_raw.items()}
+        else:
+            closeness_centrality = closeness_centrality_raw
+        logger.debug(f"Closeness centrality: {closeness_centrality}")
 
         # Calculate eigenvector centrality (uses weights as connection strength)
         try:
-            eigenvector_centrality = nx.eigenvector_centrality(G, max_iter=1000, weight="weight")
+            eigenvector_centrality_raw = nx.eigenvector_centrality(G, max_iter=1000, weight="weight")
+            
+            # Take absolute values to ensure non-negative scores
+            eigenvector_centrality_abs = {node: abs(score) for node, score in eigenvector_centrality_raw.items()}
+            
+            # Normalize to [0, 1]
+            max_eigenvector = max(eigenvector_centrality_abs.values()) if eigenvector_centrality_abs else 1.0
+            if max_eigenvector > 0:
+                eigenvector_centrality = {node: score / max_eigenvector for node, score in eigenvector_centrality_abs.items()}
+            else:
+                eigenvector_centrality = eigenvector_centrality_abs
+            
             logger.debug(f"Eigenvector centrality: {eigenvector_centrality}")
         except (nx.PowerIterationFailedConvergence, nx.NetworkXError) as e:
             logger.warning(f"Eigenvector centrality failed to converge: {e}. Using NaN to indicate calculation failure.")
@@ -246,7 +264,22 @@ class GraphUQScorer(ClaimScorer):
         # Hubs: nodes that connect to many important authorities (responses supporting important claims)
         # Authorities: nodes that are connected to by many important hubs (claims supported by important responses)
         try:
-            hubs, authorities = nx.hits(G, max_iter=100, normalized=True)
+            # Initialize with uniform values
+            nstart = {node: 1.0 / G.number_of_nodes() for node in G.nodes()}
+            hubs, authorities = nx.hits(G, max_iter=1000, tol=1e-8, nstart=nstart, normalized=True)
+            
+            # Take absolute values to ensure non-negative scores
+            hubs = {node: abs(score) for node, score in hubs.items()}
+            authorities = {node: abs(score) for node, score in authorities.items()}
+            
+            # Normalize to [0, 1] range by dividing by max value if max > 0
+            max_hub = max(hubs.values()) if hubs else 1.0
+            max_auth = max(authorities.values()) if authorities else 1.0
+            if max_hub > 0:
+                hubs = {node: score / max_hub for node, score in hubs.items()}
+            if max_auth > 0:
+                authorities = {node: score / max_auth for node, score in authorities.items()}
+            
             logger.debug(f"HITS hubs (responses supporting important claims): {hubs}")
             logger.debug(f"HITS authorities (claims supported by important responses): {authorities}")
         except nx.PowerIterationFailedConvergence as e:
@@ -256,16 +289,31 @@ class GraphUQScorer(ClaimScorer):
 
         # Calculate Harmonic Centrality
         harmonic_centrality_raw = nx.harmonic_centrality(G)
-        total_nodes = num_claims + num_responses
-        normalization = total_nodes - 1 if total_nodes > 1 else 1
-        harmonic_centrality = {node: value / normalization for node, value in harmonic_centrality_raw.items()}
-        logger.debug(f"Harmonic centrality (normalized): {harmonic_centrality}")
+        
+        # Normalize to [0, 1]
+        max_harmonic = max(harmonic_centrality_raw.values()) if harmonic_centrality_raw else 1.0
+        if max_harmonic > 0:
+            harmonic_centrality = {node: score / max_harmonic for node, score in harmonic_centrality_raw.items()}
+        else:
+            harmonic_centrality = harmonic_centrality_raw
+        
+        logger.debug(f"Harmonic centrality: {harmonic_centrality}")
 
         # Calculate Katz Centrality
         try:
-            # Alpha must be less than 1/lambda_max. Start with a small conservative value
-            katz_centrality = nx.katz_centrality(G, alpha=0.01, beta=1.0, weight="weight", max_iter=1000)
-            logger.debug(f"Katz centrality (weighted): {katz_centrality}")
+            katz_centrality_raw = nx.katz_centrality(G, alpha=0.01, beta=1.0, weight="weight", max_iter=1000)
+            
+            # Take absolute values to ensure non-negative scores
+            katz_centrality_abs = {node: abs(score) for node, score in katz_centrality_raw.items()}
+            
+            # Normalize to [0, 1]
+            max_katz = max(katz_centrality_abs.values()) if katz_centrality_abs else 1.0
+            if max_katz > 0:
+                katz_centrality = {node: score / max_katz for node, score in katz_centrality_abs.items()}
+            else:
+                katz_centrality = katz_centrality_abs
+            
+            logger.debug(f"Katz centrality: {katz_centrality}")
         except (nx.PowerIterationFailedConvergence, nx.NetworkXError) as e:
             logger.warning(f"Katz centrality failed to converge: {e}. Using NaN to indicate calculation failure.")
             katz_centrality = {node: np.nan for node in G.nodes()}
@@ -947,11 +995,18 @@ class GraphUQScorer(ClaimScorer):
         Args:
             claim_scores: List of ClaimScore objects containing graph metrics
         """
+        problematic_metrics = set()
         for claim_idx, claim_score in enumerate(claim_scores):
             for metric_name, metric_value in claim_score.scores.items():
                 if metric_value < 0 or metric_value > 1:
-                    logger.warning(
+                    problematic_metrics.add(metric_name)
+                    logger.debug(
                         f"Claim {claim_idx} ('{claim_score.claim}'): Graph metric '{metric_name}' has value {metric_value:.6f} "
-                        f"which is outside the expected [0, 1] range. This may indicate an issue with "
-                        f"the graph construction or metric calculation."
                     )
+        if problematic_metrics:
+            logger.warning(
+                f"Problematic graph metrics found: {problematic_metrics}. "
+                f"This may indicate an issue with the graph construction or metric calculation."
+            )
+            return False
+        return True

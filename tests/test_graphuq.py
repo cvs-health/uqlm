@@ -512,10 +512,14 @@ def test_graphuq_initialization(mock_llm):
 
 @pytest.mark.asyncio
 async def test_graphuq_minimal_response_set(monkeypatch, mock_llm):
-    """Test GraphUQ with minimal data (2 responses, 2 claims)."""
+    """Test GraphUQ with minimal data (2 responses, 2 claims).
+    
+    This small sparse graph structure is a regression test for metric normalization issues.
+    It previously caused closeness_centrality > 1.0 before proper normalization was added.
+    """
     scorer = GraphUQScorer(judge_llm=mock_llm)
     
-    # Create minimal data with 2 responses and 2 claims to avoid centrality calculation edge cases
+    # Create minimal data with 2 responses and 2 claims
     results = await scorer.a_evaluate(
         response_sets=[["First response.", "Second response."]],
         original_claim_sets=[["First claim.", "Second claim."]],
@@ -538,6 +542,15 @@ async def test_graphuq_minimal_response_set(monkeypatch, mock_llm):
     # Each claim should connect to exactly 1 response (out of 2 total)
     for claim_score in results[0]:
         assert claim_score.scores["degree_centrality"] == 0.5  # 1/2 responses
+        
+        # Verify all metrics are in [0, 1] range (regression test)
+        for metric_name, metric_value in claim_score.scores.items():
+            assert 0.0 <= metric_value <= 1.0, (
+                f"Metric '{metric_name}' = {metric_value} is outside [0, 1] range"
+            )
+    
+    # Verify validation passes
+    assert scorer._validate_graph_metrics(results[0]) is True
 
 
 @pytest.mark.asyncio
@@ -691,4 +704,42 @@ async def test_graphuq_with_only_entailment_scores(mock_llm):
     # "The grass is green." appears in 1/4 responses
     grass_green = [cs for cs in results[0] if cs.claim == "The grass is green."][0]
     assert grass_green.scores["degree_centrality"] == 0.25
+
+
+def test_validate_graph_metrics(mock_llm):
+    """Test the _validate_graph_metrics function with valid and invalid metrics."""
+    scorer = GraphUQScorer(judge_llm=mock_llm)
+    
+    # Test 1: Valid metrics (all in [0, 1]) should return True
+    valid_claim_scores = [
+        ClaimScore(
+            claim="Valid claim",
+            original_response=True,
+            scores={
+                "degree_centrality": 0.5,
+                "closeness_centrality": 0.8,
+                "hits_authority": 0.0,
+            },
+            scorer_type="graphuq"
+        ),
+    ]
+    assert scorer._validate_graph_metrics(valid_claim_scores) is True
+    
+    # Test 2: Invalid metrics (outside [0, 1]) should return False
+    invalid_claim_scores = [
+        ClaimScore(
+            claim="Invalid claim",
+            original_response=True,
+            scores={
+                "degree_centrality": 0.5,
+                "closeness_centrality": 1.5,  # Invalid: > 1
+                "hits_authority": -0.1,  # Invalid: < 0
+            },
+            scorer_type="graphuq"
+        ),
+    ]
+    assert scorer._validate_graph_metrics(invalid_claim_scores) is False
+    
+    # Test 3: Empty list should return True
+    assert scorer._validate_graph_metrics([]) is True
 
