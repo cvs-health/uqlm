@@ -486,7 +486,10 @@ class UQEnsemble(UncertaintyQuantifier):
             data = {"prompts": self.prompts, "responses": self.responses, "sampled_responses": self.sampled_responses if self.sampled_responses else [None] * len(self.responses)}
         data["ensemble_scores"] = self._compute_ensemble_scores(score_dict=self.component_scores, weights=self.weights)
         data.update(self.component_scores)
-        result = {"data": data, "metadata": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "thresh": self.thresh, "weights": self.weights, "logprobs": self.logprobs}}
+        data["logprobs"] = self.logprobs
+        metadata = self._construct_base_uqresult_metadata()
+        metadata.update({"thresh": self.thresh, "weights": self.weights})
+        result = {"data": data, "metadata": metadata}
         return UQResult(result)
 
     def _compute_ensemble_scores(self, score_dict: Dict[str, List[float]], weights: List[float]):

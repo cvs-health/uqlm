@@ -15,7 +15,7 @@
 
 import io
 import contextlib
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Union, Dict
 from langchain_core.messages import BaseMessage
 from rich.progress import Progress, TextColumn
 
@@ -200,7 +200,25 @@ class UncertaintyQuantifier:
                 self.raw_responses[i] = best_raw_response
                 self.raw_sampled_responses[i] = all_raw_candidates
 
-    def _construct_black_box_return_data(self):
+    def _construct_base_uqresult_metadata(self) -> Dict[str, Any]:
+        """
+        Constructs base UQResult metadata for all scorers.
+
+        Returns
+        -------
+        Dict[str, Any]
+            Dictionary of common metadata fields with their values
+        """
+        base_metadata = {}
+        if hasattr(self, "llm"):
+            base_metadata["temperature"] = None if not self.llm else self.llm.temperature
+        if hasattr(self, "sampling_temperature") and self.sampling_temperature is not None:
+            base_metadata["sampling_temperature"] = self.sampling_temperature
+        if hasattr(self, "num_responses"):
+            base_metadata["num_responses"] = self.num_responses
+        return base_metadata
+
+    def _construct_black_box_return_data(self) -> Dict[str, Any]:
         """Helper function to prepare black box return data"""
         data_to_return = {"responses": self.responses, "sampled_responses": self.sampled_responses}
         if self.postprocessor:

@@ -128,7 +128,9 @@ class LLMPanel(UncertaintyQuantifier):
 
         scores_dict = {"avg": [np.mean(scores) for scores in zip(*scores_lists)], "max": [np.max(scores) for scores in zip(*scores_lists)], "min": [np.min(scores) for scores in zip(*scores_lists)], "median": [np.median(scores) for scores in zip(*scores_lists)]}
         data.update(scores_dict)
-        result = {"data": data, "metadata": {"num_judges": len(self.judges), "temperature": None if not self.llm else self.llm.temperature}}
+        metadata = self._construct_base_uqresult_metadata()
+        metadata.update({"num_judges": len(self.judges)})
+        result = {"data": data, "metadata": metadata}
 
         self._stop_progress_bar()
         self.progress_bar = None  # if re-run ensure the same progress object is not used

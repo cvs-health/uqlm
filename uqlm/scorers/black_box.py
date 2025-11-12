@@ -206,7 +206,9 @@ class BlackBoxUQ(UncertaintyQuantifier):
         """Constructs UQResult object"""
         data_to_return = self._construct_black_box_return_data()
         data_to_return.update(self.scores_dict)
-        result = {"data": data_to_return, "metadata": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "scorers": self.scorers}}
+        metadata = self._construct_base_uqresult_metadata()
+        metadata.update({"scorers": self.scorers})
+        result = {"data": data_to_return, "metadata": metadata}
         return UQResult(result)
 
     def _validate_scorers(self, scorers: List[Any]) -> None:

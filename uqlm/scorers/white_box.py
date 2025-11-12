@@ -107,19 +107,25 @@ class WhiteBoxUQ(UncertaintyQuantifier):
         self.prompts = prompts
         self.responses = responses
 
-        data = {}
-        if self.prompts:
-            data["prompts"] = self.prompts
-        if self.responses:
-            data["responses"] = self.responses
-
-        data["logprobs"] = self.logprobs
+        data_to_return = self._construct_white_box_return_data()
         scores = self._compute_scores(self.logprobs)
         for key in self.scorers:
-            data[key] = scores[key]
+            data_to_return[key] = scores[key]
 
-        result = {"data": data, "metadata": {"temperature": None if not self.llm else self.llm.temperature}}
+        metadata = self._construct_base_uqresult_metadata()
+        result = {"data": data_to_return, "metadata": metadata}
         return UQResult(result)
+
+    def _construct_white_box_return_data(self) -> Dict[str, Any]:
+        """Helper function to prepare return data for white-box UQ"""
+        data = {}
+        if hasattr(self, "prompts") and self.prompts:
+            data["prompts"] = self.prompts
+        if hasattr(self, "responses") and self.responses:
+            data["responses"] = self.responses
+        if hasattr(self, "logprobs") and self.logprobs:
+            data["logprobs"] = self.logprobs
+        return data
 
     def _compute_scores(self, logprobs_results: List[List[Dict[str, Any]]]) -> List[float]:
         """

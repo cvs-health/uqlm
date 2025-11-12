@@ -34,7 +34,7 @@ PROMPTS = data["prompts"]
 MOCKED_RESPONSES = data["responses"]
 MOCKED_SAMPLED_RESPONSES = data["sampled_responses"]
 MOCKED_JUDGE_SCORES = data["judge_1"]
-MOCKED_LOGPROBS = metadata["logprobs"]
+MOCKED_LOGPROBS = data["logprobs"]
 
 
 @pytest.fixture
@@ -156,7 +156,7 @@ async def test_ensemble2(monkeypatch, mock_llm):
     PROMPTS = data["prompts"]
     MOCKED_RESPONSES = data["responses"]
     MOCKED_JUDGE_SCORES = data["judge_1"]
-    MOCKED_LOGPROBS = metadata["logprobs"]
+    MOCKED_LOGPROBS = data["logprobs"]
     uqe = UQEnsemble(llm=mock_llm, scorers=["min_probability", mock_llm])
 
     async def mock_generate_original_responses(*args, **kwargs):

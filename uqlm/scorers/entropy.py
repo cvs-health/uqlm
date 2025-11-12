@@ -202,7 +202,8 @@ class SemanticEntropy(UncertaintyQuantifier):
             data_to_return["tokenprob_entropy_values"] = tokenprob_semantic_entropy
             data_to_return["tokenprob_confidence_scores"] = [1 - ne for ne in self.nli_scorer._normalize_entropy(tokenprob_semantic_entropy)]
 
-        result = {"data": data_to_return, "metadata": {"parameters": {"temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses}}}
+        metadata = self._construct_base_uqresult_metadata()
+        result = {"data": data_to_return, "metadata": metadata}
 
         self._stop_progress_bar()
         self.progress_bar = None  # if re-run ensure the same progress object is not used
