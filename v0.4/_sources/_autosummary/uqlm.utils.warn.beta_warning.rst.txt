@@ -1,0 +1,6 @@
+uqlm.utils.warn.beta\_warning
+=============================
+
+.. currentmodule:: uqlm.utils.warn
+
+.. autofunction:: beta_warning

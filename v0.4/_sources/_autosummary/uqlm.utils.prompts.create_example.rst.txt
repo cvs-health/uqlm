@@ -1,0 +1,6 @@
+uqlm.utils.prompts.create\_example
+==================================
+
+.. currentmodule:: uqlm.utils.prompts
+
+.. autofunction:: create_example

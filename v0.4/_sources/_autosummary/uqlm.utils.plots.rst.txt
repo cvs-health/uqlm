@@ -1,0 +1,32 @@
+uqlm.utils.plots
+================
+
+.. automodule:: uqlm.utils.plots
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      plot_filtered_accuracy
+      plot_model_accuracies
+      plot_ranked_auc
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

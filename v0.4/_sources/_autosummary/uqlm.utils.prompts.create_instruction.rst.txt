@@ -1,0 +1,6 @@
+uqlm.utils.prompts.create\_instruction
+======================================
+
+.. currentmodule:: uqlm.utils.prompts
+
+.. autofunction:: create_instruction

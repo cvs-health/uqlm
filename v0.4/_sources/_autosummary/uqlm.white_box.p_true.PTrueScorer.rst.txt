@@ -1,0 +1,32 @@
+uqlm.white\_box.p\_true.PTrueScorer
+===================================
+
+.. currentmodule:: uqlm.white_box.p_true
+
+.. autoclass:: PTrueScorer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PTrueScorer.__init__
+      ~PTrueScorer.evaluate
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

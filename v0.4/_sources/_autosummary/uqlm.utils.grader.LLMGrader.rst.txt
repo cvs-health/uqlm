@@ -1,0 +1,32 @@
+uqlm.utils.grader.LLMGrader
+===========================
+
+.. currentmodule:: uqlm.utils.grader
+
+.. autoclass:: LLMGrader
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LLMGrader.__init__
+      ~LLMGrader.grade_responses
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

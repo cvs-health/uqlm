@@ -1,0 +1,31 @@
+uqlm.utils.prompts
+==================
+
+.. automodule:: uqlm.utils.prompts
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      create_example
+      create_instruction
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

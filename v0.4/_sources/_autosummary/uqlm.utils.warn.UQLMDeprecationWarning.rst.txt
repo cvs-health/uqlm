@@ -1,0 +1,6 @@
+uqlm.utils.warn.UQLMDeprecationWarning
+======================================
+
+.. currentmodule:: uqlm.utils.warn
+
+.. autoexception:: UQLMDeprecationWarning
