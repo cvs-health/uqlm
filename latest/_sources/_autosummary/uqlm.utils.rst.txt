@@ -30,6 +30,7 @@
 
    dataloader
    display
+   grader
    llm_config
    plots
    postprocessors

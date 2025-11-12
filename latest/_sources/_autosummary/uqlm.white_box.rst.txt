@@ -1,0 +1,36 @@
+﻿uqlm.white\_box
+===============
+
+.. automodule:: uqlm.white_box
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: module.rst
+   :recursive:
+
+   baseclass
+   p_true
+   sampled_logprobs
+   single_logprobs
+   top_logprobs
+

@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>uqlm: Uncertainty Quantification for Language Models &#8212; uqlm 0.3 documentation</title>
+    <title>uqlm: Uncertainty Quantification for Language Models &#8212; uqlm 0.4 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=b489f392"></script>
+    <script src="_static/documentation_options.js?v=7f00635f"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -51,7 +51,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -127,8 +127,8 @@
       
     
     
-    <img src="_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.3 documentation - Home"/>
-    <img src="_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.3 documentation - Home"/>
+    <img src="_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.4 documentation - Home"/>
+    <img src="_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.4 documentation - Home"/>
   
   
 </a></div>
@@ -417,8 +417,8 @@
 <section id="hallucination-detection">
 <h2>Hallucination Detection<a class="headerlink" href="#hallucination-detection" title="Link to this heading">#</a></h2>
 <p>UQLM provides a suite of response-level scorers for quantifying the uncertainty of Large Language Model (LLM) outputs. Each scorer returns a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.  We categorize these scorers into four main types:</p>
-<div class="pst-scrollable-table-container"><table class="table" id="id9">
-<caption><span class="caption-text">Comparison of Scorer Types</span><a class="headerlink" href="#id9" title="Link to this table">#</a></caption>
+<div class="pst-scrollable-table-container"><table class="table" id="id18">
+<caption><span class="caption-text">Comparison of Scorer Types</span><a class="headerlink" href="#id18" title="Link to this table">#</a></caption>
 <colgroup>
 <col style="width: 20.0%" />
 <col style="width: 20.0%" />
@@ -469,11 +469,12 @@
 <p>These scorers assess uncertainty by measuring the consistency of multiple responses generated from the same prompt. They are compatible with any LLM, intuitive to use, and don’t require access to internal model states or token probabilities.</p>
 <blockquote>
 <div><ul class="simple">
+<li><p>Discrete Semantic Entropy (<a class="reference external" href="https://www.nature.com/articles/s41586-024-07421-0">Farquhar et al., 2024</a>; <a class="reference external" href="https://arxiv.org/pdf/2302.09664">Kuh et al., 2023</a>)</p></li>
+<li><p>Number of Semantic Sets (<a class="reference external" href="https://arxiv.org/abs/2305.19187">Lin et al., 2024</a>; <a class="reference external" href="https://arxiv.org/abs/2406.15627">Vashurin et al., 2025</a>; <a class="reference external" href="https://arxiv.org/pdf/2302.09664">Kuhn et al., 2023</a>)</p></li>
 <li><p>Non-Contradiction Probability (<a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2305.19187">Lin et al., 2025</a>; <a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
-<li><p>Semantic Entropy (<a class="reference external" href="https://www.nature.com/articles/s41586-024-07421-0">Farquhar et al., 2024</a>; <a class="reference external" href="https://arxiv.org/pdf/2302.09664">Kuh et al., 2023</a>)</p></li>
+<li><p>Entailment Probability (<a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2305.19187">Lin et al., 2025</a>; <a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
 <li><p>Exact Match (<a class="reference external" href="https://arxiv.org/abs/2305.14613">Cole et al., 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>)</p></li>
 <li><p>BERT-score (<a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>; <a class="reference external" href="https://arxiv.org/abs/1904.09675">Zheng et al., 2020</a>)</p></li>
-<li><p>BLUERT-score (<a class="reference external" href="https://arxiv.org/abs/2004.04696">Sellam et al., 2020</a>)</p></li>
 <li><p>Cosine Similarity (<a class="reference external" href="https://arxiv.org/pdf/2412.05563">Shorinwa et al., 2024</a>; <a class="reference external" href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2">HuggingFace</a>)</p></li>
 </ul>
 </div></blockquote>
@@ -482,16 +483,35 @@
 <span id="white-box-scorers"></span><h3>2. White-Box Scorers(Token-Probability-Based)<a class="headerlink" href="#white-box-scorers-token-probability-based" title="Link to this heading">#</a></h3>
 <img alt="_images/white_box_graphic.png" class="only-light no-scaled-link responsive-img align-center" src="_images/white_box_graphic.png" />
 <img alt="_images/white_box_graphic_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/white_box_graphic_dark.png" />
-<p>These scorers leverage token probabilities to estimate uncertainty. They are significantly faster and cheaper than black-box methods, but require access to the LLM’s internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs.</p>
+<p>These scorers leverage token probabilities to estimate uncertainty.  They offer single-generation scoring, which is significantly faster and cheaper than black-box methods, but require access to the LLM’s internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs. The following single-generation scorers are available:</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>Minimum token probability (<a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
 <li><p>Length-Normalized Joint Token Probability (<a class="reference external" href="https://arxiv.org/pdf/2002.07650">Malinin &amp; Gales, 2021</a>)</p></li>
+<li><p>Sequence Probability (<a class="reference external" href="https://arxiv.org/abs/2406.15627">Vashurin et al., 2024</a>)</p></li>
+<li><p>Mean Top-K Token Negentropy (<a class="reference external" href="https://arxiv.org/abs/2510.11170">Scalena et al., 2025</a>; <a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
+<li><p>Min Top-K Token Negentropy (<a class="reference external" href="https://arxiv.org/abs/2510.11170">Scalena et al., 2025</a>; <a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
+<li><p>Probability Margin (<a class="reference external" href="https://arxiv.org/abs/2408.08217">Farr et al., 2024</a>)</p></li>
+</ul>
+</div></blockquote>
+<p>UQLM also offers sampling-based white-box methods, which incur higher cost and latency, but tend have superior hallucination detection performance. The following sampling-based white-box scorers are available:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Monte carlo sequence probability (<a class="reference external" href="https://arxiv.org/abs/2302.09664">Kuhn et al., 2023</a>)</p></li>
+<li><p>Consistency and Confidence (CoCoA) (<a class="reference external" href="https://arxiv.org/abs/2502.04964">Vashurin et al., 2025</a>)</p></li>
+<li><p>Semantic Entropy (<a class="reference external" href="https://www.nature.com/articles/s41586-024-07421-0">Farquhar et al., 2024</a>)</p></li>
+<li><p>Semantic Density (<a class="reference external" href="https://arxiv.org/abs/2405.13845">Qiu et al., 2024</a>)</p></li>
+</ul>
+</div></blockquote>
+<p>Lastly, the P(True) scorer is offered, which is a self-reflection method that requires one additional generation per response.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>P(True) (<a class="reference external" href="https://arxiv.org/abs/2207.05221">Kadavath et al., 2022</a>)</p></li>
 </ul>
 </div></blockquote>
 </section>
 <section id="llm-as-a-judge-scorers">
-<span id="id4"></span><h3>3. LLM-as-a-Judge scorers<a class="headerlink" href="#llm-as-a-judge-scorers" title="Link to this heading">#</a></h3>
+<span id="id13"></span><h3>3. LLM-as-a-Judge scorers<a class="headerlink" href="#llm-as-a-judge-scorers" title="Link to this heading">#</a></h3>
 <img alt="_images/judges_graphic.png" class="only-light no-scaled-link responsive-img align-center" src="_images/judges_graphic.png" />
 <img alt="_images/judges_graphic_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/judges_graphic_dark.png" />
 <p>These scorers use one or more LLMs to evaluate the reliability of the original LLM’s response. They offer high customizability through prompt engineering and the choice of judge LLM(s).</p>
@@ -499,20 +519,20 @@
 <div><ul class="simple">
 <li><p>Categorical LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>; <a class="reference external" href="https://arxiv.org/pdf/2303.15621">Luo et al., 2023</a>)</p></li>
 <li><p>Continuous LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/pdf/2306.13063">Xiong et al., 2024</a>)</p></li>
-<li><p>Panel of LLM Judges (<a class="reference external" href="https://arxiv.org/abs/2404.18796">Verga et al., 2024</a>)</p></li>
 <li><p>Likert Scale Scoring (<a class="reference external" href="https://arxiv.org/pdf/2306.04181">Bai et al., 2023</a>)</p></li>
+<li><p>Panel of LLM Judges (<a class="reference external" href="https://arxiv.org/abs/2404.18796">Verga et al., 2024</a>)</p></li>
 </ul>
 </div></blockquote>
 </section>
 <section id="ensemble-scorers">
-<span id="id7"></span><h3>4. Ensemble scorers<a class="headerlink" href="#ensemble-scorers" title="Link to this heading">#</a></h3>
+<span id="id16"></span><h3>4. Ensemble scorers<a class="headerlink" href="#ensemble-scorers" title="Link to this heading">#</a></h3>
 <img alt="_images/uqensemble_generate_score.png" class="only-light no-scaled-link responsive-img align-center" src="_images/uqensemble_generate_score.png" />
 <img alt="_images/uqensemble_generate_score_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/uqensemble_generate_score_dark.png" />
 <p>These scorers leverage a weighted average of multiple individual scorers to provide a more robust uncertainty/confidence estimate. They offer high flexibility and customizability, allowing you to tailor the ensemble to specific use cases.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>BS Detector (<a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>)</p></li>
-<li><p>Generalized Ensemble (uses any combination of the above)</p></li>
+<li><p>Generalized Ensemble (<a class="reference external" href="https://arxiv.org/abs/2504.19254">Bouchard &amp; Chauhan, 2025</a>)</p></li>
 </ul>
 </div></blockquote>
 </section>

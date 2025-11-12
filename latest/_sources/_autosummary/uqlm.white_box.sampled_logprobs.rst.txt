@@ -1,0 +1,31 @@
+uqlm.white\_box.sampled\_logprobs
+=================================
+
+.. automodule:: uqlm.white_box.sampled_logprobs
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: class.rst
+   
+      SampledLogprobsScorer
+   
+   
+
+   
+   
+   
+
+
+

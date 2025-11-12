@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="../../_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="../../_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="../../_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>🎯 LLM-as-a-Judge &#8212; uqlm 0.3 documentation</title>
+    <title>🎯 LLM-as-a-Judge &#8212; uqlm 0.4 documentation</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=b489f392"></script>
+    <script src="../../_static/documentation_options.js?v=7f00635f"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -52,7 +52,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -129,8 +129,8 @@
       
     
     
-    <img src="../../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.3 documentation - Home"/>
-    <img src="../../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.3 documentation - Home"/>
+    <img src="../../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.4 documentation - Home"/>
+    <img src="../../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.4 documentation - Home"/>
   
   
 </a></div>
@@ -390,7 +390,6 @@
 <li class="toctree-l1"><a class="reference internal" href="ensemble_tuning_demo.html">🎯 Tunable Ensemble for LLM Uncertainty (Advanced)</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">🎯 LLM-as-a-Judge</a></li>
 <li class="toctree-l1"><a class="reference internal" href="semantic_entropy_demo.html">🎯 Semantic Entropy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="white_box_demo.html">🎯 White-Box Uncertainty Quantification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="black_box_demo.html">🎯 Black-Box Uncertainty Quantification</a></li>
 </ul>
 </div>
@@ -456,8 +455,9 @@
 <h1>🎯 LLM-as-a-Judge<a class="headerlink" href="#🎯-LLM-as-a-Judge" title="Link to this heading">#</a></h1>
 <div style="background-color: rgba(200, 200, 200, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(127, 127, 127, 0.2); max-width: 100%; overflow-wrap: break-word;"><p style="font-size: 16px; line-height: 1.6"><p>LLM-as-a-Judge scorers use one or more LLMs to evaluate the reliability of the original LLM’s response. They offer high customizability through prompt engineering and the choice of judge LLM(s). Below is a list of the available scorers:</p>
 </p><ul class="simple">
-<li><p>Categorical LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>; <a class="reference external" href="https://arxiv.org/pdf/2303.15621">Luo et al., 2023</a>)</p></li>
-<li><p>Continuous LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/pdf/2306.13063">Xiong et al., 2024</a>)</p></li>
+<li><p>Categorical LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2303.15621">Luo et al., 2023</a>)</p></li>
+<li><p>Continuous LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/abs/2306.13063">Xiong et al., 2024</a>)</p></li>
+<li><p>Likert Scale LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/pdf/2306.04181">Bai et al., 2023</a>)</p></li>
 <li><p>Panel of LLM Judges (<a class="reference external" href="https://arxiv.org/abs/2404.18796">Verga et al., 2024</a>)</p></li>
 </ul>
 </div><section id="📊-What-You'll-Do-in-This-Demo">
@@ -480,25 +480,25 @@
 </li></ul></div><div style="flex: 1; background-color: rgba(200, 0, 0, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(200, 0, 0, 0.2)"><h3 style="color: #b22222; margin-top: 0"><p>Cons</p>
 </h3><ul style="margin-bottom: 0"><li><p>Added cost: Requires additional LLM calls for the judge LLM(s).</p>
 </li></ul></div></div><div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMPanel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm.judges</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMJudge</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_example_dataset</span><span class="p">,</span> <span class="n">math_postprocessor</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMPanel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_example_dataset</span>
 </pre></div>
 </div>
 </div>
-<p>## 1. Set up LLM and Prompts</p>
-<p>In this demo, we will illustrate this approach using a set of math questions from the <a class="reference external" href="https://arxiv.org/abs/2103.07191">SVAMP benchmark</a>. To implement with your use case, simply <strong>replace the example prompts with your data</strong>.</p>
+</section>
+<section id="1.-Set-up-LLM-and-Prompts">
+<h2>1. Set up LLM and Prompts<a class="headerlink" href="#1.-Set-up-LLM-and-Prompts" title="Link to this heading">#</a></h2>
+<p>In this demo, we will illustrate this approach using a set of multiple choice questions from the <a class="reference external" href="https://arxiv.org/abs/1803.05457">AI2-ARC benchmark</a>. To implement with your use case, simply <strong>replace the example prompts with your data</strong>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load example dataset (SVAMP)</span>
-<span class="n">svamp</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">&quot;svamp&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">75</span><span class="p">)</span>
-<span class="n">svamp</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load example dataset (ai2_arc)</span>
+<span class="n">ai2_arc</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">&quot;ai2_arc&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">75</span><span class="p">)</span>
+<span class="n">ai2_arc</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -507,14 +507,13 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Loading dataset - svamp...
+Loading dataset - ai2_arc...
 Processing dataset...
 Dataset ready!
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
@@ -542,82 +541,95 @@ Dataset ready!
   <tbody>
     <tr>
       <th>0</th>
-      <td>There are 87 oranges and 290 bananas in Philip...</td>
-      <td>145</td>
+      <td>Which statement best explains why photosynthes...</td>
+      <td>A</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>Marco and his dad went strawberry picking. Mar...</td>
-      <td>19</td>
+      <td>Which piece of safety equipment is used to kee...</td>
+      <td>B</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>Edward spent $ 6 to buy 2 books each book cost...</td>
-      <td>3</td>
+      <td>Meiosis is a type of cell division in which ge...</td>
+      <td>D</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>Frank was reading through his favorite book. T...</td>
-      <td>198</td>
+      <td>Which characteristic describes the texture of ...</td>
+      <td>D</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>There were 78 dollars in Olivia's wallet. She ...</td>
-      <td>63</td>
+      <td>Which best describes the structure of an atom?...</td>
+      <td>B</td>
     </tr>
   </tbody>
 </table>
 </div></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define prompts</span>
-<span class="n">MATH_INSTRUCTION</span> <span class="o">=</span> <span class="s2">&quot;When you solve this math problem only return the answer with no additional text.</span><span class="se">\n</span><span class="s2">&quot;</span>
-<span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">MATH_INSTRUCTION</span> <span class="o">+</span> <span class="n">prompt</span> <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">svamp</span><span class="o">.</span><span class="n">question</span><span class="p">]</span>
+<span class="n">MCQ_INSTRUCTION</span> <span class="o">=</span> <span class="s2">&quot;You will be given a multiple choice question. Return only the letter of the response with no additional text or explanation.</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">MCQ_INSTRUCTION</span> <span class="o">+</span> <span class="n">prompt</span> <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">ai2_arc</span><span class="o">.</span><span class="n">question</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
-<p>In this example, we use <code class="docutils literal notranslate"><span class="pre">ChatVertexAI</span></code> and <code class="docutils literal notranslate"><span class="pre">AzureChatOpenAI</span></code> to instantiate our LLMs, but any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used. Be sure to <strong>replace with your LLM of choice.</strong></p>
+<p>In this example, we use <code class="docutils literal notranslate"><span class="pre">ChatOllama</span></code> to instantiate our LLMs, but any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used. Be sure to <strong>replace with your LLM of choice.</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># import sys</span>
-<span class="c1"># !{sys.executable} -m pip install python-dotenv</span>
+<span class="c1"># !{sys.executable} -m pip install langchain-ollama</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_ollama</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOllama</span>
+
+<span class="n">ollama_llama</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;llama2&quot;</span><span class="p">)</span>
+<span class="n">ollama_mistral</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;mistral&quot;</span><span class="p">)</span>
+<span class="n">ollama_qwen</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;qwen3&quot;</span><span class="p">)</span>
+<span class="c1"># ollama_deepseek = ChatOllama(model=&quot;deepseek-r1&quot;)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## Alternative setup with API models</span>
+
+<span class="c1">## ChatVertexAI example</span>
+<span class="c1"># import sys</span>
+<span class="c1"># !{sys.executable} -m pip install langchain-google-vertexai</span>
+<span class="c1"># from langchain_google_vertexai import ChatVertexAI</span>
+
+<span class="c1"># gemini_pro = ChatVertexAI(model_name=&quot;gemini-2.5-pro&quot;)</span>
+<span class="c1"># gemini_flash = ChatVertexAI(model_name=&quot;gemini-2.5-flash&quot;)</span>
+
+
+<span class="c1">## AzureChatOpenAI example</span>
+<span class="c1"># import sys</span>
 <span class="c1"># !{sys.executable} -m pip install langchain-openai</span>
 
 <span class="c1"># # User to populate .env file with API credentials</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span><span class="p">,</span> <span class="n">find_dotenv</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">AzureChatOpenAI</span>
+<span class="c1"># from dotenv import load_dotenv, find_dotenv</span>
+<span class="c1"># from langchain_openai import AzureChatOpenAI</span>
 
-<span class="n">load_dotenv</span><span class="p">(</span><span class="n">find_dotenv</span><span class="p">())</span>
-<span class="n">original_llm</span> <span class="o">=</span> <span class="n">AzureChatOpenAI</span><span class="p">(</span>
-    <span class="n">deployment_name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;DEPLOYMENT_NAME&quot;</span><span class="p">),</span>
-    <span class="n">openai_api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;API_KEY&quot;</span><span class="p">),</span>
-    <span class="n">azure_endpoint</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;API_BASE&quot;</span><span class="p">),</span>
-    <span class="n">openai_api_type</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;API_TYPE&quot;</span><span class="p">),</span>
-    <span class="n">openai_api_version</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;API_VERSION&quot;</span><span class="p">),</span>
-    <span class="n">temperature</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># User to set temperature</span>
-<span class="p">)</span>
+<span class="c1"># load_dotenv(find_dotenv())</span>
+<span class="c1"># original_llm = AzureChatOpenAI(</span>
+<span class="c1">#     deployment_name=&quot;gpt-4o&quot;,</span>
+<span class="c1">#     openai_api_type=&quot;azure&quot;,</span>
+<span class="c1">#     openai_api_version=&quot;2024-02-15-preview&quot;,</span>
+<span class="c1">#     temperature=1,  # User to set temperature</span>
+<span class="c1"># )</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># import sys</span>
-<span class="c1"># !{sys.executable} -m pip install langchain-google-vertexai</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
-
-<span class="n">gemini_pro</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;gemini-1.5-pro&quot;</span><span class="p">)</span>
-<span class="n">gemini_flash</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;gemini-1.5-flash&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<p>## 2. Generate responses and confidence scores</p>
+</section>
+<section id="2.-Generate-responses-and-confidence-scores">
+<h2>2. Generate responses and confidence scores<a class="headerlink" href="#2.-Generate-responses-and-confidence-scores" title="Link to this heading">#</a></h2>
 <section id="LLMPanel()---Class-for-aggregating-multiple-instances-of-LLMJudge-using-average,-min,-max,-or-majority-voting">
 <h3><code class="docutils literal notranslate"><span class="pre">LLMPanel()</span></code> - Class for aggregating multiple instances of LLMJudge using average, min, max, or majority voting<a class="headerlink" href="#LLMPanel()---Class-for-aggregating-multiple-instances-of-LLMJudge-using-average,-min,-max,-or-majority-voting" title="Link to this heading">#</a></h3>
 <p><img alt="Sample Image" src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/judges_graphic.png" /></p>
@@ -638,10 +650,12 @@ Dataset ready!
 </td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>max_calls_per_min</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>intdefault=None</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies how many API calls to make per minute to avoid rate limit errors. By default, no limit is specified.</p>
-</td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>scoring_templates</p>
-</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>intdefault=None</p>
-</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies which off-the-shelf template to use for each judge. Four off-the-shelf templates offered: incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), continuous score (0 to 1), and likert scale score (1-5 scale, normalized to 0/0.25/0.5/0.75/1). These templates are respectively specified as ‘true_false_uncertain’, ‘true_false’, ‘continuous’, and ‘likert’. If specified, must be of equal length to <code class="docutils literal notranslate"><span class="pre">judges</span></code> list. Defaults to ‘true_false_uncertain’ template used by Chen and Mueller
-(2023) for each judge.</p>
+</td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>explanations</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>booldefault=False</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Whether to include explanations from judges alongside scores. When True, judges provide reasoning for their scores.</p>
+</td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>additional_context</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>str or Nonedefault=None</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Optional argument to provide additional context to inform LLM-as-a-Judge evaluations.</p>
 </td></tr></table></section>
 <section id="🔍-Parameter-Groups">
 <h4>🔍 Parameter Groups<a class="headerlink" href="#🔍-Parameter-Groups" title="Link to this heading">#</a></h4>
@@ -650,7 +664,8 @@ Dataset ready!
 </li><li><p>system_prompt</p>
 </li></ul></div><div style="flex: 1; padding: 10px; background-color: rgba(0, 200, 0, 0.1); border-radius: 5px; border: 1px solid rgba(0, 200, 0, 0.2);"><p style="font-weight: bold"><p>📊 Confidence Scores</p>
 </p><ul><li><p>judges</p>
-</li><li><p>scoring_templates</p>
+</li><li><p>explanations</p>
+</li><li><p>additional_context</p>
 </li></ul></div><div style="flex: 1; padding: 10px; background-color: rgba(200, 0, 200, 0.1); border-radius: 5px; border: 1px solid rgba(200, 0, 200, 0.2);"><p style="font-weight: bold"><p>⚡ Performance</p>
 </p><ul><li><p>max_calls_per_min</p>
 </li></ul></div></div></section>
@@ -662,17 +677,27 @@ Dataset ready!
 <span class="c1"># Using two judges with default parameters</span>
 <span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">llm</span><span class="p">,</span> <span class="n">llm2</span><span class="p">])</span>
 
-<span class="c1"># Using two judges, one with continuous template</span>
-<span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span>
-    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">llm</span><span class="p">,</span> <span class="n">llm2</span><span class="p">],</span> <span class="n">scoring_templates</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;true_false_uncertain&#39;</span><span class="p">,</span> <span class="s1">&#39;continuous&#39;</span><span class="p">]</span>
+<span class="c1"># Using two judges with default parameters</span>
+<span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">llm</span><span class="p">,</span> <span class="n">llm2</span><span class="p">])</span>
+
+<span class="c1"># Using judges with explanations enabled</span>
+<span class="n">panel_with_explanations</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">llm</span><span class="p">,</span> <span class="n">llm2</span><span class="p">],</span> <span class="n">explanations</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">original_llm</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">original_llm</span><span class="p">,</span> <span class="n">gemini_pro</span><span class="p">,</span> <span class="n">gemini_flash</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">judges</span> <span class="o">=</span> <span class="p">[</span><span class="n">ollama_mistral</span><span class="p">,</span> <span class="n">ollama_llama</span><span class="p">,</span> <span class="n">ollama_qwen</span><span class="p">]</span>
+<span class="n">additional_context</span> <span class="o">=</span> <span class="s2">&quot;You are an expert in general-knowledge reasoning questions. Your task is to evaluate the correctness of the proposed answers to the provided questions.&quot;</span>
+
+<span class="c1"># Option 1: With explanations</span>
+<span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">ollama_mistral</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="n">judges</span><span class="p">,</span> <span class="n">additional_context</span><span class="o">=</span><span class="n">additional_context</span><span class="p">,</span> <span class="n">explanations</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Option 2: Without explanations</span>
+<span class="c1"># panel = LLMPanel(llm=ollama_mistral, judges=judges, additional_context=additional_context))</span>
 </pre></div>
 </div>
 </div>
@@ -696,7 +721,7 @@ Dataset ready!
 </li></ul><p><p>Returns: UQResult containing data (responses and confidence scores) and metadata</p>
 </p><div style="background-color: rgba(0, 200, 0, 0.1); padding: 8px; border-radius: 3px; margin-top: 10px; border: 1px solid rgba(0, 200, 0, 0.2); margin-right: 5px; box-sizing: border-box; width: 100%;"><p>💡 Best For: Computing uncertainty scores when responses are already generated elsewhere.</p>
 </div></td></tr></table><div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">panel</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">)</span>
@@ -706,19 +731,20 @@ Dataset ready!
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<div class="highlight"><pre>
-Generating responses...
-Generating LLMJudge scores...
-Generating LLMJudge scores...
-Generating LLMJudge scores...
-</pre></div></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "e5525fe46a9547c4a66a9ea7d0eecc88", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result_df</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
@@ -727,7 +753,7 @@ Generating LLMJudge scores...
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -752,8 +778,11 @@ Generating LLMJudge scores...
       <th>prompt</th>
       <th>response</th>
       <th>judge_1</th>
+      <th>judge_1_explanation</th>
       <th>judge_2</th>
+      <th>judge_2_explanation</th>
       <th>judge_3</th>
+      <th>judge_3_explanation</th>
       <th>avg</th>
       <th>max</th>
       <th>min</th>
@@ -763,83 +792,107 @@ Generating LLMJudge scores...
   <tbody>
     <tr>
       <th>0</th>
-      <td>When you solve this math problem only return t...</td>
-      <td>145</td>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>A) Sunlight is the source of energy for nearl...</td>
       <td>1.0</td>
+      <td>No explanation provided</td>
       <td>1.0</td>
+      <td>The answer correctly identifies that sunlight ...</td>
       <td>1.0</td>
-      <td>1.0</td>
+      <td>Photosynthesis is foundational because it conv...</td>
+      <td>1.000000</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>When you solve this math problem only return t...</td>
-      <td>19 pounds</td>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>C) breathing mask</td>
       <td>1.0</td>
+      <td>No explanation provided</td>
       <td>1.0</td>
+      <td>The breathing mask is used to filter air and p...</td>
+      <td>0.0</td>
+      <td>The breathing mask (B) is designed to filter a...</td>
+      <td>0.666667</td>
       <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
+      <td>0.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>When you solve this math problem only return t...</td>
-      <td>$3</td>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>D) ovary cells</td>
+      <td>NaN</td>
+      <td>The question specifically states that meiosis ...</td>
       <td>1.0</td>
+      <td>Meiosis occurs in germ cells (sex cells) of or...</td>
       <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
+      <td>Meiosis occurs in germ cells to produce haploi...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>When you solve this math problem only return t...</td>
-      <td>198</td>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>D</td>
       <td>1.0</td>
+      <td>No explanation provided</td>
       <td>1.0</td>
+      <td>The question asks for the texture of a kitten'...</td>
       <td>1.0</td>
-      <td>1.0</td>
+      <td>The question asks about the texture of a kitte...</td>
+      <td>1.000000</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>When you solve this math problem only return t...</td>
-      <td>63</td>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>C) a network of interacting positive and nega...</td>
+      <td>0.5</td>
+      <td>While the answer "a network of interacting pos...</td>
       <td>1.0</td>
+      <td>The structure of an atom is indeed a network o...</td>
+      <td>0.0</td>
+      <td>The correct structure of an atom is a nucleus ...</td>
+      <td>0.500000</td>
       <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.5</td>
     </tr>
   </tbody>
 </table>
 </div></div>
 </div>
-<p>## 3. Evaluate Hallucination Detection Performance</p>
-<p>To evaluate hallucination detection performance, we ‘grade’ the responses against an answer key. Note the <code class="docutils literal notranslate"><span class="pre">math_postprocessor</span></code> is specific to our use case (math questions). <strong>If you are using your own prompts/questions, update the grading method accordingly</strong>.</p>
+</section>
+</section>
+<section id="3.-Evaluate-Hallucination-Detection-Performance">
+<h2>3. Evaluate Hallucination Detection Performance<a class="headerlink" href="#3.-Evaluate-Hallucination-Detection-Performance" title="Link to this heading">#</a></h2>
+<p>To evaluate hallucination detection performance, we ‘grade’ the responses against an answer key. Note the <code class="docutils literal notranslate"><span class="pre">check_letter_match</span></code> function is specific to our task (multiple choice). <strong>If you are using your own prompts/questions, update the grading method accordingly</strong>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Populate correct answers and grade responses</span>
-<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">svamp</span><span class="o">.</span><span class="n">answer</span>
-<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">math_postprocessor</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">==</span> <span class="n">a</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">],</span> <span class="n">svamp</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">])]</span>
-<span class="n">result_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ai2_arc</span><span class="o">.</span><span class="n">answer</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_letter_match</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">answer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+
+<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">check_letter_match</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">],</span> <span class="n">ai2_arc</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">])]</span>
+<span class="n">result_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -864,8 +917,11 @@ Generating LLMJudge scores...
       <th>prompt</th>
       <th>response</th>
       <th>judge_1</th>
+      <th>judge_1_explanation</th>
       <th>judge_2</th>
+      <th>judge_2_explanation</th>
       <th>judge_3</th>
+      <th>judge_3_explanation</th>
       <th>avg</th>
       <th>max</th>
       <th>min</th>
@@ -877,80 +933,95 @@ Generating LLMJudge scores...
   <tbody>
     <tr>
       <th>0</th>
-      <td>When you solve this math problem only return t...</td>
-      <td>145</td>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>A) Sunlight is the source of energy for nearl...</td>
+      <td>1.0</td>
+      <td>No explanation provided</td>
+      <td>1.0</td>
+      <td>The answer correctly identifies that sunlight ...</td>
+      <td>1.0</td>
+      <td>Photosynthesis is foundational because it conv...</td>
+      <td>1.000000</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>145</td>
+      <td>A</td>
       <td>True</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>When you solve this math problem only return t...</td>
-      <td>19 pounds</td>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>C) breathing mask</td>
       <td>1.0</td>
+      <td>No explanation provided</td>
       <td>1.0</td>
+      <td>The breathing mask is used to filter air and p...</td>
+      <td>0.0</td>
+      <td>The breathing mask (B) is designed to filter a...</td>
+      <td>0.666667</td>
       <td>1.0</td>
+      <td>0.0</td>
       <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>19</td>
-      <td>True</td>
+      <td>B</td>
+      <td>False</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>When you solve this math problem only return t...</td>
-      <td>$3</td>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>D) ovary cells</td>
+      <td>NaN</td>
+      <td>The question specifically states that meiosis ...</td>
       <td>1.0</td>
+      <td>Meiosis occurs in germ cells (sex cells) of or...</td>
       <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>3</td>
+      <td>Meiosis occurs in germ cells to produce haploi...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>D</td>
       <td>True</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>When you solve this math problem only return t...</td>
-      <td>198</td>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>D</td>
+      <td>1.0</td>
+      <td>No explanation provided</td>
+      <td>1.0</td>
+      <td>The question asks for the texture of a kitten'...</td>
+      <td>1.0</td>
+      <td>The question asks about the texture of a kitte...</td>
+      <td>1.000000</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>198</td>
+      <td>D</td>
       <td>True</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>When you solve this math problem only return t...</td>
-      <td>63</td>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>C) a network of interacting positive and nega...</td>
+      <td>0.5</td>
+      <td>While the answer "a network of interacting pos...</td>
       <td>1.0</td>
+      <td>The structure of an atom is indeed a network o...</td>
+      <td>0.0</td>
+      <td>The correct structure of an atom is a nucleus ...</td>
+      <td>0.500000</td>
       <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>63</td>
-      <td>True</td>
+      <td>0.0</td>
+      <td>0.5</td>
+      <td>B</td>
+      <td>False</td>
     </tr>
   </tbody>
 </table>
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># evaluate precision, recall, and f1-score of Semantic Entropy&#39;s predictions of correctness</span>
@@ -971,22 +1042,25 @@ Generating LLMJudge scores...
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Judge 1 precision: 0.8620689655172413
-Judge 1 recall: 0.78125
-Judge 1 f1-score: 0.819672131147541
+Judge 1 precision: 0.7083333333333334
+Judge 1 recall: 0.6938775510204082
+Judge 1 f1-score: 0.7010309278350515
 
-Judge 2 precision: 0.9375
-Judge 2 recall: 0.9375
-Judge 2 f1-score: 0.9375
+Judge 2 precision: 0.6712328767123288
+Judge 2 recall: 1.0
+Judge 2 f1-score: 0.8032786885245902
 
-Judge 3 precision: 0.9090909090909091
-Judge 3 recall: 0.9375
-Judge 3 f1-score: 0.9230769230769231
+Judge 3 precision: 0.9074074074074074
+Judge 3 recall: 1.0
+Judge 3 f1-score: 0.9514563106796117
 
 </pre></div></div>
 </div>
-<p>## 5. Scorer Definitions Under the LLM-as-a-Judge approach, either the same LLM that was used for generating the original responses or a different LLM is asked to form a judgment about a pre-generated response. Below, we define two LLM-as-a-Judge scorer templates. ### Categorical Judge Template (<code class="docutils literal notranslate"><span class="pre">true_false_uncertain</span></code>) We follow the approach proposed by <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a> in which an LLM is instructed to score a question-answer concatenation as either
-<em>incorrect</em>, <em>uncertain</em>, or <em>correct</em> using a carefully constructed prompt. These categories are respectively mapped to numerical scores of 0, 0.5, and 1. We denote the LLM-as-a-judge scorers as <span class="math notranslate nohighlight">\(J: \mathcal{Y} \xrightarrow[]{} \{0, 0.5, 1\}\)</span>. Formally, we can write this scorer function as follows:</p>
+</section>
+<section id="4.-Scorer-Definitions">
+<h2>4. Scorer Definitions<a class="headerlink" href="#4.-Scorer-Definitions" title="Link to this heading">#</a></h2>
+<p>Under the LLM-as-a-Judge approach, either the same LLM that was used for generating the original responses or a different LLM is asked to form a judgment about a pre-generated response. Below, we define two LLM-as-a-Judge scorer templates. ### Ternary Judge Template (<code class="docutils literal notranslate"><span class="pre">true_false_uncertain</span></code>) We follow the approach proposed by <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a> in which an LLM is instructed to score a question-response concatenation as either <em>incorrect</em>, <em>uncertain</em>, or
+<em>correct</em> using a carefully constructed prompt. These categories are respectively mapped to numerical scores of 0, 0.5, and 1. We denote the LLM-as-a-judge scorers as <span class="math notranslate nohighlight">\(J: \mathcal{Y} \xrightarrow[]{} \{0, 0.5, 1\}\)</span>. Formally, we can write this scorer function as follows:</p>
 <p>:nbsphinx-math:<a href="#id1"><span class="problematic" id="id2">`</span></a>begin{equation}
 J(y_i) = begin{cases}</p>
 <blockquote>
@@ -996,11 +1070,37 @@ J(y_i) = begin{cases}</p>
 </div></blockquote>
 <p>end{cases}
 end{equation}`</p>
+<section id="Binary-Judge-Template-(true_false)">
+<h3>Binary Judge Template (<code class="docutils literal notranslate"><span class="pre">true_false</span></code>)<a class="headerlink" href="#Binary-Judge-Template-(true_false)" title="Link to this heading">#</a></h3>
+<p>We modify the ternary approach above and include only two categories: Correct or Incorrect, which respectively map to 1 and 0.</p>
 </section>
 <section id="Continuous-Judge-Template-(continuous)">
 <h3>Continuous Judge Template (<code class="docutils literal notranslate"><span class="pre">continuous</span></code>)<a class="headerlink" href="#Continuous-Judge-Template-(continuous)" title="Link to this heading">#</a></h3>
-<p>For the continuous template, the LLM is asked to directly score a question-answer concatenation’s correctness on a scale of 0 to 1.</p>
+<p>For the continuous template, the LLM is asked to directly score a question-response concatenation’s correctness on a scale of 0 to 1.</p>
+</section>
+<section id="Likert-Scale-Judge-Template-(likert)">
+<h3>Likert-Scale Judge Template (<code class="docutils literal notranslate"><span class="pre">likert</span></code>)<a class="headerlink" href="#Likert-Scale-Judge-Template-(likert)" title="Link to this heading">#</a></h3>
+<p>Here the judge is asked to score a question-response concatenation on a 5-point likert scale. We convert these likert scores to a [0,1] scale as follows:</p>
+<p>:nbsphinx-math:<a href="#id3"><span class="problematic" id="id4">`</span></a>begin{equation}
+J(y_i) = begin{cases}</p>
+<blockquote>
+<div><p>0 &amp; text{LLM states response is completely incorrect} \
+0.25 &amp; text{LLM states that it is mostly incorrect} \
+0.5 &amp; text{LLM states that it is partially correct} \
+0.75 &amp; text{LLM states that it is mostly correct} \
+0.1 &amp; text{LLM states that it is completely correct}</p>
+</div></blockquote>
+<p>end{cases}
+end{equation}`</p>
 <p>© 2025 CVS Health and/or one of its affiliates. All rights reserved.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
 </section>
 </section>
 </section>
@@ -1053,7 +1153,9 @@ end{equation}`</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#📊-What-You'll-Do-in-This-Demo">📊 What You’ll Do in This Demo</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#⚖️-Advantages-&amp;-Limitations">⚖️ Advantages &amp; Limitations</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#⚖️-Advantages-&amp;-Limitations">⚖️ Advantages &amp; Limitations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-Set-up-LLM-and-Prompts">1. Set up LLM and Prompts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-Generate-responses-and-confidence-scores">2. Generate responses and confidence scores</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#LLMPanel()---Class-for-aggregating-multiple-instances-of-LLMJudge-using-average,-min,-max,-or-majority-voting"><code class="docutils literal notranslate"><span class="pre">LLMPanel()</span></code> - Class for aggregating multiple instances of LLMJudge using average, min, max, or majority voting</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#📋-Class-Attributes">📋 Class Attributes</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#🔍-Parameter-Groups">🔍 Parameter Groups</a></li>
@@ -1061,7 +1163,13 @@ end{equation}`</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#🔄-Class-Methods">🔄 Class Methods</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#3.-Evaluate-Hallucination-Detection-Performance">3. Evaluate Hallucination Detection Performance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#4.-Scorer-Definitions">4. Scorer Definitions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Binary-Judge-Template-(true_false)">Binary Judge Template (<code class="docutils literal notranslate"><span class="pre">true_false</span></code>)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Continuous-Judge-Template-(continuous)">Continuous Judge Template (<code class="docutils literal notranslate"><span class="pre">continuous</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Likert-Scale-Judge-Template-(likert)">Likert-Scale Judge Template (<code class="docutils literal notranslate"><span class="pre">likert</span></code>)</a></li>
 </ul>
 </li>
 </ul>

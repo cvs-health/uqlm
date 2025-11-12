@@ -1,0 +1,35 @@
+uqlm.white\_box.top\_logprobs.TopLogprobsScorer
+===============================================
+
+.. currentmodule:: uqlm.white_box.top_logprobs
+
+.. autoclass:: TopLogprobsScorer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TopLogprobsScorer.__init__
+      ~TopLogprobsScorer.evaluate
+      ~TopLogprobsScorer.extract_logprobs
+      ~TopLogprobsScorer.extract_probs
+      ~TopLogprobsScorer.extract_top_logprobs
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

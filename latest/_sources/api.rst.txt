@@ -6,9 +6,11 @@ API
     :template: module.rst
     :recursive:
 
-    uqlm.black_box
-    uqlm.judges
     uqlm.scorers
-    uqlm.resources
+    uqlm.black_box
+    uqlm.white_box
+    uqlm.judges
+    uqlm.nli
     uqlm.calibration
+    uqlm.resources
     uqlm.utils

@@ -29,8 +29,7 @@
    :recursive:
 
    bert
-   bleurt
+   consistency
    cosine
    match
-   nli
 

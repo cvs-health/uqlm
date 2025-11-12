@@ -17,7 +17,6 @@ uqlm.utils.plots
       plot_filtered_accuracy
       plot_model_accuracies
       plot_ranked_auc
-      scale
    
    
 

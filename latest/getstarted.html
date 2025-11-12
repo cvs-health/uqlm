@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>Quickstart Guide &#8212; uqlm 0.3 documentation</title>
+    <title>Quickstart Guide &#8212; uqlm 0.4 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=b489f392"></script>
+    <script src="_static/documentation_options.js?v=7f00635f"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -49,7 +49,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -126,8 +126,8 @@
       
     
     
-    <img src="_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.3 documentation - Home"/>
-    <img src="_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.3 documentation - Home"/>
+    <img src="_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.4 documentation - Home"/>
+    <img src="_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.4 documentation - Home"/>
   
   
 </a></div>
@@ -459,8 +459,8 @@
 <h2>Example 1: <code class="docutils literal notranslate"><span class="pre">Black-Box</span> <span class="pre">Scorers</span></code> for hallucination detection<a class="headerlink" href="#example-1-black-box-scorers-for-hallucination-detection" title="Link to this heading">#</a></h2>
 <p>These scorers assess uncertainty by measuring the consistency of multiple responses generated from the same prompt. They are compatible with any LLM, intuitive to use, and don’t require access to internal model states or token probabilities.</p>
 <p>Below is a sample of code illustrating how to use the <cite>BlackBoxUQ</cite> class to conduct hallucination detection.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
-<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gemini-pro&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOpenAI</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlackBoxUQ</span>
 <span class="n">bbuq</span> <span class="o">=</span> <span class="n">BlackBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;semantic_negentropy&quot;</span><span class="p">],</span> <span class="n">use_best</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -471,14 +471,14 @@
 </div>
 <p align="center">
   <img src="./_static/images/black_box_output4.png" />
-</p><p>Above, <cite>use_best=True</cite> implements mitigation so that the uncertainty-minimized responses is selected. Note that although we use <cite>ChatVertexAI</cite> in this example, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a>  may be used. For a more detailed demo, refer to our <a class="reference internal" href="_notebooks/examples/black_box_demo.html"><span class="doc">Black-Box UQ Demo</span></a>.</p>
+</p><p>Above, <cite>use_best=True</cite> implements mitigation so that the uncertainty-minimized responses is selected. Note that although we use <cite>ChatOpenAI</cite> in this example, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a>  may be used. For a more detailed demo, refer to our <a class="reference internal" href="_notebooks/examples/black_box_demo.html"><span class="doc">Black-Box UQ Demo</span></a>.</p>
 </section>
 <section id="example-2-white-box-scorers-for-hallucination-detection">
 <h2>Example 2: <code class="docutils literal notranslate"><span class="pre">White-Box</span> <span class="pre">Scorers</span></code> for hallucination detection<a class="headerlink" href="#example-2-white-box-scorers-for-hallucination-detection" title="Link to this heading">#</a></h2>
-<p>These scorers leverage token probabilities to estimate uncertainty. They are significantly faster and cheaper than black-box methods, but require access to the LLM’s internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs.</p>
+<p>These scorers leverage token probabilities to estimate uncertainty.  They offer single-generation scoring, which is significantly faster and cheaper than black-box methods, but require access to the LLM’s internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs.</p>
 <p>Below is a sample of code illustrating how to use the WhiteBoxUQ class to conduct hallucination detection.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
-<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gemini-pro&#39;</span><span class="p">)</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gemini-2.5-pro&#39;</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">WhiteBoxUQ</span>
 <span class="n">wbuq</span> <span class="o">=</span> <span class="n">WhiteBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;min_probability&quot;</span><span class="p">])</span>
@@ -489,19 +489,19 @@
 </div>
 <p align="center">
   <img src="./_static/images/white_box_output2.png" />
-</p><p>Again, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used in place of <cite>ChatVertexAI</cite>. For a more detailed demo, refer to our <a class="reference internal" href="_notebooks/examples/white_box_demo.html"><span class="doc">White-Box UQ Demo</span></a>.</p>
+</p><p>Again, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used in place of <cite>ChatVertexAI</cite>. For a more detailed demo, refer to our <a class="reference external" href="_notebooks/examples/white_box_demo.ipynb">White-Box UQ Demo</a>.</p>
 </section>
 <section id="example-3-llm-as-a-judge-scorers-for-hallucination-detection">
 <h2>Example 3: <code class="docutils literal notranslate"><span class="pre">LLM-as-a-Judge</span> <span class="pre">Scorers</span></code> for hallucination detection<a class="headerlink" href="#example-3-llm-as-a-judge-scorers-for-hallucination-detection" title="Link to this heading">#</a></h2>
 <p>These scorers use one or more LLMs to evaluate the reliability of the original LLM’s response. They offer high customizability through prompt engineering and the choice of judge LLM(s).</p>
 <p>Below is a sample of code illustrating how to use the LLMPanel class to conduct hallucination detection using a panel of LLM judges.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
-<span class="n">llm1</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gemini-1.0-pro&#39;</span><span class="p">)</span>
-<span class="n">llm2</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gemini-1.5-flash-001&#39;</span><span class="p">)</span>
-<span class="n">llm3</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gemini-1.5-pro-001&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_ollama</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOllama</span>
+<span class="n">llama</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;llama3&quot;</span><span class="p">)</span>
+<span class="n">mistral</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;mistral&quot;</span><span class="p">)</span>
+<span class="n">qwen</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;qwen3&quot;</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMPanel</span>
-<span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm1</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">llm1</span><span class="p">,</span> <span class="n">llm2</span><span class="p">,</span> <span class="n">llm3</span><span class="p">])</span>
+<span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llama</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">llama</span><span class="p">,</span> <span class="n">mistral</span><span class="p">,</span> <span class="n">qwen</span><span class="p">])</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">panel</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">)</span>
 <span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
@@ -509,14 +509,14 @@
 </div>
 <p align="center">
   <img src="./_static/images/panel_output2.png" />
-</p><p>Note that although we use <cite>ChatVertexAI</cite> in this example, we can use any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> as judges. For a more detailed demo, refer to our <a class="reference internal" href="_notebooks/examples/judges_demo.html"><span class="doc">LLM-as-a-Judge Demo</span></a>.</p>
+</p><p>Note that although we use <cite>ChatOllama</cite> in this example, we can use any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> as judges. For a more detailed demo, refer to our <a class="reference internal" href="_notebooks/examples/judges_demo.html"><span class="doc">LLM-as-a-Judge Demo</span></a>.</p>
 </section>
 <section id="example-4-ensemble-scorers-for-hallucination-detection">
 <h2>Example 4: <code class="docutils literal notranslate"><span class="pre">Ensemble</span> <span class="pre">Scorers</span></code> for hallucination detection<a class="headerlink" href="#example-4-ensemble-scorers-for-hallucination-detection" title="Link to this heading">#</a></h2>
 <p>These scorers leverage a weighted average of multiple individual scorers to provide a more robust uncertainty/confidence estimate. They offer high flexibility and customizability, allowing you to tailor the ensemble to specific use cases.</p>
 <p>Below is a sample of code illustrating how to use the <cite>UQEnsemble</cite> class to conduct hallucination detection.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
-<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gemini-pro&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">AzureChatOpenAI</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">AzureChatOpenAI</span><span class="p">(</span><span class="n">deployment_name</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="n">openai_api_type</span><span class="o">=</span><span class="s2">&quot;azure&quot;</span><span class="p">,</span> <span class="n">openai_api_version</span><span class="o">=</span><span class="s2">&quot;2024-12-01-preview&quot;</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">UQEnsemble</span>
 <span class="c1">## ---Option 1: Off-the-Shelf Ensemble---</span>
@@ -542,7 +542,7 @@
 </div>
 <p align="center">
   <img src="./_static/images/uqensemble_output2.png" />
-</p><p>As with the other examples, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used in place of <cite>ChatVertexAI</cite>. For more detailed demos, refer to our <a class="reference internal" href="_notebooks/examples/ensemble_off_the_shelf_demo.html"><span class="doc">Off-the-Shelf Ensemble Demo</span></a> (quick start) or our <a class="reference internal" href="_notebooks/examples/ensemble_tuning_demo.html"><span class="doc">Ensemble Tuning Demo</span></a> (advanced).</p>
+</p><p>As with the other examples, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used in place of <cite>AzureChatOpenAI</cite>. For more detailed demos, refer to our <a class="reference internal" href="_notebooks/examples/ensemble_off_the_shelf_demo.html"><span class="doc">Off-the-Shelf Ensemble Demo</span></a> (quick start) or our <a class="reference internal" href="_notebooks/examples/ensemble_tuning_demo.html"><span class="doc">Ensemble Tuning Demo</span></a> (advanced).</p>
 <section id="example-notebooks">
 <h3>Example notebooks<a class="headerlink" href="#example-notebooks" title="Link to this heading">#</a></h3>
 <p>Refer to our <a class="reference internal" href="_notebooks/index.html"><span class="doc">example notebooks</span></a> for examples illustrating how to use <cite>uqlm</cite>.</p>

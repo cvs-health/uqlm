@@ -1,0 +1,31 @@
+uqlm.white\_box.top\_logprobs
+=============================
+
+.. automodule:: uqlm.white_box.top_logprobs
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: class.rst
+   
+      TopLogprobsScorer
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,37 @@
+uqlm.nli.cluster.SemanticClusterer
+==================================
+
+.. currentmodule:: uqlm.nli.cluster
+
+.. autoclass:: SemanticClusterer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SemanticClusterer.__init__
+      ~SemanticClusterer.best_response_selection
+      ~SemanticClusterer.cluster_responses
+      ~SemanticClusterer.compute_cluster_probabilities
+      ~SemanticClusterer.compute_response_probabilities
+      ~SemanticClusterer.evaluate
+      ~SemanticClusterer.length_norm_sequence_prob
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

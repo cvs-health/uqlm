@@ -17,11 +17,9 @@ uqlm.scorers.white\_box.WhiteBoxUQ
    .. autosummary::
    
       ~WhiteBoxUQ.__init__
-      ~WhiteBoxUQ.avg_logprob
       ~WhiteBoxUQ.generate_and_score
       ~WhiteBoxUQ.generate_candidate_responses
       ~WhiteBoxUQ.generate_original_responses
-      ~WhiteBoxUQ.get_logprobs
       ~WhiteBoxUQ.score
    
    

@@ -65,15 +65,17 @@ UQLM provides a suite of response-level scorers for quantifying the uncertainty 
 
 These scorers assess uncertainty by measuring the consistency of multiple responses generated from the same prompt. They are compatible with any LLM, intuitive to use, and don't require access to internal model states or token probabilities.
 
+  * Discrete Semantic Entropy (`Farquhar et al., 2024 <https://www.nature.com/articles/s41586-024-07421-0>`_; `Kuh et al., 2023 <https://arxiv.org/pdf/2302.09664>`_)
+
+  * Number of Semantic Sets (`Lin et al., 2024 <https://arxiv.org/abs/2305.19187>`_; `Vashurin et al., 2025  <https://arxiv.org/abs/2406.15627>`_; `Kuhn et al., 2023 <https://arxiv.org/pdf/2302.09664>`_)
+
   * Non-Contradiction Probability (`Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`_; `Lin et al., 2025 <https://arxiv.org/abs/2305.19187>`_; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_)
 
-  * Semantic Entropy (`Farquhar et al., 2024 <https://www.nature.com/articles/s41586-024-07421-0>`_; `Kuh et al., 2023 <https://arxiv.org/pdf/2302.09664>`_)
+  * Entailment Probability (`Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`_; `Lin et al., 2025 <https://arxiv.org/abs/2305.19187>`_; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_)
 
   * Exact Match (`Cole et al., 2023 <https://arxiv.org/abs/2305.14613>`_; `Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`_)
 
   * BERT-score (`Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_; `Zheng et al., 2020 <https://arxiv.org/abs/1904.09675>`_)
-
-  * BLUERT-score (`Sellam et al., 2020 <https://arxiv.org/abs/2004.04696>`_)
 
   * Cosine Similarity (`Shorinwa et al., 2024 <https://arxiv.org/pdf/2412.05563>`_; `HuggingFace <https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2>`_)
 
@@ -91,12 +93,33 @@ These scorers assess uncertainty by measuring the consistency of multiple respon
    :class: only-dark no-scaled-link responsive-img
    :align: center
 
-These scorers leverage token probabilities to estimate uncertainty. They are significantly faster and cheaper than black-box methods, but require access to the LLM's internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs.
+These scorers leverage token probabilities to estimate uncertainty.  They offer single-generation scoring, which is significantly faster and cheaper than black-box methods, but require access to the LLM's internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs. The following single-generation scorers are available:
 
   * Minimum token probability (`Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_)
 
   * Length-Normalized Joint Token Probability (`Malinin & Gales, 2021 <https://arxiv.org/pdf/2002.07650>`_)
 
+  * Sequence Probability (`Vashurin et al., 2024 <https://arxiv.org/abs/2406.15627>`_)
+  
+  * Mean Top-K Token Negentropy (`Scalena et al., 2025 <https://arxiv.org/abs/2510.11170>`_; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_)
+  
+  * Min Top-K Token Negentropy (`Scalena et al., 2025 <https://arxiv.org/abs/2510.11170>`_; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_)
+  
+  * Probability Margin (`Farr et al., 2024 <https://arxiv.org/abs/2408.08217>`_)
+  
+UQLM also offers sampling-based white-box methods, which incur higher cost and latency, but tend have superior hallucination detection performance. The following sampling-based white-box scorers are available:
+
+  * Monte carlo sequence probability (`Kuhn et al., 2023 <https://arxiv.org/abs/2302.09664>`_)
+  
+  * Consistency and Confidence (CoCoA) (`Vashurin et al., 2025 <https://arxiv.org/abs/2502.04964>`_)
+  
+  * Semantic Entropy (`Farquhar et al., 2024 <https://www.nature.com/articles/s41586-024-07421-0>`_)
+  
+  * Semantic Density (`Qiu et al., 2024 <https://arxiv.org/abs/2405.13845>`_)
+  
+Lastly, the P(True) scorer is offered, which is a self-reflection method that requires one additional generation per response. 
+
+  * P(True) (`Kadavath et al., 2022 <https://arxiv.org/abs/2207.05221>`_)
 
 .. _llm-as-a-judge-scorers:
 
@@ -117,9 +140,9 @@ These scorers use one or more LLMs to evaluate the reliability of the original L
 
   * Continuous LLM-as-a-Judge (`Xiong et al., 2024 <https://arxiv.org/pdf/2306.13063>`_)
 
-  * Panel of LLM Judges (`Verga et al., 2024 <https://arxiv.org/abs/2404.18796>`_)
-
   * Likert Scale Scoring (`Bai et al., 2023 <https://arxiv.org/pdf/2306.04181>`_)
+
+  * Panel of LLM Judges (`Verga et al., 2024 <https://arxiv.org/abs/2404.18796>`_)
 
 
 .. _ensemble-scorers:
@@ -139,7 +162,7 @@ These scorers leverage a weighted average of multiple individual scorers to prov
 
   * BS Detector (`Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`_)
 
-  * Generalized Ensemble (uses any combination of the above)
+  * Generalized Ensemble (`Bouchard & Chauhan, 2025 <https://arxiv.org/abs/2504.19254>`_)
 
 
 Contents

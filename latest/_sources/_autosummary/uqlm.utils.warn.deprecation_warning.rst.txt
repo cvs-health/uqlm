@@ -1,0 +1,6 @@
+uqlm.utils.warn.deprecation\_warning
+====================================
+
+.. currentmodule:: uqlm.utils.warn
+
+.. autofunction:: deprecation_warning

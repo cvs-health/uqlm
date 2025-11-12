@@ -30,6 +30,7 @@
 
    baseclass
    black_box
+   density
    ensemble
    entropy
    panel
