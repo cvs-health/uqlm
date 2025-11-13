@@ -2667,14 +2667,14 @@ mistral = ["langchain-mistralai (>=0.2.0,<2.0.0)"]
 
 [[package]]
 name = "langchain-model-profiles"
-version = "0.0.3"
+version = "0.0.4"
 description = "Centralized reference of LLM capabilities."
 optional = false
 python-versions = "<4.0.0,>=3.10.0"
 groups = ["main"]
 files = [
-    {file = "langchain_model_profiles-0.0.3-py3-none-any.whl", hash = "sha256:76f588327c917df425b004d19d81db634c4b0008ed6497aa3f81b788950d9fc2"},
-    {file = "langchain_model_profiles-0.0.3.tar.gz", hash = "sha256:36d2363953fa13a6f217096ef413f1ebe287161ad5c6d2f728911bc9cd7724c9"},
+    {file = "langchain_model_profiles-0.0.4-py3-none-any.whl", hash = "sha256:7382b7feb2294ded84fe89b20a4d656f81f40c8f024233205b2c5507391ce1ba"},
+    {file = "langchain_model_profiles-0.0.4.tar.gz", hash = "sha256:b66909339c9175a6963e7fcdacae382b4773f8da04092b9dd64424b8e8b1f8c8"},
 ]
 
 [package.dependencies]
@@ -5650,7 +5650,7 @@ description = "Fundamental algorithms for scientific computing in Python"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
-markers = "python_version == \"3.10\""
+markers = "python_version == \"3.10\" or python_version >= \"3.13\""
 files = [
     {file = "scipy-1.15.3-cp310-cp310-macosx_10_13_x86_64.whl", hash = "sha256:a345928c86d535060c9c2b25e71e87c39ab2f22fc96e9636bd74d1dbf9de448c"},
     {file = "scipy-1.15.3-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:ad3432cb0f9ed87477a8d97f03b763fd1d57709f1bbde3c9369b1dff5503b253"},
@@ -5715,7 +5715,7 @@ description = "Fundamental algorithms for scientific computing in Python"
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
-markers = "python_version >= \"3.11\""
+markers = "python_version < \"3.13\" and python_version >= \"3.11\""
 files = [
     {file = "scipy-1.16.2-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:6ab88ea43a57da1af33292ebd04b417e8e2eaf9d5aa05700be8d6e1b6501cd92"},
     {file = "scipy-1.16.2-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:c95e96c7305c96ede73a7389f46ccd6c659c4da5ef1b2789466baeaed3622b6e"},
@@ -7272,4 +7272,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10, <4.0"
-content-hash = "92fd6f193ea3619ac99ae6bd64107580660e197053ecfadb7a1f80a894e5a86d"
+content-hash = "7b35dbb41dd9c12e775076c511d8f41ff8857c082b605dd4d8c1f2399b4873dd"
