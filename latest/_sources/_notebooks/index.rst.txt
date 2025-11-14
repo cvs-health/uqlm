@@ -1,8 +1,7 @@
 Example Notebooks
 =================
 
-Here's a list of example notebooks for using the library. If you're interested in contributing to existing notebooks or
-adding new ones please consult the guide on :ref:`how to contribute <contribute>`.
+UQLM offers a broad collection of tutorial notebooks to demonstrate usage of the various scorers. These notebooks aim to have versatile coverage of various LLMs and datasets, but you can easily replace them with your LLM and dataset of choice. Below is a list of these tutorials:
 
 
 
@@ -27,6 +26,40 @@ adding new ones please consult the guide on :ref:`how to contribute <contribute>
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Black-Box Demo</div>
+    </div>
+    
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="White-Box Single-Generation Demo">
+
+.. only:: html
+
+  .. image:: /_static/images/no_image.png
+    :alt:
+
+  :doc:`examples/white_box_single_generation_demo`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">White-Box Single-Generation Demo</div>
+    </div>
+    
+    
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="White-Box Multi-Generation Demo">
+
+.. only:: html
+
+  .. image:: /_static/images/no_image.png
+    :alt:
+
+  :doc:`examples/white_box_multi_generation_demo`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">White-Box Multi-Generation Demo</div>
     </div>
 
 
@@ -79,6 +112,23 @@ adding new ones please consult the guide on :ref:`how to contribute <contribute>
 
       <div class="sphx-glr-thumbnail-title">LLM-as-a-Judge Demo</div>
     </div>
+    
+    
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Multimodal Demo">
+
+.. only:: html
+
+  .. image:: /_static/images/no_image.png
+    :alt:
+
+  :doc:`examples/multimodal_demo`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Multimodal Demo</div>
+    </div>
 
 
 .. raw:: html
@@ -96,22 +146,39 @@ adding new ones please consult the guide on :ref:`how to contribute <contribute>
 
       <div class="sphx-glr-thumbnail-title">Semantic Entropy Demo</div>
     </div>
-
-
+    
+    
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="White-Box Uncertainty Quantification Demo">
+    <div class="sphx-glr-thumbcontainer" tooltip="Semantic Density Demo">
 
 .. only:: html
 
   .. image:: /_static/images/no_image.png
     :alt:
 
-  :doc:`examples/white_box_demo`
+  :doc:`examples/semantic_density_demo`
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">White-Box Uncertainty Quantification Demo</div>
+      <div class="sphx-glr-thumbnail-title">Semantic Density Demo</div>
+    </div>
+    
+    
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Score Calibration Demo">
+
+.. only:: html
+
+  .. image:: /_static/images/no_image.png
+    :alt:
+
+  :doc:`examples/score_calibration_demo`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Score Calibration Demo</div>
     </div>
 
 
@@ -130,5 +197,9 @@ adding new ones please consult the guide on :ref:`how to contribute <contribute>
    examples/ensemble_tuning_demo.ipynb
    examples/judges_demo.ipynb
    examples/semantic_entropy_demo.ipynb
-   examples/white_box_demo.ipynb
+   examples/semantic_density_demo.ipynb
+   examples/white_box_multi_generation_demo.ipynb
+   examples/white_box_single_generation_demo.ipynb
    examples/black_box_demo.ipynb
+   examples/multimodal_demo.ipynb
+   examples/score_calibration_demo.ipynb
