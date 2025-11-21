@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="../../_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="../../_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="../../_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>🎯 Semantic Entropy &#8212; uqlm 0.4 documentation</title>
+    <title>🎯 Semantic Density &#8212; uqlm 0.4 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_notebooks/examples/semantic_entropy_demo';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_notebooks/examples/semantic_density_demo';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="🎯 Semantic Density" href="semantic_density_demo.html" />
-    <link rel="prev" title="🎯 LLM-as-a-Judge" href="judges_demo.html" />
+    <link rel="next" title="🎯 White-Box Uncertainty Quantification" href="white_box_multi_generation_demo.html" />
+    <link rel="prev" title="🎯 Semantic Entropy" href="semantic_entropy_demo.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -389,8 +389,8 @@
 <li class="toctree-l1"><a class="reference internal" href="ensemble_off_the_shelf_demo.html">🎯 BS Detector: Off-the-Shelf Ensemble for LLM Uncertainty</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ensemble_tuning_demo.html">🎯 Tunable Ensemble for LLM Uncertainty (Advanced)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="judges_demo.html">🎯 LLM-as-a-Judge</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">🎯 Semantic Entropy</a></li>
-<li class="toctree-l1"><a class="reference internal" href="semantic_density_demo.html">🎯 Semantic Density</a></li>
+<li class="toctree-l1"><a class="reference internal" href="semantic_entropy_demo.html">🎯 Semantic Entropy</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">🎯 Semantic Density</a></li>
 <li class="toctree-l1"><a class="reference internal" href="white_box_multi_generation_demo.html">🎯 White-Box Uncertainty Quantification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="white_box_single_generation_demo.html">🎯 White-Box Uncertainty Quantification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="black_box_demo.html">🎯 Black-Box Uncertainty Quantification</a></li>
@@ -439,7 +439,7 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Example Notebooks</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">🎯 Semantic Entropy</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">🎯 Semantic Density</span></li>
   </ul>
 </nav>
 </div>
@@ -456,10 +456,10 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="🎯-Semantic-Entropy">
-<h1>🎯 Semantic Entropy<a class="headerlink" href="#🎯-Semantic-Entropy" title="Link to this heading">#</a></h1>
-<div style="background-color: rgba(200, 200, 200, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(127, 127, 127, 0.2); max-width: 97.5%; overflow-wrap: break-word;"><p style="font-size: 16px; line-height: 1.6"><p>This demo illustrates a state-of-the-art uncertainty quantification (UQ) approach known as semantic entropy. The token-probability-based semantic entropy method combines elements of black-box UQ (which generates multiple responses from the same prompt) and white-box UQ (which uses token probabilities of those generated responses) to compute entropy values and associated confidence scores. The discrete semantic entropy method is similar but functions solely as a black-box UQ method, as it does
-not require token probabilities. Both methods were proposed by Farquhar et al. (2024) and are demonstrated in this notebook.</p>
+  <section id="🎯-Semantic-Density">
+<h1>🎯 Semantic Density<a class="headerlink" href="#🎯-Semantic-Density" title="Link to this heading">#</a></h1>
+<div style="background-color: rgba(200, 200, 200, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(127, 127, 127, 0.2); max-width: 97.5%; overflow-wrap: break-word;"><p style="font-size: 16px; line-height: 1.6"><p>This demo illustrates a state-of-the-art uncertainty quantification (UQ) approach known as semantic density. The semantic density method combines elements of black-box UQ (which generates multiple responses from the same prompt) and white-box UQ (which uses token probabilities of those generated responses) to compute density values. Intuitively, semantic density combines both signals to estimate a probability distribution for scoring each response. This method was proposed by Qiu et al. (2024)
+and is demonstrated in this notebook.</p>
 </p></div><section id="📊-What-You'll-Do-in-This-Demo">
 <h2>📊 What You’ll Do in This Demo<a class="headerlink" href="#📊-What-You'll-Do-in-This-Demo" title="Link to this heading">#</a></h2>
 <div style="display: flex; margin-bottom: 15px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>1</p>
@@ -467,41 +467,42 @@ not require token probabilities. Both methods were proposed by Farquhar et al. (
 </p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Set up LLM instance and load example data prompts.</p>
 </p></div></div><div style="display: flex; margin-bottom: 15px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>2</p>
 </div><div><p style="margin: 0; font-weight: bold"><p>Generate LLM Responses and Confidence Scores</p>
-</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Generate and score LLM responses to the example questions using the SemanticEntropy() class.</p>
+</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Generate and score LLM responses to the example questions using the SemanticDensity() class.</p>
 </p></div></div><div style="display: flex; margin-bottom: 25px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>3</p>
 </div><div><p style="margin: 0; font-weight: bold"><p>Evaluate Hallucination Detection Performance</p>
-</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Visualize model accuracy at different thresholds of the semantic entropy-based confidence scores. Compute precision, recall, and F1-score of hallucination detection.</p>
+</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Visualize model accuracy at different thresholds of the semantic density score. Compute precision, recall, and F1-score of hallucination detection.</p>
 </p></div></div></section>
 <section id="⚖️-Advantages-&amp;-Limitations">
 <h2>⚖️ Advantages &amp; Limitations<a class="headerlink" href="#⚖️-Advantages-&-Limitations" title="Link to this heading">#</a></h2>
 <div style="display: flex; gap: 20px"><div style="flex: 1; background-color: rgba(0, 200, 0, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 200, 0, 0.2)"><h3 style="color: #2e8b57; margin-top: 0"><p>Pros</p>
 </h3><ul style="margin-bottom: 0"><li><p>Universal Compatibility: Works with any LLM</p>
 </li><li><p>Intuitive: Easy to understand and implement</p>
-</li><li><p>No Internal Access Required: Doesn’t need token probabilities or model internals</p>
+</li><li><p>Response-wise: Evaluates the trustworthiness of each response separately</p>
 </li></ul></div><div style="flex: 1; background-color: rgba(200, 0, 0, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(200, 0, 0, 0.2)"><h3 style="color: #b22222; margin-top: 0"><p>Cons</p>
 </h3><ul style="margin-bottom: 0"><li><p>Higher Cost: Requires multiple generations per prompt</p>
 </li><li><p>Slower: Multiple generations and comparison calculations increase latency</p>
-</li></ul></div></div><div class="nbinput nblast docutils container">
+</li><li><p>Internal Access Required: Needs access to token probabilities</p>
+</ul></div></div><div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_example_dataset</span><span class="p">,</span> <span class="n">plot_model_accuracies</span><span class="p">,</span> <span class="n">Tuner</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticEntropy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_example_dataset</span><span class="p">,</span> <span class="n">plot_model_accuracies</span><span class="p">,</span> <span class="n">LLMGrader</span><span class="p">,</span> <span class="n">Tuner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm.scorers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SemanticDensity</span>
 </pre></div>
 </div>
 </div>
 <p>## 1. Set up LLM and Prompts</p>
-<p>In this demo, we will illustrate this approach using a set of multiple choice questions from the <a class="reference external" href="https://aclanthology.org/N19-1421/">CommonSense QA benchmark</a>. To implement with your use case, simply <strong>replace the example prompts with your data</strong>.</p>
+<p>In this demo, we will illustrate this approach using a set of short answer questions from the <a class="reference external" href="https://openai.com/index/introducing-simpleqa/">SimpleQA benchmark</a>. To implement with your use case, simply <strong>replace the example prompts with your data</strong>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load example dataset (csqa)</span>
-<span class="n">csqa</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">&quot;csqa&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-<span class="n">csqa</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load example dataset (simpleqa)</span>
+<span class="n">simpleqa</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">&quot;simpleqa&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">simpleqa</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -510,13 +511,14 @@ not require token probabilities. Both methods were proposed by Farquhar et al. (
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Loading dataset - csqa...
+Loading dataset - simpleqa...
 Processing dataset...
 Dataset ready!
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
@@ -544,69 +546,58 @@ Dataset ready!
   <tbody>
     <tr>
       <th>0</th>
-      <td>Q: The sanctions against the school were a pun...</td>
-      <td>A</td>
+      <td>How much money, in euros, was the surgeon held...</td>
+      <td>120,000 euros</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>Q: Sammy wanted to go to where the people were...</td>
-      <td>B</td>
+      <td>What is the name of the former Prime Minister ...</td>
+      <td>Jóhanna Sigurðardóttir</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>Q: To locate a choker not located in a jewelry...</td>
-      <td>A</td>
+      <td>To whom did Mehbooba Mufti Sayed contest the 2...</td>
+      <td>Hasnain Masoodi</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>Q: Google Maps and other highway and street GP...</td>
-      <td>D</td>
+      <td>In which year did Melbourne's Monash Gallery o...</td>
+      <td>2023</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>Q: The fox walked from the city into the fores...</td>
-      <td>C</td>
+      <td>Who requested the Federal Aviation Administrat...</td>
+      <td>The Coast Guard</td>
     </tr>
   </tbody>
 </table>
 </div></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define prompts</span>
-<span class="n">MCQ_INSTRUCTION</span> <span class="o">=</span> <span class="s2">&quot;You will be given a multiple choice question. Return only the letter of the response with no additional text or explanation.</span><span class="se">\n</span><span class="s2">&quot;</span>
-<span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">MCQ_INSTRUCTION</span> <span class="o">+</span> <span class="n">prompt</span> <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">csqa</span><span class="o">.</span><span class="n">question</span><span class="p">]</span>
+<span class="n">INSTRUCTION</span> <span class="o">=</span> <span class="s2">&quot;You will be given a question. Return only the answer as concisely as possible without providing an explanation.</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">INSTRUCTION</span> <span class="o">+</span> <span class="n">prompt</span> <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">simpleqa</span><span class="o">.</span><span class="n">question</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
-<p>In this example, we use <code class="docutils literal notranslate"><span class="pre">AzureChatOpenAI</span></code> to instantiate our LLM, but any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used. Be sure to <strong>replace with your LLM of choice.</strong></p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## AzureChatOpenAI example</span>
-<span class="c1"># import sys</span>
-<span class="c1"># !{sys.executable} -m pip install langchain-openai</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># import sys</span>
+<span class="c1"># !{sys.executable} -m pip install langchain-google-vertexai</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
 
-<span class="c1"># # User to populate .env file with API credentials</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span><span class="p">,</span> <span class="n">find_dotenv</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">AzureChatOpenAI</span>
-
-<span class="n">load_dotenv</span><span class="p">(</span><span class="n">find_dotenv</span><span class="p">())</span>
-<span class="n">llm</span> <span class="o">=</span> <span class="n">AzureChatOpenAI</span><span class="p">(</span>
-    <span class="n">deployment_name</span><span class="o">=</span><span class="s2">&quot;gpt-4.1-mini&quot;</span><span class="p">,</span>
-    <span class="n">openai_api_type</span><span class="o">=</span><span class="s2">&quot;azure&quot;</span><span class="p">,</span>
-    <span class="n">openai_api_version</span><span class="o">=</span><span class="s2">&quot;2024-02-15-preview&quot;</span><span class="p">,</span>
-    <span class="n">temperature</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># User to set temperature</span>
-<span class="p">)</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;gemini-2.5-pro&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>## 2. Generate responses and confidence scores</p>
-<section id="SemanticEntropy()---Generate-LLM-responses-and-compute-consistency-based-confidence-scores-for-each-response.">
-<h3><code class="docutils literal notranslate"><span class="pre">SemanticEntropy()</span></code> - Generate LLM responses and compute consistency-based confidence scores for each response.<a class="headerlink" href="#SemanticEntropy()---Generate-LLM-responses-and-compute-consistency-based-confidence-scores-for-each-response." title="Link to this heading">#</a></h3>
+<section id="SemanticDensity()---Generate-LLM-responses-and-compute-consistency-based-confidence-scores-for-each-response.">
+<h3><code class="docutils literal notranslate"><span class="pre">SemanticDensity()</span></code> - Generate LLM responses and compute consistency-based confidence scores for each response.<a class="headerlink" href="#SemanticDensity()---Generate-LLM-responses-and-compute-consistency-based-confidence-scores-for-each-response." title="Link to this heading">#</a></h3>
 <section id="📋-Class-Attributes">
 <h4>📋 Class Attributes<a class="headerlink" href="#📋-Class-Attributes" title="Link to this heading">#</a></h4>
 <table style="border-collapse: collapse; width: 100%; border: 1px solid rgba(127, 127, 127, 0.2);"><tr><th style="background-color: rgba(200, 200, 200, 0.2); width: 20%; padding: 8px; text-align: left; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Parameter</p>
@@ -617,10 +608,7 @@ Dataset ready!
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>A langchain llm <code class="docutils literal notranslate"><span class="pre">BaseChatModel</span></code>. User is responsible for specifying temperature and other relevant parameters to the constructor of the provided <code class="docutils literal notranslate"><span class="pre">llm</span></code> object.</p>
 </td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>device</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>str or torch.devicedefault=”cpu”</p>
-</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies the device that NLI model use for prediction. Only applies to ‘semantic_negentropy’, ‘noncontradiction’ scorers. Pass a torch.device to leverage GPU.</p>
-</td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>use_best</p>
-</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>booldefault=True</p>
-</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies whether to swap the original response for the uncertainty-minimized response among all sampled responses based on semantic entropy clusters. Only used if <code class="docutils literal notranslate"><span class="pre">scorers</span></code> includes ‘semantic_negentropy’ or ‘noncontradiction’.</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies the device that NLI model use for prediction. Only applies to ‘noncontradiction’ scorer. Pass a torch.device to leverage GPU.</p>
 </td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>system_prompt</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>str or Nonedefault=”You are a helpful assistant.”</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Optional argument for user to provide custom system prompt for the LLM.</p>
@@ -630,7 +618,7 @@ Dataset ready!
 </td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>length_normalize</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>boolbool, default=True</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Determines whether response probabilities are length-normalized. Recommended to set as True when longer responses are expected.</p>
-</td><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>use_n_param</p>
+</td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>use_n_param</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>booldefault=False</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies whether to use n parameter for BaseChatModel. Not compatible with all BaseChatModel classes. If used, it speeds up the generation process substantially when num_responses is large.</p>
 </td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>postprocessor</p>
@@ -658,7 +646,6 @@ Dataset ready!
 </li></ul></div><div style="flex: 1; padding: 10px; background-color: rgba(0, 200, 0, 0.1); border-radius: 5px; border: 1px solid rgba(0, 200, 0, 0.2);"><p style="font-weight: bold"><p>📊 Confidence Scores</p>
 </p><ul><li><p>length_normalize</p>
 </li><li><p>nli_model_name</p>
-</li><li><p>use_best</p>
 </li><li><p>postprocessor</p>
 </li></ul></div><div style="flex: 1; padding: 10px; background-color: rgba(200, 150, 0, 0.1); border-radius: 5px; border: 1px solid rgba(200, 150, 0, 0.2);"><p style="font-weight: bold"><p>🖥️ Hardware</p>
 </p><ul><li><p>device</p>
@@ -669,17 +656,17 @@ Dataset ready!
 <section id="💻-Usage-Examples">
 <h4>💻 Usage Examples<a class="headerlink" href="#💻-Usage-Examples" title="Link to this heading">#</a></h4>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic usage with default parameters</span>
-<span class="n">se</span> <span class="o">=</span> <span class="n">SemanticEntropy</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
+<span class="n">sd</span> <span class="o">=</span> <span class="n">SemanticDensity</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
 
 <span class="c1"># Using GPU acceleration, default scorers</span>
-<span class="n">se</span> <span class="o">=</span> <span class="n">SemanticEntropy</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">))</span>
+<span class="n">sd</span> <span class="o">=</span> <span class="n">SemanticDensity</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">))</span>
 
 <span class="c1"># High-throughput configuration with rate limiting</span>
-<span class="n">se</span> <span class="o">=</span> <span class="n">SemanticEntropy</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">max_calls_per_min</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">use_n_param</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">sd</span> <span class="o">=</span> <span class="n">SemanticDensity</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">max_calls_per_min</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">use_n_param</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
@@ -700,16 +687,16 @@ Dataset ready!
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Using mps device
+Using cuda device
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">se</span> <span class="o">=</span> <span class="n">SemanticEntropy</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sd</span> <span class="o">=</span> <span class="n">SemanticDensity</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-    <span class="n">max_calls_per_min</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>  <span class="c1"># set value to avoid rate limit error</span>
+    <span class="n">max_calls_per_min</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>  <span class="c1"># set value to avoid rate limit error</span>
     <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>  <span class="c1"># use if GPU available</span>
     <span class="n">length_normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
@@ -722,16 +709,16 @@ Using mps device
 <h3>🔄 Class Methods<a class="headerlink" href="#🔄-Class-Methods" title="Link to this heading">#</a></h3>
 <table style="border-collapse: collapse; width: 100%; border: 1px solid rgba(127, 127, 127, 0.2);"><tr><th style="background-color: rgba(200, 200, 200, 0.2); width: 25%; padding: 8px; text-align: left; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Method</p>
 </th><th style="background-color: rgba(200, 200, 200, 0.2); width: 75%; padding: 8px; text-align: left; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Description &amp; Parameters</p>
-</th></tr><tr><td style="font-weight: bold; vertical-align: top; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>SemanticEntropy.generate_and_score</p>
-</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p><p>Generate LLM responses, sampled LLM (candidate) responses, and compute confidence scores for the provided prompts.</p>
+</th></tr><tr><td style="font-weight: bold; vertical-align: top; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>SemanticDensity.generate_and_score</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p><p>Generate LLM responses, sampled LLM (candidate) responses, and compute density score for the provided prompts.</p>
 </p><p><p>Parameters:</p>
-</p><ul><li><p>prompts - (List[str] or List[List[BaseMessage]]) A list of input prompts for the model.</p>
+</p><ul><li><p>prompts - (List[str]) A list of input prompts for the model.</p>
 </li><li><p>num_responses - (int, default=5) The number of sampled responses used to compute consistency.</p>
 </li><li><p>show_progress_bars - (bool, default=True) If True, displays a progress bar while generating and scoring responses.</p>
-</li></ul><p><p>Returns: UQResult containing data (prompts, responses, sampled responses, and confidence scores) and metadata</p>
+</li></ul><p><p>Returns: UQResult containing data (prompts, responses, sampled responses, and density score) and metadata</p>
 </p><div style="background-color: rgba(0, 200, 0, 0.1); padding: 8px; border-radius: 3px; margin-top: 10px; border: 1px solid rgba(0, 200, 0, 0.2); margin-right: 5px; box-sizing: border-box; width: 100%;"><p>💡 Best For: Complete end-to-end uncertainty quantification when starting with prompts.</p>
-</div></td></tr><tr><td style="font-weight: bold; vertical-align: top; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>SemanticEntropy.score</p>
-</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p><p>Compute confidence scores on provided LLM responses. Should only be used if responses and sampled responses are already generated.</p>
+</div></td></tr><tr><td style="font-weight: bold; vertical-align: top; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>SemanticDensity.score</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p><p>Compute density score on provided LLM responses. Should only be used if responses and sampled responses are already generated.</p>
 </p><p><p>Parameters:</p>
 </p><ul><li><p>prompts - (List[List[str]]) List of prompts from which responses were generated.</p>
 </li><li><p>responses - (List[List[str]]) A list of LLM responses for the prompts.</p>
@@ -739,34 +726,21 @@ Using mps device
 </li><li><p>logprob_results - (List[logprob_result]) A list of dictionaries, each returned by BaseChatModel.agenerate corresponding to responses.</p>
 </li><li><p>sampled_logprob_results - (List[List[logprob_result]], default=None) List of list of dictionaries, each returned by BaseChatModel.agenerate. These must correspond to sampled_responses.</p>
 </li><li><p>show_progress_bars - (bool, default=True) If True, displays a progress bar while scoring responses.</p>
-</li></ul><p><p>Returns: UQResult containing data (responses, sampled responses, and confidence scores) and metadata</p>
+</li></ul><p><p>Returns: UQResult containing data (responses, sampled responses, and density score) and metadata</p>
 </p><div style="background-color: rgba(0, 200, 0, 0.1); padding: 8px; border-radius: 3px; margin-top: 10px; border: 1px solid rgba(0, 200, 0, 0.2); margin-right: 5px; box-sizing: border-box; width: 100%;"><p>💡 Best For: Computing uncertainty scores when responses, sampled responses, and logprobs are already generated elsewhere.</p>
-</div></td></tr></table><div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</div></td></tr></table><div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">se</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">sd</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
 <span class="c1"># # alternative approach: directly score if responses already generated</span>
-<span class="c1"># results = se.score(responses=responses, sampled_responses=sampled_responses)</span>
+<span class="c1"># results = sd.score(responses=responses, sampled_responses=sampled_responses)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "bba15ca6d3cc462e8726ccf54ef00dff", "version_major": 2, "version_minor": 0}</script></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre></div>
-</div>
-<p>The LLM instance used here returns token probabilities during the response generation. In such scenario, <code class="docutils literal notranslate"><span class="pre">SemanticEntropy</span></code> class computes response probabilty in two ways: 1) Discrete semantic entropy: Equal probability to each response cluster and 2) Token-probability-based semantic entropy: Uses token probability to compute probability of each response cluster.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result_df</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
@@ -775,7 +749,7 @@ Using mps device
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -800,88 +774,74 @@ Using mps device
       <th>response</th>
       <th>sampled_responses</th>
       <th>prompt</th>
-      <th>discrete_entropy_value</th>
-      <th>discrete_confidence_score</th>
-      <th>tokenprob_entropy_value</th>
-      <th>tokenprob_confidence_score</th>
+      <th>semantic_density_value</th>
+      <th>multiple_logprob</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>E</td>
-      <td>[E, A, E, E, A, E, A, E, E, A]</td>
-      <td>You will be given a multiple choice question. ...</td>
-      <td>0.655482</td>
-      <td>0.726643</td>
-      <td>0.668995</td>
-      <td>0.721007</td>
+      <td>€120,000</td>
+      <td>[€120,000, €120,000, €136,000, €120,000, €120,...</td>
+      <td>You will be given a question. Return only the ...</td>
+      <td>0.865526</td>
+      <td>[[{'token': '€', 'logprob': -4.172499757260084...</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>B</td>
-      <td>[B, B, B, B, B, B, B, B, B, B]</td>
-      <td>You will be given a multiple choice question. ...</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
+      <td>Jóhanna Sigurðardóttir</td>
+      <td>[Jóhanna Sigurðardóttir, Jóhanna Sigurðardótti...</td>
+      <td>You will be given a question. Return only the ...</td>
+      <td>0.992922</td>
+      <td>[[{'token': 'J', 'logprob': -9.536738616588991...</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>B</td>
-      <td>[B, B, B, B, B, B, B, B, B, B]</td>
-      <td>You will be given a multiple choice question. ...</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
+      <td>Hasnain Masoodi</td>
+      <td>[Hasnain Masoodi, Hasnain Masoodi, Hasnain Mas...</td>
+      <td>You will be given a question. Return only the ...</td>
+      <td>0.993829</td>
+      <td>[[{'token': 'Has', 'logprob': -2.5987286790041...</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>D</td>
-      <td>[D, D, D, D, D, D, D, D, D, D]</td>
-      <td>You will be given a multiple choice question. ...</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
+      <td>2023</td>
+      <td>[2023, 2023, 2022, 2022, 2022]</td>
+      <td>You will be given a question. Return only the ...</td>
+      <td>0.941380</td>
+      <td>[[{'token': '2', 'logprob': -1.430510337740997...</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>C</td>
-      <td>[C, C, C, C, C, C, C, C, C, C]</td>
-      <td>You will be given a multiple choice question. ...</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
+      <td>BP and the U.S. Coast Guard</td>
+      <td>[BP, BP, BP and the U.S. Coast Guard, BP (Brit...</td>
+      <td>You will be given a question. Return only the ...</td>
+      <td>0.978186</td>
+      <td>[[{'token': 'BP', 'logprob': -4.20799915445968...</td>
     </tr>
   </tbody>
 </table>
 </div></div>
 </div>
 <p>## 3. Evaluate Hallucination Detection Performance</p>
-<p>To evaluate hallucination detection performance, we ‘grade’ the responses against an answer key. Note the <code class="docutils literal notranslate"><span class="pre">check_letter_match</span></code> function is specific to our task (multiple choice). <strong>If you are using your own prompts/questions, update the grading method accordingly</strong>.</p>
+<p>To evaluate hallucination detection performance, we ‘grade’ the responses against an answer key. Here, we use UQLM’s out-of-the-box LLM Grader, which can be used with <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a>, but you may replace this with a grading method of your choice. Some notable alternatives are <a class="reference external" href="https://huggingface.co/vectara/hallucination_evaluation_model">Vectara HHEM</a> and <a class="reference external" href="https://github.com/yuh-zha/AlignScore">AlignScore</a>. <strong>If you are using
+your own prompts/questions, be sure to update the grading method accordingly</strong>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Populate correct answers and grade responses</span>
-<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">csqa</span><span class="o">.</span><span class="n">answer</span>
+<span class="n">gemini_flash</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-2.5-flash&quot;</span><span class="p">)</span>
+<span class="n">grader</span> <span class="o">=</span> <span class="n">LLMGrader</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">gemini_flash</span><span class="p">)</span>
 
-
-<span class="k">def</span><span class="w"> </span><span class="nf">check_letter_match</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">answer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-
-
-<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">check_letter_match</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">],</span> <span class="n">csqa</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">])]</span>
-<span class="n">result_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">simpleqa</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">grader</span><span class="o">.</span><span class="n">grade_responses</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">simpleqa</span><span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="n">responses</span><span class="o">=</span><span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="n">answers</span><span class="o">=</span><span class="n">simpleqa</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+<span class="n">result_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -906,10 +866,8 @@ Using mps device
       <th>response</th>
       <th>sampled_responses</th>
       <th>prompt</th>
-      <th>discrete_entropy_value</th>
-      <th>discrete_confidence_score</th>
-      <th>tokenprob_entropy_value</th>
-      <th>tokenprob_confidence_score</th>
+      <th>semantic_density_value</th>
+      <th>multiple_logprob</th>
       <th>answer</th>
       <th>response_correct</th>
     </tr>
@@ -917,63 +875,53 @@ Using mps device
   <tbody>
     <tr>
       <th>0</th>
-      <td>E</td>
-      <td>[E, A, E, E, A, E, A, E, E, A]</td>
-      <td>You will be given a multiple choice question. ...</td>
-      <td>0.655482</td>
-      <td>0.726643</td>
-      <td>0.668995</td>
-      <td>0.721007</td>
-      <td>A</td>
-      <td>False</td>
+      <td>€120,000</td>
+      <td>[€120,000, €120,000, €136,000, €120,000, €120,...</td>
+      <td>You will be given a question. Return only the ...</td>
+      <td>0.865526</td>
+      <td>[[{'token': '€', 'logprob': -4.172499757260084...</td>
+      <td>120,000 euros</td>
+      <td>True</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>B</td>
-      <td>[B, B, B, B, B, B, B, B, B, B]</td>
-      <td>You will be given a multiple choice question. ...</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>B</td>
+      <td>Jóhanna Sigurðardóttir</td>
+      <td>[Jóhanna Sigurðardóttir, Jóhanna Sigurðardótti...</td>
+      <td>You will be given a question. Return only the ...</td>
+      <td>0.992922</td>
+      <td>[[{'token': 'J', 'logprob': -9.536738616588991...</td>
+      <td>Jóhanna Sigurðardóttir</td>
       <td>True</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>B</td>
-      <td>[B, B, B, B, B, B, B, B, B, B]</td>
-      <td>You will be given a multiple choice question. ...</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>A</td>
-      <td>False</td>
+      <td>Hasnain Masoodi</td>
+      <td>[Hasnain Masoodi, Hasnain Masoodi, Hasnain Mas...</td>
+      <td>You will be given a question. Return only the ...</td>
+      <td>0.993829</td>
+      <td>[[{'token': 'Has', 'logprob': -2.5987286790041...</td>
+      <td>Hasnain Masoodi</td>
+      <td>True</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>D</td>
-      <td>[D, D, D, D, D, D, D, D, D, D]</td>
-      <td>You will be given a multiple choice question. ...</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>D</td>
+      <td>2023</td>
+      <td>[2023, 2023, 2022, 2022, 2022]</td>
+      <td>You will be given a question. Return only the ...</td>
+      <td>0.941380</td>
+      <td>[[{'token': '2', 'logprob': -1.430510337740997...</td>
+      <td>2023</td>
       <td>True</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>C</td>
-      <td>[C, C, C, C, C, C, C, C, C, C]</td>
-      <td>You will be given a multiple choice question. ...</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>0.000000</td>
-      <td>1.000000</td>
-      <td>C</td>
-      <td>True</td>
+      <td>BP and the U.S. Coast Guard</td>
+      <td>[BP, BP, BP and the U.S. Coast Guard, BP (Brit...</td>
+      <td>You will be given a question. Return only the ...</td>
+      <td>0.978186</td>
+      <td>[[{'token': 'BP', 'logprob': -4.20799915445968...</td>
+      <td>The Coast Guard</td>
+      <td>False</td>
     </tr>
   </tbody>
 </table>
@@ -992,21 +940,19 @@ Using mps device
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Baseline LLM accuracy: 0.775
+Baseline LLM accuracy: 0.54
 </pre></div></div>
 </div>
 <section id="3.1-Filtered-LLM-Accuracy-Evaluation">
 <h4>3.1 Filtered LLM Accuracy Evaluation<a class="headerlink" href="#3.1-Filtered-LLM-Accuracy-Evaluation" title="Link to this heading">#</a></h4>
-<p>Here, we explore ‘filtered accuracy’ as a metric for evaluating the performance of our confidence scores. Filtered accuracy measures the change in LLM performance when responses with confidence scores below a specified threshold are excluded. By adjusting the confidence score threshold, we can observe how the accuracy of the LLM improves as less certain responses are filtered out.</p>
-<p>We will plot the filtered accuracy across various confidence score thresholds to visualize the relationship between confidence and LLM accuracy. This analysis helps in understanding the trade-off between response coverage (measured by sample size below) and LLM accuracy, providing insights into the reliability of the LLM’s outputs.</p>
-<section id="Discrete-Semantic-Entropy">
-<h5>Discrete Semantic Entropy<a class="headerlink" href="#Discrete-Semantic-Entropy" title="Link to this heading">#</a></h5>
+<p>Here, we explore ‘filtered accuracy’ as a metric for evaluating the performance of our density scores. Filtered accuracy measures the change in LLM performance when responses with density scores below a specified threshold are excluded. By adjusting the density score threshold, we can observe how the accuracy of the LLM improves as less certain responses are filtered out.</p>
+<p>We will plot the filtered accuracy across various density score thresholds to visualize the relationship between density and LLM accuracy. This analysis helps in understanding the trade-off between response coverage (measured by sample size below) and LLM accuracy, providing insights into the reliability of the LLM’s outputs.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Discrete Semantic Entropy</span>
-<span class="n">plot_model_accuracies</span><span class="p">(</span><span class="n">scores</span><span class="o">=</span><span class="n">result_df</span><span class="o">.</span><span class="n">discrete_confidence_score</span><span class="p">,</span> <span class="n">correct_indicators</span><span class="o">=</span><span class="n">result_df</span><span class="o">.</span><span class="n">response_correct</span><span class="p">,</span> <span class="n">display_percentage</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Semantic Density</span>
+<span class="n">plot_model_accuracies</span><span class="p">(</span><span class="n">scores</span><span class="o">=</span><span class="n">result_df</span><span class="o">.</span><span class="n">semantic_density_value</span><span class="p">,</span> <span class="n">correct_indicators</span><span class="o">=</span><span class="n">result_df</span><span class="o">.</span><span class="n">response_correct</span><span class="p">,</span> <span class="n">display_percentage</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1014,34 +960,15 @@ Baseline LLM accuracy: 0.775
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/_notebooks_examples_semantic_entropy_demo_23_0.png" src="../../_images/_notebooks_examples_semantic_entropy_demo_23_0.png" />
+<img alt="../../_images/_notebooks_examples_semantic_density_demo_20_0.png" src="../../_images/_notebooks_examples_semantic_density_demo_20_0.png" />
 </div>
 </div>
-</section>
-<section id="id1">
-<h5>Discrete Semantic Entropy<a class="headerlink" href="#id1" title="Link to this heading">#</a></h5>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_model_accuracies</span><span class="p">(</span><span class="n">scores</span><span class="o">=</span><span class="n">result_df</span><span class="o">.</span><span class="n">tokenprob_confidence_score</span><span class="p">,</span> <span class="n">correct_indicators</span><span class="o">=</span><span class="n">result_df</span><span class="o">.</span><span class="n">response_correct</span><span class="p">,</span> <span class="n">display_percentage</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../../_images/_notebooks_examples_semantic_entropy_demo_25_0.png" src="../../_images/_notebooks_examples_semantic_entropy_demo_25_0.png" />
-</div>
-</div>
-</section>
 </section>
 <section id="3.2-Precision,-Recall,-F1-Score-of-Hallucination-Detection">
 <h4>3.2 Precision, Recall, F1-Score of Hallucination Detection<a class="headerlink" href="#3.2-Precision,-Recall,-F1-Score-of-Hallucination-Detection" title="Link to this heading">#</a></h4>
-<p>Lastly, we compute the optimal threshold for binarizing confidence scores, using F1-score as the objective. Using these thresholds, we compute precision, recall, and F1-score for our two semantic entropy-based scorer predictions of whether responses are correct.</p>
+<p>Lastly, we compute the optimal threshold for binarizing confidence scores, using F1-score as the objective. Using these thresholds, we compute precision, recall, and F1-score for our semantic density-based scorer predictions of whether responses are correct.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># instantiate UQLM tuner object for threshold selection</span>
@@ -1051,25 +978,25 @@ Baseline LLM accuracy: 0.775
 <span class="n">correct_indicators</span> <span class="o">=</span> <span class="p">(</span><span class="n">result_df</span><span class="o">.</span><span class="n">response_correct</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span>  <span class="c1"># Whether responses is actually correct</span>
 <span class="n">metric_values</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Precision&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;Recall&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;F1-score&quot;</span><span class="p">:</span> <span class="p">[]}</span>
 <span class="n">optimal_thresholds</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">confidence_score</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;discrete_confidence_score&quot;</span><span class="p">,</span> <span class="s2">&quot;tokenprob_confidence_score&quot;</span><span class="p">]:</span>
-    <span class="c1"># tune threshold on first half</span>
-    <span class="n">y_scores</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="n">confidence_score</span><span class="p">]</span>
-    <span class="n">y_scores_tune</span> <span class="o">=</span> <span class="n">y_scores</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">split</span><span class="p">]</span>
-    <span class="n">y_true_tune</span> <span class="o">=</span> <span class="n">correct_indicators</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">split</span><span class="p">]</span>
-    <span class="n">best_threshold</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">tune_threshold</span><span class="p">(</span><span class="n">y_scores</span><span class="o">=</span><span class="n">y_scores_tune</span><span class="p">,</span> <span class="n">correct_indicators</span><span class="o">=</span><span class="n">y_true_tune</span><span class="p">,</span> <span class="n">thresh_objective</span><span class="o">=</span><span class="s2">&quot;fbeta_score&quot;</span><span class="p">)</span>
 
-    <span class="n">y_pred</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">best_threshold</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">y_scores</span><span class="p">]</span>  <span class="c1"># predicts whether response is correct based on confidence score</span>
-    <span class="n">optimal_thresholds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_threshold</span><span class="p">)</span>
+<span class="c1"># tune threshold on first half</span>
+<span class="n">y_scores</span> <span class="o">=</span> <span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;semantic_density_value&quot;</span><span class="p">]</span>
+<span class="n">y_scores_tune</span> <span class="o">=</span> <span class="n">y_scores</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">split</span><span class="p">]</span>
+<span class="n">y_true_tune</span> <span class="o">=</span> <span class="n">correct_indicators</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">split</span><span class="p">]</span>
+<span class="n">best_threshold</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">tune_threshold</span><span class="p">(</span><span class="n">y_scores</span><span class="o">=</span><span class="n">y_scores_tune</span><span class="p">,</span> <span class="n">correct_indicators</span><span class="o">=</span><span class="n">y_true_tune</span><span class="p">,</span> <span class="n">thresh_objective</span><span class="o">=</span><span class="s2">&quot;fbeta_score&quot;</span><span class="p">)</span>
 
-    <span class="c1"># evaluate on last half</span>
-    <span class="n">y_true_eval</span> <span class="o">=</span> <span class="n">correct_indicators</span><span class="p">[</span><span class="n">split</span><span class="p">:]</span>
-    <span class="n">y_pred_eval</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="n">split</span><span class="p">:]</span>
-    <span class="n">metric_values</span><span class="p">[</span><span class="s2">&quot;Precision&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">precision_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true_eval</span><span class="p">,</span> <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred_eval</span><span class="p">))</span>
-    <span class="n">metric_values</span><span class="p">[</span><span class="s2">&quot;Recall&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true_eval</span><span class="p">,</span> <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred_eval</span><span class="p">))</span>
-    <span class="n">metric_values</span><span class="p">[</span><span class="s2">&quot;F1-score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f1_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true_eval</span><span class="p">,</span> <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred_eval</span><span class="p">))</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">best_threshold</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">y_scores</span><span class="p">]</span>  <span class="c1"># predicts whether response is correct based on confidence score</span>
+<span class="n">optimal_thresholds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_threshold</span><span class="p">)</span>
+
+<span class="c1"># evaluate on last half</span>
+<span class="n">y_true_eval</span> <span class="o">=</span> <span class="n">correct_indicators</span><span class="p">[</span><span class="n">split</span><span class="p">:]</span>
+<span class="n">y_pred_eval</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="n">split</span><span class="p">:]</span>
+<span class="n">metric_values</span><span class="p">[</span><span class="s2">&quot;Precision&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">precision_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true_eval</span><span class="p">,</span> <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred_eval</span><span class="p">))</span>
+<span class="n">metric_values</span><span class="p">[</span><span class="s2">&quot;Recall&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true_eval</span><span class="p">,</span> <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred_eval</span><span class="p">))</span>
+<span class="n">metric_values</span><span class="p">[</span><span class="s2">&quot;F1-score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f1_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true_eval</span><span class="p">,</span> <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred_eval</span><span class="p">))</span>
 
 <span class="c1"># print results</span>
-<span class="n">header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Metrics&#39;</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">scorer_name</span><span class="si">:</span><span class="s2">&lt;35</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">scorer_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;discrete_confidence_score&quot;</span><span class="p">,</span> <span class="s2">&quot;tokenprob_confidence_score&quot;</span><span class="p">]])</span>
+<span class="n">header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Metrics&#39;</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;semantic_density_value&#39;</span><span class="si">:</span><span class="s2">&lt;35</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
 <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">metric_values</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">x_</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="si">:</span><span class="s2">&lt;35</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">x_</span> <span class="ow">in</span> <span class="n">metric_values</span><span class="p">[</span><span class="n">metric</span><span class="p">]]))</span>
@@ -1084,37 +1011,35 @@ Baseline LLM accuracy: 0.775
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-===============================================================================================
-Metrics                  discrete_confidence_score          tokenprob_confidence_score
------------------------------------------------------------------------------------------------
-Precision                0.779                              0.773
-Recall                   0.984                              0.977
-F1-score                 0.87                               0.863
------------------------------------------------------------------------------------------------
-F-1 optimal threshold    0.72                               0.73
-===============================================================================================
+============================================================
+Metrics                  semantic_density_value
+------------------------------------------------------------
+Precision                0.765
+Recall                   0.765
+F1-score                 0.765
+------------------------------------------------------------
+F-1 optimal threshold    0.61
+============================================================
 </pre></div></div>
 </div>
 </section>
 </section>
 </section>
-<section id="4.-Scorer-Definitions">
-<h2>4. Scorer Definitions<a class="headerlink" href="#4.-Scorer-Definitions" title="Link to this heading">#</a></h2>
-<p>Below are the definitions of the two confidence scores used in this demo.</p>
-<section id="Normalized-Semantic-Negentropy-(Discrete)">
-<h3>Normalized Semantic Negentropy (Discrete)<a class="headerlink" href="#Normalized-Semantic-Negentropy-(Discrete)" title="Link to this heading">#</a></h3>
-<p>Normalized Semantic Negentropy (NSN) normalizes the standard computation of discrete semantic entropy to be increasing with higher confidence and have [0,1] support. Under this approach, responses are clustered using an NLI model based on mutual entailment. After obtaining the set of clusters <span class="math notranslate nohighlight">\(\mathcal{C}\)</span>, semantic entropy is computed as:</p>
+<section id="4.-Scorer-Definition">
+<h2>4. Scorer Definition<a class="headerlink" href="#4.-Scorer-Definition" title="Link to this heading">#</a></h2>
+<section id="Semantic-Density">
+<h3>Semantic Density<a class="headerlink" href="#Semantic-Density" title="Link to this heading">#</a></h3>
+<p>Semantic Density (SD) approximates a probability density function (PDF) in semantic space for estimating response correctness. Given a prompt <span class="math notranslate nohighlight">\(x\)</span> with candidate response <span class="math notranslate nohighlight">\(y_*\)</span>, the objective is to construct a PDF that assigns higher density to regions in the semantic space that correspond to correct responses. We begin by sampling <span class="math notranslate nohighlight">\(M\)</span> unique reference responses <span class="math notranslate nohighlight">\(y_i\)</span> (for <span class="math notranslate nohighlight">\(i = 1, 2, \dots, M\)</span>) conditioned on <span class="math notranslate nohighlight">\(x\)</span>. For any pair of responses <span class="math notranslate nohighlight">\(y_i, y_j\)</span> with
+corresponding embeddings <span class="math notranslate nohighlight">\(v_i, v_j\)</span>, the semantic distance is estimated as</p>
 <div class="math notranslate nohighlight">
-\[SE(y_i; \tilde{\mathbf{y}}_i) = - \sum_{C \in \mathcal{C}} P(C|y_i, \tilde{\mathbf{y}}_i)\log P(C|y_i, \tilde{\mathbf{y}}_i),\]</div>
-<p>where <span class="math notranslate nohighlight">\(P(C|y_i, \tilde{\mathbf{y}}_i)\)</span> is calculated as the probability a randomly selected response $y <span class="math">\in `{y_i} :nbsphinx-math:</span>cup <cite>:nbsphinx-math:</cite>tilde{mathbf{y}}`_i $ belongs to cluster <span class="math notranslate nohighlight">\(C\)</span>, and <span class="math notranslate nohighlight">\(\mathcal{C}\)</span> denotes the full set of clusters of <span class="math notranslate nohighlight">\(\{y_i\} \cup \tilde{\mathbf{y}}_i\)</span>.</p>
-<p>To ensure that we have a normalized confidence score with <span class="math notranslate nohighlight">\([0,1]\)</span> support and with higher values corresponding to higher confidence, we implement the following normalization to arrive at <em>Normalized Semantic Negentropy</em> (NSN):</p>
+\[\mathbb{E}(\Vert v_i,v_j \Vert^2) = p_c(y_i, y_j | x) + \dfrac{1}{2} \cdot p_n(y_i, y_j | x)\]</div>
+<p>where <span class="math notranslate nohighlight">\(p_c, p_n\)</span> denote the contradiction and neutrality scores returned by a natural language inference (NLI) model, respectively. This estimated distance is incorporated in the kernel function <span class="math notranslate nohighlight">\(K\)</span> to smooth out the reference responses into a continuous distribution. The kernel function value can be obtained as</p>
 <div class="math notranslate nohighlight">
-\[NSN(y_i; \tilde{\mathbf{y}}_i) = 1 - \frac{SE(y_i; \tilde{\mathbf{y}}_i)}{\log m},\]</div>
-<p>where <span class="math notranslate nohighlight">\(\log m\)</span> is included to normalize the support.</p>
-</section>
-<section id="Normalized-Semantic-Negentropy-(Token-Probability-Based)">
-<h3>Normalized Semantic Negentropy (Token-Probability-Based)<a class="headerlink" href="#Normalized-Semantic-Negentropy-(Token-Probability-Based)" title="Link to this heading">#</a></h3>
-<p>For this version, the formula is the same as above except <span class="math notranslate nohighlight">\(P(C|y_i, \tilde{\mathbf{y}}_i)\)</span> is calculated as the average across response-level sequence probabilities (normalized or otherwise). For more on semantic entropy, refer to <a class="reference external" href="https://www.nature.com/articles/s41586-024-07421-0">Farquhar et al., 2024</a>; <a class="reference external" href="https://arxiv.org/pdf/2302.09664">Kuhn et al., 2023</a>, and for more on our normalized version, refer to <a class="reference external" href="https://arxiv.org/abs/2504.19254">Bouchard &amp; Chauhan, 2025</a>.</p>
+\[K(v_*, v_i) = (1 - \mathbb{E}(\Vert v_* - v_i \Vert^2))\mathbf{1}_{\mathbb{E}(\Vert v_* - v_i \Vert) \leq 1}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\bf{1}\)</span> is the indicator function such that <span class="math notranslate nohighlight">\(\bf{1}_{\text{condition}} = 1\)</span> when the condition holds and <span class="math notranslate nohighlight">\(0\)</span> otherwise. The final semantic density score is computed as</p>
+<div class="math notranslate nohighlight">
+\[SD(y_* | x) = \dfrac{1}{\sum^M_{i=1}\sqrt[L_i]{p(y_i|x)}}\sum^M_{i=1}\sqrt[L_i]{p(y_i|x)}K(v_* - v_i)\]</div>
+<p>where <span class="math notranslate nohighlight">\(L_i\)</span> denotes the length of <span class="math notranslate nohighlight">\(y_i\)</span>.</p>
 <p>© 2025 CVS Health and/or one of its affiliates. All rights reserved.</p>
 </section>
 </section>
@@ -1131,20 +1056,20 @@ F-1 optimal threshold    0.72                               0.73
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="judges_demo.html"
+       href="semantic_entropy_demo.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">🎯 LLM-as-a-Judge</p>
+        <p class="prev-next-title">🎯 Semantic Entropy</p>
       </div>
     </a>
     <a class="right-next"
-       href="semantic_density_demo.html"
+       href="white_box_multi_generation_demo.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">🎯 Semantic Density</p>
+        <p class="prev-next-title">🎯 White-Box Uncertainty Quantification</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1169,26 +1094,21 @@ F-1 optimal threshold    0.72                               0.73
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#📊-What-You'll-Do-in-This-Demo">📊 What You’ll Do in This Demo</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#⚖️-Advantages-&amp;-Limitations">⚖️ Advantages &amp; Limitations</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#SemanticEntropy()---Generate-LLM-responses-and-compute-consistency-based-confidence-scores-for-each-response."><code class="docutils literal notranslate"><span class="pre">SemanticEntropy()</span></code> - Generate LLM responses and compute consistency-based confidence scores for each response.</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#SemanticDensity()---Generate-LLM-responses-and-compute-consistency-based-confidence-scores-for-each-response."><code class="docutils literal notranslate"><span class="pre">SemanticDensity()</span></code> - Generate LLM responses and compute consistency-based confidence scores for each response.</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#📋-Class-Attributes">📋 Class Attributes</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#🔍-Parameter-Groups">🔍 Parameter Groups</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#💻-Usage-Examples">💻 Usage Examples</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#🔄-Class-Methods">🔄 Class Methods</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#3.1-Filtered-LLM-Accuracy-Evaluation">3.1 Filtered LLM Accuracy Evaluation</a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#Discrete-Semantic-Entropy">Discrete Semantic Entropy</a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Discrete Semantic Entropy</a></li>
-</ul>
-</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#3.1-Filtered-LLM-Accuracy-Evaluation">3.1 Filtered LLM Accuracy Evaluation</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#3.2-Precision,-Recall,-F1-Score-of-Hallucination-Detection">3.2 Precision, Recall, F1-Score of Hallucination Detection</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#4.-Scorer-Definitions">4. Scorer Definitions</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Normalized-Semantic-Negentropy-(Discrete)">Normalized Semantic Negentropy (Discrete)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Normalized-Semantic-Negentropy-(Token-Probability-Based)">Normalized Semantic Negentropy (Token-Probability-Based)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#4.-Scorer-Definition">4. Scorer Definition</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Semantic-Density">Semantic Density</a></li>
 </ul>
 </li>
 </ul>
@@ -1198,7 +1118,7 @@ F-1 optimal threshold    0.72                               0.73
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../_sources/_notebooks/examples/semantic_entropy_demo.ipynb.txt"
+      <li><a href="../../_sources/_notebooks/examples/semantic_density_demo.ipynb.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

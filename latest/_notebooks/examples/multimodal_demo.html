@@ -1,0 +1,866 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" sizes="16x16" href="../../_static/images/favicon/favicon-16x16.png" type="image/png">
+    <link rel="icon" sizes="32x32" href="../../_static/images/favicon/favicon-32x32.png" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../_static/images/favicon/apple-touch-icon.png" type="image/png">
+    <title>🎯 Multimodal Uncertainty Quantification &#8212; uqlm 0.4 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=662d8ef6" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=7f00635f"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_notebooks/examples/multimodal_demo';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="🎯 Confidence Score Calibration Demo" href="score_calibration_demo.html" />
+    <link rel="prev" title="🎯 Black-Box Uncertainty Quantification" href="black_box_demo.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.4 documentation - Home"/>
+    <img src="../../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.4 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getstarted.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example Notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faqs.html">
+    FAQs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/cvs-health/uqlm" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getstarted.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example Notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faqs.html">
+    FAQs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/cvs-health/uqlm" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="ensemble_off_the_shelf_demo.html">🎯 BS Detector: Off-the-Shelf Ensemble for LLM Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ensemble_tuning_demo.html">🎯 Tunable Ensemble for LLM Uncertainty (Advanced)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="judges_demo.html">🎯 LLM-as-a-Judge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="semantic_entropy_demo.html">🎯 Semantic Entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="semantic_density_demo.html">🎯 Semantic Density</a></li>
+<li class="toctree-l1"><a class="reference internal" href="white_box_multi_generation_demo.html">🎯 White-Box Uncertainty Quantification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="white_box_single_generation_demo.html">🎯 White-Box Uncertainty Quantification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="black_box_demo.html">🎯 Black-Box Uncertainty Quantification</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">🎯 Multimodal Uncertainty Quantification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="score_calibration_demo.html">🎯 Confidence Score Calibration Demo</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Example Notebooks</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">🎯 Multimodal Uncertainty Quantification</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="🎯-Multimodal-Uncertainty-Quantification">
+<h1>🎯 Multimodal Uncertainty Quantification<a class="headerlink" href="#🎯-Multimodal-Uncertainty-Quantification" title="Link to this heading">#</a></h1>
+<div style="background-color: rgba(200, 200, 200, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(127, 127, 127, 0.2); max-width: 97.5%; overflow-wrap: break-word;"><p style="font-size: 16px; line-height: 1.6"><p>The UQLM library offers Uncertainty Quantification (UQ) methods for multimodal inputs, given that outputs are text-based. This demo provides an minimal illustration of how to use uqlm scorers for multimodal inputs. The following scorers offer multimodal compatibility:</p>
+</p><section id="Black-Box-(Consistency)-Scorers">
+<h2>Black-Box (Consistency) Scorers<a class="headerlink" href="#Black-Box-(Consistency)-Scorers" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Discrete Semantic Entropy (<a class="reference external" href="https://www.nature.com/articles/s41586-024-07421-0">Farquhar et al., 2024</a>; <a class="reference external" href="https://arxiv.org/pdf/2302.09664">Kuhn et al., 2023</a>)</p></li>
+<li><p>Number of Semantic Sets (<a class="reference external" href="https://arxiv.org/abs/2305.19187">Lin et al., 2024</a>; <a class="reference external" href="https://arxiv.org/abs/2406.15627">Vashurin et al., 2025</a>; <a class="reference external" href="https://arxiv.org/pdf/2302.09664">Kuhn et al., 2023</a>)</p></li>
+<li><p>Non-Contradiction Probability (<a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2305.19187">Lin et al., 2024</a>; <a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
+<li><p>Entailment Probability (<a class="reference external" href="https://arxiv.org/abs/2305.19187">Lin et al., 2025</a>; <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>)</p></li>
+<li><p>Exact Match (<a class="reference external" href="https://arxiv.org/abs/2305.14613">Cole et al., 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>)</p></li>
+<li><p>BERTScore (<a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>; <a class="reference external" href="https://arxiv.org/abs/1904.09675">Zheng et al., 2020</a>)</p></li>
+<li><p>Normalized Cosine Similarity (<a class="reference external" href="https://arxiv.org/pdf/2412.05563">Shorinwa et al., 2024</a>; <a class="reference external" href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2">HuggingFace</a>)</p></li>
+</ul>
+</section>
+<section id="White-Box-(Token-Probability-Based)-Scorers">
+<h2>White-Box (Token-Probability-Based) Scorers<a class="headerlink" href="#White-Box-(Token-Probability-Based)-Scorers" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Minimum token probability (<a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
+<li><p>Length-Normalized Sequence Probability (<a class="reference external" href="https://arxiv.org/pdf/2002.07650">Malinin &amp; Gales, 2021</a>)</p></li>
+<li><p>Sequence Probability (<a class="reference external" href="https://arxiv.org/abs/2406.15627">Vashurin et al., 2024</a>)</p></li>
+<li><p>Mean Top-K Token Negentropy (<a class="reference external" href="https://arxiv.org/abs/2510.11170">Scalena et al., 2025</a>; <a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
+<li><p>Min Top-K Token Negentropy (<a class="reference external" href="https://arxiv.org/abs/2510.11170">Scalena et al., 2025</a>; <a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
+<li><p>Probability Margin (<a class="reference external" href="https://arxiv.org/abs/2408.08217">Farr et al., 2024</a>)</p></li>
+<li><p>Monte carlo sequence probability (<a class="reference external" href="https://arxiv.org/abs/2302.09664">Kuhn et al., 2023</a>)</p></li>
+<li><p>Consistency and Confidence (CoCoA) (<a class="reference external" href="https://arxiv.org/abs/2502.04964">Vashurin et al., 2025</a>)</p></li>
+<li><p>Semantic Negentropy (<a class="reference external" href="https://www.nature.com/articles/s41586-024-07421-0">Farquhar et al., 2024</a>)</p></li>
+<li><p>Semantic Density (<a class="reference external" href="https://arxiv.org/abs/2405.13845">Qiu et al., 2024</a>)</p></li>
+</ul>
+</div><section id="📊-What-You'll-Do-in-This-Demo">
+<h3>📊 What You’ll Do in This Demo<a class="headerlink" href="#📊-What-You'll-Do-in-This-Demo" title="Link to this heading">#</a></h3>
+<div style="display: flex; margin-bottom: 15px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>1</p>
+</div><div><p style="margin: 0; font-weight: bold"><p>Set up LLM and prompts.</p>
+</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Set up LLM instance and load example image-based data prompts.</p>
+</p></div></div><div style="display: flex; margin-bottom: 15px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>2</p>
+</div><div><p style="margin: 0; font-weight: bold"><p>Generate LLM Responses and Confidence Scores</p>
+</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Generate and score LLM responses to the example image-based questions using the BlackBoxUQ() class.</p>
+</p></div></div><div style="display: flex; margin-bottom: 25px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>3</p>
+</div><div><p style="margin: 0; font-weight: bold"><p>Evaluate Hallucination Detection Performance</p>
+</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Inspect which responses were correct/incorrect and compare to computed confidence scores.</p>
+</p></div></div></section>
+<section id="⚖️-Advantages-&amp;-Limitations">
+<h3>⚖️ Advantages &amp; Limitations<a class="headerlink" href="#⚖️-Advantages-&-Limitations" title="Link to this heading">#</a></h3>
+<div style="display: flex; gap: 20px"><div style="flex: 1; background-color: rgba(0, 200, 0, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 200, 0, 0.2)"><h3 style="color: #2e8b57; margin-top: 0"><p>Pros</p>
+</h3><ul style="margin-bottom: 0"><li><p>Broad Scorer Compatibility: Works with broad spectrum of black-box UQ and white-box scorers</p>
+</li><li><p>Intuitive: Easy to understand and implement</p>
+</li></ul></div><div style="flex: 1; background-color: rgba(200, 0, 0, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(200, 0, 0, 0.2)"><h3 style="color: #b22222; margin-top: 0"><p>Cons</p>
+</h3><ul style="margin-bottom: 0"><li><p>Limited model compatibility: Requires that the provided LLM be compatibile with multimodal inputs</p>
+</li><li><p>Beta Mode: Currently in beta mode with ongoing testing</p>
+</li></ul></div></div><p>## 1. Set up LLM and Prompts</p>
+<p>In this demo, we will illustrate multimodal functionality using questions based on a single image. To implement with your use case, simply <strong>replace the example prompts with your data</strong>.</p>
+<p>First, let’s load and preview the image.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+
+<span class="n">image_path</span> <span class="o">=</span> <span class="s2">&quot;../assets/images/cranberry_jam.png&quot;</span>
+
+<span class="c1"># Encode image</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="n">png_bytes</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">encoded_png</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">png_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+<span class="n">Image</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/_notebooks_examples_multimodal_demo_4_0.png" class="no-scaled-link" src="../../_images/_notebooks_examples_multimodal_demo_4_0.png" style="width: 200px; height: 150px;" />
+</div>
+</div>
+<p>Next, we construct our image-based prompts using LangChain’s <code class="docutils literal notranslate"><span class="pre">HumanMessage</span></code> class. We will have five prompts that are based on questions about the image.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">HumanMessage</span>
+
+<span class="n">questions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;How many berries appear in the image&quot;</span><span class="p">,</span> <span class="s2">&quot;What color are the berries?&quot;</span><span class="p">,</span> <span class="s2">&quot;How many times does the letter R appear in this image?&quot;</span><span class="p">,</span> <span class="s2">&quot;How many times does the letter P appear in this image&quot;</span><span class="p">,</span> <span class="s2">&quot;How many words appear in this image?&quot;</span><span class="p">]</span>
+
+<span class="n">prompts</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">questions</span><span class="p">:</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">question</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;source_type&quot;</span><span class="p">:</span> <span class="s2">&quot;base64&quot;</span><span class="p">,</span> <span class="s2">&quot;mime_type&quot;</span><span class="p">:</span> <span class="s2">&quot;image/png&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">encoded_png</span><span class="p">}])</span>
+    <span class="n">prompts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">prompt</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>In this example, we use <code class="docutils literal notranslate"><span class="pre">ChatVertexAI</span></code> to instantiate our LLM, but any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used. Be sure to <strong>replace with your LLM of choice.</strong></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># import sys</span>
+<span class="c1"># !{sys.executable} -m pip install langchain-google-vertexai</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-2.5-flash-lite&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We can do a quick check to ensure that our formatted <code class="docutils literal notranslate"><span class="pre">HumanMessage</span></code> objects are compatible with our LLM.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assert that our constructed HumanMessage instances are compatible with our LLM:</span>
+<span class="n">llm</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">prompts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+AIMessage(content=&#39;3&#39;, additional_kwargs={}, response_metadata={&#39;is_blocked&#39;: False, &#39;safety_ratings&#39;: [], &#39;usage_metadata&#39;: {&#39;prompt_token_count&#39;: 1297, &#39;candidates_token_count&#39;: 1, &#39;total_token_count&#39;: 1298, &#39;prompt_tokens_details&#39;: [{&#39;modality&#39;: 2, &#39;token_count&#39;: 1290}, {&#39;modality&#39;: 1, &#39;token_count&#39;: 7}], &#39;candidates_tokens_details&#39;: [{&#39;modality&#39;: 1, &#39;token_count&#39;: 1}], &#39;thoughts_token_count&#39;: 0, &#39;cached_content_token_count&#39;: 0, &#39;cache_tokens_details&#39;: []}, &#39;finish_reason&#39;: &#39;STOP&#39;, &#39;avg_logprobs&#39;: -0.2790873348712921, &#39;model_name&#39;: &#39;gemini-2.5-flash-lite&#39;}, id=&#39;run--d226ad3b-0fb8-4c07-a200-312ff56831ec-0&#39;, usage_metadata={&#39;input_tokens&#39;: 1297, &#39;output_tokens&#39;: 1, &#39;total_tokens&#39;: 1298, &#39;input_token_details&#39;: {&#39;cache_read&#39;: 0}})
+</pre></div></div>
+</div>
+<p>## 2. Generate LLM Responses and Confidence Scores</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+
+<span class="c1"># Set the torch device</span>
+<span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>  <span class="c1"># NVIDIA GPU</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">mps</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>  <span class="c1"># macOS</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;mps&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>  <span class="c1"># CPU</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> device&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Using cuda device
+</pre></div></div>
+</div>
+<p>In this demo, we use black-box scoring with the <code class="docutils literal notranslate"><span class="pre">BlackBoxUQ</span></code> class. A similar approach may be implemented with the <code class="docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code>, <code class="docutils literal notranslate"><span class="pre">SemanticEntropy</span></code>, or <code class="docutils literal notranslate"><span class="pre">UQEnsemble</span></code> classes. Importantly, multimodal functionality is <strong>not</strong> offered for LLM judges, including <code class="docutils literal notranslate"><span class="pre">LLMPanel</span></code> class and judge components of <code class="docutils literal notranslate"><span class="pre">UQEnsemble</span></code>. For more details on implementations of <code class="docutils literal notranslate"><span class="pre">BlackBoxUQ</span></code>, <code class="docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code>, <code class="docutils literal notranslate"><span class="pre">SemanticEntropy</span></code>, or <code class="docutils literal notranslate"><span class="pre">UQEnsemble</span></code>, refer to the respective demo notebooks.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlackBoxUQ</span>
+
+<span class="n">bbuq</span> <span class="o">=</span> <span class="n">BlackBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;noncontradiction&quot;</span><span class="p">],</span> <span class="n">system_prompt</span><span class="o">=</span><span class="s2">&quot;Answer as concisely as possible.&quot;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">use_best</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "3c58e0537496409aa6758d0f0c9c71c0", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">/home/jupyter/uqlm/uqlm/utils/response_generator.py:105: UQLMBetaWarning: Use of BaseMessage in prompts argument is
+in beta. Please use it with caution as it may change in future releases.
+  beta_warning("Use of BaseMessage in prompts argument is in beta. Please use it with caution as it may change in
+future releases.")
+</pre></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">/home/jupyter/uqlm/uqlm/utils/response_generator.py:105: UQLMBetaWarning: Use of BaseMessage in prompts argument is
+in beta. Please use it with caution as it may change in future releases.
+  beta_warning("Use of BaseMessage in prompts argument is in beta. Please use it with caution as it may change in
+future releases.")
+</pre></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre></div>
+</div>
+<p>## 3. Evaluate Hallucination Detection Performance</p>
+<p>Finally, we can check which questions the LLM answered correctly and compare to our UQLM’s black-box confidence scores.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_colwidth&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">result_df</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">questions</span>
+<span class="n">result_df</span><span class="p">[[</span><span class="s2">&quot;question&quot;</span><span class="p">,</span> <span class="s2">&quot;response&quot;</span><span class="p">,</span> <span class="s2">&quot;sampled_responses&quot;</span><span class="p">,</span> <span class="s2">&quot;noncontradiction&quot;</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>question</th>
+      <th>response</th>
+      <th>sampled_responses</th>
+      <th>noncontradiction</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>How many berries appear in the image</td>
+      <td>3</td>
+      <td>[3, 3, 3, 3, 3]</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>What color are the berries?</td>
+      <td>The berries are red.</td>
+      <td>[Red., The berries are dark red., Red., The berries are a deep red color., The berries are dark ...</td>
+      <td>0.998269</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>How many times does the letter R appear in this image?</td>
+      <td>3</td>
+      <td>[3, 3, 3, 3, 3]</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>How many times does the letter P appear in this image</td>
+      <td>1</td>
+      <td>[2, 2, 2, 2, 1]</td>
+      <td>0.221604</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>How many words appear in this image?</td>
+      <td>2</td>
+      <td>[2, 2, 2, 2, 2]</td>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>We can see that for the four questions with high confidence scores (the <code class="docutils literal notranslate"><span class="pre">noncontradiction</span></code> colunn), the responses are all correct, and for the question with low confidence (<em>How many times does the letter P appear in this image?</em>), the response is not correct.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="black_box_demo.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">🎯 Black-Box Uncertainty Quantification</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="score_calibration_demo.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">🎯 Confidence Score Calibration Demo</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Black-Box-(Consistency)-Scorers">Black-Box (Consistency) Scorers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#White-Box-(Token-Probability-Based)-Scorers">White-Box (Token-Probability-Based) Scorers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#📊-What-You'll-Do-in-This-Demo">📊 What You’ll Do in This Demo</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#⚖️-Advantages-&amp;-Limitations">⚖️ Advantages &amp; Limitations</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/_notebooks/examples/multimodal_demo.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, CVS Health.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

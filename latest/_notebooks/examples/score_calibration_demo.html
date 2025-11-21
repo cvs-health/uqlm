@@ -1,0 +1,1099 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" sizes="16x16" href="../../_static/images/favicon/favicon-16x16.png" type="image/png">
+    <link rel="icon" sizes="32x32" href="../../_static/images/favicon/favicon-32x32.png" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../_static/images/favicon/apple-touch-icon.png" type="image/png">
+    <title>🎯 Confidence Score Calibration Demo &#8212; uqlm 0.4 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=662d8ef6" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=7f00635f"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_notebooks/examples/score_calibration_demo';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Contributing to UQLM" href="../../contribute.html" />
+    <link rel="prev" title="🎯 Multimodal Uncertainty Quantification" href="multimodal_demo.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.4 documentation - Home"/>
+    <img src="../../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.4 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getstarted.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example Notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faqs.html">
+    FAQs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/cvs-health/uqlm" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getstarted.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example Notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faqs.html">
+    FAQs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/cvs-health/uqlm" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="ensemble_off_the_shelf_demo.html">🎯 BS Detector: Off-the-Shelf Ensemble for LLM Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ensemble_tuning_demo.html">🎯 Tunable Ensemble for LLM Uncertainty (Advanced)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="judges_demo.html">🎯 LLM-as-a-Judge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="semantic_entropy_demo.html">🎯 Semantic Entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="semantic_density_demo.html">🎯 Semantic Density</a></li>
+<li class="toctree-l1"><a class="reference internal" href="white_box_multi_generation_demo.html">🎯 White-Box Uncertainty Quantification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="white_box_single_generation_demo.html">🎯 White-Box Uncertainty Quantification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="black_box_demo.html">🎯 Black-Box Uncertainty Quantification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multimodal_demo.html">🎯 Multimodal Uncertainty Quantification</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">🎯 Confidence Score Calibration Demo</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Example Notebooks</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">🎯 Confidence Score Calibration Demo</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="🎯-Confidence-Score-Calibration-Demo">
+<h1>🎯 Confidence Score Calibration Demo<a class="headerlink" href="#🎯-Confidence-Score-Calibration-Demo" title="Link to this heading">#</a></h1>
+<div style="background-color: rgba(200, 200, 200, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(127, 127, 127, 0.2); max-width: 97.5%; overflow-wrap: break-word;"><p style="font-size: 16px; line-height: 1.6"><p>Confidence scores from uncertainty quantification methods may not be well-calibrated probabilities. This demo demonstrates how to transform raw confidence scores into calibrated probabilities that better reflect the true likelihood of correctness using the ScoreCalibrator class.</p>
+</p></div><section id="📊-What-You'll-Do-in-This-Demo">
+<h2>📊 What You’ll Do in This Demo<a class="headerlink" href="#📊-What-You'll-Do-in-This-Demo" title="Link to this heading">#</a></h2>
+<div style="display: flex; margin-bottom: 15px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>1</p>
+</div><div><p style="margin: 0; font-weight: bold"><p>Set up LLM and prompts.</p>
+</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Set up LLM instance and load example data prompts.</p>
+</p></div></div><div style="display: flex; margin-bottom: 15px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>2</p>
+</div><div><p style="margin: 0; font-weight: bold"><p>Generate LLM Responses and Confidence Scores</p>
+</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Generate and score LLM responses to the example questions using the WhiteBoxUQ() class.</p>
+</p></div></div><div style="display: flex; margin-bottom: 25px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>3</p>
+</div><div><p style="margin: 0; font-weight: bold"><p>Fit Calibrators and Evaluate on Holdout Set</p>
+</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Train confidence score calibrators and evaluate on holdout set of prompts.</p>
+</p></div></div></section>
+<section id="⚖️-Calibration-Methods">
+<h2>⚖️ Calibration Methods<a class="headerlink" href="#⚖️-Calibration-Methods" title="Link to this heading">#</a></h2>
+<div style="display: flex; gap: 20px"><div style="flex: 1; background-color: rgba(0, 100, 200, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 100, 200, 0.2)"><h3 style="color: #1e40af; margin-top: 0"><p>Platt Scaling</p>
+</h3><ul style="margin-bottom: 0"><li><p>Method: Logistic regression</p>
+</li><li><p>Parametric: Assumes sigmoid-shaped calibration function</p>
+</li><li><p>Best for: Small datasets, well-behaved score distributions</p>
+</li></ul></div><div style="flex: 1; background-color: rgba(0, 200, 0, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 200, 0, 0.2)"><h3 style="color: #2e8b57; margin-top: 0"><p>Isotonic Regression</p>
+</h3><ul style="margin-bottom: 0"><li><p>Method: Non-parametric, monotonic</p>
+</li><li><p>Flexible: Can handle any monotonic calibration curve</p>
+</li><li><p>Best for: Larger datasets, complex score distributions</p>
+</li></ul></div></div><div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">WhiteBoxUQ</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoreCalibrator</span><span class="p">,</span> <span class="n">evaluate_calibration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_example_dataset</span><span class="p">,</span> <span class="n">LLMGrader</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="1.-Set-up-LLM-and-Prompts">
+<h2>1. Set up LLM and Prompts<a class="headerlink" href="#1.-Set-up-LLM-and-Prompts" title="Link to this heading">#</a></h2>
+<p>For this demo, we’ll sample 1500 prompts from the <a class="reference external" href="https://aclanthology.org/Q19-1026/">NQ-Open benchmark</a>. The first 1000 prompts will be used to train the calibrators and remaining 500 prompts will be used as a test dataset.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_train</span><span class="p">,</span> <span class="n">n_test</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">500</span>
+<span class="n">n_prompts</span> <span class="o">=</span> <span class="n">n_train</span> <span class="o">+</span> <span class="n">n_test</span>
+
+<span class="c1"># Load example dataset for prompts/answers (optional, for context)</span>
+<span class="n">nq_open</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">&quot;nq_open&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n_prompts</span><span class="p">)</span>
+
+<span class="c1"># Define prompts</span>
+<span class="n">QA_INSTRUCTION</span> <span class="o">=</span> <span class="s2">&quot;You will be given a question. Return only the answer as concisely as possible without providing an explanation.</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">QA_INSTRUCTION</span> <span class="o">+</span> <span class="n">prompt</span> <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">nq_open</span><span class="o">.</span><span class="n">question</span><span class="p">]</span>
+<span class="n">train_prompts</span> <span class="o">=</span> <span class="n">prompts</span><span class="p">[:</span><span class="n">n_train</span><span class="p">]</span>
+<span class="n">test_prompts</span> <span class="o">=</span> <span class="n">prompts</span><span class="p">[</span><span class="o">-</span><span class="n">n_test</span><span class="p">:]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Loading dataset - nq_open...
+Processing dataset...
+Dataset ready!
+</pre></div></div>
+</div>
+<p>In this example, we use <code class="docutils literal notranslate"><span class="pre">ChatVertexAI</span></code> to instantiate our LLM, but any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used. Be sure to <strong>replace with your LLM of choice.</strong></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># import sys</span>
+<span class="c1"># !{sys.executable} -m pip install langchain-google-vertexai</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-2.5-flash&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>## 2. Compute Confidence Scores We generate model responses and associated confidence scores by leveraging the <code class="docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code> class. This class generates responses to prompts, while also estimating a confidence score for each response using token probabilities.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">wbuq</span> <span class="o">=</span> <span class="n">WhiteBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;normalized_probability&quot;</span><span class="p">])</span>
+<span class="n">uq_result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">train_prompts</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1c159f044ece4c7a915733d3d8b382ce", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre></div>
+</div>
+<p>To obtain the labels for calibration, we ‘grade’ the responses against an answer key. Here, we use UQLM’s out-of-the-box LLM Grader, which can be used with <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a>, but you may replace this with a grading method of your choice. Some notable alternatives are <a class="reference external" href="https://huggingface.co/vectara/hallucination_evaluation_model">Vectara HHEM</a> and <a class="reference external" href="https://github.com/yuh-zha/AlignScore">AlignScore</a>. <strong>If you are using your own
+prompts/questions, be sure to update the grading method accordingly</strong>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># set up the LLM grader to grade LLM responses against the ground truth answer key (we need these grades for calibration)</span>
+<span class="n">gemini_flash_lite</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-2.5-flash-lite&quot;</span><span class="p">)</span>
+<span class="n">grader</span> <span class="o">=</span> <span class="n">LLMGrader</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">gemini_flash_lite</span><span class="p">)</span>
+
+<span class="c1"># Convert to dataframe and grade responses against correct answers</span>
+<span class="n">result_df</span> <span class="o">=</span> <span class="n">uq_result</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">grader</span><span class="o">.</span><span class="n">grade_responses</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[:</span><span class="n">n_train</span><span class="p">],</span> <span class="n">responses</span><span class="o">=</span><span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="n">answers</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[:</span><span class="n">n_train</span><span class="p">])</span>
+<span class="n">result_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>prompt</th>
+      <th>response</th>
+      <th>logprob</th>
+      <th>normalized_probability</th>
+      <th>response_correct</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>December 14, 1972</td>
+      <td>[{'token': 'December', 'logprob': -0.044779419...</td>
+      <td>0.980881</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>Bobby Scott and Bob Russell</td>
+      <td>[{'token': 'Bobby', 'logprob': -0.065702043473...</td>
+      <td>0.979054</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>1</td>
+      <td>[{'token': '1', 'logprob': -0.0108721693977713...</td>
+      <td>0.989187</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>Super Bowl LII</td>
+      <td>[{'token': 'Super', 'logprob': -1.586603045463...</td>
+      <td>0.672557</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>South Carolina</td>
+      <td>[{'token': 'South', 'logprob': -1.502075701864...</td>
+      <td>0.999992</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>## 3. Score Calibration Confidence scores from uncertainty quantification methods may not be well-calibrated probabilities. You can transform raw confidence scores into calibrated probabilities that better reflect the true likelihood of correctness using the calibrate_scores method.</p>
+<p>The first step is to train the claibrators that can done using <code class="docutils literal notranslate"><span class="pre">fit</span></code> or <code class="docutils literal notranslate"><span class="pre">fit_transform</span></code> method of <code class="docutils literal notranslate"><span class="pre">ScoreCalibrator</span></code> class. You can initiate a class object by choosing a method for training calibrators. Then call <code class="docutils literal notranslate"><span class="pre">fit_transform</span></code> method be providing <code class="docutils literal notranslate"><span class="pre">UQResult</span></code> object from training dataset and correct responses.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sc</span> <span class="o">=</span> <span class="n">ScoreCalibrator</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;isotonic&quot;</span><span class="p">)</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">uq_result</span><span class="o">=</span><span class="n">uq_result</span><span class="p">,</span> <span class="n">correct_indicators</span><span class="o">=</span><span class="n">result_df</span><span class="o">.</span><span class="n">response_correct</span><span class="p">)</span>
+
+<span class="n">results_df</span> <span class="o">=</span> <span class="n">uq_result</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
+<span class="n">results_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>prompt</th>
+      <th>response</th>
+      <th>logprob</th>
+      <th>normalized_probability</th>
+      <th>calibrated_normalized_probability</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>December 14, 1972</td>
+      <td>[{'token': 'December', 'logprob': -0.044779419...</td>
+      <td>0.980881</td>
+      <td>0.628571</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>Bobby Scott and Bob Russell</td>
+      <td>[{'token': 'Bobby', 'logprob': -0.065702043473...</td>
+      <td>0.979054</td>
+      <td>0.628571</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>1</td>
+      <td>[{'token': '1', 'logprob': -0.0108721693977713...</td>
+      <td>0.989187</td>
+      <td>0.633929</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>Super Bowl LII</td>
+      <td>[{'token': 'Super', 'logprob': -1.586603045463...</td>
+      <td>0.672557</td>
+      <td>0.490196</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>South Carolina</td>
+      <td>[{'token': 'South', 'logprob': -1.502075701864...</td>
+      <td>0.999992</td>
+      <td>0.888889</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>You can evaluate the performance of calibrated scores using <code class="docutils literal notranslate"><span class="pre">evaluate_calibration</span></code> method, which will require the correct responses.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Uncomment the following lines to visualize the calibrated scores</span>
+
+<span class="c1"># metrics = sc_object.evaluate_calibration(results, result_df.response_correct)</span>
+<span class="c1"># metrics</span>
+</pre></div>
+</div>
+</div>
+<p>Lets generate responses and compute score on test dataset using <code class="docutils literal notranslate"><span class="pre">wbuq</span></code> object, which will return a <code class="docutils literal notranslate"><span class="pre">UQResult</span></code> object on test dataset which will contain test prompts, responses, and confidence scores.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">test_prompts</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "1f7a5376b9e044f9af0795336b9d439f", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre></div>
+</div>
+<p>We now have trained a <code class="docutils literal notranslate"><span class="pre">ScoreCalibrator</span></code> object containing fitted calibrators for each scorer (only <code class="docutils literal notranslate"><span class="pre">normalized_probability</span></code> for our example, but can be used with multiple scorers). Now, we can call <code class="docutils literal notranslate"><span class="pre">transform</span></code> method and provide a test dataset (UQResult object form test prompts), which will update the <code class="docutils literal notranslate"><span class="pre">UQResult</span></code> object to include calibrated scores.</p>
+<p>Note: <code class="docutils literal notranslate"><span class="pre">transform</span></code> method updates <code class="docutils literal notranslate"><span class="pre">UQResult</span></code> object in place, such that for every ‘score’, it will also contain ‘calibrated_score’.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calibrate scores</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test_result</span><span class="p">)</span>
+
+<span class="n">test_result_df</span> <span class="o">=</span> <span class="n">test_result</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
+<span class="n">test_result_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>prompt</th>
+      <th>response</th>
+      <th>logprob</th>
+      <th>normalized_probability</th>
+      <th>calibrated_normalized_probability</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>Games</td>
+      <td>[{'token': 'Games', 'logprob': -0.001829901477...</td>
+      <td>0.998172</td>
+      <td>0.578947</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>Amir Johnson</td>
+      <td>[{'token': 'Am', 'logprob': -2.050269904430024...</td>
+      <td>0.999993</td>
+      <td>0.741935</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>Frank Morris</td>
+      <td>[{'token': 'Frank', 'logprob': -8.653872646391...</td>
+      <td>0.999939</td>
+      <td>0.606061</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>May 7, 1992</td>
+      <td>[{'token': 'May', 'logprob': -0.01998697593808...</td>
+      <td>0.996715</td>
+      <td>0.538462</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>You will be given a question. Return only the ...</td>
+      <td>Daisuke Ohata</td>
+      <td>[{'token': 'D', 'logprob': -8.153352973749861e...</td>
+      <td>0.999962</td>
+      <td>0.647059</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Lets evaluate calibrated score from test dataset (since we also have correct response on test dataset)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Grade responses against correct answers for test set</span>
+<span class="n">test_result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">grader</span><span class="o">.</span><span class="n">grade_responses</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[</span><span class="o">-</span><span class="n">n_test</span><span class="p">:],</span> <span class="n">responses</span><span class="o">=</span><span class="n">test_result_df</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="n">answers</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[</span><span class="o">-</span><span class="n">n_test</span><span class="p">:])</span>
+
+<span class="n">test_metrics</span> <span class="o">=</span> <span class="n">evaluate_calibration</span><span class="p">(</span><span class="n">test_result</span><span class="p">,</span> <span class="n">test_result_df</span><span class="o">.</span><span class="n">response_correct</span><span class="p">)</span>
+<span class="n">test_metrics</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/_notebooks_examples_score_calibration_demo_20_0.png" src="../../_images/_notebooks_examples_score_calibration_demo_20_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/_notebooks_examples_score_calibration_demo_20_1.png" src="../../_images/_notebooks_examples_score_calibration_demo_20_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>average_confidence</th>
+      <th>average_accuracy</th>
+      <th>calibration_gap</th>
+      <th>brier_score</th>
+      <th>log_loss</th>
+      <th>ece</th>
+      <th>mce</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>normalized_probability</th>
+      <td>0.904642</td>
+      <td>0.48</td>
+      <td>0.424642</td>
+      <td>0.421297</td>
+      <td>2.586512</td>
+      <td>0.428037</td>
+      <td>0.511129</td>
+    </tr>
+    <tr>
+      <th>calibrated_normalized_probability</th>
+      <td>0.492642</td>
+      <td>0.48</td>
+      <td>0.012642</td>
+      <td>0.233129</td>
+      <td>0.793354</td>
+      <td>0.030675</td>
+      <td>0.500000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Note the substantial improvement in calibration quality before and after transforming confidence scores with the fitted <code class="docutils literal notranslate"><span class="pre">ScoreCalibrator</span></code> object.</p>
+</section>
+<section id="4.-Summary">
+<h2>4. Summary<a class="headerlink" href="#4.-Summary" title="Link to this heading">#</a></h2>
+<p>This calibration analysis demonstrates:</p>
+<section id="🎯-Key-Findings">
+<h3>🎯 <strong>Key Findings</strong><a class="headerlink" href="#🎯-Key-Findings" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Calibration Quality</strong>: Use reliability diagrams and metrics like ECE and MCE score to assess how well confidence scores reflect true probabilities</p></li>
+<li><p><strong>Method Selection</strong>:</p>
+<ul class="simple">
+<li><p><strong>Platt Scaling</strong> works well for smaller datasets and when the calibration curve is roughly sigmoid-shaped</p></li>
+<li><p><strong>Isotonic Regression</strong> is more flexible and can handle complex, non-parametric calibration curves</p></li>
+</ul>
+</li>
+<li><p><strong>Practical Impact</strong>: Calibration can significantly improve:</p>
+<ul class="simple">
+<li><p>Reliability of confidence scores for decision-making</p></li>
+<li><p>User trust in model predictions</p></li>
+</ul>
+</li>
+</ol>
+<hr class="docutils" />
+<p>© 2025 CVS Health and/or one of its affiliates. All rights reserved.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="multimodal_demo.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">🎯 Multimodal Uncertainty Quantification</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../contribute.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Contributing to UQLM</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#📊-What-You'll-Do-in-This-Demo">📊 What You’ll Do in This Demo</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#⚖️-Calibration-Methods">⚖️ Calibration Methods</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-Set-up-LLM-and-Prompts">1. Set up LLM and Prompts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#4.-Summary">4. Summary</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#🎯-Key-Findings">🎯 <strong>Key Findings</strong></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/_notebooks/examples/score_calibration_demo.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, CVS Health.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
