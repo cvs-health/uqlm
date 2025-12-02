@@ -235,12 +235,11 @@ class GraphUQScorer(ClaimScorer):
             - betweenness_centrality: NetworkX bipartite normalization (bipartite-specific bound)
             - closeness_centrality: NetworkX bipartite normalization (bipartite-specific bound)
             - page_rank: Standard PageRank probability distribution (sums to 1)
-            - birank: Bipartite-specific PageRank probability distribution (sums to 1)
             - laplacian_centrality: NetworkX normalization (normalized=True default)
             - harmonic_centrality: Custom normalization (theoretical max for bipartite structure)
             
         Notes:
-            - G_weighted: Used for degree, PageRank, BiRank, laplacian (strength-based)
+            - G_weighted: Used for degree, PageRank, laplacian (strength-based)
             - G_binary: Used for betweenness, closeness, harmonic (path-based)
         """
 
@@ -272,21 +271,6 @@ class GraphUQScorer(ClaimScorer):
             logger.warning(f"PageRank failed to converge: {e}. Using NaN to indicate calculation failure.")
             page_rank = {node: np.nan for node in G_weighted.nodes()}
 
-        # Calculate BiRank (bipartite-specific PageRank)
-        try:
-            birank = nx.bipartite.birank(
-                G_weighted,
-                claim_nodes,
-                alpha=0.85,  # Damping factor for claim nodes
-                beta=0.85,   # Damping factor for response nodes
-                weight="weight",
-                max_iter=1000
-            )
-            logger.debug(f"BiRank: {birank}")
-        except (nx.PowerIterationFailedConvergence, nx.NetworkXError) as e:
-            logger.warning(f"BiRank failed to converge: {e}. Using NaN to indicate calculation failure.")
-            birank = {node: np.nan for node in G_weighted.nodes()}
-
         # Calculate closeness centrality - use bipartite-specific normalization
         closeness_centrality = nx.bipartite.closeness_centrality(G_binary, claim_nodes)
         logger.debug(f"Closeness centrality: {closeness_centrality}")
@@ -315,7 +299,6 @@ class GraphUQScorer(ClaimScorer):
             "betweenness_centrality": betweenness_centrality,
             "closeness_centrality": closeness_centrality,
             "page_rank": page_rank,
-            "birank": birank,
             "laplacian_centrality": laplacian_centrality,
             "harmonic_centrality": harmonic_centrality,
         }
@@ -748,7 +731,6 @@ class GraphUQScorer(ClaimScorer):
                     "closeness_centrality": round(gmetrics["closeness_centrality"][node_idx], 5),
                     "harmonic_centrality": round(gmetrics["harmonic_centrality"][node_idx], 5),
                     "page_rank": round(gmetrics["page_rank"][node_idx], 5),
-                    "birank": round(gmetrics["birank"][node_idx], 5),
                     "laplacian_centrality": round(gmetrics["laplacian_centrality"][node_idx], 5),
                 },
             )
