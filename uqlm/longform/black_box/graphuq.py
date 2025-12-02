@@ -233,7 +233,7 @@ class GraphUQScorer(ClaimScorer):
             A dictionary of claim node graph metrics (all normalized to [0, 1]):
             - degree_centrality: Normalized by opposite set size (structural bound)
             - betweenness_centrality: NetworkX bipartite normalization (bipartite-specific bound)
-            - closeness_centrality: NetworkX standard normalization (normalized by (n-1)/(|G|-1))
+            - closeness_centrality: NetworkX bipartite normalization (clipped to [0, 1])
             - page_rank: Standard PageRank probability distribution (sums to 1)
             - laplacian_centrality: NetworkX normalization (normalized=True default)
             - harmonic_centrality: Custom normalization (theoretical max for bipartite structure)
@@ -271,8 +271,9 @@ class GraphUQScorer(ClaimScorer):
             logger.warning(f"PageRank failed to converge: {e}. Using NaN to indicate calculation failure.")
             page_rank = {node: np.nan for node in G_weighted.nodes()}
 
-        # Calculate closeness centrality - use standard formula (naturally bounded to [0, 1])
-        closeness_centrality = nx.closeness_centrality(G_binary)
+        # Calculate closeness centrality
+        closeness_centrality_raw = nx.bipartite.closeness_centrality(G_binary, claim_nodes)
+        closeness_centrality = {node: min(1.0, val) for node, val in closeness_centrality_raw.items()}
         logger.debug(f"Closeness centrality: {closeness_centrality}")
 
         # Calculate Laplacian Centrality
