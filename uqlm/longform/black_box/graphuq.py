@@ -273,8 +273,14 @@ class GraphUQScorer(ClaimScorer):
 
         # Calculate closeness centrality
         closeness_centrality_raw = nx.bipartite.closeness_centrality(G_binary, claim_nodes)
+        
+        # Check for values > 1.0 before clipping
+        over_one = {node: val for node, val in closeness_centrality_raw.items() if val > 1.0}
+        if over_one:
+            logger.debug(f"Closeness centrality values > 1.0 before clipping: {over_one}")
+        
         closeness_centrality = {node: min(1.0, val) for node, val in closeness_centrality_raw.items()}
-        logger.debug(f"Closeness centrality: {closeness_centrality}")
+        logger.debug(f"Closeness centrality (after clipping): {closeness_centrality}")
 
         # Calculate Laplacian Centrality
         laplacian_centrality = nx.laplacian_centrality(G_weighted, weight="weight", normalized=True)
@@ -722,6 +728,13 @@ class GraphUQScorer(ClaimScorer):
             claim_text = master_claim_set[node_idx]
             is_original = claim_text in original_claim_set
 
+            # Get raw metric values
+            raw_closeness = gmetrics["closeness_centrality"][node_idx]
+            
+            # Debug: Check if raw value > 1.0
+            if raw_closeness > 1.0:
+                logger.debug(f"Node {node_idx}: Raw closeness = {raw_closeness:.10f}, after min(1.0, round()): {min(1.0, round(raw_closeness, 5)):.10f}")
+            
             claim_score = ClaimScore(
                 claim=claim_text,
                 original_response=is_original,
