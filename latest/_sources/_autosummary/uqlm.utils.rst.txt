@@ -29,6 +29,7 @@
    :recursive:
 
    dataloader
+   device
    display
    grader
    llm_config

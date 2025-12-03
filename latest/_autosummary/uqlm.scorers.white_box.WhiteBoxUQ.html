@@ -498,6 +498,10 @@
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.dataloader.load_example_dataset.html">uqlm.utils.dataloader.load_example_dataset</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.device.html">uqlm.utils.device</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.device.get_best_device.html">uqlm.utils.device.get_best_device</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.display.html">uqlm.utils.display</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.display.ConditionalBarColumn.html">uqlm.utils.display.ConditionalBarColumn</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.display.ConditionalSpinnerColumn.html">uqlm.utils.display.ConditionalSpinnerColumn</a></li>
@@ -641,7 +645,8 @@ defaults to “You are a helpful assistant.”</p></li>
 <cite>BaseChatModel</cite> classes. If used, it speeds up the generation process substantially when num_responses &gt; 1.</p></li>
 <li><p><strong>prompts_in_nli</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Specifies whether to use the prompts in the NLI inputs for semantic entropy and semantic density scorers.</p></li>
 <li><p><strong>length_normalize</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Specifies whether to length normalize the logprobs. This attribute affect the response probability computation for three scorers (semantic_negentropy, semantic_density, monte_carlo_probability, and consistency_and_confidence).</p></li>
-<li><p><strong>device</strong> (<em>str</em><em> or </em><em>torch.device input</em><em> or </em><em>torch.device object</em><em>, </em><em>default=&quot;cpu&quot;</em>) – Specifies the device that NLI model use for prediction. Only applies to ‘semantic_negentropy’, ‘semantic_density’ scorers. Pass a torch.device to leverage GPU.</p></li>
+<li><p><strong>device</strong> (<em>str</em><em> or </em><em>torch.device input</em><em> or </em><em>torch.device object</em><em>, </em><em>default=&quot;cpu&quot;</em>) – Specifies the device that NLI model use for prediction. Only applies to ‘semantic_negentropy’, ‘semantic_density’ scorers. If None, detects and returns the best available PyTorch device.
+Prioritizes CUDA (NVIDIA GPU), then MPS (macOS), then CPU.</p></li>
 </ul>
 </dd>
 </dl>

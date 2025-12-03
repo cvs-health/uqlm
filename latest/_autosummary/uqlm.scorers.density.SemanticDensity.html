@@ -498,6 +498,10 @@
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.dataloader.load_example_dataset.html">uqlm.utils.dataloader.load_example_dataset</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.device.html">uqlm.utils.device</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.device.get_best_device.html">uqlm.utils.device.get_best_device</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.display.html">uqlm.utils.display</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.display.ConditionalBarColumn.html">uqlm.utils.display.ConditionalBarColumn</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.display.ConditionalSpinnerColumn.html">uqlm.utils.display.ConditionalSpinnerColumn</a></li>
@@ -633,8 +637,8 @@
 relevant parameters to the constructor of their <cite>llm</cite> object.</p></li>
 <li><p><strong>postprocessor</strong> (<em>callable</em><em>, </em><em>default=None</em>) – A user-defined function that takes a string input and returns a string. Used for postprocessing
 outputs before black-box comparisons.</p></li>
-<li><p><strong>device</strong> (<em>str</em><em> or </em><em>torch.device input</em><em> or </em><em>torch.device object</em><em>, </em><em>default=&quot;cpu&quot;</em>) – Specifies the device that NLI model use for prediction. Only applies to ‘semantic_negentropy’, ‘noncontradiction’
-scorers. Pass a torch.device to leverage GPU.</p></li>
+<li><p><strong>device</strong> (<em>str</em><em> or </em><em>torch.device input</em><em> or </em><em>torch.device object</em><em>, </em><em>default=&quot;cpu&quot;</em>) – Specifies the device that NLI model use for prediction. If None, detects and returns the best available PyTorch device.
+Prioritizes CUDA (NVIDIA GPU), then MPS (macOS), then CPU.</p></li>
 <li><p><strong>system_prompt</strong> (<em>str</em><em> or </em><em>None</em><em>, </em><em>default=&quot;You are a helpful assistant.&quot;</em>) – Optional argument for user to provide custom system prompt</p></li>
 <li><p><strong>max_calls_per_min</strong> (<em>int</em><em>, </em><em>default=None</em>) – Specifies how many api calls to make per minute to avoid a rate limit error. By default, no
 limit is specified.</p></li>

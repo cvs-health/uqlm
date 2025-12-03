@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="../_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="../_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="../_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>uqlm.nli &#8212; uqlm 0.4 documentation</title>
+    <title>uqlm.utils.device.get_best_device &#8212; uqlm 0.4 documentation</title>
   
   
   
@@ -45,7 +45,7 @@
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/uqlm.nli';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/uqlm.utils.device.get_best_device';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
@@ -56,8 +56,8 @@
     <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="uqlm.nli.cluster" href="uqlm.nli.cluster.html" />
-    <link rel="prev" title="uqlm.judges.judge.LLMJudge" href="uqlm.judges.judge.LLMJudge.html" />
+    <link rel="next" title="uqlm.utils.display" href="uqlm.utils.display.html" />
+    <link rel="prev" title="uqlm.utils.device" href="uqlm.utils.device.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -469,7 +469,7 @@
 </details></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">uqlm.nli</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="uqlm.nli.html">uqlm.nli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.nli.cluster.html">uqlm.nli.cluster</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.nli.cluster.SemanticClusterer.html">uqlm.nli.cluster.SemanticClusterer</a></li>
 </ul>
@@ -492,14 +492,14 @@
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="uqlm.resources.html">uqlm.resources</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="uqlm.utils.html">uqlm.utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="uqlm.utils.html">uqlm.utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.dataloader.html">uqlm.utils.dataloader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.dataloader.list_dataset_names.html">uqlm.utils.dataloader.list_dataset_names</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.dataloader.load_example_dataset.html">uqlm.utils.dataloader.load_example_dataset</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.device.html">uqlm.utils.device</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.device.get_best_device.html">uqlm.utils.device.get_best_device</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="uqlm.utils.device.html">uqlm.utils.device</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">uqlm.utils.device.get_best_device</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.display.html">uqlm.utils.display</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -597,7 +597,13 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">uqlm.nli</span></li>
+    
+    <li class="breadcrumb-item"><a href="uqlm.utils.html" class="nav-link">uqlm.utils</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="uqlm.utils.device.html" class="nav-link">uqlm.utils.device</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">uqlm.utils.device.get_best_device</span></li>
   </ul>
 </nav>
 </div>
@@ -614,20 +620,31 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-uqlm.nli">
-<span id="uqlm-nli"></span><h1>uqlm.nli<a class="headerlink" href="#module-uqlm.nli" title="Link to this heading">#</a></h1>
-<p class="rubric">Modules</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.nli.cluster.html#module-uqlm.nli.cluster" title="uqlm.nli.cluster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="uqlm.nli.nli.html#module-uqlm.nli.nli" title="uqlm.nli.nli"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nli</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
+  <section id="uqlm-utils-device-get-best-device">
+<h1>uqlm.utils.device.get_best_device<a class="headerlink" href="#uqlm-utils-device-get-best-device" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="uqlm.utils.device.get_best_device">
+<span class="sig-prename descclassname"><span class="pre">uqlm.utils.device.</span></span><span class="sig-name descname"><span class="pre">get_best_device</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.utils.device.get_best_device" title="Link to this definition">#</a></dt>
+<dd><p>Detects and returns the best available PyTorch device.
+Prioritizes CUDA (NVIDIA GPU), then MPS (macOS), then CPU.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">device</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The best available device.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>torch.device</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">device</span> <span class="o">=</span> <span class="n">get_best_device</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> device&quot;</span><span class="p">)</span>
+</pre></div>
 </div>
+</dd></dl>
+
 </section>
 
 
@@ -641,20 +658,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="uqlm.judges.judge.LLMJudge.html"
+       href="uqlm.utils.device.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">uqlm.judges.judge.LLMJudge</p>
+        <p class="prev-next-title">uqlm.utils.device</p>
       </div>
     </a>
     <a class="right-next"
-       href="uqlm.nli.cluster.html"
+       href="uqlm.utils.display.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">uqlm.nli.cluster</p>
+        <p class="prev-next-title">uqlm.utils.display</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -670,10 +687,22 @@
 
 
   <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.utils.device.get_best_device"><code class="docutils literal notranslate"><span class="pre">get_best_device()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/_autosummary/uqlm.nli.rst.txt"
+      <li><a href="../_sources/_autosummary/uqlm.utils.device.get_best_device.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

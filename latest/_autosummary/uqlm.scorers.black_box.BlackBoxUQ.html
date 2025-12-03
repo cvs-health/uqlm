@@ -498,6 +498,10 @@
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.dataloader.load_example_dataset.html">uqlm.utils.dataloader.load_example_dataset</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.device.html">uqlm.utils.device</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.device.get_best_device.html">uqlm.utils.device.get_best_device</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.display.html">uqlm.utils.display</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.display.ConditionalBarColumn.html">uqlm.utils.display.ConditionalBarColumn</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.display.ConditionalSpinnerColumn.html">uqlm.utils.display.ConditionalSpinnerColumn</a></li>
@@ -636,7 +640,7 @@ relevant parameters to the constructor of their <cite>llm</cite> object.</p></li
 [“semantic_negentropy”, “noncontradiction”, “exact_match”, “cosine_sim”, “entailment”, “semantic_sets_confidence”]. The bleurt
 scorer is deprecated as of v0.2.0.</p></li>
 <li><p><strong>device</strong> (<em>str</em><em> or </em><em>torch.device input</em><em> or </em><em>torch.device object</em><em>, </em><em>default=&quot;cpu&quot;</em>) – Specifies the device that NLI model use for prediction. Only applies to ‘semantic_negentropy’, ‘noncontradiction’, ‘entailment’, ‘semantic_sets_confidence’
-scorers. Pass a torch.device to leverage GPU.</p></li>
+scorers. If None, detects and returns the best available PyTorch device. Prioritizes CUDA (NVIDIA GPU), then MPS (macOS), then CPU.</p></li>
 <li><p><strong>use_best</strong> (<em>bool</em><em>, </em><em>default=True</em>) – Specifies whether to swap the original response for the uncertainty-minimized response
 based on semantic entropy clusters. Only used if <cite>scorers</cite> includes ‘semantic_negentropy’, ‘noncontradiction’, ‘entailment’, or ‘semantic_sets_confidence’.</p></li>
 <li><p><strong>nli_model_name</strong> (<em>str</em><em>, </em><em>default=&quot;microsoft/deberta-large-mnli&quot;</em>) – Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
