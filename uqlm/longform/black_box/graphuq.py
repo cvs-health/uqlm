@@ -63,7 +63,6 @@ class GraphUQScorer(ClaimScorer):
         save_graph_path: Optional[str] = None,
         show_graph: bool = False,
         use_entailment_prob: bool = False,
-        min_edge_weight: float = 0.001,
         progress_bar: Optional[Progress] = None,
     ) -> List[List[ClaimScore]]:
         """Evaluate the GraphUQ score and claim scores for a list of response sets.
@@ -74,16 +73,16 @@ class GraphUQScorer(ClaimScorer):
             sampled_claim_sets: The list of sampled claim sets. Optional if entailment_score_sets is provided.
             entailment_score_sets: The list of entailment score sets. If provided, response_sets and 
                 sampled_claim_sets become optional (will be inferred from scores).
-            binary_edge_threshold: Threshold for binary edge existence in path-based metrics (betweenness, closeness, harmonic).
-                Edges below this threshold are ignored for shortest path calculations but still contribute 
-                to strength-based metrics (degree, PageRank, eigenvector, katz) with their actual weight. Default: 0.5.
+            binary_edge_threshold: Threshold for edge existence. Edges are only created when entailment
+                scores are at or above this threshold. Each edge stores the actual entailment score as
+                its "weight" attribute. Path-based metrics (betweenness, closeness, harmonic) use the
+                binary/unweighted graph structure, while strength-based metrics (degree, PageRank, 
+                laplacian) use the edge weights. Default: 0.5.
             claim_dedup_method: The method to deduplicate claims. Options: "sequential", "one_shot", "exact_match" or None.
                 Ignored if sampled_claim_sets is not provided.
             save_graph_path: The path to save the graph. Requires response_sets for visualization.
             show_graph: Whether to show the graph. Requires response_sets for visualization.
             use_entailment_prob: Whether to use entailment probabilities.
-            min_edge_weight: Minimum weight threshold for edge existence (clips very small values to avoid sparse matrix errors).
-                Edges with weight <= this value are removed entirely. Default: 0.001.
             progress_bar: The progress bar.
         Returns:
             A list of lists of ClaimScore objects, one for each response set.
@@ -99,7 +98,6 @@ class GraphUQScorer(ClaimScorer):
                 save_graph_path,
                 show_graph,
                 use_entailment_prob,
-                min_edge_weight,
                 progress_bar,
             )
         )
@@ -115,7 +113,6 @@ class GraphUQScorer(ClaimScorer):
         save_graph_path: Optional[str] = None,
         show_graph: bool = False,
         use_entailment_prob: bool = False,
-        min_edge_weight: float = 0.001,
         progress_bar: Optional[Progress] = None,
     ) -> List[List[ClaimScore]]:
         
@@ -188,7 +185,6 @@ class GraphUQScorer(ClaimScorer):
             master_claim_sets,
             entailment_score_sets,
             use_entailment_prob,
-            min_edge_weight,
             progress_bar,
         )
 
@@ -212,20 +208,22 @@ class GraphUQScorer(ClaimScorer):
 
     def _calculate_claim_node_graph_metrics(
         self, 
-        G_weighted: nx.Graph, 
-        G_binary: nx.Graph, 
+        G: nx.Graph, 
         num_claims: int, 
         num_responses: int
     ) -> dict:
         """
-        Calculate claim node graph metrics using two different graph representations.
+        Calculate claim node graph metrics using a single graph representation.
         
         All metrics are normalized to [0, 1] range using either NetworkX's built-in normalization
         (when reliable) or custom structural normalization based on graph topology.
         
+        The graph has edges with "weight" attributes (actual entailment scores). Strength-based
+        metrics use these weights, while path-based metrics use the unweighted graph structure.
+        
         Args:
-            G_weighted: Graph with continuous edge weights (0-1) for strength-based metrics.
-            G_binary: Graph with binary edges (0/1) for path-based metrics.
+            G: Graph with edges weighted by entailment scores. Edges only exist where scores
+               meet the binary_edge_threshold.
             num_claims: The number of claims.
             num_responses: The number of responses.
             
@@ -239,12 +237,12 @@ class GraphUQScorer(ClaimScorer):
             - harmonic_centrality: Custom normalization (theoretical max for bipartite structure)
             
         Notes:
-            - G_weighted: Used for degree, PageRank, laplacian (strength-based)
-            - G_binary: Used for betweenness, closeness, harmonic (path-based)
+            - Strength-based metrics (degree, PageRank, laplacian): Use edge weights
+            - Path-based metrics (betweenness, closeness, harmonic): Use unweighted/binary approach
         """
 
         # Calculate weighted degree (sum of edge weights) for each node
-        weighted_degrees = dict(G_weighted.degree(weight="weight"))
+        weighted_degrees = dict(G.degree(weight="weight"))
         logger.debug(f"Weighted degrees (sum of edge weights): {weighted_degrees}")
 
         # Calculate bipartite degree centrality (normalized by opposite set size)
@@ -259,29 +257,29 @@ class GraphUQScorer(ClaimScorer):
             degree_centrality[node] = weighted_degrees[node] / num_claims if num_claims > 0 else 0.0
         logger.debug(f"Degree centrality: {degree_centrality}")
 
-        # Calculate betweenness centrality  
-        betweenness_centrality = nx.bipartite.betweenness_centrality(G_binary, claim_nodes)
+        # Calculate betweenness centrality (unweighted - path-based metric)
+        betweenness_centrality = nx.bipartite.betweenness_centrality(G, claim_nodes)
         logger.debug(f"Betweenness centrality: {betweenness_centrality}")
 
-        # Calculate PageRank (standard random walk)
+        # Calculate PageRank (weighted - strength-based metric)
         try:
-            page_rank = nx.pagerank(G_weighted, weight="weight", max_iter=1000)
+            page_rank = nx.pagerank(G, weight="weight", max_iter=1000)
             logger.debug(f"PageRank: {page_rank}")
         except (nx.PowerIterationFailedConvergence, nx.NetworkXError) as e:
             logger.warning(f"PageRank failed to converge: {e}. Using NaN to indicate calculation failure.")
-            page_rank = {node: np.nan for node in G_weighted.nodes()}
+            page_rank = {node: np.nan for node in G.nodes()}
 
-        # Calculate closeness centrality
-        closeness_centrality_raw = nx.bipartite.closeness_centrality(G_binary, claim_nodes)
+        # Calculate closeness centrality (unweighted - path-based metric)
+        closeness_centrality_raw = nx.bipartite.closeness_centrality(G, claim_nodes)
         closeness_centrality = {node: min(1.0, val) for node, val in closeness_centrality_raw.items()}
         logger.debug(f"Closeness centrality: {closeness_centrality}")
 
-        # Calculate Laplacian Centrality
-        laplacian_centrality = nx.laplacian_centrality(G_weighted, weight="weight", normalized=True)
+        # Calculate Laplacian Centrality (weighted - strength-based metric)
+        laplacian_centrality = nx.laplacian_centrality(G, weight="weight", normalized=True)
         logger.debug(f"Laplacian centrality: {laplacian_centrality}")
 
-        # Calculate Harmonic Centrality
-        harmonic_centrality_raw = nx.harmonic_centrality(G_binary)
+        # Calculate Harmonic Centrality (unweighted - path-based metric)
+        harmonic_centrality_raw = nx.harmonic_centrality(G)
         
         # Normalize by theoretical maximum in complete bipartite graph
         # We're doing the full graph for now; can do just claims for efficiency later
@@ -304,49 +302,38 @@ class GraphUQScorer(ClaimScorer):
             "harmonic_centrality": harmonic_centrality,
         }
 
-    def _construct_bipartite_graphs(
+    def _construct_bipartite_graph(
         self, 
         biadjacency_matrix: np.ndarray, 
         num_claims: int, 
         num_responses: int,
         binary_edge_threshold: float
-    ) -> tuple[nx.Graph, nx.Graph]:
+    ) -> nx.Graph:
         """
-        Construct two bipartite graphs from a biadjacency matrix.
+        Construct a bipartite graph from a biadjacency matrix.
         
-        Creates two separate graphs:
-        1. Weighted graph: Edges have actual entailment scores (for strength-based metrics)
-        2. Binary graph: Edges are 0/1 based on binary_edge_threshold (for path-based metrics)
         
         Args:
             biadjacency_matrix: A 2D numpy array of shape (num_claims, num_responses) with entailment scores.
             num_claims: The number of claims.
             num_responses: The number of responses.
-            binary_edge_threshold: Threshold for binary edge existence in path-based metrics.
+            binary_edge_threshold: Threshold for edge existence. Only edges with scores >= this value are created.
         Returns:
-            Tuple of (G_weighted, G_binary):
-            - G_weighted: Graph with continuous edge weights (0 to 1) for strength metrics
-            - G_binary: Graph with binary edges (0 or 1) for path metrics
+            nx.Graph: Bipartite graph with edges weighted by entailment scores.
         """
-        # Graph 1: Weighted graph with actual entailment scores
-        # Used by: degree centrality, PageRank, eigenvector centrality, katz centrality
-        biadjacency_sparse_weighted = sparse.csr_matrix(biadjacency_matrix)
-        G_weighted = nx.bipartite.from_biadjacency_matrix(biadjacency_sparse_weighted)
-        
-        # Graph 2: Binary graph (edges exist if weight >= threshold)
-        # Used by: betweenness centrality, closeness centrality, harmonic centrality
-        binary_matrix = (biadjacency_matrix >= binary_edge_threshold).astype(float)
-        biadjacency_sparse_binary = sparse.csr_matrix(binary_matrix)
-        G_binary = nx.bipartite.from_biadjacency_matrix(biadjacency_sparse_binary)
+        # Create filtered matrix: only keep edges at or above threshold
+        # The actual entailment scores are preserved as edge weights
+        filtered_matrix = np.where(biadjacency_matrix >= binary_edge_threshold, biadjacency_matrix, 0)
+        biadjacency_sparse = sparse.csr_matrix(filtered_matrix)
+        G = nx.bipartite.from_biadjacency_matrix(biadjacency_sparse)
 
-        # Add node type attributes to both graphs
-        for G in [G_weighted, G_binary]:
-            for node_idx in range(num_claims):
-                G.nodes[node_idx]["type"] = "claim"
-            for node_idx in range(num_claims, num_claims + num_responses):
-                G.nodes[node_idx]["type"] = "response"
+        # Add node type attributes
+        for node_idx in range(num_claims):
+            G.nodes[node_idx]["type"] = "claim"
+        for node_idx in range(num_claims, num_claims + num_responses):
+            G.nodes[node_idx]["type"] = "response"
 
-        return G_weighted, G_binary
+        return G
 
     async def _dedup_claims(
         self,
@@ -535,7 +522,6 @@ class GraphUQScorer(ClaimScorer):
         master_claim_sets: List[List[str]],
         entailment_score_sets: List[Optional[Dict[str, List[float]]]],
         use_entailment_prob: bool,
-        min_edge_weight: float,
         progress_bar: Optional[Progress] = None,
     ) -> List[np.ndarray]:
         """Compute adjacency matrices for response sets.
@@ -636,19 +622,15 @@ class GraphUQScorer(ClaimScorer):
             else:
                 biadjacency_matrices[resp_set_idx][claim_idx, response_idx] = 1.0 if nli_result.binary_label else 0.0
 
-        # Apply minimum edge weight threshold to all matrices (clip very small values)
-        filtered_matrices = []
+        # Log matrix shapes and update progress
         for i, biadjacency_matrix in enumerate(biadjacency_matrices):
             logger.debug(f"[Response set {i}] Biadjacency matrix shape: {biadjacency_matrix.shape}")
-            biadjacency_matrix_filtered = np.where(biadjacency_matrix > min_edge_weight, biadjacency_matrix, 0)
-            logger.debug(f"[Response set {i}] Filtered {np.sum(biadjacency_matrix > 0) - np.sum(biadjacency_matrix_filtered > 0)} edges below threshold {min_edge_weight}")
-            filtered_matrices.append(biadjacency_matrix_filtered)
 
             # Update progress
             if progress_bar and progress_task is not None:
                 progress_bar.update(progress_task, advance=1)
 
-        return filtered_matrices
+        return biadjacency_matrices
 
     def _construct_graphs_and_calculate_scores(
         self,
@@ -704,16 +686,15 @@ class GraphUQScorer(ClaimScorer):
         num_claims = len(master_claim_set)
         num_responses = len(responses)
 
-        # Construct bipartite graphs (weighted and binary)
-        logger.debug(f"[Response set {index}] Constructing bipartite graphs...")
-        G_weighted, G_binary = self._construct_bipartite_graphs(biadjacency_matrix, num_claims, num_responses, binary_edge_threshold)
+        # Construct bipartite graph (edges only where scores >= threshold, with actual scores as weights)
+        logger.debug(f"[Response set {index}] Constructing bipartite graph...")
+        G = self._construct_bipartite_graph(biadjacency_matrix, num_claims, num_responses, binary_edge_threshold)
 
-        logger.debug(f"[Response set {index}] Weighted graph: {G_weighted.number_of_nodes()} nodes ({num_claims} claims, {num_responses} responses), {G_weighted.number_of_edges()} edges")
-        logger.debug(f"[Response set {index}] Binary graph: {G_binary.number_of_nodes()} nodes ({num_claims} claims, {num_responses} responses), {G_binary.number_of_edges()} edges")
+        logger.debug(f"[Response set {index}] Graph: {G.number_of_nodes()} nodes ({num_claims} claims, {num_responses} responses), {G.number_of_edges()} edges")
 
         # Calculate claim node graph metrics
         logger.debug(f"[Response set {index}] Calculating claim node graph metrics...")
-        gmetrics = self._calculate_claim_node_graph_metrics(G_weighted, G_binary, num_claims, num_responses)
+        gmetrics = self._calculate_claim_node_graph_metrics(G, num_claims, num_responses)
 
         # Gather claim scores into list of ClaimScore objects
         logger.debug(f"[Response set {index}] Gathering claim scores into list of ClaimScore objects...")
@@ -740,10 +721,10 @@ class GraphUQScorer(ClaimScorer):
         # Validate that all graph metrics are in [0, 1] range
         self._validate_graph_metrics(claim_scores)
 
-        # Optional: visualize graph (use weighted graph to show actual edge weights)
+        # Optional: visualize graph
         if show_graph or save_graph_path:
             self._visualize_bipartite_graph_matplotlib(
-                G_weighted,
+                G,
                 num_claims,
                 num_responses,
                 master_claim_set,

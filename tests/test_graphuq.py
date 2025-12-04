@@ -148,7 +148,8 @@ def multi_response_test_data():
 @pytest.mark.asyncio
 async def test_graphuq_basic_evaluation(monkeypatch, mock_llm, simple_test_data):
     """Test basic GraphUQ evaluation with pre-computed entailment scores."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     # No NLI calls should be needed since we provide entailment scores
     results = await scorer.a_evaluate(
@@ -172,9 +173,7 @@ async def test_graphuq_basic_evaluation(monkeypatch, mock_llm, simple_test_data)
         assert "betweenness_centrality" in claim_score.scores
         assert "closeness_centrality" in claim_score.scores
         assert "harmonic_centrality" in claim_score.scores
-        assert "eigenvector_centrality" in claim_score.scores
-        assert "katz_centrality" in claim_score.scores
-        assert "hits_authority" in claim_score.scores
+        assert "laplacian_centrality" in claim_score.scores
     
     # Check that "The sky is blue." has high degree centrality (appears in 3/4 responses)
     sky_blue_claims = [cs for cs in results[0] if cs.claim == "The sky is blue."]
@@ -190,7 +189,8 @@ async def test_graphuq_basic_evaluation(monkeypatch, mock_llm, simple_test_data)
 @pytest.mark.asyncio
 async def test_graphuq_weighted_scores(monkeypatch, mock_llm, weighted_test_data):
     """Test GraphUQ with weighted entailment probabilities."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     results = await scorer.a_evaluate(
         response_sets=weighted_test_data["responses"],
@@ -217,7 +217,8 @@ async def test_graphuq_weighted_scores(monkeypatch, mock_llm, weighted_test_data
 @pytest.mark.asyncio
 async def test_graphuq_multiple_response_sets(monkeypatch, mock_llm, multi_response_test_data):
     """Test GraphUQ with multiple response sets processed simultaneously."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     results = await scorer.a_evaluate(
         response_sets=multi_response_test_data["responses"],
@@ -249,7 +250,8 @@ async def test_graphuq_multiple_response_sets(monkeypatch, mock_llm, multi_respo
 @pytest.mark.asyncio
 async def test_graphuq_no_dedup(monkeypatch, mock_llm, simple_test_data):
     """Test GraphUQ without claim deduplication."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     results = await scorer.a_evaluate(
         response_sets=simple_test_data["responses"],
@@ -268,7 +270,8 @@ async def test_graphuq_no_dedup(monkeypatch, mock_llm, simple_test_data):
 @pytest.mark.asyncio
 async def test_graphuq_one_shot_dedup(monkeypatch, mock_llm, simple_test_data):
     """Test GraphUQ with one-shot claim deduplication."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     # Mock the ResponseGenerator's generate_responses method
     mock_response = {
@@ -298,7 +301,8 @@ async def test_graphuq_one_shot_dedup(monkeypatch, mock_llm, simple_test_data):
 @pytest.mark.asyncio
 async def test_graphuq_sequential_dedup(monkeypatch, mock_llm, simple_test_data):
     """Test GraphUQ with sequential claim deduplication."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     # Mock the ResponseGenerator's generate_responses method
     mock_responses = [
@@ -332,9 +336,10 @@ async def test_graphuq_sequential_dedup(monkeypatch, mock_llm, simple_test_data)
 @pytest.mark.asyncio
 async def test_graphuq_without_precomputed_scores(monkeypatch, mock_llm, simple_test_data):
     """Test GraphUQ without pre-computed entailment scores (NLI needed)."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Initialize without NLI model, then set up mock NLI
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
-    # Mock NLI predictions
+    # Create a mock NLI object with apredict method
     def create_nli_result(label):
         """Create a mock NLIResult."""
         result = MagicMock(spec=NLIResult)
@@ -347,7 +352,9 @@ async def test_graphuq_without_precomputed_scores(monkeypatch, mock_llm, simple_
         label = hypothesis.lower() in premise.lower()
         return create_nli_result(label)
     
-    monkeypatch.setattr(scorer.nli, "apredict", mock_nli_predict)
+    mock_nli = MagicMock()
+    mock_nli.apredict = mock_nli_predict
+    scorer.nli = mock_nli
     
     results = await scorer.a_evaluate(
         response_sets=simple_test_data["responses"],
@@ -366,9 +373,10 @@ async def test_graphuq_without_precomputed_scores(monkeypatch, mock_llm, simple_
 
 
 @pytest.mark.asyncio
-async def test_graphuq_edge_weight_threshold(monkeypatch, mock_llm, weighted_test_data):
-    """Test GraphUQ with edge weight threshold filtering."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+async def test_graphuq_binary_edge_threshold(monkeypatch, mock_llm, weighted_test_data):
+    """Test GraphUQ with binary edge threshold filtering."""
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     # Test with a high threshold that should filter out weak connections
     results_high_threshold = await scorer.a_evaluate(
@@ -377,29 +385,37 @@ async def test_graphuq_edge_weight_threshold(monkeypatch, mock_llm, weighted_tes
         sampled_claim_sets=weighted_test_data["sampled_claim_sets"],
         entailment_score_sets=weighted_test_data["entailment_score_sets"],
         claim_dedup_method="exact_match",
-        edge_weight_threshold=0.5,  # Filter out edges < 0.5
+        binary_edge_threshold=0.8,  # Only keep strong connections (>= 0.8)
     )
     
-    # Test with a low threshold
-    results_low_threshold = await scorer.a_evaluate(
+    # Test with default threshold (0.5)
+    results_default_threshold = await scorer.a_evaluate(
         response_sets=weighted_test_data["responses"],
         original_claim_sets=weighted_test_data["original_claim_set"],
         sampled_claim_sets=weighted_test_data["sampled_claim_sets"],
         entailment_score_sets=weighted_test_data["entailment_score_sets"],
         claim_dedup_method="exact_match",
-        edge_weight_threshold=0.01,  # Keep most edges
+        binary_edge_threshold=0.5,  # Default: keep edges >= 0.5
     )
     
     # Both should have same number of claims
-    assert len(results_high_threshold[0]) == len(results_low_threshold[0])
+    assert len(results_high_threshold[0]) == len(results_default_threshold[0])
     
     # But degrees might differ due to filtered edges
     # Claims with only weak connections will have lower degrees with high threshold
+    
+    # "The sky is blue." has scores [0.9, 0.8, 0.7, 0]
+    # With threshold 0.8: 2 edges (0.9, 0.8), degree = (0.9 + 0.8) / 4 = 0.425
+    # With threshold 0.5: 3 edges (0.9, 0.8, 0.7), degree = (0.9 + 0.8 + 0.7) / 4 = 0.6
+    sky_blue_high = [cs for cs in results_high_threshold[0] if cs.claim == "The sky is blue."][0]
+    sky_blue_default = [cs for cs in results_default_threshold[0] if cs.claim == "The sky is blue."][0]
+    assert sky_blue_high.scores["degree_centrality"] < sky_blue_default.scores["degree_centrality"]
 
 
 def test_construct_bipartite_graph(mock_llm):
     """Test bipartite graph construction from adjacency matrix."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization - not needed for graph construction tests
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     # Create a simple 3x2 biadjacency matrix (3 claims, 2 responses)
     biadjacency = np.array([
@@ -408,11 +424,12 @@ def test_construct_bipartite_graph(mock_llm):
         [0.0, 1.0],  # Claim 2 connects to Response 1
     ])
     
-    G = scorer._construct_bipartite_graph(biadjacency, num_claims=3, num_responses=2)
+    # binary_edge_threshold=0.5 means only edges >= 0.5 are created
+    G = scorer._construct_bipartite_graph(biadjacency, num_claims=3, num_responses=2, binary_edge_threshold=0.5)
     
     # Check graph properties
     assert G.number_of_nodes() == 5  # 3 claims + 2 responses
-    assert G.number_of_edges() == 4  # 4 connections
+    assert G.number_of_edges() == 4  # 4 connections (all 1.0 values are >= 0.5)
     
     # Check node types
     assert G.nodes[0]["type"] == "claim"
@@ -427,14 +444,48 @@ def test_construct_bipartite_graph(mock_llm):
     assert G.has_edge(1, 4)  # Claim 1 to Response 1
     assert G.has_edge(2, 4)  # Claim 2 to Response 1
     
-    # Check edge weights
+    # Check edge weights (actual entailment scores are preserved)
     assert G[0][3]["weight"] == 1.0
     assert G[1][3]["weight"] == 1.0
 
 
+def test_construct_bipartite_graph_with_threshold_filtering(mock_llm):
+    """Test bipartite graph construction filters edges below threshold."""
+    # Skip NLI initialization - not needed for graph construction tests
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
+    
+    # Create matrix with varied weights
+    biadjacency = np.array([
+        [0.9, 0.3],  # Claim 0: high to R0, low to R1
+        [0.6, 0.6],  # Claim 1: medium to both
+        [0.2, 0.8],  # Claim 2: low to R0, high to R1
+    ])
+    
+    # With threshold 0.5, edges < 0.5 should be filtered out
+    G = scorer._construct_bipartite_graph(biadjacency, num_claims=3, num_responses=2, binary_edge_threshold=0.5)
+    
+    # Expected edges: (0,3)=0.9, (1,3)=0.6, (1,4)=0.6, (2,4)=0.8 = 4 edges
+    # Filtered: (0,4)=0.3, (2,3)=0.2
+    assert G.number_of_edges() == 4
+    
+    # Check specific edges
+    assert G.has_edge(0, 3)  # 0.9 >= 0.5
+    assert not G.has_edge(0, 4)  # 0.3 < 0.5 (filtered out)
+    assert G.has_edge(1, 3)  # 0.6 >= 0.5
+    assert G.has_edge(1, 4)  # 0.6 >= 0.5
+    assert not G.has_edge(2, 3)  # 0.2 < 0.5 (filtered out)
+    assert G.has_edge(2, 4)  # 0.8 >= 0.5
+    
+    # Check that edge weights preserve original entailment scores
+    assert G[0][3]["weight"] == 0.9
+    assert G[1][3]["weight"] == 0.6
+    assert G[2][4]["weight"] == 0.8
+
+
 def test_calculate_claim_node_graph_metrics(mock_llm):
     """Test calculation of graph metrics for claim nodes."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization - not needed for metric calculation tests
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     # Create a simple graph
     G = nx.Graph()
@@ -451,17 +502,14 @@ def test_calculate_claim_node_graph_metrics(mock_llm):
     
     metrics = scorer._calculate_claim_node_graph_metrics(G, num_claims=2, num_responses=2)
     
-    # Check that all expected metrics are present (8 total metrics)
+    # Check that all expected metrics are present (6 total metrics)
     expected_metrics = [
         "degree_centrality",
         "betweenness_centrality",
         "closeness_centrality",
         "harmonic_centrality",
         "page_rank",
-        "eigenvector_centrality",
-        "katz_centrality",
-        "hits_hubs",
-        "hits_authorities",
+        "laplacian_centrality",
     ]
     for metric in expected_metrics:
         assert metric in metrics, f"Missing metric: {metric}"
@@ -478,7 +526,8 @@ def test_calculate_claim_node_graph_metrics(mock_llm):
 @pytest.mark.asyncio
 async def test_invalid_claim_dedup_method(mock_llm, simple_test_data):
     """Test that invalid claim dedup method produces a warning."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     # Should not raise an error, but log a warning and skip dedup
     # We can't easily test logging, but we can verify it doesn't crash
@@ -496,17 +545,18 @@ async def test_invalid_claim_dedup_method(mock_llm, simple_test_data):
 
 def test_graphuq_initialization(mock_llm):
     """Test GraphUQScorer initialization with different parameters."""
-    # Basic initialization
-    scorer1 = GraphUQScorer(judge_llm=mock_llm)
-    assert scorer1.nli is not None
+    # Basic initialization without NLI model (skip model loading in tests)
+    scorer1 = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
+    assert scorer1.nli is None  # No NLI when model_name is None
     assert scorer1.rg is not None
     
-    # With NLI LLM
-    scorer2 = GraphUQScorer(judge_llm=mock_llm, nli_llm=mock_llm)
+    # With NLI LLM (uses LLM for NLI instead of local model)
+    scorer2 = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None, nli_llm=mock_llm)
     assert scorer2.nli_llm == mock_llm
+    assert scorer2.nli is not None  # NLI is initialized when nli_llm is provided
     
     # With custom max_calls_per_min
-    scorer3 = GraphUQScorer(judge_llm=mock_llm, max_calls_per_min=100)
+    scorer3 = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None, max_calls_per_min=100)
     assert scorer3.rg.max_calls_per_min == 100
 
 
@@ -517,7 +567,8 @@ async def test_graphuq_minimal_response_set(monkeypatch, mock_llm):
     This small sparse graph structure is a regression test for metric normalization issues.
     It previously caused closeness_centrality > 1.0 before proper normalization was added.
     """
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     # Create minimal data with 2 responses and 2 claims
     results = await scorer.a_evaluate(
@@ -556,9 +607,10 @@ async def test_graphuq_minimal_response_set(monkeypatch, mock_llm):
 @pytest.mark.asyncio
 async def test_graphuq_use_entailment_prob_flag(monkeypatch, mock_llm, simple_test_data):
     """Test the use_entailment_prob flag with NLI predictions."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Initialize without NLI model, then set up mock NLI
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
-    # Mock NLI predictions with probabilities
+    # Create mock NLI predictions with probabilities
     def create_nli_result(prob):
         result = MagicMock(spec=NLIResult)
         result.binary_label = prob > 0.5
@@ -574,7 +626,9 @@ async def test_graphuq_use_entailment_prob_flag(monkeypatch, mock_llm, simple_te
         else:
             return create_nli_result(0.1)
     
-    monkeypatch.setattr(scorer.nli, "apredict", mock_nli_predict)
+    mock_nli = MagicMock()
+    mock_nli.apredict = mock_nli_predict
+    scorer.nli = mock_nli
     
     # Test with use_entailment_prob=True
     results_prob = await scorer.a_evaluate(
@@ -607,7 +661,8 @@ async def test_graphuq_use_entailment_prob_flag(monkeypatch, mock_llm, simple_te
 @pytest.mark.asyncio
 async def test_graphuq_sync_evaluate_wrapper(mock_llm, simple_test_data):
     """Test that the synchronous evaluate() wrapper works."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     # Test using a_evaluate directly since evaluate() has parameter order issues
     results = await scorer.a_evaluate(
@@ -625,7 +680,8 @@ async def test_graphuq_sync_evaluate_wrapper(mock_llm, simple_test_data):
 @pytest.mark.asyncio
 async def test_graphuq_original_response_flag(monkeypatch, mock_llm, simple_test_data):
     """Test that original_response flag is correctly set in ClaimScore objects."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     results = await scorer.a_evaluate(
         response_sets=simple_test_data["responses"],
@@ -650,7 +706,8 @@ async def test_graphuq_with_only_entailment_scores(mock_llm):
     This tests the scenario where the user has already computed entailment scores
     and doesn't need to provide response_sets or sampled_claim_sets.
     """
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization since we provide pre-computed entailment scores
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     # Only provide original_claim_sets and entailment_score_sets
     # response_sets and sampled_claim_sets will be inferred/skipped
@@ -708,7 +765,8 @@ async def test_graphuq_with_only_entailment_scores(mock_llm):
 
 def test_validate_graph_metrics(mock_llm):
     """Test the _validate_graph_metrics function with valid and invalid metrics."""
-    scorer = GraphUQScorer(judge_llm=mock_llm)
+    # Skip NLI initialization - not needed for validation tests
+    scorer = GraphUQScorer(judge_llm=mock_llm, nli_model_name=None)
     
     # Test 1: Valid metrics (all in [0, 1]) should return True
     valid_claim_scores = [
@@ -718,7 +776,7 @@ def test_validate_graph_metrics(mock_llm):
             scores={
                 "degree_centrality": 0.5,
                 "closeness_centrality": 0.8,
-                "hits_authority": 0.0,
+                "laplacian_centrality": 0.0,
             },
             scorer_type="graphuq"
         ),
@@ -733,7 +791,7 @@ def test_validate_graph_metrics(mock_llm):
             scores={
                 "degree_centrality": 0.5,
                 "closeness_centrality": 1.5,  # Invalid: > 1
-                "hits_authority": -0.1,  # Invalid: < 0
+                "laplacian_centrality": -0.1,  # Invalid: < 0
             },
             scorer_type="graphuq"
         ),
