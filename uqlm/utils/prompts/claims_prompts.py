@@ -16,6 +16,7 @@
 This module is used to store LLM prompt templates that can be used for various tasks.
 """
 
+from typing import List
 
 # The claim_brekadown_template is a modified version of the prompt from "Atomic Calibration of LLMs in Long-Form Generations"
 # @misc{zhang2025atomiccalibrationllmslongform,
@@ -93,3 +94,45 @@ def get_claim_breakdown_prompt(response: str) -> str:
     """
 
     return claim_breakdown_prompt
+
+def get_claim_dedup_prompt(master_claim_set: List[str], sampled_claim_set: List[str]) -> str:
+    """
+    Parameters
+    ----------
+    master_claim_set: List[str]
+        The master claim set.
+    sampled_claim_set: List[str]
+        The sampled claim set.
+
+    Returns
+    -------
+    str
+        The prompt template for deduplicating the claims.
+    """
+
+    master_claim_str = "\n".join(master_claim_set)
+    sampled_claim_str = "\n".join(sampled_claim_set)
+
+    claim_dedup_prompt = f"""
+Given two lists titled "Original Claim List" and "New Claim List",
+your task is to integrate information from the "New Claim List" into
+the "Original Claim List". Please follow these detailed steps to
+ensure accuracy and clarity in the process:
+Task 1. **Verification Process:** Your goal is to go through each
+statement in the "New Claim List" one by one, and determine if it is
+fully entailed or mentioned by any statement in the "Original Claim
+List."
+Task 2. **Compilation of Non-Entailed Claims:** Generate a list of
+statements from the "New Claim List" that are not already covered or
+implied by the "Original Claim List." For each new or unique claim
+that does not have an equivalent in the original list, format your
+output by starting each line with a dash (‘-’).
+**Original Claim List:**
+{master_claim_str}
+**New Claim List:**
+{sampled_claim_str}
+Begin with the Verification Process to assess each claim’s relevance
+and uniqueness, followed by the Compilation of Non-Entailed Claims to
+clearly list any new insights that the "New Claim List" provides."""
+
+    return claim_dedup_prompt
