@@ -24,6 +24,7 @@ from uqlm.utils.llm_config import save_llm_config, load_llm_config
 from uqlm.utils.display import ConditionalBarColumn, ConditionalTimeElapsedColumn, ConditionalTextColumn, ConditionalSpinnerColumn
 from uqlm.utils.warn import beta_warning, deprecation_warning
 from uqlm.utils.device import get_best_device
+from uqlm.utils.prompts import TEMPLATE_TO_INSTRUCTION, TEMPLATE_TO_INSTRUCTION_WITH_EXPLANATIONS, SCORING_CONFIG, COMMON_INSTRUCTIONS, PROMPT_TEMPLATES, create_instruction, get_claim_breakdown_prompt, get_entailment_prompt
 
 __all__ = [
     "plot_model_accuracies",
@@ -46,4 +47,12 @@ __all__ = [
     "beta_warning",
     "deprecation_warning",
     "get_best_device",
+    "TEMPLATE_TO_INSTRUCTION",
+    "TEMPLATE_TO_INSTRUCTION_WITH_EXPLANATIONS",
+    "SCORING_CONFIG",
+    "COMMON_INSTRUCTIONS",
+    "PROMPT_TEMPLATES",
+    "create_instruction",
+    "get_claim_breakdown_prompt",
+    "get_entailment_prompt",
 ]

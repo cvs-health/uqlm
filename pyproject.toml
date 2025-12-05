@@ -162,3 +162,6 @@ indent-style = "space"
 skip-magic-trailing-comma = true
 line-ending = "lf"
 docstring-code-format = true
+
+[tool.ruff.lint.per-file-ignores]
+"uqlm/utils/prompts/*.py" = ["ALL"]

@@ -33,8 +33,8 @@ class LLMPanel(UncertaintyQuantifier):
             Judges to use. If BaseChatModel, LLMJudge is instantiated using default parameters.
 
         llm : BaseChatModel
-            A langchain llm object to get passed to chain constructor. User is responsible for specifying
-            temperature and other relevant parameters to the constructor of their `llm` object.
+            A langchain llm `BaseChatModel`. User is responsible for specifying temperature and other
+            relevant parameters to the constructor of their `llm` object.
 
         max_calls_per_min : int, default=None
             Used to control rate limiting. Will be used for original llm and any judges constructed
