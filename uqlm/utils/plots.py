@@ -29,14 +29,10 @@ Ignore_Columns = ["prompts", "responses", "sampled_responses", "raw_sampled_resp
 Method_Names = {"semantic_negentropy": "Semantic Negentropy", "noncontradiction": "Non-Contradiction", "exact_match": "Exact Match", "cosine_sim": "Cosine Similarity", "normalized_probability": "Normalized Probability", "min_probability": "Min Probability", "ensemble_scores": "Ensemble"}
 
 
-def scale(values, upper, lower):
-    """Helper function to scale valuees in plot"""
-    max_v, min_v = max(values), min(values)
-    return [lower + (val - min_v) * (upper - lower) / (max_v - min_v) for val in values]
-
-
-def plot_model_accuracies(scores: ArrayLike, correct_indicators: ArrayLike, thresholds: ArrayLike = np.linspace(0, 0.9, num=10), axis_buffer: float = 0.1, title: str = "LLM Accuracy by Confidence Score Threshold", write_path: Optional[str] = None, bar_width=0.05, display_percentage: bool = False):
+def plot_model_accuracies(scores: ArrayLike, correct_indicators: ArrayLike, thresholds: ArrayLike = np.linspace(0, 0.9, num=10), axis_buffer: float = 0.1, title: str = "LLM Accuracy by Confidence Score Threshold", write_path: Optional[str] = None, bar_width: float = 0.05, display_percentage: bool = False):
     """
+    Plot model accuracies with sample sizes in a separate subplot below.
+
     Parameters
     ----------
     scores : list of float
@@ -58,7 +54,7 @@ def plot_model_accuracies(scores: ArrayLike, correct_indicators: ArrayLike, thre
         Destination path for image file.
 
     bar_width : float, default=0.05
-        The width of the bars in the plot
+        The width of the bars in the sample size subplot
 
     display_percentage : bool, default=False
         Whether to display the sample size as a percentage
@@ -75,43 +71,41 @@ def plot_model_accuracies(scores: ArrayLike, correct_indicators: ArrayLike, thre
     denominator = n_samples / 100 if display_percentage else 1
     for t in thresholds:
         grades_t = [correct_indicators[i] for i in range(0, len(scores)) if scores[i] >= t]
-        accuracies.append(np.mean(grades_t))
+        accuracies.append(np.mean(grades_t) if len(grades_t) > 0 else np.nan)
         sample_sizes.append(len(grades_t) / denominator)
 
-    min_acc = min(accuracies)
-    max_acc = max(accuracies)
+    # Use nanmin/nanmax to handle potential NaN values from empty slices
+    min_acc = np.nanmin(accuracies)
+    max_acc = np.nanmax(accuracies)
 
-    # Create a single figure and axis
-    _, ax = plt.subplots()
+    # Create figure with two subplots sharing x-axis
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), sharex=True, gridspec_kw={"height_ratios": [2, 1]}, constrained_layout=True)
 
-    # Plot the first dataset (original)
-    ax.scatter(thresholds, accuracies, s=15, marker="s", label="Accuracy", color="blue")
-    ax.plot(thresholds, accuracies, color="blue")
+    # Top plot: Accuracy
+    ax1.scatter(thresholds, accuracies, s=15, marker="s", label="Accuracy", color="blue")
+    ax1.plot(thresholds, accuracies, color="blue")
+    ax1.set_ylim([min_acc * (1 - axis_buffer), max_acc * (1 + axis_buffer)])
+    ax1.set_ylabel("LLM Accuracy (Filtered)")
+    ax1.set_title(f"{title}", fontsize=10)
+    ax1.legend(loc="best")
+    ax1.grid(True, alpha=0.3)
 
-    # Calculate sample proportion for the first dataset
-    normalized_sample_1 = scale(sample_sizes, upper=max_acc, lower=min_acc)
+    # Bottom plot: Sample sizes
+    label = "Sample Size (%)" if display_percentage else "Sample Size"
+    ax2.bar(thresholds, sample_sizes, alpha=0.6, width=bar_width, label=label, color="lightblue", edgecolor="blue")
 
-    # Adjust x positions for the first dataset
-    bar_positions = np.array(thresholds)
-    label = "Sample Size" if not display_percentage else "Sample Size (%)"
-    pps1 = ax.bar(bar_positions, normalized_sample_1, label=label, alpha=0.2, width=bar_width)
+    # Add value labels on bars
+    for i, (x, y) in enumerate(zip(thresholds, sample_sizes)):
+        if not np.isnan(y) and y > 0:
+            label_text = f"{y:.0f}%" if display_percentage else f"{y:.0f}"
+            ax2.text(x, y, label_text, ha="center", va="bottom", fontsize=8)
 
-    # Annotate the bars for the first dataset
-    count = 0
-    for p in pps1:
-        height = p.get_height()
-        s_ = "{:.0f} %".format(sample_sizes[count]) if display_percentage else "{:.0f}".format(sample_sizes[count])
-        ax.text(x=p.get_x() + p.get_width() / 2, y=height - (height - min_acc * (1 - axis_buffer)) / 50, s=s_, ha="center", fontsize=8, rotation=90, va="top")
-        count += 1
-
-    # Set x and y ticks, limits, labels, and title
-    ax.set_xticks(np.arange(0, 1, 0.1))
-    ax.set_xlim([-0.04, 0.95])
-    ax.set_ylim([min_acc * (1 - axis_buffer), max_acc * (1 + axis_buffer)])
-    ax.legend()
-    ax.set_xlabel("Thresholds")
-    ax.set_ylabel("LLM Accuracy (Filtered)")
-    ax.set_title(f"{title}", fontsize=10)
+    ax2.set_xlabel("Thresholds")
+    ax2.set_ylabel(label)
+    ax2.set_xlim([-0.04, 0.95])
+    ax2.set_xticks(np.arange(0, 1, 0.1))
+    ax2.legend(loc="best")
+    ax2.grid(True, alpha=0.3, axis="y")
     if write_path:
         plt.savefig(f"{write_path}", dpi=300)
     plt.show()

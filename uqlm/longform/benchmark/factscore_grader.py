@@ -21,9 +21,10 @@ from uqlm.utils.prompts.factscore_prompts import FACTSCORE_SYSTEM_PROMPT, SUBJEC
 
 class FactScoreGrader:
     def __init__(self, llm, max_calls_per_min: int = None):
-        self.rg = ResponseGenerator(llm, max_calls_per_min=max_calls_per_min)
         self.grader_system_prompt = FACTSCORE_SYSTEM_PROMPT
         self.subjective_system_prompt = SUBJECTIVE_SYSTEM_PROMPT
+        self.rg = ResponseGenerator(llm, max_calls_per_min=max_calls_per_min)
+        self.rg.response_generator_type = "factscore_grader"
 
     def construct_entailment_prompt(self, claim: str, answer: str) -> str:
         return f"""

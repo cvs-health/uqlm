@@ -26,7 +26,12 @@ class UQResult:
         result: dict
             A dictionary that is defined during `evaluate` or `tune_params` method
         """
-        self.data = result.get("data")
+        data = result.get("data")
+        if "prompts" in data:  # move prompts to front if exists
+            prompts = data.pop("prompts")
+            data = {"prompts": prompts, **data}
+
+        self.data = data
         self.metadata = result.get("metadata")
         self.result_dict = result
 
@@ -40,6 +45,6 @@ class UQResult:
         """
         Returns result in pd.DataFrame
         """
-        rename_dict = {col: col[:-1] for col in self.result_dict["data"].keys() if col.endswith("s") and col not in ["sampled_responses", "raw_sampled_responses"]}
+        rename_dict = {col: col[:-1] for col in self.data.keys() if col.endswith("s") and col not in ["sampled_responses", "raw_sampled_responses", "claims", "sentences"]}
 
-        return pd.DataFrame(self.result_dict["data"]).rename(columns=rename_dict)
+        return pd.DataFrame(self.data).rename(columns=rename_dict)

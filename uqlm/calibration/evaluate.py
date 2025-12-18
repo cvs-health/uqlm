@@ -26,7 +26,7 @@ from sklearn.metrics import brier_score_loss, log_loss
 import matplotlib.pyplot as plt
 from uqlm.utils.results import UQResult
 
-Ignore_Columns = ["prompts", "responses", "sampled_responses", "raw_sampled_responses", "raw_responses", "logprobs"]
+Ignore_Columns = ["prompts", "responses", "sampled_responses", "raw_sampled_responses", "raw_responses", "logprob"]
 
 
 def evaluate_calibration(uq_result: UQResult, correct_indicators: Union[List[bool], List[int], np.ndarray], plot: bool = True, axes: Optional[tuple] = None) -> dict:
