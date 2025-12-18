@@ -170,7 +170,7 @@ class ClaimQA(LongFormUQ):
         self.scores_dict = self._process_bb_result(bb_result=bb_result, formatted_claim_questions=generated_questions, num_claims=num_claims)
 
         if self.claim_refinement:
-            self.uad_result = await self.uncertainty_aware_decode(claim_sets=self.claim_sets, claim_scores=self.claim_scores[self.uad_scorer], show_progress_bars=True if progress_bar else False)
+            self.uad_result = await self.uncertainty_aware_decode(claim_sets=self.claim_sets, uad_claim_scores=self.claim_scores[self.uad_scorer], show_progress_bars=True if progress_bar else False)
 
         self.scores_dict["claims_data"] = self._extract_claim_data()
 

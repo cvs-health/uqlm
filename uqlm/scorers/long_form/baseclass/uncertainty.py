@@ -85,7 +85,7 @@ class LongFormUQ(UncertaintyQuantifier):
             self.reconstructor = UncertaintyAwareDecoder(reconstructor_llm=self.decomposer.claim_decomposition_llm, threshold=self.claim_refinement_threshold, aggregation=self.aggregation)
             self.uad_scorer = self.scorers[0]
 
-    async def uncertainty_aware_decode(self, claim_sets: List[List[str]], claim_scores: List[List[float]], claim_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> List[str]:
+    async def uncertainty_aware_decode(self, claim_sets: List[List[str]], uad_claim_scores: List[List[float]], claim_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> List[str]:
         """
         Parameters
         ----------
@@ -100,15 +100,15 @@ class LongFormUQ(UncertaintyQuantifier):
         """
         self._construct_progress_bar(show_progress_bars)
         self._display_reconstruction_header(show_progress_bars)
-        uad_result = await self.reconstructor.reconstruct_responses(claim_sets=claim_sets, claim_scores=claim_scores, responses=self.responses, progress_bar=self.progress_bar)
+        uad_result = await self.reconstructor.reconstruct_responses(claim_sets=claim_sets, claim_scores=uad_claim_scores, responses=self.responses, progress_bar=self.progress_bar)
         self._stop_progress_bar()
         self.progress_bar = None
 
         for scorer in self.scorers:
             filtered_claim_scores = []
-            for i in range(len(self.claim_sets)):
+            for i in range(len(claim_sets)):
                 filtered_claim_scores_i = []
-                for j in range(len(self.claim_sets[i])):
+                for j in range(len(claim_sets[i])):
                     if not uad_result["removed"][i][j]:
                         filtered_claim_scores_i.append(self.claim_scores[scorer][i][j])
                 filtered_claim_scores.append(filtered_claim_scores_i)

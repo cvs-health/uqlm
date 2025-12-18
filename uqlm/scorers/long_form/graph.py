@@ -1,21 +1,16 @@
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from rich.progress import Progress
 from langchain_core.language_models.chat_models import BaseChatModel
 from uqlm.scorers.long_form.baseclass.uncertainty import LongFormUQ
 from uqlm.utils.results import UQResult
-from uqlm.longform.luq.matched_unit import MatchedUnitScorer
-from uqlm.longform.luq.unit_response import UnitResponseScorer
+from uqlm.longform.graph import GraphScorer, ClaimMerger
 
-UNIT_RESPONSE_SCORERS = ["entailment", "noncontradiction", "contrasted_entailment"]
-MATCHED_UNIT_SCORERS = UNIT_RESPONSE_SCORERS + ["bert_score", "cosine_sim"]
+GRAPH_SCORERS = ["degree_centrality", "betweenness_centrality", "closeness_centrality", "page_rank", "laplacian_centrality", "harmonic_centrality"]
 
-
-class LongTextUQ(LongFormUQ):
+class ClaimGraphUQ(LongFormUQ):
     def __init__(
         self,
         llm: Optional[BaseChatModel] = None,
-        granularity: str = "claim",
-        mode: str = "unit_response",
         scorers: Optional[List[str]] = None,
         aggregation: str = "mean",
         claim_refinement: bool = False,
@@ -38,18 +33,15 @@ class LongTextUQ(LongFormUQ):
             A langchain llm `BaseChatModel`. User is responsible for specifying temperature and other
             relevant parameters to the constructor of their `llm` object.
 
-        scorers : subset of {"entailment", "noncontradiction", "contrasted_entailment", "bert_score", "cosine_sim"}, default=None
-            Specifies which black box (consistency) scorers to include. If None, defaults to ["entailment"].
+        scorers : List[str], default=None
+            Specifies which graph-based scorers to include. Must be subset of ["degree_centrality", "betweenness_centrality", 
+            "closeness_centrality", "page_rank", "laplacian_centrality", "harmonic_centrality"]. If None, defaults to ["closeness_centrality"].
 
         granularity : str, default="claim"
             Specifies whether to decompose and score at claim or sentence level granularity. Must be either "claim" or "sentence"
 
         aggregation : str, default="mean"
             Specifies how to aggregate claim/sentence-level scores to response-level scores. Must be one of 'min' or 'mean'.
-
-        mode : str, default="unit_response"
-            Specifies whether to implement unit-response (LUQ-style) scoring or matched-unit (LUQ-pair-style) scoring. Must be
-            either "unit_response" or "matched_unit".
 
         claim_refinement : bool, default=False
             Specifies whether to refine responses with uncertainty-aware decoding. This approach removes claims with confidence
@@ -91,13 +83,13 @@ class LongTextUQ(LongFormUQ):
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to
             avoid OutOfMemoryError
         """
-        self.scorers = ["entailment"] if not scorers else scorers
-        super().__init__(llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, claim_refinement=claim_refinement, claim_refinement_threshold=claim_refinement_threshold, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
+        self.scorers = ["closeness_centrality"] if not scorers else scorers
+        super().__init__(llm=llm, aggregation=aggregation, scorers=self.scorers, claim_refinement=claim_refinement, claim_refinement_threshold=claim_refinement_threshold, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
         self.nli_model_name = nli_model_name
-        self.mode = mode
         self.max_length = max_length
         self.sampling_temperature = sampling_temperature
-        self._validate_scorers()
+        self.graph_scorer = GraphScorer(nli_model_name=nli_model_name, max_length=max_length, device=device)
+        self.claim_merger = ClaimMerger(claim_merging_llm=self.decomposer.claim_decomposition_llm)
         self.prompts = None
         self.responses = None
         self.claim_sets = None
@@ -165,34 +157,28 @@ class LongTextUQ(LongFormUQ):
         self._construct_progress_bar(show_progress_bars)
 
         await self._decompose_responses(show_progress_bars)
-        if self.mode == "matched_unit":
-            await self._decompose_candidate_responses(show_progress_bars)
+        await self._decompose_candidate_responses(show_progress_bars)
+        await self._merge_claims(show_progress_bars)
+        
         self._display_scoring_header(show_progress_bars)
+        
+        all_responses = [[r] + sr for r, sr in zip(self.responses, self.sampled_responses)]
 
-        self.scores_dict = self._score_from_decomposed(claim_sets=self.claim_sets, sampled_responses=self.sampled_responses, sampled_claim_sets=self.sampled_claim_sets, progress_bar=self.progress_bar)
-
+        original_claim_scores, master_claim_scores, graph_score_result = self._score_from_decomposed(original_claim_sets=self.claim_sets, master_claim_sets=self.master_claim_sets, response_sets=all_responses, progress_bar=self.progress_bar)
+        
         if self.claim_refinement:
-            self.uad_result = await self.uncertainty_aware_decode(claim_sets=self.claim_sets, uad_claim_scores=self.claim_scores[self.uad_scorer], show_progress_bars=show_progress_bars)
+            self.claim_scores = master_claim_scores
+            self.uad_result = await self.uncertainty_aware_decode(claim_sets=self.master_claim_sets, uad_claim_scores=self.claim_scores[self.uad_scorer], show_progress_bars=show_progress_bars)
         self._stop_progress_bar()
         self.progress_bar = None
-
-        claims_data = []
-        for i in range(len(self.claim_sets)):
-            claim_i_data = []
-            for j in range(len(self.claim_sets[i])):
-                claims_dict = {self.granularity: self.claim_sets[i][j], "removed": False if not self.uad_result else self.uad_result["removed"][i][j]}
-                for scorer in self.scorers:
-                    claims_dict[scorer] = self.claim_scores[scorer][i][j]
-                claim_i_data.append(claims_dict)
-            claims_data.append(claim_i_data)
-
-        self.scores_dict["claims_data"] = claims_data
+                
+        self.scores_dict["claims_data"] = self._unpack_claims_data(graph_score_result)
         if "removed" in self.uad_result:
             del self.uad_result["removed"]
 
         return self._construct_result()
 
-    def _score_from_decomposed(self, claim_sets: List[List[str]], sampled_responses: Optional[List[List[str]]] = None, sampled_claim_sets: Optional[List[List[List[str]]]] = None, progress_bar: Optional[Progress] = None) -> UQResult:
+    def _score_from_decomposed(self, original_claim_sets: List[List[str]], master_claim_sets: List[List[str]], response_sets: List[List[str]], progress_bar: Optional[Progress] = None) -> Tuple[Any, Any, Any]:
         """
         Compute confidence scores with specified scorers on provided LLM responses. Should only be used if responses and sampled responses
         are already generated. Otherwise, use `generate_and_score`.
@@ -202,10 +188,10 @@ class LongTextUQ(LongFormUQ):
         claim_sets : list of list of strings
             List of original responses decomposed into lists of either claims or sentences
 
-        sampled_responses : list of list of strings
+        master_claim_sets : list of list of strings
             Candidate responses to be compared to the decomposed original responses
 
-        sampled_claim_sets : list of list of list of strings
+        response_sets : list of list of strings
             Decomposed responses to be compared to the decomposed original responses
 
         Returns
@@ -213,52 +199,59 @@ class LongTextUQ(LongFormUQ):
         UQResult
             UQResult containing data (responses and scores) and metadata
         """
-        if self.mode == "unit_response":
-            self.claim_scores = self.unit_response_scorer.evaluate(claim_sets=self.claim_sets, sampled_responses=sampled_responses, progress_bar=progress_bar).to_dict()
-        elif self.mode == "matched_unit":
-            self.claim_scores = self.matched_unit_scorer.evaluate(claim_sets=self.claim_sets, sampled_claim_sets=self.sampled_claim_sets, progress_bar=progress_bar).to_dict()
-
-        scores_dict = {}
-        for scorer in self.scorers:
-            scores_dict[scorer] = self._aggregate_scores(self.claim_scores[scorer])
-
-        return scores_dict
+        graph_score_result = self.graph_scorer.evaluate(
+            original_claim_sets=self.claim_sets, master_claim_sets=self.master_claim_sets, response_sets=response_sets, progress_bar=progress_bar
+        )
+        original_claim_scores, master_claim_scores = self._unpack_results(graph_score_result)
+        return original_claim_scores, master_claim_scores, graph_score_result
 
     def _construct_result(self) -> Any:
         """Constructs UQResult object"""
         data = {"responses": self.responses, "sampled_responses": self.sampled_responses}
         if self.prompts:
             data["prompts"] = self.prompts
-        # if self.claim_sets:
-        #     data[self.granularity + "s"] = self.claim_sets
         data.update(self.scores_dict)
         data.update(self.uad_result)
-        result = {"data": data, "metadata": {"mode": self.mode, "granularity": self.granularity, "aggregation": self.aggregation, "temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "claim_refinement_threshold": self.claim_refinement_threshold}}
+        result = {"data": data, "metadata": {"aggregation": self.aggregation, "temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "claim_refinement_threshold": self.claim_refinement_threshold}}
         return UQResult(result)
 
-    def _validate_scorers(self) -> None:
-        """Validate scorers"""
-        self.matched_unit_scorer = None
-        self.unit_response_scorer = None
-        if self.mode == "unit_response":
-            if set(self.scorers) - set(UNIT_RESPONSE_SCORERS):
-                raise ValueError(
-                    f"""
-                Invalid scorers: {set(self.scorers) - set(UNIT_RESPONSE_SCORERS)}. Must be subset of {UNIT_RESPONSE_SCORERS} when mode="unit_response"
-                """
-                )
-            self.unit_response_scorer = UnitResponseScorer(nli_model_name=self.nli_model_name, device=self.device, max_length=self.max_length)
-        elif self.mode == "matched_unit":
-            self.matched_unit_scorer = MatchedUnitScorer(nli_model_name=self.nli_model_name, device=self.device, max_length=self.max_length)
-            if set(self.scorers) - set(MATCHED_UNIT_SCORERS):
-                raise ValueError(
-                    f"""
-                Invalid scorers: {set(self.scorers) - set(MATCHED_UNIT_SCORERS)}. Must be subset of {MATCHED_UNIT_SCORERS} when mode="matched_unit"
-                """
-                )
-        else:
-            raise ValueError(
-                f"""
-                Invalid mode: {self.mode}. Must be one of "unit_response", "matched_unit"
-                """
-            )
+    async def _merge_claims(self, show_progress_bars) -> None:
+        self.master_claim_sets = await self.claim_merger.merge_claims(
+            original_claim_sets=self.claim_sets, 
+            sampled_claim_sets=self.sampled_claim_sets,
+            progress_bar=self.progress_bar if show_progress_bars else None,
+        )
+        
+    def _unpack_results(self, result: List[List[Any]]) -> Any:        
+        original_claim_scores = {k: [] for k in self.scorers}
+        master_claim_scores = {k: [] for k in self.scorers}
+        self.scores_dict = {k: [] for k in self.scorers}
+        for scorer in self.scorers:
+            for i in range(len(result)):
+                score_list_i = []
+                master_score_list_i = []
+                for j in range(len(result[i])):
+                    master_score_list_i.append(result[i][j].scores[scorer])
+                    if result[i][j].original_response:
+                        score_list_i.append(result[i][j].scores[scorer])   
+                original_claim_scores[scorer].append(score_list_i)
+                master_claim_scores[scorer].append(master_score_list_i)
+                
+            response_scores = self._aggregate_scores(original_claim_scores[scorer])
+            self.scores_dict[scorer] = response_scores
+        return original_claim_scores, master_claim_scores 
+        
+        
+    def _unpack_claims_data(self, result: List[List[Any]]) -> List[List[Dict[str, Any]]]:
+        claims_data = []    
+        for i in range(len(result)):
+            claims_data_i = []
+            for j in range(len(result[i])):
+                claim_dict_ij = result[i][j].dict() 
+                scores_dict_ij = claim_dict_ij.pop("scores")
+                claim_dict_ij.update({k: s for k, s in scores_dict_ij.items() if k in self.scorers})
+                claim_dict_ij["removed"] = False if not self.uad_result else self.uad_result["removed"][i][j]
+                
+                claims_data_i.append(claim_dict_ij)
+            claims_data.append(claims_data_i)
+        return claims_data

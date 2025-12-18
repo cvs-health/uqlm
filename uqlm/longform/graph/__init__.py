@@ -12,13 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.scorers.short_form.ensemble import UQEnsemble
-from uqlm.scorers.short_form.entropy import SemanticEntropy
-from uqlm.scorers.short_form.panel import LLMPanel
-from uqlm.scorers.short_form.white_box import WhiteBoxUQ
-from uqlm.scorers.short_form.black_box import BlackBoxUQ
-from uqlm.scorers.long_form.longtext import LongTextUQ
-from uqlm.scorers.long_form.claimqa import ClaimQA
-from uqlm.scorers.long_form.graph import ClaimGraphUQ
+from uqlm.longform.graph.graph_scorer import GraphScorer
+from uqlm.longform.graph.claim_merger import ClaimMerger
 
-__all__ = ["UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "LongTextUQ", "ClaimQA", "ClaimGraphUQ"]
+__all__ = ["GraphScorer", "ClaimMerger"]
