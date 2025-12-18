@@ -25,8 +25,11 @@ from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from uqlm.utils.warn import beta_warning
 
 
+generator_type_to_progress_msg = {"judge": "Scoring responses with LLM-as-a-Judge", "original": "Generating responses", "p_true": "Scoring responses with P(True)", "grader": "Grading responses against provided ground truth answers", "factscore_grader": "Grading claims/sentences against Wikipedia texts", "question_generator": "Generating questions for each claim/sentence"}
+
+
 class ResponseGenerator:
-    def __init__(self, llm: BaseChatModel = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False) -> None:
+    def __init__(self, llm: BaseChatModel = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, top_k_logprobs: Optional[int] = None) -> None:
         """
         Class for generating data from a provided set of prompts
 
@@ -48,7 +51,9 @@ class ResponseGenerator:
         self.max_calls_per_min = max_calls_per_min
         self.progress = None
         self.progress_task = None
-        self.is_judge = False
+        self.generator_type_to_progress_msg = generator_type_to_progress_msg
+        self.response_generator_type = "original"
+        self.top_k_logprobs = top_k_logprobs
 
     async def generate_responses(self, prompts: List[Union[str, List[BaseMessage]]], system_prompt: Optional[str] = None, count: int = 1, progress_bar: Optional[Progress] = None) -> Dict[str, Any]:
         """
@@ -98,6 +103,7 @@ class ResponseGenerator:
         """
         if any(isinstance(prompt, list) and all(isinstance(item, BaseMessage) for item in prompt) for prompt in prompts):
             beta_warning("Use of BaseMessage in prompts argument is in beta. Please use it with caution as it may change in future releases.")
+
         if self.llm.temperature == 0:
             assert count == 1, "temperature must be greater than 0 if count > 1"
         self._update_count(count)
@@ -142,7 +148,7 @@ class ResponseGenerator:
         generations = {"responses": [], "logprobs": []}
         if self.progress_bar:
             if self.count == 1:
-                self.progress_task = self.progress_bar.add_task(f"  - {'Scoring responses with LLM-as-a-Judge' if self.is_judge else 'Generating responses'}...", total=len(prompts))
+                self.progress_task = self.progress_bar.add_task(f"  - {self.generator_type_to_progress_msg[self.response_generator_type]}...", total=len(prompts))
             else:
                 self.progress_task = self.progress_bar.add_task(f"  - Generating candidate responses ({self.count} per prompt)...", total=len(prompts) * self.count)
 
@@ -185,24 +191,56 @@ class ResponseGenerator:
         else:
             raise ValueError("prompts must be list of strings or list of lists of BaseMessage instances. For support with LangChain BaseMessage usage, refer here: https://python.langchain.com/docs/concepts/messages")
 
-        logprobs = [None] * count
-        result = await self.llm.agenerate([messages])
+        if not self.top_k_logprobs:
+            result = await self.llm.agenerate([messages])
+            logprobs = [None] * count
+            if hasattr(self.llm, "logprobs"):
+                if self.llm.logprobs:
+                    logprobs = self._extract_logprobs(logprobs=logprobs, result=result, count=count)
+            result_dict = {"logprobs": logprobs, "responses": [result.generations[0][i].text for i in range(count)]}
+        else:
+            result_dict = await self.agenerate_with_top_logprobs(messages, count=count)
         if self.progress_bar:
             for _ in range(count):
                 self.progress_bar.update(self.progress_task, advance=1)
-        if hasattr(self.llm, "logprobs"):
-            if self.llm.logprobs:
-                for i in range(count):
-                    if "logprobs_result" in result.generations[0][i].generation_info:
-                        logprobs[i] = result.generations[0][i].generation_info["logprobs_result"]
+        return result_dict
 
-                    elif "logprobs" in result.generations[0][i].generation_info:
-                        if "content" in result.generations[0][i].generation_info["logprobs"]:
-                            logprobs[i] = result.generations[0][i].generation_info["logprobs"]["content"]
-                    else:
-                        warnings.warn("Model did not provide logprobs in API response. White-box scores for this response may be set to np.nan.")
-                        logprobs[i] = np.nan
+    async def agenerate_with_top_logprobs(self, messages: List[BaseMessage], count: int) -> Any:
+        """Use agenerate method with top_logprobs configured"""
+        logprobs = [None] * count
+        result = None
+        if "openai" in self.llm.__str__().lower():
+            result = await self.llm.agenerate([messages], logprobs=True, top_logprobs=self.top_k_logprobs)
+        elif "google" in self.llm.__str__().lower() or "gemini" in self.llm.str().lower():
+            self.llm.logprobs = self.top_k_logprobs
+            result = await self.llm.agenerate([messages])
+        else:
+            try:
+                result = await self.llm.agenerate([messages], logprobs=True, top_logprobs=self.top_k_logprobs)
+            except Exception:
+                try:
+                    self.llm.logprobs = self.top_k_logprobs
+                    result = await self.llm.agenerate([messages])
+                except Exception:
+                    pass
+        if result is None:  # if all attempts fail
+            return {"logprobs": [None] * count, "responses": []}
+        logprobs = self._extract_logprobs(logprobs=logprobs, result=result, count=count)
         return {"logprobs": logprobs, "responses": [result.generations[0][i].text for i in range(count)]}
+
+    @staticmethod
+    def _extract_logprobs(logprobs: Any, result: Any, count: int):
+        for i in range(count):
+            if "logprobs_result" in result.generations[0][i].generation_info:
+                logprobs[i] = result.generations[0][i].generation_info["logprobs_result"]
+
+            elif "logprobs" in result.generations[0][i].generation_info:
+                if "content" in result.generations[0][i].generation_info["logprobs"]:
+                    logprobs[i] = result.generations[0][i].generation_info["logprobs"]["content"]
+            else:
+                warnings.warn("Model did not provide logprobs in API response. White-box scores for this response may be set to np.nan.")
+                logprobs[i] = [{"token": "UNABLE TO GET LOGPROBS", "logprob": np.nan, "top_logprobs": []}]
+        return logprobs
 
     @staticmethod
     def _enforce_strings(texts: List[Any]) -> List[str]:

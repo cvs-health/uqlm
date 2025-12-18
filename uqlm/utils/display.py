@@ -15,7 +15,7 @@
 
 from rich.progress import SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
 
-HEADERS = ["🤖 Generation", "📈 Scoring", "⚙️ Optimization", "🤖📈 Generation & Scoring", "✂️ Decomposition", "", "  - [black]Grading responses against provided ground truth answers with default grader..."]
+HEADERS = ["🤖 Generation", "📈 Scoring", "⚙️ Optimization", "🤖🧮 Generation with Logprobs", "", "  - [black]Grading responses against provided ground truth answers with default grader...", "✂️ Decomposition", "✅️ Refinement", "\n🤖 Claim-QA Answer Generation"]
 OPTIMIZATION_TASKS = ["  - [black]Optimizing weights...", "  - [black]Jointly optimizing weights and threshold using grid search...", "  - [black]Optimizing weights using grid search...", "  - [black]Optimizing threshold with grid search..."]
 
 

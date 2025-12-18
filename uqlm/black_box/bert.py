@@ -16,8 +16,10 @@
 import numpy as np
 from typing import Any, List, Optional
 from bert_score import BERTScorer
+import torch
 
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
+from uqlm.utils.device import get_best_device
 
 import time
 from rich.progress import Progress
@@ -35,6 +37,12 @@ class BertScorer(SimilarityScorer):
             Specifies the device that classifiers use for prediction. Set to "cuda" for classifiers to be able to
             leverage the GPU.
         """
+        # Handle device detection
+        if device is None:
+            device = get_best_device()
+        elif isinstance(device, str):
+            device = torch.device(device)
+
         from transformers import logging
 
         logging.set_verbosity_error()

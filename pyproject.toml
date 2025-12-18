@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "uqlm"
-version = "0.3.1"
+version = "0.4.4"
 description = "UQLM (Uncertainty Quantification for Language Models) is a Python package for UQ-based LLM hallucination detection."
 authors = ["Dylan Bouchard <dylan.bouchard@cvshealth.com>", "Mohit Singh Chauhan <mohitsingh.chauhan@cvshealth.com>"]
 maintainers = [
@@ -27,8 +27,8 @@ packages = [
     { include = "uqlm/scorers" },
     { include = "uqlm/judges" },
     { include = "uqlm/black_box" },
+    { include = "uqlm/white_box" },
     { include = "uqlm/calibration" },
-    { include = "uqlm/longform" },
     { include = "uqlm/resources" },
     { include = "uqlm/utils" },
 ]
@@ -37,43 +37,37 @@ keywords = ["LLM", "large language model", "LLM evaluation", "hallucination", "u
 
 [tool.poetry.dependencies]
 python = ">=3.10, <4.0"
-langchain = "^0.3.7"
+langchain = ">=0.3.7,<1.1.0"
+langchain-model-profiles = "^0.0.3"
 transformers = "^4.45.2"
 scikit-learn = [
     { version = "^1.5.2", markers = "python_version < '3.13'" },
-    { version = ">=1.7.0", markers = "python_version >= '3.13'" }
+    { version = "^1.7.0", markers = "python_version >= '3.13'" }
 ]
 numpy = [
     { version = "^1.26.4", markers = "python_version < '3.13'" },
     { version = ">=2.3.1", markers = "python_version >= '3.13'" }
 ]
 scipy = {version = "^1.15.0", markers = "python_version >= '3.13'"}
-matplotlib = "^3.9.2"
+matplotlib = "^3.10.0"
 optuna = "^4.0.0"
 bert-score = "^0.3.0"
-pandas = "^2.2.3"
+pandas = "^2.3.0"
 sentence-transformers = ">=3.4,<6.0"
 datasets = ">=3.3.2,<5.0.0"
 rich = "^13.8.0"
 ipywidgets = "^8.1.7"
-langchain-core = "^0.3.75"
-pydantic = "^2.12.0"
-networkx = "^3.4.0"
 
 [tool.poetry.group.dev]
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-python-dotenv = "^1.0.1"
+python-dotenv = "^1.2.0"
 ruff = "0.9.7"
 pre-commit = "^4.1.0"
 ipykernel = "^6.29.5"
-langchain-openai = "^0.3.30"
-langchain-google-vertexai = "^2.0.28"
-pytest = "^8.3.5"
-pytest-asyncio = ">=0.25.3,<1.2.0"
-pytest-cov = "^6.0.0"
-pytest-rerunfailures = "^16.0"
+langchain-openai = ">=0.2.6"
+langchain-google-vertexai = ">=2.0.8"
 
 [tool.poetry.group.docs]
 optional = true
@@ -82,10 +76,23 @@ optional = true
 sphinx= "7.4.7"
 pydata_sphinx_theme = "0.16.1"
 sphinxcontrib-bibtex = "2.6.3"
-sphinx-autodoc-typehints = "2.2.0"
+sphinx-autodoc-typehints = "2.3.0"
 sphinx-gallery = "0.18.0"
 sphinx-favicon = "1.0.1"
 nbsphinx = "0.9.6"
+
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+ipykernel = "^6.29.5"
+langchain-openai = ">=0.2.6"
+pytest = "^8.3.5"
+langchain-google-vertexai = ">=2.0.8"
+pytest-asyncio = ">=0.25.3,<1.2.0"
+pytest-cov = ">=6,<8"
+pytest-rerunfailures = "^16.0"
 
 
 
@@ -131,10 +138,8 @@ exclude = [
     "site-packages",
     "venv",
 ]
-extend-exclude = ["uqlm/utils/prompts"]
-
 # Core settings
-line-length = 200
+line-length = 400
 
 [tool.ruff.lint]
 #What rules to enable
@@ -154,7 +159,9 @@ ignore = []
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
-skip-magic-trailing-comma = false
+skip-magic-trailing-comma = true
 line-ending = "lf"
 docstring-code-format = true
-docstring-code-line-length = 200
+
+[tool.ruff.lint.per-file-ignores]
+"uqlm/utils/prompts/*.py" = ["ALL"]

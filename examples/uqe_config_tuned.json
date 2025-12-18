@@ -1,61 +1,42 @@
 {
   "weights": [
-    0.00046109310833603593,
-    0.45623273900760736,
-    0.10385167603771311,
-    0.4394175329302301,
-    3.6958916113473975e-05
+    0.0025387213438219183,
+    0.8341461711896818,
+    0.040041378980108795,
+    0.12327372848638753
   ],
-  "thresh": 0.51,
+  "thresh": 0.74,
   "components": [
     "exact_match",
     "noncontradiction",
     "normalized_probability",
-    "judge_1",
-    "judge_2"
+    "judge_1"
   ],
   "llm_config": {
     "class_name": "AzureChatOpenAI",
     "module": "langchain_openai.chat_models.azure",
-    "deployment_name": "gpt-4o",
+    "deployment_name": "gpt-4o-mini",
     "logprobs": true,
     "model_version": "",
     "n": 5,
     "openai_api_type": "azure",
     "openai_api_version": "2024-02-15-preview",
-    "output_version": "v0",
+    "profile": {},
     "streaming": false,
     "use_previous_response_id": false,
     "verbose": false
   },
   "llm_scorers": {
     "judge_1": {
-      "class_name": "ChatVertexAI",
-      "module": "langchain_google_vertexai.chat_models",
-      "default_metadata": [],
-      "endpoint_version": "v1beta1",
-      "full_model_name": "projects/anbc-dev/locations/us-central1/publishers/google/models/gemini-2.5-flash",
-      "location": "us-central1",
-      "logprobs": false,
-      "max_retries": 6,
-      "model_name": "gemini-2.5-flash",
-      "n": 1,
-      "perform_literal_eval_on_string_raw_content": true,
-      "project": "anbc-dev",
-      "request_parallelism": 5,
-      "streaming": false,
-      "verbose": false
-    },
-    "judge_2": {
       "class_name": "AzureChatOpenAI",
       "module": "langchain_openai.chat_models.azure",
-      "deployment_name": "gpt-4o",
+      "deployment_name": "gpt-4o-mini",
       "logprobs": true,
       "model_version": "",
       "n": 5,
       "openai_api_type": "azure",
       "openai_api_version": "2024-02-15-preview",
-      "output_version": "v0",
+      "profile": {},
       "streaming": false,
       "use_previous_response_id": false,
       "verbose": false

@@ -12,6 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any, Dict, List
+
+
+def claims_dicts_to_lists(claims_data: List[Dict[str, Any]]) -> Dict[str, List[Any]]:
+    """Extract claim-level data into list of lists"""
+    return_dict = {k: [] for k in claims_data[0][0].keys()}
+    for key in return_dict:
+        claims_data_lists = []
+        for i in range(len(claims_data)):
+            claims_data_i = []
+            for j in range(len(claims_data[i])):
+                claims_data_i.append(claims_data[i][j][key])
+            claims_data_lists.append(claims_data_i)
+        return_dict[key] = claims_data_lists
+    return return_dict
+
 
 def math_postprocessor(input_string: str) -> str:
     """

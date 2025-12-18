@@ -24,3 +24,14 @@ class UQLMBetaWarning(Warning):
 def beta_warning(message: str):
     """Issues a beta warning with a custom message."""
     warnings.warn(message, category=UQLMBetaWarning, stacklevel=2)
+
+
+class UQLMDeprecationWarning(Warning):
+    """Custom warning class for future deprecation of features in UQLM."""
+
+    pass
+
+
+def deprecation_warning(message: str):
+    """Issues a beta warning with a custom message."""
+    warnings.warn(message, category=UQLMDeprecationWarning, stacklevel=2)

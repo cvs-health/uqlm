@@ -17,6 +17,7 @@ from typing import Optional, Union
 from datasets import load_dataset, concatenate_datasets
 from datasets import disable_progress_bars
 import re
+import ast
 import numpy as np
 from copy import deepcopy
 
@@ -82,6 +83,8 @@ _dataset_default_params = {
         },
     },
     "factscore": {"load_params": {"path": "dskar/FActScore", "split": "test"}, "extra_processing": {}},
+    "hotpotqa": {"load_params": {"path": "hotpotqa/hotpot_qa", "name": "distractor", "split": "validation"}, "extra_processing": {"subset_columns": ["question", "answer"]}},
+    "simpleqa": {"load_params": {"path": "google/simpleqa-verified", "split": "eval"}, "extra_processing": {"subset_columns": ["question", "answer"], "rename_columns": {"problem": "question"}}},
 }
 
 
@@ -98,12 +101,12 @@ def list_dataset_names() -> list:
     -------
     >>> from uqlm.utils.dataloader import list_dataset_names
     >>> list_dataset_names()
-    ['ai2_arc', 'csqa', 'dialogue_sum', 'gsm8k', 'nq_open', 'popqa', 'svamp', 'triviaqa', 'factscore']
+    ['ai2_arc', 'csqa', 'dialogue_sum', 'gsm8k', 'nq_open', 'popqa', 'svamp', 'triviaqa', 'factscore', 'hotpotqa', 'simpleqa']
     """
     return list(_dataset_default_params.keys())
 
 
-def load_example_dataset(name: str, n: int = None, cols: Optional[Union[list, str]] = None) -> pd.DataFrame:
+def load_example_dataset(name: str, n: int = None, cols: Optional[Union[list, str]] = None, split: Optional[str] = None) -> pd.DataFrame:
     """
     Load a dataset for testing purposes.
 
@@ -132,6 +135,8 @@ def load_example_dataset(name: str, n: int = None, cols: Optional[Union[list, st
     if name in dataset_dict.keys():  # loads from huggingface hub
         disable_progress_bars()  # disable hf tqdm bars b/c it's a little ugly
         print(f"Loading dataset - {name}...")
+        if split:
+            dataset_dict[name]["load_params"]["split"] = split
         ds = load_dataset(**dataset_dict[name]["load_params"])
         print("Processing dataset...")
         extras = dataset_dict[name].get("extra_processing", dict())
@@ -148,6 +153,8 @@ def load_example_dataset(name: str, n: int = None, cols: Optional[Union[list, st
             df = _dataset_processing(df=df, **extras)  # data wrangling on single df
         if isinstance(n, int):
             df = df.iloc[:n]
+        if name == "popqa":
+            df["answer"] = [ast.literal_eval(a) for a in df["answer"]]
         print("Dataset ready!")
         return df
     else:

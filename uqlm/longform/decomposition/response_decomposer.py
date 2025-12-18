@@ -50,7 +50,7 @@ class ResponseDecomposer:
             If provided, displays a progress bar while scoring responses
         """
         if progress_bar:
-            progress_task = progress_bar.add_task(" - Decomposing responses into sentences...", total=len(responses))
+            progress_task = progress_bar.add_task("  - Decomposing responses into sentences...", total=len(responses))
 
         sentence_lists = []
         for response in responses:
@@ -72,7 +72,7 @@ class ResponseDecomposer:
         """
         num_responses = len(sampled_responses[0])
         if progress_bar:
-            self.progress_task = progress_bar.add_task(" - Decomposing candidate responses into sentences...", total=len(sampled_responses) * num_responses)
+            self.progress_task = progress_bar.add_task("  - Decomposing candidate responses into sentences...", total=len(sampled_responses) * num_responses)
         sampled_sentences_sets = []
         for candidates in sampled_responses:
             sentence_sets_i = self.decompose_sentences(responses=candidates)
@@ -100,7 +100,7 @@ class ResponseDecomposer:
         if not self.claim_decomposition_llm:
             raise ValueError("llm must be provided to decompose responses into claims")
         if progress_bar:
-            self.progress_task = progress_bar.add_task(" - Decomposing responses into claims...", total=len(responses))
+            self.progress_task = progress_bar.add_task("  - Decomposing responses into claims...", total=len(responses))
         claim_sets = await self._decompose_claims(responses=responses, progress_bar=progress_bar)
         time.sleep(0.1)
         return claim_sets
@@ -119,7 +119,7 @@ class ResponseDecomposer:
             raise ValueError("llm must be provided to decompose candidate responses into claims")
         num_responses = len(sampled_responses[0])
         if progress_bar:
-            self.progress_task = progress_bar.add_task(" - Decomposing candidate responses into claims...", total=len(sampled_responses) * num_responses)
+            self.progress_task = progress_bar.add_task("  - Decomposing candidate responses into claims...", total=len(sampled_responses) * num_responses)
         tasks = [self._decompose_claims(responses=candidates, progress_bar=progress_bar, matched_claims=True) for candidates in sampled_responses]
         sampled_claim_sets = await asyncio.gather(*tasks)
         time.sleep(0.1)

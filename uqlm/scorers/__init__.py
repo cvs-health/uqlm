@@ -12,11 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.scorers.ensemble import UQEnsemble
-from uqlm.scorers.entropy import SemanticEntropy
-from uqlm.scorers.panel import LLMPanel
-from uqlm.scorers.white_box import WhiteBoxUQ
-from uqlm.scorers.black_box import BlackBoxUQ
-from uqlm.scorers.longform import LongFormUQ
+from pathlib import Path
 
-__all__ = ["UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "LongFormUQ"]
+from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
+from uqlm.scorers.short_form.baseclass import ShortFormUQ
+from uqlm.scorers.short_form import UQEnsemble, SemanticDensity, SemanticEntropy, LLMPanel, WhiteBoxUQ, BlackBoxUQ
+from uqlm.scorers.long_form.baseclass import LongFormUQ
+from uqlm.scorers.long_form import ClaimQA, LongTextUQ, ClaimGraphUQ
+
+__all__ = ["UQEnsemble", "SemanticDensity", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "ClaimQA", "ClaimGraphUQ","LongTextUQ", "ShortFormUQ", "LongFormUQ", "UncertaintyQuantifier"]
+
+# Allow submodule imports like `uqlm.scorers.entropy` and `uqlm.scorers.baseclass`
+_base_dir = Path(__file__).resolve().parent
+for _subdir in ("short_form", "long_form"):
+    _subpath = _base_dir / _subdir
+    if _subpath.exists():
+        __path__.append(str(_subpath))
+
+del _base_dir, _subdir, _subpath

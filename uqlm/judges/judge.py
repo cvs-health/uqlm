@@ -31,7 +31,7 @@ LIKERT_TO_SCORES_DICT = {0.0: ["1", "completely incorrect", "not correct"], 0.25
 
 
 class LLMJudge(ResponseGenerator):
-    def __init__(self, llm: Any, max_calls_per_min: Optional[int] = None, scoring_template: str = "true_false_uncertain", system_prompt: Optional[str] = None, template_ques_ans: Optional[str] = None, keywords_to_scores_dict: Optional[Dict] = None) -> None:
+    def __init__(self, llm: Any, max_calls_per_min: Optional[int] = None, scoring_template: str = "true_false_uncertain", additional_context: Optional[str] = None, keywords_to_scores_dict: Optional[Dict] = None) -> None:
         """
         Class for using LLM-as-a-judge to score proposed answers to questions based on correctness. Four off-the-shelf
         templates are offered: incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), continuous score (0 to 1), and likert
@@ -54,15 +54,8 @@ class LLMJudge(ResponseGenerator):
              incorrect/uncertain/correct (0/0.5/1), incorrect/correct (0/1), continuous score (0 to 1), and likert scale score ( 1-5 scale, normalized to 0/0.25/0.5/0.75/1).
              These templates are respectively specified as 'true_false_uncertain', 'true_false', 'continuous', and 'likert'
 
-        system_prompt : str or None, default=None
-            Optional argument for user to provide custom system prompt. If None, a default instruction
-            system prompt will be used.
-
-        template_ques_ans : f-string, default=None
-            Template for self reflection question, which includes question and answer to
-            compute LLM judge score. Use this to define the LLM response format, if required update
-            argument "keywords_to_scores_dict" accordingly. Must be formatted so that template_ques_ans.format(question, answer)
-            places question and answer appropriately in the string. Defaults to variation of Chen et al. (2023).
+        additional_context : str or None, default=None
+            Optional argument to provide additional context to inform LLM-as-a-Judge evaluations.
 
         keywords_to_scores_dict : dict, default=None
             Keys must be scores, values must be list of strings containing keywords to search. If None, the default
@@ -75,10 +68,10 @@ class LLMJudge(ResponseGenerator):
         """
         super().__init__(llm=llm, max_calls_per_min=max_calls_per_min)
         self.scoring_template = scoring_template
-        self.template_ques_ans = template_ques_ans
         self.keywords_to_scores_dict = keywords_to_scores_dict
         self._validate_inputs()
-        self.system_prompt = self.standard_instruction if not system_prompt else system_prompt
+        self.response_generator_type = "judge"
+        self.system_prompt = additional_context
         self.is_judge = True
 
     async def judge_responses(self, prompts: List[str], responses: List[str], retries: int = 5, progress_bar: Optional[rich.progress.Progress] = None, explanations: bool = False) -> Dict[str, Any]:
@@ -110,7 +103,7 @@ class LLMJudge(ResponseGenerator):
         instruction = self.explanation_instruction if explanations else self.standard_instruction
         concatenated_qa = [self._default_template_ques_ans(instruction).format(prompts[i], responses[i]) for i in range(len(prompts))]
         with contextlib.redirect_stdout(io.StringIO()):
-            data = await self.generate_responses(prompts=concatenated_qa, count=1, progress_bar=progress_bar)
+            data = await self.generate_responses(prompts=concatenated_qa, count=1, system_prompt=self.system_prompt, progress_bar=progress_bar)
 
         # Extract scores and explanations
         extracted_data = self._extract_answers(responses=data["data"]["response"], explanations=explanations)
@@ -245,13 +238,6 @@ class LLMJudge(ResponseGenerator):
 
     def _validate_inputs(self):
         """Validate inputs"""
-        if self.template_ques_ans and self.keywords_to_scores_dict:
-            for key, val in self.keywords_to_scores_dict.items():
-                if not isinstance(key, float):
-                    raise ValueError("keys in keywords_to_scores_dict must be floats")
-                if not isinstance(val, list):
-                    raise ValueError("values in keywords_to_scores_dict must be lists of strings")
-                # TODO: validate value ordering for substrings of other keys
         if self.scoring_template in TEMPLATE_TO_INSTRUCTION:
             # Store both standard and explanation templates for runtime selection
             self.standard_instruction = TEMPLATE_TO_INSTRUCTION[self.scoring_template]
@@ -264,4 +250,4 @@ class LLMJudge(ResponseGenerator):
             if self.scoring_template == "true_false":  # drop uncertain option if binary
                 del self.keywords_to_scores_dict[0.5]
         else:
-            raise ValueError("""If provided, scoring_template must be one of 'true_false_uncertain', 'true_false', 'continuous', 'likert'. Otherwise, valid template_ques_ans and keywords_to_scores_dict must be provided""")
+            raise ValueError("""If provided, scoring_template must be one of 'true_false_uncertain', 'true_false', 'continuous', 'likert'""")

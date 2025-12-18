@@ -32,10 +32,11 @@ UQLM provides a suite of response-level scorers for quantifying the uncertainty 
 | Scorer Type            | Added Latency                                      | Added Cost                               | Compatibility                                             | Off-the-Shelf / Effort                                  |
 |------------------------|----------------------------------------------------|------------------------------------------|-----------------------------------------------------------|---------------------------------------------------------|
 | [Black-Box Scorers](#black-box-scorers-consistency-based)      | ⏱️ Medium-High (multiple generations & comparisons)           | 💸 High (multiple LLM calls)             | 🌍 Universal (works with any LLM)                         | ✅ Off-the-shelf |
-| [White-Box Scorers](#white-box-scorers-token-probability-based)      | ⚡ Minimal (token probabilities already returned)   | ✔️ None (no extra LLM calls)             | 🔒 Limited (requires access to token probabilities)       | ✅ Off-the-shelf            |
+| [White-Box Scorers](#white-box-scorers-token-probability-based)      | ⚡ Minimal\* (token probabilities already returned)   | ✔️ None\* (no extra LLM calls)             | 🔒 Limited (requires access to token probabilities)       | ✅ Off-the-shelf            |
 | [LLM-as-a-Judge Scorers](#llm-as-a-judge-scorers) | ⏳ Low-Medium (additional judge calls add latency)    | 💵 Low-High (depends on number of judges)| 🌍 Universal (any LLM can serve as judge)                     |✅  Off-the-shelf        |
 | [Ensemble Scorers](#ensemble-scorers)       | 🔀 Flexible (combines various scorers)       | 🔀 Flexible (combines various scorers)      | 🔀 Flexible (combines various scorers)                    | ✅  Off-the-shelf (beginner-friendly); 🛠️ Can be tuned (best for advanced users)    |
 
+<sup><sup> \*Does not apply to multi-generation white-box scorers, which have higher cost and latency. </sup></sup>
 
 Below we provide illustrative code snippets and details about available scorers for each type.
 
@@ -55,8 +56,8 @@ These scorers assess uncertainty by measuring the consistency of multiple respon
 Below is a sample of code illustrating how to use the `BlackBoxUQ` class to conduct hallucination detection.
 
 ```python
-from langchain_google_vertexai import ChatVertexAI
-llm = ChatVertexAI(model='gemini-pro')
+from langchain_openai import ChatOpenAI
+llm = ChatOpenAI(model="gpt-4o-mini")
 
 from uqlm import BlackBoxUQ
 bbuq = BlackBoxUQ(llm=llm, scorers=["semantic_negentropy"], use_best=True)
@@ -68,27 +69,28 @@ results.to_df()
   <img src="https://raw.githubusercontent.com/cvs-health/uqlm/main/assets/images/black_box_output4.png" />
 </p>
 
-Above, `use_best=True` implements mitigation so that the uncertainty-minimized responses is selected. Note that although we use `ChatVertexAI` in this example, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used. For a more detailed demo, refer to our [Black-Box UQ Demo](./examples/black_box_demo.ipynb).
+Above, `use_best=True` implements mitigation so that the uncertainty-minimized responses is selected. Note that although we use `ChatOpenAI` in this example, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used. For a more detailed demo, refer to our [Black-Box UQ Demo](./examples/black_box_demo.ipynb).
 
 
 **Available Scorers:**
 
-*   Non-Contradiction Probability ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175); [Lin et al., 2024](https://arxiv.org/abs/2305.19187); [Manakul et al., 2023](https://arxiv.org/abs/2303.08896))
 *   Discrete Semantic Entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0); [Bouchard & Chauhan, 2025](https://arxiv.org/abs/2504.19254))
+*   Number of Semantic Sets ([Lin et al., 2024](https://arxiv.org/abs/2305.19187); [Vashurin et al., 2025](https://arxiv.org/abs/2406.15627); [Kuhn et al., 2023](https://arxiv.org/pdf/2302.09664))
+*   Non-Contradiction Probability ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175); [Lin et al., 2024](https://arxiv.org/abs/2305.19187); [Manakul et al., 2023](https://arxiv.org/abs/2303.08896))
+*   Entailment Probability ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175); [Lin et al., 2024](https://arxiv.org/abs/2305.19187); [Manakul et al., 2023](https://arxiv.org/abs/2303.08896))
 *   Exact Match ([Cole et al., 2023](https://arxiv.org/abs/2305.14613); [Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175))
-*   BERT-score ([Manakul et al., 2023](https://arxiv.org/abs/2303.08896); [Zheng et al., 2020](https://arxiv.org/abs/1904.09675))
+*   BERTScore ([Manakul et al., 2023](https://arxiv.org/abs/2303.08896); [Zheng et al., 2020](https://arxiv.org/abs/1904.09675))
 *   Cosine Similarity ([Shorinwa et al., 2024](https://arxiv.org/abs/2412.05563); [HuggingFace](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2))
-*   BLUERT ([Sellam et al., 2020](https://arxiv.org/abs/2004.04696); Deprecated as of `v0.2.0`)
 
 ### White-Box Scorers (Token-Probability-Based)
 
-These scorers leverage token probabilities to estimate uncertainty.  They are significantly faster and cheaper than black-box methods, but require access to the LLM's internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs.
+These scorers leverage token probabilities to estimate uncertainty.  They offer single-generation scoring, which is significantly faster and cheaper than black-box methods, but require access to the LLM's internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs.
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/images/white_box_graphic_dark.png">
     <source media="(prefers-color-scheme: light)" srcset="assets/images/white_box_graphic.png">
-    <img src="assets/images/white_box_graphic.png" alt="White Box Graphic" />
+    <img src="assets/images/white_box_graphic.png" alt="White Box Graphic"/>
   </picture>
 </p>
 
@@ -97,7 +99,7 @@ Below is a sample of code illustrating how to use the `WhiteBoxUQ` class to cond
 
 ```python
 from langchain_google_vertexai import ChatVertexAI
-llm = ChatVertexAI(model='gemini-pro')
+llm = ChatVertexAI(model='gemini-2.5-pro')
 
 from uqlm import WhiteBoxUQ
 wbuq = WhiteBoxUQ(llm=llm, scorers=["min_probability"])
@@ -109,13 +111,28 @@ results.to_df()
   <img src="https://raw.githubusercontent.com/cvs-health/uqlm/main/assets/images/white_box_output2.png" />
 </p>
 
-Again, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used in place of `ChatVertexAI`. For a more detailed demo, refer to our [White-Box UQ Demo](./examples/white_box_demo.ipynb).
+Again, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used in place of `ChatVertexAI`. For more detailed examples, refer to our demo notebooks on [Single-Generation White-Box UQ](https://github.com/cvs-health/uqlm/blob/main/examples/white_box_single_generation_demo.ipynb) and/or [Multi-Generation White-Box UQ](https://github.com/cvs-health/uqlm/blob/main/examples/white_box_multi_generation_demo.ipynb).
 
 
-**Available Scorers:**
+**Single-Generation Scorers (minimal latency, zero extra cost):**
 
 *   Minimum token probability ([Manakul et al., 2023](https://arxiv.org/abs/2303.08896))
-*   Length-Normalized Joint Token Probability ([Malinin & Gales, 2021](https://arxiv.org/abs/2002.07650))
+*   Length-Normalized Sequence Probability ([Malinin & Gales, 2021](https://arxiv.org/pdf/2002.07650))
+*   Sequence Probability ([Vashurin et al., 2024](https://arxiv.org/abs/2406.15627))
+*   Mean Top-K Token Negentropy ([Scalena et al., 2025](https://arxiv.org/abs/2510.11170); [Manakul et al., 2023](https://arxiv.org/abs/2303.08896))
+*   Min Top-K Token Negentropy ([Scalena et al., 2025](https://arxiv.org/abs/2510.11170); [Manakul et al., 2023](https://arxiv.org/abs/2303.08896))
+*   Probability Margin ([Farr et al., 2024](https://arxiv.org/abs/2408.08217))
+
+**Self-Reflection Scorers (one additional generation per response):**
+
+*   P(True) ([Kadavath et al., 2022](https://arxiv.org/abs/2207.05221))
+
+**Multi-Generation Scorers (several additional generations per response):**
+
+*   Monte carlo sequence probability ([Kuhn et al., 2023](https://arxiv.org/abs/2302.09664))
+*   Consistency and Confidence (CoCoA) ([Vashurin et al., 2025](https://arxiv.org/abs/2502.04964))
+*   Semantic Entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0)) 
+*   Semantic Density ([Qiu et al., 2024](https://arxiv.org/abs/2405.13845))
 
 ### LLM-as-a-Judge Scorers
 
@@ -133,13 +150,13 @@ These scorers use one or more LLMs to evaluate the reliability of the original L
 Below is a sample of code illustrating how to use the `LLMPanel` class to conduct hallucination detection using a panel of LLM judges. 
 
 ```python
-from langchain_google_vertexai import ChatVertexAI
-llm1 = ChatVertexAI(model='gemini-1.0-pro')
-llm2 = ChatVertexAI(model='gemini-1.5-flash-001')
-llm3 = ChatVertexAI(model='gemini-1.5-pro-001')
+from langchain_ollama import ChatOllama
+llama = ChatOllama(model="llama3")
+mistral = ChatOllama(model="mistral")
+qwen = ChatOllama(model="qwen3")
 
 from uqlm import LLMPanel
-panel = LLMPanel(llm=llm1, judges=[llm1, llm2, llm3])
+panel = LLMPanel(llm=llama, judges=[llama, mistral, qwen])
 
 results = await panel.generate_and_score(prompts=prompts)
 results.to_df()
@@ -148,15 +165,15 @@ results.to_df()
   <img src="https://raw.githubusercontent.com/cvs-health/uqlm/main/assets/images/panel_output2.png" />
 </p>
 
-Note that although we use `ChatVertexAI` in this example, we can use any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) as judges. For a more detailed demo illustrating how to customize a panel of LLM judges, refer to our [LLM-as-a-Judge Demo](./examples/judges_demo.ipynb).
+Note that although we use `ChatOllama` in this example, we can use any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) as judges. For a more detailed demo illustrating how to customize a panel of LLM judges, refer to our [LLM-as-a-Judge Demo](./examples/judges_demo.ipynb).
 
 
 **Available Scorers:**
 
 *   Categorical LLM-as-a-Judge ([Manakul et al., 2023](https://arxiv.org/abs/2303.08896); [Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175); [Luo et al., 2023](https://arxiv.org/abs/2303.15621))
 *   Continuous LLM-as-a-Judge ([Xiong et al., 2024](https://arxiv.org/abs/2306.13063))
+*   Likert Scale LLM-as-a-Judge ([Bai et al., 2023](https://arxiv.org/pdf/2306.04181))
 *   Panel of LLM Judges ([Verga et al., 2024](https://arxiv.org/abs/2404.18796))
-*   Likert Scale Scoring ([Bai et al., 2023](https://arxiv.org/pdf/2306.04181))
 
 ### Ensemble Scorers
 
@@ -174,8 +191,8 @@ These scorers leverage a weighted average of multiple individual scorers to prov
 Below is a sample of code illustrating how to use the `UQEnsemble` class to conduct hallucination detection. 
 
 ```python
-from langchain_google_vertexai import ChatVertexAI
-llm = ChatVertexAI(model='gemini-pro')
+from langchain_openai import AzureChatOpenAI
+llm = AzureChatOpenAI(deployment_name="gpt-4o", openai_api_type="azure", openai_api_version="2024-12-01-preview")
 
 from uqlm import UQEnsemble
 ## ---Option 1: Off-the-Shelf Ensemble---
@@ -202,7 +219,7 @@ results.to_df()
   <img src="https://raw.githubusercontent.com/cvs-health/uqlm/main/assets/images/uqensemble_output2.png" />
 </p>
 
-As with the other examples, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used in place of `ChatVertexAI`. For more detailed demos, refer to our [Off-the-Shelf Ensemble Demo](./examples/ensemble_off_the_shelf_demo.ipynb) (quick start) or our [Ensemble Tuning Demo](./examples/ensemble_tuning_demo.ipynb) (advanced).
+As with the other examples, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used in place of `AzureChatOpenAI`. For more detailed demos, refer to our [Off-the-Shelf Ensemble Demo](./examples/ensemble_off_the_shelf_demo.ipynb) (quick start) or our [Ensemble Tuning Demo](./examples/ensemble_tuning_demo.ipynb) (advanced).
 
 
 **Available Scorers:**
@@ -214,19 +231,21 @@ As with the other examples, any [LangChain Chat Model](https://js.langchain.com/
 Check out our [documentation site](https://cvs-health.github.io/uqlm/latest/index.html) for detailed instructions on using this package, including API reference and more.
 
 ## Example notebooks
-Explore the following demo notebooks to see how to use UQLM for various hallucination detection methods:
+UQLM offers a broad collection of tutorial notebooks to demonstrate usage of the various scorers. These notebooks aim to have versatile coverage of various LLMs and datasets, but you can easily replace them with your LLM and dataset of choice. Below is a list of these tutorials:
 
 - [Black-Box Uncertainty Quantification](https://github.com/cvs-health/uqlm/blob/main/examples/black_box_demo.ipynb): A notebook demonstrating hallucination detection with black-box (consistency) scorers.
-- [White-Box Uncertainty Quantification](https://github.com/cvs-health/uqlm/blob/main/examples/white_box_demo.ipynb): A notebook demonstrating hallucination detection with white-box (token probability-based) scorers.
+- [White-Box Uncertainty Quantification (Single-Generation)](https://github.com/cvs-health/uqlm/blob/main/examples/white_box_single_generation_demo.ipynb): A notebook demonstrating hallucination detection with white-box (token probability-based) scorers requiring only a single generation per response (fastest and cheapest).
+- [White-Box Uncertainty Quantification (Multi-Generation)](https://github.com/cvs-health/uqlm/blob/main/examples/white_box_multi_generation_demo.ipynb): A notebook demonstrating hallucination detection with white-box (token probability-based) scorers requiring multiple generations per response (slower and more expensive, but higher performance).
 - [LLM-as-a-Judge](https://github.com/cvs-health/uqlm/blob/main/examples/judges_demo.ipynb): A notebook demonstrating hallucination detection with LLM-as-a-Judge.
 - [Tunable UQ Ensemble](https://github.com/cvs-health/uqlm/blob/main/examples/ensemble_tuning_demo.ipynb): A notebook demonstrating hallucination detection with a tunable ensemble of UQ scorers ([Bouchard & Chauhan, 2025](https://arxiv.org/abs/2504.19254)).
 - [Off-the-Shelf UQ Ensemble](https://github.com/cvs-health/uqlm/blob/main/examples/ensemble_off_the_shelf_demo.ipynb): A notebook demonstrating hallucination detection using BS Detector ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175)) off-the-shelf ensemble.
-- [Semantic Entropy](https://github.com/cvs-health/uqlm/blob/main/examples/semantic_entropy_demo.ipynb): A notebook demonstrating token-probability-based semantic entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0); [Kuhn et al., 2023](https://arxiv.org/abs/2302.09664)), which combines elements of black-box UQ and white-box UQ to compute confidence scores.
+- [Semantic Entropy](https://github.com/cvs-health/uqlm/blob/main/examples/semantic_entropy_demo.ipynb): A notebook demonstrating token-probability-based semantic entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0); [Kuhn et al., 2023](https://arxiv.org/abs/2302.09664)), a state-of-the-art multi-generation white-box scorer.
+- [Semantic Density](https://github.com/cvs-health/uqlm/blob/main/examples/semantic_density_demo.ipynb): A notebook demonstrating semantic density Semantic Density ([Qiu et al., 2024](https://arxiv.org/abs/2405.13845))), a state-of-the-art multi-generation white-box scorer.
 - [Multimodal Uncertainty Quantification](https://github.com/cvs-health/uqlm/blob/main/examples/multimodal_demo.ipynb): A notebook demonstrating UQLM's scoring approach with multimodal inputs (compatible with black-box UQ and white-box UQ).
 - [Score Calibration](https://github.com/cvs-health/uqlm/blob/main/examples/score_calibration_demo.ipynb): A notebook illustrating transformation of confidence scores into calibrated probabilities that better reflect the true likelihood of correctness.
 
-## Associated Research
-A technical description of the `uqlm` scorers and extensive experiment results are contained in this **[this paper](https://arxiv.org/abs/2504.19254)**. If you use our framework or toolkit, we would appreciate citations to the following paper:
+## Citation
+A technical description of the `uqlm` scorers and extensive experimental results are presented in **[this paper](https://arxiv.org/abs/2504.19254)**. If you use our framework or toolkit, please cite:
 
 ```bibtex
 @misc{bouchard2025uncertaintyquantificationlanguagemodels,
@@ -237,5 +256,19 @@ A technical description of the `uqlm` scorers and extensive experiment results a
       archivePrefix={arXiv},
       primaryClass={cs.CL},
       url={https://arxiv.org/abs/2504.19254}, 
+}
+```
+
+The `uqlm` software package is described in this **[this paper](https://arxiv.org/abs/2507.06196)**. If you use the software, please cite:
+
+```bibtex
+@misc{bouchard2025uqlmpythonpackageuncertainty,
+      title={UQLM: A Python Package for Uncertainty Quantification in Large Language Models}, 
+      author={Dylan Bouchard and Mohit Singh Chauhan and David Skarbrevik and Ho-Kyeong Ra and Viren Bajaj and Zeya Ahmad},
+      year={2025},
+      eprint={2507.06196},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2507.06196}, 
 }
 ```
