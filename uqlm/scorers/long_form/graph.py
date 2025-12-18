@@ -7,7 +7,7 @@ from uqlm.longform.graph import GraphScorer, ClaimMerger
 
 GRAPH_SCORERS = ["degree_centrality", "betweenness_centrality", "closeness_centrality", "page_rank", "laplacian_centrality", "harmonic_centrality"]
 
-class ClaimGraphUQ(LongFormUQ):
+class LongTextGraph(LongFormUQ):
     def __init__(
         self,
         llm: Optional[BaseChatModel] = None,
