@@ -18,7 +18,7 @@ from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
 from uqlm.scorers.short_form.baseclass import ShortFormUQ
 from uqlm.scorers.short_form import UQEnsemble, SemanticDensity, SemanticEntropy, LLMPanel, WhiteBoxUQ, BlackBoxUQ
 from uqlm.scorers.long_form.baseclass import LongFormUQ
-from uqlm.scorers.long_form import LongTextQA, LongTextGraph, ClaimGraphUQ
+from uqlm.scorers.long_form import LongTextQA, LongTextGraph, LongTextUQ
 
 __all__ = ["UQEnsemble", "SemanticDensity", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "LongTextQA", "LongTextGraph","LongTextUQ", "ShortFormUQ", "LongFormUQ", "UncertaintyQuantifier"]
 
