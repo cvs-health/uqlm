@@ -17,13 +17,6 @@ from typing import Any, List, Tuple, Optional, Union
 from dataclasses import dataclass
 import numpy as np
 import time
-from pydantic import BaseModel
-
-class ClaimScore(BaseModel):
-    claim: str
-    original_response: bool
-    scores: dict[str, float]
-    scorer_type: str
 
 
 @dataclass

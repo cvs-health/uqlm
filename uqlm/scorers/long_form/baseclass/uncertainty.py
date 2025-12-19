@@ -107,9 +107,9 @@ class LongFormUQ(UncertaintyQuantifier):
 
         for scorer in self.scorers:
             filtered_claim_scores = []
-            for i in range(len(claim_sets)):
+            for i in range(len(self.claim_sets)):
                 filtered_claim_scores_i = []
-                for j in range(len(claim_sets[i])):
+                for j in range(len(self.claim_sets[i])):
                     if not uad_result["removed"][i][j]:
                         filtered_claim_scores_i.append(self.claim_scores[scorer][i][j])
                 filtered_claim_scores.append(filtered_claim_scores_i)
