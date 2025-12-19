@@ -57,6 +57,7 @@ sentence-transformers = ">=3.4,<6.0"
 datasets = ">=3.3.2,<5.0.0"
 rich = "^13.8.0"
 ipywidgets = "^8.1.7"
+networkx = "^3.4.0"
 
 [tool.poetry.group.dev]
 optional = true
