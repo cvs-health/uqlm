@@ -17,5 +17,6 @@ from uqlm.longform.decomposition.response_decomposer import ResponseDecomposer
 from uqlm.longform.uad.uad import UncertaintyAwareDecoder
 from uqlm.longform.luq.matched_unit import MatchedUnitScorer
 from uqlm.longform.luq.unit_response import UnitResponseScorer
+from uqlm.longform.graph.graph_scorer import GraphScorer
 
-__all__ = ["ResponseDecomposer", "MatchedUnitScorer", "UnitResponseScorer", "FactScoreGrader", "UncertaintyAwareDecoder"]
+__all__ = ["ResponseDecomposer", "MatchedUnitScorer", "UnitResponseScorer", "FactScoreGrader", "UncertaintyAwareDecoder", "GraphScorer"]
