@@ -18,8 +18,7 @@ class LongTextUQ(LongFormUQ):
         mode: str = "unit_response",
         scorers: Optional[List[str]] = None,
         aggregation: str = "mean",
-        claim_refinement: bool = False,
-        claim_refinement_threshold: float = 1 / 3,
+        response_refinement: bool = False,
         claim_decomposition_llm: Optional[BaseChatModel] = None,
         device: Any = None,
         nli_model_name: str = "microsoft/deberta-large-mnli",
@@ -51,15 +50,11 @@ class LongTextUQ(LongFormUQ):
             Specifies whether to implement unit-response (LUQ-style) scoring or matched-unit (LUQ-pair-style) scoring. Must be
             either "unit_response" or "matched_unit".
 
-        claim_refinement : bool, default=False
+        response_refinement : bool, default=False
             Specifies whether to refine responses with uncertainty-aware decoding. This approach removes claims with confidence
-            scores below the claim_refinement_threshold and uses the claim_decomposition_llm to reconstruct the response from
+            scores below the response_refinement_threshold and uses the claim_decomposition_llm to reconstruct the response from
             the retained claims. Only available for claim-level granularity. For more details, refer to
             Jiang et al., 2024: https://arxiv.org/abs/2410.20783
-
-        claim_refinement_threshold : float, default=1/3
-            Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
-            refined response. Only used if claim_refinement is True.
 
         claim_decomposition_llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Also used for claim refinement.
@@ -92,7 +87,7 @@ class LongTextUQ(LongFormUQ):
             avoid OutOfMemoryError
         """
         self.scorers = ["entailment"] if not scorers else scorers
-        super().__init__(llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, claim_refinement=claim_refinement, claim_refinement_threshold=claim_refinement_threshold, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
+        super().__init__(llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
         self.nli_model_name = nli_model_name
         self.mode = mode
         self.max_length = max_length
@@ -106,7 +101,7 @@ class LongTextUQ(LongFormUQ):
         self.num_responses = None
         self.uad_result = {}
 
-    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, claim_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> UQResult:
+    async def generate_and_score(self, prompts: List[str], num_responses: int = 5, response_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> UQResult:
         """
         Generate LLM responses, sampled LLM (candidate) responses, and compute confidence scores with specified scorers for the provided prompts.
 
@@ -117,6 +112,10 @@ class LongTextUQ(LongFormUQ):
 
         num_responses : int, default=5
             The number of sampled responses used to compute consistency.
+            
+        response_refinement_threshold : float, default=1/3
+            Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
+            refined response. Only used if response_refinement is True.
 
         show_progress_bars : bool, default=True
             If True, displays progress bars while generating and scoring responses
@@ -134,10 +133,10 @@ class LongTextUQ(LongFormUQ):
 
         responses = await self.generate_original_responses(prompts=prompts, progress_bar=self.progress_bar)
         sampled_responses = await self.generate_candidate_responses(prompts=prompts, progress_bar=self.progress_bar, num_responses=self.num_responses)
-        result = await self.score(responses=responses, sampled_responses=sampled_responses, show_progress_bars=show_progress_bars)
+        result = await self.score(responses=responses, sampled_responses=sampled_responses, response_refinement_threshold=response_refinement_threshold, show_progress_bars=show_progress_bars)
         return result
 
-    async def score(self, responses: List[str], sampled_responses: List[List[str]], claim_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> UQResult:
+    async def score(self, responses: List[str], sampled_responses: List[List[str]], response_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> UQResult:
         """
         Compute confidence scores with specified scorers on provided LLM responses. Should only be used if responses and sampled responses
         are already generated. Otherwise, use `generate_and_score`.
@@ -150,6 +149,10 @@ class LongTextUQ(LongFormUQ):
         sampled_responses : list of list of str, default=None
             A list of lists of sampled LLM responses for each prompt. These will be used to compute consistency scores by comparing to
             the corresponding response from `responses`.
+            
+        response_refinement_threshold : float, default=1/3
+            Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
+            refined response. Only used if response_refinement is True.
 
         show_progress_bars : bool, default=True
             If True, displays a progress bar while scoring responses
@@ -171,8 +174,8 @@ class LongTextUQ(LongFormUQ):
 
         self.scores_dict = self._score_from_decomposed(claim_sets=self.claim_sets, sampled_responses=self.sampled_responses, sampled_claim_sets=self.sampled_claim_sets, progress_bar=self.progress_bar)
 
-        if self.claim_refinement:
-            self.uad_result = await self.uncertainty_aware_decode(claim_sets=self.claim_sets, uad_claim_scores=self.claim_scores[self.uad_scorer], show_progress_bars=show_progress_bars)
+        if self.response_refinement:
+            self.uad_result = await self.uncertainty_aware_decode(claim_sets=self.claim_sets, claim_scores=self.claim_scores[self.uad_scorer], response_refinement_threshold=response_refinement_threshold, show_progress_bars=show_progress_bars)
         self._stop_progress_bar()
         self.progress_bar = None
 
@@ -233,7 +236,7 @@ class LongTextUQ(LongFormUQ):
         #     data[self.granularity + "s"] = self.claim_sets
         data.update(self.scores_dict)
         data.update(self.uad_result)
-        result = {"data": data, "metadata": {"mode": self.mode, "granularity": self.granularity, "aggregation": self.aggregation, "temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "claim_refinement_threshold": self.claim_refinement_threshold}}
+        result = {"data": data, "metadata": {"mode": self.mode, "granularity": self.granularity, "aggregation": self.aggregation, "temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": None if not self.sampling_temperature else self.sampling_temperature, "num_responses": self.num_responses, "response_refinement_threshold": self.response_refinement_threshold}}
         return UQResult(result)
 
     def _validate_scorers(self) -> None:
