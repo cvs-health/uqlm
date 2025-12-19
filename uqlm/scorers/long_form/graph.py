@@ -171,7 +171,7 @@ class LongTextGraph(LongFormUQ):
         
         if self.response_refinement:
             self.claim_scores = master_claim_scores
-            self.uad_result = await self.uncertainty_aware_decode(claim_sets=self.master_claim_sets, uad_claim_scores=self.claim_scores[self.uad_scorer], response_refinement_threshold=response_refinement_threshold, show_progress_bars=show_progress_bars)
+            self.uad_result = await self.uncertainty_aware_decode(claim_sets=self.master_claim_sets, claim_scores=self.claim_scores[self.uad_scorer], response_refinement_threshold=response_refinement_threshold, show_progress_bars=show_progress_bars)
         self._stop_progress_bar()
         self.progress_bar = None
                 
