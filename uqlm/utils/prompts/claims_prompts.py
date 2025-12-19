@@ -18,6 +18,7 @@ This module is used to store LLM prompt templates that can be used for various t
 
 from typing import List
 
+
 # The claim_brekadown_template is a modified version of the prompt from "Atomic Calibration of LLMs in Long-Form Generations"
 # @misc{zhang2025atomiccalibrationllmslongform,
 #       title={Atomic Calibration of LLMs in Long-Form Generations},
@@ -94,6 +95,7 @@ def get_claim_breakdown_prompt(response: str) -> str:
     """
 
     return claim_breakdown_prompt
+
 
 def get_claim_dedup_prompt(master_claim_set: List[str], sampled_claim_set: List[str]) -> str:
     """

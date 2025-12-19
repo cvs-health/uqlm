@@ -19,6 +19,7 @@ import numpy as np
 import time
 from pydantic import BaseModel
 
+
 class ClaimScore(BaseModel):
     claim: str
     original_response: bool

@@ -51,7 +51,7 @@ class QuestionGenerator:
             If provided, displays a progress bar while scoring responses
         """
         self.num_questions = num_questions
-        
+
         question_generation_prompts = self._construct_question_generation_prompts(claim_sets=claim_sets, responses=responses, num_questions=self.num_questions)
 
         question_generations = await self.rg.generate_responses(prompts=question_generation_prompts, progress_bar=progress_bar)

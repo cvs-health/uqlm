@@ -5,16 +5,12 @@ from uqlm.utils.response_generator import ResponseGenerator
 from langchain_core.language_models.chat_models import BaseChatModel
 import re
 
+
 class ClaimMerger:
     def __init__(self, claim_merging_llm: BaseChatModel) -> None:
         self.rg = ResponseGenerator(llm=claim_merging_llm)
-    
-    async def merge_claims(
-        self,
-        original_claim_sets: List[List[str]],
-        sampled_claim_sets: List[List[List[str]]],
-        progress_bar: Optional[Progress] = None,
-    ) -> List[List[str]]:
+
+    async def merge_claims(self, original_claim_sets: List[List[str]], sampled_claim_sets: List[List[List[str]]], progress_bar: Optional[Progress] = None) -> List[List[str]]:
         """Process claim deduplication for response sets.
 
         Leverages ResponseGenerator's ability to handle multiple prompts at once
@@ -33,18 +29,18 @@ class ClaimMerger:
         self.master_claim_sets = [original_claim_sets[i] for i in range(num_response_sets)]
         for iteration in range(num_samples):
             prompts, prompt_metadata = self._construct_merging_prompts(sampled_claim_sets=sampled_claim_sets, iteration=iteration)
-    
+
             # Batch call for this iteration across all response sets
             if prompts:
                 result = await self.rg.generate_responses(prompts=prompts)
                 responses = result["data"]["response"]
             else:
                 responses = []
-                
+
             self._process_claim_merging_generations(responses, prompt_metadata, progress_bar)
-            
+
         return self.master_claim_sets
-    
+
     def _process_claim_merging_generations(self, responses, prompt_metadata, progress_bar) -> None:
         # Update master_claim_sets with results
         response_idx = 0
@@ -64,9 +60,8 @@ class ClaimMerger:
     def _construct_merging_prompts(self, sampled_claim_sets, iteration):
         prompts = []
         prompt_metadata = []  # (response_set_idx, has_prompt)
-        
-        for i in range(len(self.master_claim_sets)):
 
+        for i in range(len(self.master_claim_sets)):
             if iteration < len(sampled_claim_sets[i]):
                 sampled_claims = sampled_claim_sets[i][iteration]
                 unique_sampled_claims = list(set(sampled_claims) - set(self.master_claim_sets[i]))
@@ -78,5 +73,5 @@ class ClaimMerger:
                     prompt_metadata.append((i, False, self.master_claim_sets[i], sampled_claims))
             else:
                 prompt_metadata.append((i, False, self.master_claim_sets[i], []))
-                
+
         return prompts, prompt_metadata

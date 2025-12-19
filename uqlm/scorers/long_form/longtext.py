@@ -112,7 +112,7 @@ class LongTextUQ(LongFormUQ):
 
         num_responses : int, default=5
             The number of sampled responses used to compute consistency.
-            
+
         response_refinement_threshold : float, default=1/3
             Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
             refined response. Only used if response_refinement is True.
@@ -149,7 +149,7 @@ class LongTextUQ(LongFormUQ):
         sampled_responses : list of list of str, default=None
             A list of lists of sampled LLM responses for each prompt. These will be used to compute consistency scores by comparing to
             the corresponding response from `responses`.
-            
+
         response_refinement_threshold : float, default=1/3
             Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
             refined response. Only used if response_refinement is True.

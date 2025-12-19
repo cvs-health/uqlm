@@ -7,6 +7,7 @@ from uqlm.longform.graph import GraphScorer, ClaimMerger
 
 GRAPH_SCORERS = ["degree_centrality", "betweenness_centrality", "closeness_centrality", "page_rank", "laplacian_centrality", "harmonic_centrality"]
 
+
 class LongTextGraph(LongFormUQ):
     def __init__(
         self,
@@ -33,7 +34,7 @@ class LongTextGraph(LongFormUQ):
             relevant parameters to the constructor of their `llm` object.
 
         scorers : List[str], default=None
-            Specifies which graph-based scorers to include. Must be subset of ["degree_centrality", "betweenness_centrality", 
+            Specifies which graph-based scorers to include. Must be subset of ["degree_centrality", "betweenness_centrality",
             "closeness_centrality", "page_rank", "laplacian_centrality", "harmonic_centrality"]. If None, defaults to ["closeness_centrality"].
 
         granularity : str, default="claim"
@@ -162,19 +163,19 @@ class LongTextGraph(LongFormUQ):
         await self._decompose_responses(show_progress_bars)
         await self._decompose_candidate_responses(show_progress_bars)
         await self._merge_claims(show_progress_bars)
-        
+
         self._display_scoring_header(show_progress_bars)
-        
+
         all_responses = [[r] + sr for r, sr in zip(self.responses, self.sampled_responses)]
 
         original_claim_scores, master_claim_scores, graph_score_result = self._score_from_decomposed(original_claim_sets=self.claim_sets, master_claim_sets=self.master_claim_sets, response_sets=all_responses, progress_bar=self.progress_bar)
-        
+
         if self.response_refinement:
             self.claim_scores = master_claim_scores
             self.uad_result = await self.uncertainty_aware_decode(claim_sets=self.master_claim_sets, claim_scores=self.claim_scores[self.uad_scorer], response_refinement_threshold=response_refinement_threshold, show_progress_bars=show_progress_bars)
         self._stop_progress_bar()
         self.progress_bar = None
-                
+
         self.scores_dict["claims_data"] = self._unpack_claims_data(graph_score_result)
         if "removed" in self.uad_result:
             del self.uad_result["removed"]
@@ -202,9 +203,7 @@ class LongTextGraph(LongFormUQ):
         UQResult
             UQResult containing data (responses and scores) and metadata
         """
-        graph_score_result = self.graph_scorer.evaluate(
-            original_claim_sets=self.claim_sets, master_claim_sets=self.master_claim_sets, response_sets=response_sets, progress_bar=progress_bar
-        )
+        graph_score_result = self.graph_scorer.evaluate(original_claim_sets=self.claim_sets, master_claim_sets=self.master_claim_sets, response_sets=response_sets, progress_bar=progress_bar)
         original_claim_scores, master_claim_scores = self._unpack_results(graph_score_result)
         return original_claim_scores, master_claim_scores, graph_score_result
 
@@ -219,13 +218,9 @@ class LongTextGraph(LongFormUQ):
         return UQResult(result)
 
     async def _merge_claims(self, show_progress_bars) -> None:
-        self.master_claim_sets = await self.claim_merger.merge_claims(
-            original_claim_sets=self.claim_sets, 
-            sampled_claim_sets=self.sampled_claim_sets,
-            progress_bar=self.progress_bar if show_progress_bars else None,
-        )
-        
-    def _unpack_results(self, result: List[List[Any]]) -> Any:        
+        self.master_claim_sets = await self.claim_merger.merge_claims(original_claim_sets=self.claim_sets, sampled_claim_sets=self.sampled_claim_sets, progress_bar=self.progress_bar if show_progress_bars else None)
+
+    def _unpack_results(self, result: List[List[Any]]) -> Any:
         original_claim_scores = {k: [] for k in self.scorers}
         master_claim_scores = {k: [] for k in self.scorers}
         self.scores_dict = {k: [] for k in self.scorers}
@@ -236,25 +231,24 @@ class LongTextGraph(LongFormUQ):
                 for j in range(len(result[i])):
                     master_score_list_i.append(result[i][j].scores[scorer])
                     if result[i][j].original_response:
-                        score_list_i.append(result[i][j].scores[scorer])   
+                        score_list_i.append(result[i][j].scores[scorer])
                 original_claim_scores[scorer].append(score_list_i)
                 master_claim_scores[scorer].append(master_score_list_i)
-                
+
             response_scores = self._aggregate_scores(original_claim_scores[scorer])
             self.scores_dict[scorer] = response_scores
-        return original_claim_scores, master_claim_scores 
-        
-        
+        return original_claim_scores, master_claim_scores
+
     def _unpack_claims_data(self, result: List[List[Any]]) -> List[List[Dict[str, Any]]]:
-        claims_data = []    
+        claims_data = []
         for i in range(len(result)):
             claims_data_i = []
             for j in range(len(result[i])):
-                claim_dict_ij = result[i][j].dict() 
+                claim_dict_ij = result[i][j].dict()
                 scores_dict_ij = claim_dict_ij.pop("scores")
                 claim_dict_ij.update({k: s for k, s in scores_dict_ij.items() if k in self.scorers})
                 claim_dict_ij["removed"] = False if not self.uad_result else self.uad_result["removed"][i][j]
-                
+
                 claims_data_i.append(claim_dict_ij)
             claims_data.append(claims_data_i)
         return claims_data

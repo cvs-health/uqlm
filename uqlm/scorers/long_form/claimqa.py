@@ -140,7 +140,7 @@ class LongTextQA(LongFormUQ):
 
         responses : list of str
             A list of model responses for the prompts.
-            
+
         response_refinement_threshold : float, default=1/3
             Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
             refined response. Only used if response_refinement is True.
@@ -157,7 +157,7 @@ class LongTextQA(LongFormUQ):
         result = await self._score_from_decomposed(prompts=self.prompts, num_questions=num_questions, num_claim_qa_responses=num_claim_qa_responses, claim_sets=self.claim_sets, response_refinement_threshold=response_refinement_threshold, progress_bar=self.progress_bar)
         return result
 
-    async def _score_from_decomposed(self, claim_sets: List[List[str]], prompts: Optional[List[str]] = None, num_questions: int = 1, num_claim_qa_responses: int = 5, response_refinement_threshold = 1 / 3, progress_bar: Optional[Progress] = None):
+    async def _score_from_decomposed(self, claim_sets: List[List[str]], prompts: Optional[List[str]] = None, num_questions: int = 1, num_claim_qa_responses: int = 5, response_refinement_threshold=1 / 3, progress_bar: Optional[Progress] = None):
         """
         Evaluate the ClaimQA scores for a given set of prompts and claim_sets.
         """

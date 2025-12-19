@@ -44,7 +44,7 @@ class UncertaintyAwareDecoder:
 
         claim_scores : List[List[float]]
             List of lists of claim-level confidence scores to be used for uncertainty-aware filtering
-            
+
         threshold : float, default=1/3
             Threshold used for uncertainty-aware filtering
 
