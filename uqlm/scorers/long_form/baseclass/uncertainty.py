@@ -22,7 +22,7 @@ from uqlm.longform.uad import UncertaintyAwareDecoder
 
 
 class LongFormUQ(UncertaintyQuantifier):
-    def __init__(self, llm: Any = None, scorers: Optional[List[str]] = None, granularity: str = "claim", aggregation: str = "mean", claim_decomposition_llm: Optional[BaseChatModel] = None, claim_refinement: bool = False, claim_refinement_threshold: float = 1 / 3, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False) -> None:
+    def __init__(self, llm: Any = None, scorers: Optional[List[str]] = None, granularity: str = "claim", aggregation: str = "mean", claim_decomposition_llm: Optional[BaseChatModel] = None, response_refinement: bool = False, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False) -> None:
         """
         Parent class for uncertainty quantification of LLM responses
 
@@ -35,15 +35,11 @@ class LongFormUQ(UncertaintyQuantifier):
         aggregation : str, default="mean"
             Specifies how to aggregate claim/sentence-level scores to response-level scores. Must be one of 'min' or 'mean'.
 
-        claim_refinement : bool, default=False
+        response_refinement : bool, default=False
             Specifies whether to refine responses with uncertainty-aware decoding. This approach removes claims with confidence
-            scores below the claim_refinement_threshold and uses the claim_decomposition_llm to reconstruct the response from
+            scores below the response_refinement_threshold and uses the claim_decomposition_llm to reconstruct the response from
             the retained claims. Only available for claim-level granularity. For more details, refer to
             Jiang et al., 2024: https://arxiv.org/abs/2410.20783
-
-        claim_refinement_threshold : float, default=1/3
-            Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
-            refined response. Only used if claim_refinement is True.
 
         claim_decomposition_llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Also used for claim refinement.
@@ -71,21 +67,21 @@ class LongFormUQ(UncertaintyQuantifier):
         self.granularity = granularity
         self.scorers = scorers
         self.aggregation = aggregation
-        self.claim_refinement = claim_refinement
-        self.claim_refinement_threshold = claim_refinement_threshold
+        self.response_refinement = response_refinement
+        self.response_refinement_threshold = None
         if self.granularity not in ["sentence", "claim"]:
             raise ValueError(
                 f"""
                 Invalid granularity: {self.granularity}. Must be one of "sentence", "claim"
                 """
             )
-        if self.claim_refinement:
+        if self.response_refinement:
             if self.granularity != "claim":
-                raise ValueError("Uncertainty aware decoding is only possible with claim-level scoring. Please set claim_refinement=False or granularity='claim'")
-            self.reconstructor = UncertaintyAwareDecoder(reconstructor_llm=self.decomposer.claim_decomposition_llm, threshold=self.claim_refinement_threshold, aggregation=self.aggregation)
+                raise ValueError("Uncertainty aware decoding is only possible with claim-level scoring. Please set response_refinement=False or granularity='claim'")
+            self.reconstructor = UncertaintyAwareDecoder(reconstructor_llm=self.decomposer.claim_decomposition_llm)
             self.uad_scorer = self.scorers[0]
 
-    async def uncertainty_aware_decode(self, claim_sets: List[List[str]], claim_scores: List[List[float]], claim_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> List[str]:
+    async def uncertainty_aware_decode(self, claim_sets: List[List[str]], claim_scores: List[List[float]], response_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> List[str]:
         """
         Parameters
         ----------
@@ -95,12 +91,17 @@ class LongFormUQ(UncertaintyQuantifier):
         claim_scores : List[List[float]]
             List of lists of claim-level confidence scores to be used for uncertainty-aware filtering
 
+        response_refinement_threshold : float, default=1/3
+            Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
+            refined response. Only used if response_refinement is True.
+
         progress_bar : rich.progress.Progress, default=None
             If provided, displays a progress bar while scoring responses
         """
         self._construct_progress_bar(show_progress_bars)
         self._display_reconstruction_header(show_progress_bars)
-        uad_result = await self.reconstructor.reconstruct_responses(claim_sets=claim_sets, claim_scores=claim_scores, responses=self.responses, progress_bar=self.progress_bar)
+        self.response_refinement_threshold = response_refinement_threshold
+        uad_result = await self.reconstructor.reconstruct_responses(claim_sets=claim_sets, claim_scores=claim_scores, responses=self.responses, threshold=response_refinement_threshold, progress_bar=self.progress_bar)
         self._stop_progress_bar()
         self.progress_bar = None
 
