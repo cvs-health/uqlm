@@ -20,7 +20,7 @@ from uqlm.utils.response_generator import ResponseGenerator
 
 
 class QuestionGenerator:
-    def __init__(self, question_generator_llm: BaseChatModel, max_calls_per_min: Optional[int] = None, num_questions: int = 1) -> None:
+    def __init__(self, question_generator_llm: BaseChatModel, max_calls_per_min: Optional[int] = None) -> None:
         """
         Class for decomposing responses into individual claims or sentences. This class is used as an intermediate
         step for longform UQ methods.
@@ -36,9 +36,8 @@ class QuestionGenerator:
         """
         self.rg = ResponseGenerator(llm=question_generator_llm, max_calls_per_min=max_calls_per_min)
         self.rg.response_generator_type = "question_generator"
-        self.num_questions = num_questions
 
-    async def generate_questions(self, claim_sets: List[List[str]], responses: Optional[List[str]] = None, progress_bar: Optional[Progress] = None) -> List[str]:
+    async def generate_questions(self, claim_sets: List[List[str]], responses: Optional[List[str]] = None, num_questions: int = 1, progress_bar: Optional[Progress] = None) -> List[str]:
         """
         Parameters
         ----------
@@ -51,6 +50,8 @@ class QuestionGenerator:
         progress_bar : rich.progress.Progress, default=None
             If provided, displays a progress bar while scoring responses
         """
+        self.num_questions = num_questions
+        
         question_generation_prompts = self._construct_question_generation_prompts(claim_sets=claim_sets, responses=responses, num_questions=self.num_questions)
 
         question_generations = await self.rg.generate_responses(prompts=question_generation_prompts, progress_bar=progress_bar)
