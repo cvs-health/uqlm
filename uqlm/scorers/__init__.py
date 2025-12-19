@@ -18,9 +18,9 @@ from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
 from uqlm.scorers.short_form.baseclass import ShortFormUQ
 from uqlm.scorers.short_form import UQEnsemble, SemanticDensity, SemanticEntropy, LLMPanel, WhiteBoxUQ, BlackBoxUQ
 from uqlm.scorers.long_form.baseclass import LongFormUQ
-from uqlm.scorers.long_form import ClaimQA, LongTextUQ, ClaimGraphUQ
+from uqlm.scorers.long_form import LongTextQA, LongTextGraph, ClaimGraphUQ
 
-__all__ = ["UQEnsemble", "SemanticDensity", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "ClaimQA", "ClaimGraphUQ","LongTextUQ", "ShortFormUQ", "LongFormUQ", "UncertaintyQuantifier"]
+__all__ = ["UQEnsemble", "SemanticDensity", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "LongTextQA", "LongTextGraph","LongTextUQ", "ShortFormUQ", "LongFormUQ", "UncertaintyQuantifier"]
 
 # Allow submodule imports like `uqlm.scorers.entropy` and `uqlm.scorers.baseclass`
 _base_dir = Path(__file__).resolve().parent

@@ -9,7 +9,7 @@ from uqlm.scorers import BlackBoxUQ
 from uqlm.scorers.long_form.baseclass.uncertainty import LongFormUQ
 
 
-class ClaimQA(LongFormUQ):
+class LongTextQA(LongFormUQ):
     def __init__(
         self,
         llm: BaseChatModel,
