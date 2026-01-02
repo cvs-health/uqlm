@@ -84,7 +84,7 @@ def test_compute_semantic_negentropy(scorer):
     sampled_logprobs_results = [[[{"logprob": -0.15}]], [[{"logprob": -0.25}]]]
 
     # Mock SemanticEntropy
-    with patch("uqlm.scorers.short_form.entropy.SemanticEntropy.score", return_value=MagicMock(to_dict=lambda: {"data": {"tokenprob_confidence_scores": [0.9, 1.0]}})):
+    with patch("uqlm.scorers.shortform.entropy.SemanticEntropy.score", return_value=MagicMock(to_dict=lambda: {"data": {"tokenprob_confidence_scores": [0.9, 1.0]}})):
         result = scorer.compute_semantic_negentropy(responses=responses, prompts=prompts, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results)
         assert isinstance(result, list)
         assert len(result) == len(responses)
@@ -108,7 +108,7 @@ def test_compute_semantic_density(scorer):
     scorer.semantic_negentropy_scorer = mock_semantic_negentropy_scorer
 
     # Mock SemanticDensity
-    with patch("uqlm.scorers.short_form.density.SemanticDensity.score", return_value=MagicMock(to_dict=lambda: {"data": {"semantic_density_values": [1.1, 1.2]}})):
+    with patch("uqlm.scorers.shortform.density.SemanticDensity.score", return_value=MagicMock(to_dict=lambda: {"data": {"semantic_density_values": [1.1, 1.2]}})):
         result = scorer.compute_semantic_density(responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results, prompts=prompts)
         assert isinstance(result, list)
         assert len(result) == len(responses)
