@@ -15,10 +15,10 @@
 from pathlib import Path
 
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
-from uqlm.scorers.short_form.baseclass import ShortFormUQ
-from uqlm.scorers.short_form import UQEnsemble, SemanticDensity, SemanticEntropy, LLMPanel, WhiteBoxUQ, BlackBoxUQ
-from uqlm.scorers.long_form.baseclass import LongFormUQ
-from uqlm.scorers.long_form import LongTextQA, LongTextUQ, LongTextGraph
+from uqlm.scorers.shortform.baseclass import ShortFormUQ
+from uqlm.scorers.shortform import UQEnsemble, SemanticDensity, SemanticEntropy, LLMPanel, WhiteBoxUQ, BlackBoxUQ
+from uqlm.scorers.longform.baseclass import LongFormUQ
+from uqlm.scorers.longform import LongTextQA, LongTextUQ, LongTextGraph
 
 __all__ = ["UQEnsemble", "SemanticDensity", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "LongTextQA", "LongTextUQ", "ShortFormUQ", "LongFormUQ", "LongTextGraph", "UncertaintyQuantifier"]
 
