@@ -29,10 +29,19 @@ extensions = [
     'sphinx.ext.napoleon', # NumPy and Google style docsrings parsing
     "sphinx.ext.duration", # build duration
     "sphinx.ext.doctest", # Test snippets in the documentation
+    "sphinx.ext.mathjax", # LaTeX math rendering
     "sphinxcontrib.bibtex", # Bibliographic references
     "sphinx_favicon", # Add favicon
     "nbsphinx", # Execute Jupyter notebooks + OSX  brew install pandoc
 ]
+
+# MathJax configuration for LaTeX rendering
+mathjax3_config = {
+    'tex': {
+        'inlineMath': [['$', '$'], ['\\(', '\\)']],
+        'displayMath': [['$$', '$$'], ['\\[', '\\]']],
+    },
+}
 nbsphinx_execute="never"
 
 bibtex_bibfiles = ["refs.bib"]

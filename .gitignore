@@ -74,7 +74,8 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-docs/
+docs/build/
+docs/source/_autosummary/
 docs_srcs/
 
 # PyBuilder
@@ -146,3 +147,7 @@ dmypy.json
 
 .vscode/
 .settings/
+.specstory/
+.cursor/
+.cursorindexingignore
+.cursorignore

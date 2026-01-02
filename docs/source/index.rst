@@ -172,6 +172,7 @@ Contents
    :maxdepth: 1
 
    Get Started <getstarted>
+   Scorer Definitions <scorer_definitions/index>
    API <api>
    /_notebooks/index
    Contributor Guide <contribute>
