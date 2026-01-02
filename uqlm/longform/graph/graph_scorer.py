@@ -11,6 +11,7 @@ try:
 except ImportError:
     nx = None
 
+
 class GraphScorer(ClaimScorer):
     def __init__(self, nli_model_name: Optional[str] = "microsoft/deberta-large-mnli", device: Optional[Any] = None, max_length: Optional[int] = 2000) -> None:
         if nx is None:
