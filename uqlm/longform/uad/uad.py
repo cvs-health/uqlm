@@ -21,7 +21,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 
 
 class UncertaintyAwareDecoder:
-    def __init__(self, reconstructor_llm: BaseChatModel, threshold: float = 1 / 3, aggregation: str = "mean") -> None:
+    def __init__(self, reconstructor_llm: BaseChatModel) -> None:
         """
         Class for decomposing responses into individual claims or sentences. This class is used as an intermediate
         step for longform UQ methods.
@@ -31,16 +31,11 @@ class UncertaintyAwareDecoder:
         reconstructor_llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel`. User is responsible for specifying temperature and other
             relevant parameters to the constructor of their `llm` object.
-
-        threshold : float, default=1/3
-            Threshold used for uncertainty-aware filtering
         """
         self.reconstructor_llm = reconstructor_llm
-        self.threshold = threshold
-        self.aggregation = aggregation
         self.reconstruction_template = get_response_reconstruction_prompt
 
-    async def reconstruct_responses(self, claim_sets: List[List[str]], claim_scores: List[List[float]], responses: Optional[List[str]] = None, progress_bar: Optional[Progress] = None) -> List[str]:
+    async def reconstruct_responses(self, claim_sets: List[List[str]], claim_scores: List[List[float]], responses: Optional[List[str]] = None, threshold: float = 1 / 3, progress_bar: Optional[Progress] = None) -> List[str]:
         """
         Parameters
         ----------
@@ -49,6 +44,9 @@ class UncertaintyAwareDecoder:
 
         claim_scores : List[List[float]]
             List of lists of claim-level confidence scores to be used for uncertainty-aware filtering
+
+        threshold : float, default=1/3
+            Threshold used for uncertainty-aware filtering
 
         progress_bar : rich.progress.Progress, default=None
             If provided, displays a progress bar while scoring responses
@@ -60,7 +58,7 @@ class UncertaintyAwareDecoder:
         for i in range(len(claim_sets)):
             filtered_claim_scores_i, filtered_claim_set_i, remove_indicators_i = [], [], []
             for j in range(len(claim_scores[i])):
-                if claim_scores[i][j] > self.threshold:
+                if claim_scores[i][j] > threshold:
                     filtered_claim_scores_i.append(claim_scores[i][j])
                     filtered_claim_set_i.append(claim_sets[i][j])
                     remove_indicators_i.append(False)

@@ -6,20 +6,17 @@ from uqlm.longform.claim_qa.question_generator import QuestionGenerator
 from uqlm.utils.prompts.claim_qa import get_answer_template
 from uqlm.utils.results import UQResult
 from uqlm.scorers import BlackBoxUQ
-from uqlm.scorers.long_form.baseclass.uncertainty import LongFormUQ
+from uqlm.scorers.longform.baseclass.uncertainty import LongFormUQ
 
 
-class ClaimQA(LongFormUQ):
+class LongTextQA(LongFormUQ):
     def __init__(
         self,
         llm: BaseChatModel,
         scorers: Optional[List[str]] = None,
         granularity: str = "claim",
         aggregation: str = "mean",
-        num_questions: int = 1,
-        num_claim_qa_responses: int = 5,
-        claim_refinement: bool = False,
-        claim_refinement_threshold: float = 1 / 3,
+        response_refinement: bool = False,
         system_prompt: str = "You are a helpful assistant.",
         claim_decomposition_llm: BaseChatModel = None,
         question_generator_llm: BaseChatModel = None,
@@ -48,21 +45,15 @@ class ClaimQA(LongFormUQ):
         aggregation : str, default="mean"
             Specifies how to aggregate claim/sentence-level scores to response-level scores. Must be one of 'min' or 'mean'.
 
-        num_questions : int, default=1
-            The number of questions to generate for each claim/sentence.
-
-        num_claim_qa_responses : int, default=5
-            The number of responses to generate for each claim-inverted question.
-
-        claim_refinement : bool, default=False
+        response_refinement : bool, default=False
             Specifies whether to refine responses with uncertainty-aware decoding. This approach removes claims with confidence
-            scores below the claim_refinement_threshold and uses the claim_decomposition_llm to reconstruct the response from
+            scores below the response_refinement_threshold and uses the claim_decomposition_llm to reconstruct the response from
             the retained claims. Only available for claim-level granularity. For more details, refer to
             Jiang et al., 2024: https://arxiv.org/abs/2410.20783
 
-        claim_refinement_threshold : float, default=1/3
+        response_refinement_threshold : float, default=1/3
             Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
-            refined response. Only used if claim_refinement is True.
+            refined response. Only used if response_refinement is True.
 
         claim_decomposition_llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Also used for claim refinement.
@@ -99,14 +90,12 @@ class ClaimQA(LongFormUQ):
             avoid OutOfMemoryError
         """
         self.scorers = ["semantic_negentropy"] if not scorers else scorers
-        super().__init__(llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, claim_refinement=claim_refinement, claim_refinement_threshold=claim_refinement_threshold, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
-        self.num_questions = num_questions
-        self.num_claim_qa_responses = num_claim_qa_responses
-        self.question_generator = QuestionGenerator(question_generator_llm=question_generator_llm if question_generator_llm is not None else self.decomposer.claim_decomposition_llm, max_calls_per_min=questioner_max_calls_per_min, num_questions=self.num_questions)
+        super().__init__(llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
+        self.question_generator = QuestionGenerator(question_generator_llm=question_generator_llm if question_generator_llm is not None else self.decomposer.claim_decomposition_llm, max_calls_per_min=questioner_max_calls_per_min)
         self.bb_object = BlackBoxUQ(llm=llm, scorers=self.scorers, device=device, max_calls_per_min=max_calls_per_min, sampling_temperature=sampling_temperature, max_length=max_length)
         self.uad_result = {}
 
-    async def generate_and_score(self, prompts: List[str], claim_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> UQResult:
+    async def generate_and_score(self, prompts: List[str], num_questions: int = 1, num_claim_qa_responses: int = 5, response_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> UQResult:
         """
         Generate and score the responses.
 
@@ -115,6 +104,16 @@ class ClaimQA(LongFormUQ):
         prompts : list of str
             A list of input prompts for the model.
 
+        num_questions : int, default=1
+            The number of questions to generate for each claim/sentence.
+
+        num_claim_qa_responses : int, default=5
+            The number of responses to generate for each claim-inverted question.
+
+        response_refinement_threshold : float, default=1/3
+            Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
+            refined response. Only used if response_refinement is True.
+
         show_progress_bars : bool, default=True
             If True, displays progress bars while generating and scoring responses.
         """
@@ -122,9 +121,9 @@ class ClaimQA(LongFormUQ):
         self._display_generation_header(show_progress_bars)
 
         responses = await self.generate_original_responses(prompts=prompts, progress_bar=self.progress_bar)
-        return await self.score(prompts=prompts, responses=responses, show_progress_bars=show_progress_bars)
+        return await self.score(prompts=prompts, responses=responses, num_questions=num_questions, num_claim_qa_responses=num_claim_qa_responses, response_refinement_threshold=response_refinement_threshold, show_progress_bars=show_progress_bars)
 
-    async def score(self, prompts: List[str], responses: List[str], claim_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> UQResult:
+    async def score(self, prompts: List[str], responses: List[str], num_questions: int = 1, num_claim_qa_responses: int = 5, response_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> UQResult:
         """
         Evaluate the QuesAns scores for a given set of claim_sets.
 
@@ -133,8 +132,18 @@ class ClaimQA(LongFormUQ):
         prompts : list of str
             A list of input prompts for the model.
 
+        num_questions : int, default=1
+            The number of questions to generate for each claim/sentence.
+
+        num_claim_qa_responses : int, default=5
+            The number of responses to generate for each claim-inverted question.
+
         responses : list of str
             A list of model responses for the prompts.
+
+        response_refinement_threshold : float, default=1/3
+            Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
+            refined response. Only used if response_refinement is True.
 
         show_progress_bars : bool, default=True
             If True, displays a progress bar while scoring responses
@@ -145,23 +154,24 @@ class ClaimQA(LongFormUQ):
         self._construct_progress_bar(show_progress_bars)
         await self._decompose_responses(show_progress_bars)
 
-        result = await self._score_from_decomposed(prompts=self.prompts, responses=responses, claim_sets=self.claim_sets, progress_bar=self.progress_bar)
+        result = await self._score_from_decomposed(prompts=self.prompts, num_questions=num_questions, num_claim_qa_responses=num_claim_qa_responses, claim_sets=self.claim_sets, response_refinement_threshold=response_refinement_threshold, progress_bar=self.progress_bar)
         return result
 
-    async def _score_from_decomposed(self, claim_sets: List[List[str]], responses: Optional[List[str]] = None, prompts: Optional[List[str]] = None, progress_bar: Optional[Progress] = None):
+    async def _score_from_decomposed(self, claim_sets: List[List[str]], prompts: Optional[List[str]] = None, num_questions: int = 1, num_claim_qa_responses: int = 5, response_refinement_threshold=1 / 3, progress_bar: Optional[Progress] = None):
         """
         Evaluate the ClaimQA scores for a given set of prompts and claim_sets.
         """
+        self.num_questions = num_questions
+        self.num_claim_qa_responses = num_claim_qa_responses
         self.claim_sets = claim_sets
         self.prompts = [None] * len(claim_sets) if not prompts else prompts
-        self.responses = [None] * len(claim_sets) if not responses else responses
 
         prompts_flat = []
         for prompt, claim_set in zip(self.prompts, self.claim_sets):
             prompts_flat.extend([prompt] * len(claim_set) * self.num_questions)
         num_claims = [len(claim_set) for claim_set in self.claim_sets]
 
-        generated_questions = await self.question_generator.generate_questions(claim_sets=self.claim_sets, progress_bar=progress_bar)
+        generated_questions = await self.question_generator.generate_questions(claim_sets=self.claim_sets, num_questions=self.num_questions, progress_bar=progress_bar)
         formatted_claim_questions = [get_answer_template(claim_question=generated_questions[i], original_question=prompts_flat[i]) for i in range(len(generated_questions))]
 
         self.bb_object.progress_bar = progress_bar
@@ -169,8 +179,8 @@ class ClaimQA(LongFormUQ):
         bb_result = await self.bb_object.generate_and_score(prompts=formatted_claim_questions, num_responses=self.num_claim_qa_responses, show_progress_bars=True if progress_bar else False)
         self.scores_dict = self._process_bb_result(bb_result=bb_result, formatted_claim_questions=generated_questions, num_claims=num_claims)
 
-        if self.claim_refinement:
-            self.uad_result = await self.uncertainty_aware_decode(claim_sets=self.claim_sets, claim_scores=self.claim_scores[self.uad_scorer], show_progress_bars=True if progress_bar else False)
+        if self.response_refinement:
+            self.uad_result = await self.uncertainty_aware_decode(claim_sets=self.claim_sets, claim_scores=self.claim_scores[self.uad_scorer], response_refinement_threshold=response_refinement_threshold, show_progress_bars=True if progress_bar else False)
 
         self.scores_dict["claims_data"] = self._extract_claim_data()
 
@@ -227,5 +237,5 @@ class ClaimQA(LongFormUQ):
 
         data.update(self.scores_dict)
         data.update(self.uad_result)
-        result = {"data": data, "metadata": {"granularity": self.granularity, "aggregation": self.aggregation, "temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": self.bb_object.sampling_temperature, "num_claim_qa_responses": self.num_claim_qa_responses, "claim_refinement_threshold": self.claim_refinement_threshold}}
+        result = {"data": data, "metadata": {"granularity": self.granularity, "aggregation": self.aggregation, "temperature": None if not self.llm else self.llm.temperature, "sampling_temperature": self.bb_object.sampling_temperature, "num_claim_qa_responses": self.num_claim_qa_responses, "response_refinement_threshold": self.response_refinement_threshold}}
         return UQResult(result)

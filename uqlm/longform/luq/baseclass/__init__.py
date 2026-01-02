@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.longform.luq.baseclass.claims_scorer import ClaimScores, ClaimScorer
+from uqlm.longform.luq.baseclass.claims_scorer import ClaimScores, ClaimScorer, ClaimScore
 
-__all__ = ["ClaimScores", "ClaimScorer"]
+__all__ = ["ClaimScores", "ClaimScorer", "ClaimScore"]

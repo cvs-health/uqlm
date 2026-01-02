@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.scorers.long_form.baseclass.uncertainty import LongFormUQ
+from uqlm.scorers.longform.baseclass.uncertainty import LongFormUQ
 
 __all__ = ["LongFormUQ"]

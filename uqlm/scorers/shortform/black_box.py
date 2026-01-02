@@ -17,10 +17,10 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage
 from typing import Any, List, Optional, Union
 
-from uqlm.scorers.short_form.baseclass.uncertainty import ShortFormUQ
 from uqlm.utils.results import UQResult
 from uqlm.black_box import BertScorer, CosineScorer, MatchScorer, ConsistencyScorer
-from uqlm.scorers.short_form.entropy import SemanticEntropy
+from uqlm.scorers.shortform.entropy import SemanticEntropy
+from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ
 
 
 class BlackBoxUQ(ShortFormUQ):

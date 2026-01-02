@@ -24,11 +24,11 @@ import rich
 from rich import print as rprint
 
 from uqlm.judges.judge import LLMJudge
-from uqlm.scorers.short_form.baseclass.uncertainty import ShortFormUQ
+from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ
 from uqlm.utils.results import UQResult
-from uqlm.scorers.short_form.panel import LLMPanel
-from uqlm.scorers.short_form.black_box import BlackBoxUQ
-from uqlm.scorers.short_form.white_box import WhiteBoxUQ
+from uqlm.scorers.shortform.panel import LLMPanel
+from uqlm.scorers.shortform.black_box import BlackBoxUQ
+from uqlm.scorers.shortform.white_box import WhiteBoxUQ
 from uqlm.utils.grader import LLMGrader
 from uqlm.utils.tuner import Tuner
 from uqlm.utils.llm_config import save_llm_config, load_llm_config

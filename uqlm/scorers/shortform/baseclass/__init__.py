@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.scorers.long_form.longtext import LongTextUQ
-from uqlm.scorers.long_form.claimqa import ClaimQA
+from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ
 
-__all__ = ["LongTextUQ", "ClaimQA"]
+__all__ = ["ShortFormUQ"]

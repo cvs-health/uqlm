@@ -17,8 +17,8 @@ from typing import List, Dict, Any, Optional
 import numpy as np
 from rich.progress import Progress
 from langchain_core.language_models.chat_models import BaseChatModel
-from uqlm.scorers.short_form.entropy import SemanticEntropy
-from uqlm.scorers.short_form.density import SemanticDensity
+from uqlm.scorers.shortform.entropy import SemanticEntropy
+from uqlm.scorers.shortform.density import SemanticDensity
 from uqlm.black_box.cosine import CosineScorer
 from uqlm.white_box.baseclass.logprobs_scorer import LogprobsScorer
 
