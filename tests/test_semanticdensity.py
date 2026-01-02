@@ -14,7 +14,7 @@
 
 import pytest
 import json
-from uqlm.scorers.short_form.density import SemanticDensity
+from uqlm.scorers.shortform.density import SemanticDensity
 from unittest.mock import AsyncMock, MagicMock
 from uqlm.utils.results import UQResult
 from langchain_openai import AzureChatOpenAI

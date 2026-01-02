@@ -18,7 +18,7 @@ import tempfile
 import os
 from langchain_core.language_models.chat_models import BaseChatModel
 from unittest.mock import patch, MagicMock
-from uqlm.scorers.short_form.ensemble import UQEnsemble
+from uqlm.scorers.shortform.ensemble import UQEnsemble
 from uqlm.utils.results import UQResult
 from unittest.mock import AsyncMock
 from uqlm.utils.llm_config import save_llm_config, load_llm_config

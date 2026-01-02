@@ -14,7 +14,7 @@
 
 import pytest
 import json
-from uqlm.scorers.short_form.white_box import WhiteBoxUQ
+from uqlm.scorers.shortform.white_box import WhiteBoxUQ
 from langchain_openai import AzureChatOpenAI
 
 datafile_path = "tests/data/scorers/whitebox_results_file.json"

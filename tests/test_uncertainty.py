@@ -14,7 +14,7 @@
 
 import pytest
 import json
-from uqlm.scorers.short_form.baseclass.uncertainty import ShortFormUQ
+from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ
 from uqlm.utils.results import UQResult
 from uqlm.judges import LLMJudge
 from langchain_openai import AzureChatOpenAI
