@@ -12,11 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.longform.benchmark.factscore_grader import FactScoreGrader
-from uqlm.longform.decomposition.response_decomposer import ResponseDecomposer
-from uqlm.longform.uad.uad import UncertaintyAwareDecoder
-from uqlm.longform.luq.matched_unit import MatchedUnitScorer
-from uqlm.longform.luq.unit_response import UnitResponseScorer
 from uqlm.longform.graph.graph_scorer import GraphScorer
+from uqlm.longform.graph.claim_merger import ClaimMerger
 
-__all__ = ["ResponseDecomposer", "MatchedUnitScorer", "UnitResponseScorer", "FactScoreGrader", "UncertaintyAwareDecoder", "GraphScorer"]
+__all__ = ["GraphScorer", "ClaimMerger"]
