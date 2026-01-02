@@ -14,6 +14,5 @@
 
 from uqlm.scorers.longform.longtext import LongTextUQ
 from uqlm.scorers.longform.claimqa import LongTextQA
-from uqlm.scorers.longform.graph import LongTextGraph
 
-__all__ = ["LongTextUQ", "LongTextQA", "LongTextGraph"]
+__all__ = ["LongTextUQ", "LongTextQA"]
