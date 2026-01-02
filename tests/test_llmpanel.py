@@ -17,7 +17,7 @@ import os
 import json
 from unittest.mock import MagicMock
 from uqlm.judges.judge import LLMJudge
-from uqlm.scorers.short_form.panel import LLMPanel
+from uqlm.scorers.shortform.panel import LLMPanel
 from langchain_core.language_models.chat_models import BaseChatModel
 
 

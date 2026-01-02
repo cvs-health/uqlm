@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 from rich.progress import Progress
 from langchain_core.language_models.chat_models import BaseChatModel
-from uqlm.scorers.long_form.baseclass.uncertainty import LongFormUQ
+from uqlm.scorers.longform.baseclass.uncertainty import LongFormUQ
 from uqlm.utils.results import UQResult
 from uqlm.longform.luq.matched_unit import MatchedUnitScorer
 from uqlm.longform.luq.unit_response import UnitResponseScorer

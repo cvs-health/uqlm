@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.scorers.long_form.longtext import LongTextUQ
-from uqlm.scorers.long_form.claimqa import LongTextQA
-from uqlm.scorers.long_form.graph import LongTextGraph
+from uqlm.scorers.longform.longtext import LongTextUQ
+from uqlm.scorers.longform.claimqa import LongTextQA
+from uqlm.scorers.longform.graph import LongTextGraph
 
 __all__ = ["LongTextUQ", "LongTextQA", "LongTextGraph"]

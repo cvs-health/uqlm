@@ -15,7 +15,7 @@
 import pytest
 import json
 from uqlm.scorers import BlackBoxUQ
-from uqlm.scorers.short_form.baseclass.uncertainty import DEFAULT_BLACK_BOX_SCORERS
+from uqlm.scorers.shortform.baseclass.uncertainty import DEFAULT_BLACK_BOX_SCORERS
 from langchain_openai import AzureChatOpenAI
 
 datafile_path = "tests/data/scorers/blackbox_results_file.json"

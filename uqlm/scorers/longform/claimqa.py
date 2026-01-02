@@ -6,7 +6,7 @@ from uqlm.longform.claim_qa.question_generator import QuestionGenerator
 from uqlm.utils.prompts.claim_qa import get_answer_template
 from uqlm.utils.results import UQResult
 from uqlm.scorers import BlackBoxUQ
-from uqlm.scorers.long_form.baseclass.uncertainty import LongFormUQ
+from uqlm.scorers.longform.baseclass.uncertainty import LongFormUQ
 
 
 class LongTextQA(LongFormUQ):

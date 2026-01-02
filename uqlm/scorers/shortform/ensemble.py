@@ -24,7 +24,7 @@ import rich
 from rich import print as rprint
 
 from uqlm.judges.judge import LLMJudge
-from uqlm.scorers.short_form.baseclass.uncertainty import ShortFormUQ
+from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ
 from uqlm.utils.results import UQResult
 from uqlm.scorers.shortform.panel import LLMPanel
 from uqlm.scorers.shortform.black_box import BlackBoxUQ

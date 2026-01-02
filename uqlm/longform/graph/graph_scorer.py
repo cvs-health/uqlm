@@ -6,14 +6,16 @@ import numpy as np
 import time
 from scipy import sparse
 
+try:
+    import networkx as nx
+except ImportError:
+    nx = None
 
 class GraphScorer(ClaimScorer):
     def __init__(self, nli_model_name: Optional[str] = "microsoft/deberta-large-mnli", device: Optional[Any] = None, max_length: Optional[int] = 2000) -> None:
-        try:
-            import networkx as nx
-        except ImportError:
+        if nx is None:
             print("graph-based scoring requires `networkx` package. Please install using `pip install networkx`.")
-        
+
         self.nli_model_name = nli_model_name
         self.device = device
         self.max_length = max_length
