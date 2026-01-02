@@ -24,7 +24,7 @@ __all__ = ["UQEnsemble", "SemanticDensity", "SemanticEntropy", "LLMPanel", "Whit
 
 # Allow submodule imports like `uqlm.scorers.entropy` and `uqlm.scorers.baseclass`
 _base_dir = Path(__file__).resolve().parent
-for _subdir in ("short_form", "long_form"):
+for _subdir in ("shortform", "longform"):
     _subpath = _base_dir / _subdir
     if _subpath.exists():
         __path__.append(str(_subpath))
