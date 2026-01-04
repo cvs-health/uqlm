@@ -31,6 +31,7 @@ class LongTextGraph(LongFormUQ):
         aggregation: str = "mean",
         response_refinement: bool = False,
         claim_decomposition_llm: Optional[BaseChatModel] = None,
+        claim_filtering_scorer: Optional[str] = None,
         device: Any = None,
         nli_model_name: str = "microsoft/deberta-large-mnli",
         system_prompt: str = "You are a helpful assistant.",
@@ -63,6 +64,10 @@ class LongTextGraph(LongFormUQ):
             scores below the response_refinement_threshold and uses the claim_decomposition_llm to reconstruct the response from
             the retained claims. Only available for claim-level granularity. For more details, refer to
             Jiang et al., 2024: https://arxiv.org/abs/2410.20783
+            
+        claim_filtering_scorer : Optional[str], default=None
+            specifies which scorer to use to filter claims if response_refinement is True. If not provided, defaults to the first
+            element of self.scorers.
 
         claim_decomposition_llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Also used for claim refinement.
@@ -95,7 +100,7 @@ class LongTextGraph(LongFormUQ):
             avoid OutOfMemoryError
         """
         self.scorers = ["closeness_centrality"] if not scorers else scorers
-        super().__init__(llm=llm, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
+        super().__init__(llm=llm, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_filtering_scorer=claim_filtering_scorer, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
         self.nli_model_name = nli_model_name
         self.max_length = max_length
         self.sampling_temperature = sampling_temperature
