@@ -25,13 +25,13 @@ class UnitResponseScorer(ClaimScorer):
 
         Parameters
         ----------
-        device : torch.device input or torch.device object, default=None
-            Specifies the device that classifiers use for prediction. Set to "cuda" for classifiers to be able to
-            leverage the GPU.
-
         nli_model_name : str, default="microsoft/deberta-large-mnli"
             Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
             AutoModelForSequenceClassification.from_pretrained()
+
+        device : torch.device input or torch.device object, default=None
+            Specifies the device that classifiers use for prediction. Set to "cuda" for classifiers to be able to
+            leverage the GPU.
 
         max_length : int, default=2000
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to

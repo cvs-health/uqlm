@@ -1,8 +1,22 @@
+# Copyright 2025 CVS Health and/or one of its affiliates
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import numpy as np
 from typing import List, Optional, Any
 from rich.progress import Progress
 from langchain_core.language_models.chat_models import BaseChatModel
-from uqlm.longform.claim_qa.question_generator import QuestionGenerator
+from uqlm.longform.qa.question_generator import QuestionGenerator
 from uqlm.utils.prompts.claim_qa import get_answer_template
 from uqlm.utils.results import UQResult
 from uqlm.scorers import BlackBoxUQ
@@ -17,6 +31,7 @@ class LongTextQA(LongFormUQ):
         granularity: str = "claim",
         aggregation: str = "mean",
         response_refinement: bool = False,
+        claim_filtering_scorer: Optional[str] = None,
         system_prompt: str = "You are a helpful assistant.",
         claim_decomposition_llm: BaseChatModel = None,
         question_generator_llm: BaseChatModel = None,
@@ -28,7 +43,7 @@ class LongTextQA(LongFormUQ):
         use_n_param: bool = False,
     ):
         """
-        Initialize the ClaimQAScorer.
+        Implements a generalization of the longform semantic entropy approach by Farquhar et al. (2024): https://www.nature.com/articles/s41586-024-07421-0.
 
         Parameters
         ----------
@@ -51,9 +66,9 @@ class LongTextQA(LongFormUQ):
             the retained claims. Only available for claim-level granularity. For more details, refer to
             Jiang et al., 2024: https://arxiv.org/abs/2410.20783
 
-        response_refinement_threshold : float, default=1/3
-            Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the
-            refined response. Only used if response_refinement is True.
+        claim_filtering_scorer : Optional[str], default=None
+            specifies which scorer to use to filter claims if response_refinement is True. If not provided, defaults to the first
+            element of self.scorers.
 
         claim_decomposition_llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Also used for claim refinement.
@@ -90,7 +105,7 @@ class LongTextQA(LongFormUQ):
             avoid OutOfMemoryError
         """
         self.scorers = ["semantic_negentropy"] if not scorers else scorers
-        super().__init__(llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
+        super().__init__(llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_filtering_scorer=claim_filtering_scorer, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
         self.question_generator = QuestionGenerator(question_generator_llm=question_generator_llm if question_generator_llm is not None else self.decomposer.claim_decomposition_llm, max_calls_per_min=questioner_max_calls_per_min)
         self.bb_object = BlackBoxUQ(llm=llm, scorers=self.scorers, device=device, max_calls_per_min=max_calls_per_min, sampling_temperature=sampling_temperature, max_length=max_length)
         self.uad_result = {}
@@ -125,21 +140,21 @@ class LongTextQA(LongFormUQ):
 
     async def score(self, prompts: List[str], responses: List[str], num_questions: int = 1, num_claim_qa_responses: int = 5, response_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> UQResult:
         """
-        Evaluate the QuesAns scores for a given set of claim_sets.
+        Decompose responses, generate questions for each claim/sentence, sample LLM responses to the questions, and score consistency on those generated answers to measure confidence.
 
         Parameters
         ----------
         prompts : list of str
             A list of input prompts for the model.
 
+        responses : list of str
+            A list of model responses for the prompts.
+
         num_questions : int, default=1
             The number of questions to generate for each claim/sentence.
 
         num_claim_qa_responses : int, default=5
             The number of responses to generate for each claim-inverted question.
-
-        responses : list of str
-            A list of model responses for the prompts.
 
         response_refinement_threshold : float, default=1/3
             Threshold for uncertainty-aware filtering. Claims with confidence scores below this threshold are dropped from the

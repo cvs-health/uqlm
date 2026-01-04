@@ -22,7 +22,9 @@ from uqlm.longform.uad import UncertaintyAwareDecoder
 
 
 class LongFormUQ(UncertaintyQuantifier):
-    def __init__(self, llm: Any = None, scorers: Optional[List[str]] = None, granularity: str = "claim", aggregation: str = "mean", claim_decomposition_llm: Optional[BaseChatModel] = None, response_refinement: bool = False, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False) -> None:
+    def __init__(
+        self, llm: Any = None, scorers: Optional[List[str]] = None, granularity: str = "claim", aggregation: str = "mean", claim_decomposition_llm: Optional[BaseChatModel] = None, response_refinement: bool = False, claim_filtering_scorer: Optional[str] = None, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False
+    ) -> None:
         """
         Parent class for uncertainty quantification of LLM responses
 
@@ -32,8 +34,18 @@ class LongFormUQ(UncertaintyQuantifier):
             A langchain llm object to get passed to chain constructor. User is responsible for specifying
             temperature and other relevant parameters to the constructor of their `llm` object.
 
+        scorers : List[str], default=None
+            Specifies which black box (consistency) scorers to include.
+
         aggregation : str, default="mean"
             Specifies how to aggregate claim/sentence-level scores to response-level scores. Must be one of 'min' or 'mean'.
+
+        granularity : str, default="claim"
+            Specifies whether to decompose and score at claim or sentence level granularity. Must be either "claim" or "sentence"
+
+        claim_decomposition_llm : langchain `BaseChatModel`, default=None
+            A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Also used for claim refinement.
+            If granularity="claim" and claim_decomposition_llm is None, the provided `llm` will be used for claim decomposition.
 
         response_refinement : bool, default=False
             Specifies whether to refine responses with uncertainty-aware decoding. This approach removes claims with confidence
@@ -41,9 +53,9 @@ class LongFormUQ(UncertaintyQuantifier):
             the retained claims. Only available for claim-level granularity. For more details, refer to
             Jiang et al., 2024: https://arxiv.org/abs/2410.20783
 
-        claim_decomposition_llm : langchain `BaseChatModel`, default=None
-            A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Also used for claim refinement.
-            If granularity="claim" and claim_decomposition_llm is None, the provided `llm` will be used for claim decomposition.
+        claim_filtering_scorer : Optional[str], default=None
+            specifies which scorer to use to filter claims if response_refinement is True. If not provided, defaults to the first
+            element of self.scorers.
 
         device: str or torch.device input or torch.device object, default="cpu"
             Specifies the device that NLI model use for prediction. Only applies to 'semantic_negentropy', 'noncontradiction'
@@ -68,6 +80,7 @@ class LongFormUQ(UncertaintyQuantifier):
         self.scorers = scorers
         self.aggregation = aggregation
         self.response_refinement = response_refinement
+        self.claim_filtering_scorer = claim_filtering_scorer
         self.response_refinement_threshold = None
         if self.granularity not in ["sentence", "claim"]:
             raise ValueError(
@@ -79,7 +92,14 @@ class LongFormUQ(UncertaintyQuantifier):
             if self.granularity != "claim":
                 raise ValueError("Uncertainty aware decoding is only possible with claim-level scoring. Please set response_refinement=False or granularity='claim'")
             self.reconstructor = UncertaintyAwareDecoder(reconstructor_llm=self.decomposer.claim_decomposition_llm)
-            self.uad_scorer = self.scorers[0]
+            if not self.claim_filtering_scorer:
+                print(f"claim_filtering_scorer is not specified for response_refinement. Defaulting to {self.scorers[0]}.")
+                self.uad_scorer = self.scorers[0]
+            elif self.claim_filtering_scorer not in self.scorers:
+                print(f"claim_filtering_scorer is contained in list of scorers. Defaulting to {self.scorers[0]}.")
+                self.uad_scorer = self.scorers[0]
+            else:
+                self.uad_scorer = self.claim_filtering_scorer
 
     async def uncertainty_aware_decode(self, claim_sets: List[List[str]], claim_scores: List[List[float]], response_refinement_threshold: float = 1 / 3, show_progress_bars: Optional[bool] = True) -> List[str]:
         """

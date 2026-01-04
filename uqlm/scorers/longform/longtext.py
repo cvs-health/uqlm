@@ -1,3 +1,17 @@
+# Copyright 2025 CVS Health and/or one of its affiliates
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from typing import Any, List, Optional
 from rich.progress import Progress
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -19,6 +33,7 @@ class LongTextUQ(LongFormUQ):
         scorers: Optional[List[str]] = None,
         aggregation: str = "mean",
         response_refinement: bool = False,
+        claim_filtering_scorer: Optional[str] = None,
         claim_decomposition_llm: Optional[BaseChatModel] = None,
         device: Any = None,
         nli_model_name: str = "microsoft/deberta-large-mnli",
@@ -37,8 +52,9 @@ class LongTextUQ(LongFormUQ):
             A langchain llm `BaseChatModel`. User is responsible for specifying temperature and other
             relevant parameters to the constructor of their `llm` object.
 
-        scorers : subset of {"entailment", "noncontradiction", "contrasted_entailment", "bert_score", "cosine_sim"}, default=None
-            Specifies which black box (consistency) scorers to include. If None, defaults to ["entailment"].
+        scorers : List[str], default=None
+            Specifies which black box (consistency) scorers to include. List must be subset of ["entailment", "noncontradiction", "contrasted_entailment", "bert_score", "cosine_sim"].
+            If None, defaults to ["entailment"].
 
         granularity : str, default="claim"
             Specifies whether to decompose and score at claim or sentence level granularity. Must be either "claim" or "sentence"
@@ -55,6 +71,10 @@ class LongTextUQ(LongFormUQ):
             scores below the response_refinement_threshold and uses the claim_decomposition_llm to reconstruct the response from
             the retained claims. Only available for claim-level granularity. For more details, refer to
             Jiang et al., 2024: https://arxiv.org/abs/2410.20783
+
+        claim_filtering_scorer : Optional[str], default=None
+            specifies which scorer to use to filter claims if response_refinement is True. If not provided, defaults to the first
+            element of self.scorers.
 
         claim_decomposition_llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Also used for claim refinement.
@@ -87,7 +107,7 @@ class LongTextUQ(LongFormUQ):
             avoid OutOfMemoryError
         """
         self.scorers = ["entailment"] if not scorers else scorers
-        super().__init__(llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
+        super().__init__(llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_filtering_scorer=claim_filtering_scorer, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
         self.nli_model_name = nli_model_name
         self.mode = mode
         self.max_length = max_length

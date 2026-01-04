@@ -27,12 +27,15 @@ ALL_AGREEMENT_SCORER_NAMES = ["nli", "bert_score", "cosine_sim"]
 
 
 class MatchedUnitScorer(ClaimScorer):
-    def __init__(self, agreement_functions=["nli", "bert_score", "cosine_sim"], device: Any = None, transformer: str = "all-MiniLM-L6-v2", nli_model_name: str = "microsoft/deberta-large-mnli", max_length: int = 2000) -> None:
+    def __init__(self, consistency_functions=["nli", "bert_score", "cosine_sim"], device: Any = None, transformer: str = "all-MiniLM-L6-v2", nli_model_name: str = "microsoft/deberta-large-mnli", max_length: int = 2000) -> None:
         """
         LUQScorer calculates variations of the LUQ, LUQ-Atomic, or LUQ-Pair scores.
 
         Parameters
         ----------
+        consistency_functions: List[str], default=["nli", "bert_score", "cosine_sim"]
+            Specifies which semantic consistency functions to use for scoring. Must be subset of ["nli", "bert_score", "cosine_sim"]
+
         device : torch.device input or torch.device object, default=None
             Specifies the device that classifiers use for prediction. Set to "cuda" for classifiers to be able to
             leverage the GPU.
@@ -46,13 +49,13 @@ class MatchedUnitScorer(ClaimScorer):
             avoid OutOfMemoryError
         """
         self.nli_model_name = nli_model_name
-        self.agreement_functions = agreement_functions
+        self.consistency_functions = consistency_functions
         self.matched_claim = True
-        if not set(agreement_functions).issubset(set(ALL_AGREEMENT_SCORER_NAMES)):
-            raise ValueError("""agreement_functions must be subset of ["nli", "bertscore", "cosine_sim"]""")
-        self.nli = NLI(device=device, nli_model_name=nli_model_name, max_length=max_length) if "nli" in agreement_functions else None
-        self.cosine_scorer = CosineScorer(transformer=transformer) if "cosine_sim" in agreement_functions else None
-        self.bert_scorer = BertScorer(device=device) if "bert_score" in agreement_functions else None
+        if not set(consistency_functions).issubset(set(ALL_AGREEMENT_SCORER_NAMES)):
+            raise ValueError("""consistency_functions must be subset of ["nli", "bertscore", "cosine_sim"]""")
+        self.nli = NLI(device=device, nli_model_name=nli_model_name, max_length=max_length) if "nli" in consistency_functions else None
+        self.cosine_scorer = CosineScorer(transformer=transformer) if "cosine_sim" in consistency_functions else None
+        self.bert_scorer = BertScorer(device=device) if "bert_score" in consistency_functions else None
         self.progress_bar = None
 
     def evaluate(self, claim_sets: List[List[str]], sampled_claim_sets: List[List[List[str]]] = None, progress_bar: Optional[Progress] = None) -> ClaimScores:

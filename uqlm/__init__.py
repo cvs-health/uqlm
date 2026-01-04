@@ -18,6 +18,6 @@ from uqlm.scorers.shortform.panel import LLMPanel
 from uqlm.scorers.shortform.white_box import WhiteBoxUQ
 from uqlm.scorers.shortform.black_box import BlackBoxUQ
 from uqlm.scorers.longform.longtext import LongTextUQ
-from uqlm.scorers.longform.claimqa import LongTextQA
+from uqlm.scorers.longform.qa import LongTextQA
 
 __all__ = ["UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "LongTextUQ", "LongTextQA"]

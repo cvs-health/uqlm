@@ -21,12 +21,27 @@ from uqlm.utils.prompts.factscore_prompts import FACTSCORE_SYSTEM_PROMPT, SUBJEC
 
 class FactScoreGrader:
     def __init__(self, llm, max_calls_per_min: int = None):
+        """
+        Class for grading LLM responses to questions from the FactScore dataset: https://arxiv.org/abs/2305.14251
+
+        Parameters
+        ----------
+        llm : langchain `BaseChatModel`, default=None
+            A langchain llm `BaseChatModel`. User is responsible for specifying temperature and other
+            relevant parameters to the constructor of their `llm` object. This is used to grade claims against
+            the FactScore answer key.
+
+        max_calls_per_min : int, default=None
+            Specifies how many api calls to make per minute to avoid a rate limit error. By default, no
+            limit is specified.
+        """
         self.grader_system_prompt = FACTSCORE_SYSTEM_PROMPT
         self.subjective_system_prompt = SUBJECTIVE_SYSTEM_PROMPT
         self.rg = ResponseGenerator(llm, max_calls_per_min=max_calls_per_min)
         self.rg.response_generator_type = "factscore_grader"
 
     def construct_entailment_prompt(self, claim: str, answer: str) -> str:
+        """Construct entailment prompt from claim and answer"""
         return f"""
             Context: {answer}
             Claim: {claim}
@@ -35,6 +50,7 @@ class FactScoreGrader:
             """
 
     def construct_subjective_prompt(self, claim: str) -> str:
+        """Construct prompt to evaluate whether claim is objective or subjectiver"""
         return f"""
             Input: {claim}
             Is the input subjective or objective?
@@ -42,6 +58,20 @@ class FactScoreGrader:
             """
 
     async def grade_claims(self, claim_sets: List[List[str]], answers: List[str], progress_bar: Optional[Progress] = None) -> List[List[bool]]:
+        """
+        Grade claims against FactScore answers
+
+        Parameters
+        ----------
+        claim_sets : List[List[str]]
+            List of lists of claims (one list per FactScore question) to be graded
+
+        answers : List[str]
+            FactScore answers to grade against (typically Wikipedia texts)
+
+        progress_bar : rich.progress.Progress, default=None
+            If provided, displays a progress bar while scoring responses
+        """
         prompts = []
         indices = []
         for i, (claim_set, answer) in enumerate(zip(claim_sets, answers)):
@@ -56,6 +86,17 @@ class FactScoreGrader:
         return formatted_grade_lists
 
     async def evaluate_claim_objectivity(self, claim_sets: List[List[str]], progress_bar: Optional[Progress] = None) -> List[List[bool]]:
+        """
+        Evaluate whether claims are objective or subjective
+
+        Parameters
+        ----------
+        claim_sets : List[List[str]]
+            List of lists of claims to be evaluated as objective or subjective
+
+        progress_bar : rich.progress.Progress, default=None
+            If provided, displays a progress bar while scoring responses
+        """
         prompts = []
         indices = []
         for i, claim_set in enumerate(claim_sets):
@@ -82,13 +123,6 @@ class FactScoreGrader:
     def _format_outputs(self, flat_grades_list: List[str], reference_structure: List[List[str]], strings_to_check: List[str] = ["yes", "no"]) -> List[bool]:
         """
         Reshape a flat list into a nested list structure that matches the reference structure.
-
-        Args:
-            flat_list: A flat list of elements with length equal to the sum of all inner list lengths in reference_structure
-            reference_structure: A list of lists with varying inner list lengths
-
-        Returns:
-            A nested list with the same structure as reference_structure, containing elements from flat_list
         """
         formatted_grades = []
         flat_index = 0

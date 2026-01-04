@@ -166,26 +166,19 @@ class ResponseDecomposer:
 
     async def _get_claims_from_response(self, response: str, progress_bar: Optional[Progress] = None) -> List[str]:
         """Decompose single response into claims using LLM and extract claims from the result"""
-        # Get LLM decomposition
         decomposed_response = await self.claim_decomposition_llm.ainvoke(self.response_template(response))
         if progress_bar:
             progress_bar.update(self.progress_task, advance=1)
 
-        # Extract claims from LLM response
         llm_response = decomposed_response.content
-
-        # Case where LLM couldn't find any claims (responds with ### NONE)
         if self._is_none_response(llm_response):
             return []
 
-        # Look for ### markers that are at the start of lines
         claim_pattern = r"(?:^|\n)\s*###\s*(.+?)(?=\n\s*###|\n\s*$|$)"
         matches = re.findall(claim_pattern, llm_response, re.MULTILINE | re.DOTALL)
 
-        # Clean and collect non-empty claims
         claims = []
         for match in matches:
-            # Basic whitespace cleanup
             cleaned_claim = re.sub(r"\s+", " ", match.strip())
             if cleaned_claim:  # Skip empty claims
                 claims.append(cleaned_claim)
@@ -194,19 +187,6 @@ class ResponseDecomposer:
 
     def _is_none_response(self, llm_response: str) -> bool:
         """
-        Check if the LLM response indicates no claims are present.
-
-        Detects the template-instructed "### NONE" response and common variations.
-
-        Parameters
-        ----------
-        llm_response : str
-            The raw response from the LLM
-
-        Returns
-        -------
-        bool
-            True if the response indicates no claims, False otherwise
+        Check if the LLM response indicates no claims are present. Detects the template-instructed "### NONE" response and common variations.
         """
-        # Check for the template-instructed "### NONE" pattern (case-insensitive)
         return bool(re.search(r"###\s*none\b", llm_response.strip(), re.IGNORECASE))

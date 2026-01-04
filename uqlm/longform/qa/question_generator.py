@@ -27,12 +27,13 @@ class QuestionGenerator:
 
         Parameters
         ----------
-        reconstructor_llm : langchain `BaseChatModel`, default=None
+        question_generator_llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel`. User is responsible for specifying temperature and other
             relevant parameters to the constructor of their `llm` object.
 
-        threshold : float, default=1/3
-            Threshold used for uncertainty-aware filtering
+        max_calls_per_min : int, default=None
+            Specifies how many api calls to make per minute to avoid a rate limit error. By default, no
+            limit is specified.
         """
         self.rg = ResponseGenerator(llm=question_generator_llm, max_calls_per_min=max_calls_per_min)
         self.rg.response_generator_type = "question_generator"
@@ -44,8 +45,11 @@ class QuestionGenerator:
         claim_sets : List[List[str]]
             List of original responses decomposed into lists of claims
 
-        claim_scores : List[List[float]]
-            List of lists of claim-level confidence scores to be used for uncertainty-aware filtering
+        responses : Optional[List[str]], default=None
+            List of original responses to which the claim_sets belong
+
+        num_questions : int, default=1
+            The number of questions to generate for each claim/sentence.
 
         progress_bar : rich.progress.Progress, default=None
             If provided, displays a progress bar while scoring responses

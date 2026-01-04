@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.longform.claim_qa.question_generator import QuestionGenerator
+from uqlm.longform.qa.question_generator import QuestionGenerator
 
 __all__ = ["QuestionGenerator"]
