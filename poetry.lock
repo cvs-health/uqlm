@@ -2584,24 +2584,25 @@ files = [
 
 [[package]]
 name = "langchain"
-version = "1.0.3"
+version = "1.0.5"
 description = "Building applications with LLMs through composability"
 optional = false
 python-versions = "<4.0.0,>=3.10.0"
 groups = ["main"]
 files = [
-    {file = "langchain-1.0.3-py3-none-any.whl", hash = "sha256:a7d57964ed16278c991de4ab15516a81937a58c5ac7d7aadccb18431ad8179b2"},
-    {file = "langchain-1.0.3.tar.gz", hash = "sha256:f96d8d185cb8cbba9793f5c648e7d5eeec688f8e3778f700d75d89d6570ae11e"},
+    {file = "langchain-1.0.5-py3-none-any.whl", hash = "sha256:d59ce7303f1d9e4bca41855b20a1842f4470a22d09a64fb93fb0ff30a2d36d4b"},
+    {file = "langchain-1.0.5.tar.gz", hash = "sha256:7e0635b36a7f7a649be21fcce4c82b7428bcf72a5d14aacdf9f2636c4775f159"},
 ]
 
 [package.dependencies]
-langchain-core = ">=1.0.0,<2.0.0"
+langchain-core = ">=1.0.4,<2.0.0"
 langgraph = ">=1.0.2,<1.1.0"
 pydantic = ">=2.7.4,<3.0.0"
 
 [package.extras]
 anthropic = ["langchain-anthropic"]
 aws = ["langchain-aws"]
+azure-ai = ["langchain-azure-ai"]
 community = ["langchain-community"]
 deepseek = ["langchain-deepseek"]
 fireworks = ["langchain-fireworks"]
@@ -2610,6 +2611,7 @@ google-vertexai = ["langchain-google-vertexai"]
 groq = ["langchain-groq"]
 huggingface = ["langchain-huggingface"]
 mistralai = ["langchain-mistralai"]
+model-profiles = ["langchain-model-profiles"]
 ollama = ["langchain-ollama"]
 openai = ["langchain-openai"]
 perplexity = ["langchain-perplexity"]
@@ -2618,14 +2620,14 @@ xai = ["langchain-xai"]
 
 [[package]]
 name = "langchain-core"
-version = "1.0.3"
+version = "1.0.4"
 description = "Building applications with LLMs through composability"
 optional = false
 python-versions = "<4.0.0,>=3.10.0"
 groups = ["main", "dev", "test"]
 files = [
-    {file = "langchain_core-1.0.3-py3-none-any.whl", hash = "sha256:64f1bd45f04b174bbfd54c135a8adc52f4902b347c15a117d6383b412bf558a5"},
-    {file = "langchain_core-1.0.3.tar.gz", hash = "sha256:10744945d21168fb40d1162a5f1cf69bf0137ff6ad2b12c87c199a5297410887"},
+    {file = "langchain_core-1.0.4-py3-none-any.whl", hash = "sha256:53caa351d9d73b56f5d9628980f36851cfa725977508098869fdc2d246da43b3"},
+    {file = "langchain_core-1.0.4.tar.gz", hash = "sha256:086d408bcbeedecb0b152201e0163b85e7a6d9b26e11a75cc577b7371291df4e"},
 ]
 
 [package.dependencies]
@@ -5650,7 +5652,7 @@ description = "Fundamental algorithms for scientific computing in Python"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
-markers = "python_version == \"3.10\""
+markers = "python_version == \"3.10\" or python_version >= \"3.13\""
 files = [
     {file = "scipy-1.15.3-cp310-cp310-macosx_10_13_x86_64.whl", hash = "sha256:a345928c86d535060c9c2b25e71e87c39ab2f22fc96e9636bd74d1dbf9de448c"},
     {file = "scipy-1.15.3-cp310-cp310-macosx_12_0_arm64.whl", hash = "sha256:ad3432cb0f9ed87477a8d97f03b763fd1d57709f1bbde3c9369b1dff5503b253"},
@@ -5715,7 +5717,7 @@ description = "Fundamental algorithms for scientific computing in Python"
 optional = false
 python-versions = ">=3.11"
 groups = ["main"]
-markers = "python_version >= \"3.11\""
+markers = "python_version < \"3.13\" and python_version >= \"3.11\""
 files = [
     {file = "scipy-1.16.2-cp311-cp311-macosx_10_14_x86_64.whl", hash = "sha256:6ab88ea43a57da1af33292ebd04b417e8e2eaf9d5aa05700be8d6e1b6501cd92"},
     {file = "scipy-1.16.2-cp311-cp311-macosx_12_0_arm64.whl", hash = "sha256:c95e96c7305c96ede73a7389f46ccd6c659c4da5ef1b2789466baeaed3622b6e"},
