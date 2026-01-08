@@ -38,7 +38,7 @@ keywords = ["LLM", "large language model", "LLM evaluation", "hallucination", "u
 [tool.poetry.dependencies]
 python = ">=3.10, <4.0"
 langchain = ">=0.3.7,<1.1.0"
-langchain-model-profiles = "^0.0.3"
+langchain-model-profiles = ">=0.0.3,<0.0.5"
 transformers = "^4.45.2"
 scikit-learn = [
     { version = "^1.5.2", markers = "python_version < '3.13'" },
