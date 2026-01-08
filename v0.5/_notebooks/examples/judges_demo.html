@@ -1,0 +1,1273 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" sizes="16x16" href="../../_static/images/favicon/favicon-16x16.png" type="image/png">
+    <link rel="icon" sizes="32x32" href="../../_static/images/favicon/favicon-32x32.png" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../_static/images/favicon/apple-touch-icon.png" type="image/png">
+    <title>🎯 LLM-as-a-Judge &#8212; uqlm 0.5 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=662d8ef6" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=db78e746"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "displayMath": [["$$", "$$"], ["\\[", "\\]"]]}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_notebooks/examples/judges_demo';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="🎯 Semantic Entropy" href="semantic_entropy_demo.html" />
+    <link rel="prev" title="🎯 Tunable Ensemble for LLM Uncertainty (Advanced)" href="ensemble_tuning_demo.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.5 documentation - Home"/>
+    <img src="../../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.5 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getstarted.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scorer_definitions/index.html">
+    Scorer Definitions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example Notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute.html">
+    Contributor Guide
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../faqs.html">
+    FAQs
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/cvs-health/uqlm" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getstarted.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scorer_definitions/index.html">
+    Scorer Definitions
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Example Notebooks
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute.html">
+    Contributor Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../faqs.html">
+    FAQs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/cvs-health/uqlm" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="ensemble_off_the_shelf_demo.html">🎯 BS Detector: Off-the-Shelf Ensemble for LLM Uncertainty</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ensemble_tuning_demo.html">🎯 Tunable Ensemble for LLM Uncertainty (Advanced)</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">🎯 LLM-as-a-Judge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="semantic_entropy_demo.html">🎯 Semantic Entropy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="semantic_density_demo.html">🎯 Semantic Density</a></li>
+<li class="toctree-l1"><a class="reference internal" href="white_box_multi_generation_demo.html">🎯 White-Box Uncertainty Quantification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="white_box_single_generation_demo.html">🎯 White-Box Uncertainty Quantification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="black_box_demo.html">🎯 Black-Box Uncertainty Quantification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multimodal_demo.html">🎯 Multimodal Uncertainty Quantification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="score_calibration_demo.html">🎯 Confidence Score Calibration Demo</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Example Notebooks</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">🎯 LLM-as-a-Judge</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="🎯-LLM-as-a-Judge">
+<h1>🎯 LLM-as-a-Judge<a class="headerlink" href="#🎯-LLM-as-a-Judge" title="Link to this heading">#</a></h1>
+<div style="background-color: rgba(200, 200, 200, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(127, 127, 127, 0.2); max-width: 100%; overflow-wrap: break-word;"><p style="font-size: 16px; line-height: 1.6"><p>LLM-as-a-Judge scorers use one or more LLMs to evaluate the reliability of the original LLM’s response. They offer high customizability through prompt engineering and the choice of judge LLM(s). Below is a list of the available scorers:</p>
+</p><ul class="simple">
+<li><p>Categorical LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2303.15621">Luo et al., 2023</a>)</p></li>
+<li><p>Continuous LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/abs/2306.13063">Xiong et al., 2024</a>)</p></li>
+<li><p>Likert Scale LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/pdf/2306.04181">Bai et al., 2023</a>)</p></li>
+<li><p>Panel of LLM Judges (<a class="reference external" href="https://arxiv.org/abs/2404.18796">Verga et al., 2024</a>)</p></li>
+</ul>
+</div><section id="📊-What-You'll-Do-in-This-Demo">
+<h2>📊 What You’ll Do in This Demo<a class="headerlink" href="#📊-What-You'll-Do-in-This-Demo" title="Link to this heading">#</a></h2>
+<div style="display: flex; margin-bottom: 15px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>1</p>
+</div><div><p style="margin: 0; font-weight: bold"><p>Set up LLM and prompts.</p>
+</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Set up LLM instance and load example data prompts.</p>
+</p></div></div><div style="display: flex; margin-bottom: 15px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>2</p>
+</div><div><p style="margin: 0; font-weight: bold"><p>Generate LLM Responses and Confidence Scores</p>
+</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Generate and score LLM responses to the example questions using the LLMPanel() class.</p>
+</p></div></div><div style="display: flex; margin-bottom: 25px; align-items: center"><div style="background-color: #34a853; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; margin-right: 15px; flex-shrink: 0"><p>3</p>
+</div><div><p style="margin: 0; font-weight: bold"><p>Evaluate Hallucination Detection Performance</p>
+</p><p style="margin: 0; color: rgba(95, 99, 104, 0.8)"><p>Compute precision, recall, and F1-score of hallucination detection.</p>
+</p></div></div></section>
+<section id="⚖️-Advantages-&amp;-Limitations">
+<h2>⚖️ Advantages &amp; Limitations<a class="headerlink" href="#⚖️-Advantages-&-Limitations" title="Link to this heading">#</a></h2>
+<div style="display: flex; gap: 20px"><div style="flex: 1; background-color: rgba(0, 200, 0, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 200, 0, 0.2)"><h3 style="color: #2e8b57; margin-top: 0"><p>Pros</p>
+</h3><ul style="margin-bottom: 0"><li><p>Universal Compatibility: Works with any LLM.</p>
+</li><li><p>Highly Customizable: Use any LLM as a judge and tailor instruction prompts for specific use cases.</p>
+</li></ul></div><div style="flex: 1; background-color: rgba(200, 0, 0, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(200, 0, 0, 0.2)"><h3 style="color: #b22222; margin-top: 0"><p>Cons</p>
+</h3><ul style="margin-bottom: 0"><li><p>Added cost: Requires additional LLM calls for the judge LLM(s).</p>
+</li></ul></div></div><div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMPanel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_example_dataset</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="1.-Set-up-LLM-and-Prompts">
+<h2>1. Set up LLM and Prompts<a class="headerlink" href="#1.-Set-up-LLM-and-Prompts" title="Link to this heading">#</a></h2>
+<p>In this demo, we will illustrate this approach using a set of multiple choice questions from the <a class="reference external" href="https://arxiv.org/abs/1803.05457">AI2-ARC benchmark</a>. To implement with your use case, simply <strong>replace the example prompts with your data</strong>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load example dataset (ai2_arc)</span>
+<span class="n">ai2_arc</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">&quot;ai2_arc&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">75</span><span class="p">)</span>
+<span class="n">ai2_arc</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Loading dataset - ai2_arc...
+Processing dataset...
+Dataset ready!
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>question</th>
+      <th>answer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Which statement best explains why photosynthes...</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Which piece of safety equipment is used to kee...</td>
+      <td>B</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Meiosis is a type of cell division in which ge...</td>
+      <td>D</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Which characteristic describes the texture of ...</td>
+      <td>D</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Which best describes the structure of an atom?...</td>
+      <td>B</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define prompts</span>
+<span class="n">MCQ_INSTRUCTION</span> <span class="o">=</span> <span class="s2">&quot;You will be given a multiple choice question. Return only the letter of the response with no additional text or explanation.</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">MCQ_INSTRUCTION</span> <span class="o">+</span> <span class="n">prompt</span> <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">ai2_arc</span><span class="o">.</span><span class="n">question</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>In this example, we use <code class="docutils literal notranslate"><span class="pre">ChatOllama</span></code> to instantiate our LLMs, but any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used. Be sure to <strong>replace with your LLM of choice.</strong></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># import sys</span>
+<span class="c1"># !{sys.executable} -m pip install langchain-ollama</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">langchain_ollama</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOllama</span>
+
+<span class="n">ollama_llama</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;llama2&quot;</span><span class="p">)</span>
+<span class="n">ollama_mistral</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;mistral&quot;</span><span class="p">)</span>
+<span class="n">ollama_qwen</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;qwen3&quot;</span><span class="p">)</span>
+<span class="c1"># ollama_deepseek = ChatOllama(model=&quot;deepseek-r1&quot;)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">## Alternative setup with API models</span>
+
+<span class="c1">## ChatVertexAI example</span>
+<span class="c1"># import sys</span>
+<span class="c1"># !{sys.executable} -m pip install langchain-google-vertexai</span>
+<span class="c1"># from langchain_google_vertexai import ChatVertexAI</span>
+
+<span class="c1"># gemini_pro = ChatVertexAI(model_name=&quot;gemini-2.5-pro&quot;)</span>
+<span class="c1"># gemini_flash = ChatVertexAI(model_name=&quot;gemini-2.5-flash&quot;)</span>
+
+
+<span class="c1">## AzureChatOpenAI example</span>
+<span class="c1"># import sys</span>
+<span class="c1"># !{sys.executable} -m pip install langchain-openai</span>
+
+<span class="c1"># # User to populate .env file with API credentials</span>
+<span class="c1"># from dotenv import load_dotenv, find_dotenv</span>
+<span class="c1"># from langchain_openai import AzureChatOpenAI</span>
+
+<span class="c1"># load_dotenv(find_dotenv())</span>
+<span class="c1"># original_llm = AzureChatOpenAI(</span>
+<span class="c1">#     deployment_name=&quot;gpt-4o&quot;,</span>
+<span class="c1">#     openai_api_type=&quot;azure&quot;,</span>
+<span class="c1">#     openai_api_version=&quot;2024-02-15-preview&quot;,</span>
+<span class="c1">#     temperature=1,  # User to set temperature</span>
+<span class="c1"># )</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="2.-Generate-responses-and-confidence-scores">
+<h2>2. Generate responses and confidence scores<a class="headerlink" href="#2.-Generate-responses-and-confidence-scores" title="Link to this heading">#</a></h2>
+<section id="LLMPanel()---Class-for-aggregating-multiple-instances-of-LLMJudge-using-average,-min,-max,-or-majority-voting">
+<h3><code class="docutils literal notranslate"><span class="pre">LLMPanel()</span></code> - Class for aggregating multiple instances of LLMJudge using average, min, max, or majority voting<a class="headerlink" href="#LLMPanel()---Class-for-aggregating-multiple-instances-of-LLMJudge-using-average,-min,-max,-or-majority-voting" title="Link to this heading">#</a></h3>
+<p><img alt="Sample Image" src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/judges_graphic.png" /></p>
+<section id="📋-Class-Attributes">
+<h4>📋 Class Attributes<a class="headerlink" href="#📋-Class-Attributes" title="Link to this heading">#</a></h4>
+<table style="border-collapse: collapse; width: 100%; border: 1px solid rgba(127, 127, 127, 0.2);"><tr><th style="background-color: rgba(200, 200, 200, 0.2); width: 20%; padding: 8px; text-align: left; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Parameter</p>
+</th><th style="background-color: rgba(200, 200, 200, 0.2); width: 25%; padding: 8px; text-align: left; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Type &amp; Default</p>
+</th><th style="background-color: rgba(200, 200, 200, 0.2); width: 55%; padding: 8px; text-align: left; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Description</p>
+</th></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>judges</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>list of LLMJudge or BaseChatModel</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Judges to use. If BaseChatModel, LLMJudge is instantiated using default parameters.</p>
+</td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>llm</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>BaseChatModeldefault=None</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>A langchain llm <code class="docutils literal notranslate"><span class="pre">BaseChatModel</span></code>. User is responsible for specifying temperature and other relevant parameters to the constructor of the provided <code class="docutils literal notranslate"><span class="pre">llm</span></code> object.</p>
+</td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>system_prompt</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>str or Nonedefault=”You are a helpful assistant.”</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Optional argument for user to provide custom system prompt for the LLM.</p>
+</td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>max_calls_per_min</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>intdefault=None</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies how many API calls to make per minute to avoid rate limit errors. By default, no limit is specified.</p>
+</td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>explanations</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>booldefault=False</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Whether to include explanations from judges alongside scores. When True, judges provide reasoning for their scores.</p>
+</td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>additional_context</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>str or Nonedefault=None</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Optional argument to provide additional context to inform LLM-as-a-Judge evaluations.</p>
+</td></tr></table></section>
+<section id="🔍-Parameter-Groups">
+<h4>🔍 Parameter Groups<a class="headerlink" href="#🔍-Parameter-Groups" title="Link to this heading">#</a></h4>
+<div style="display: flex; gap: 20px; margin-bottom: 20px"><div style="flex: 1; padding: 10px; background-color: rgba(0, 100, 200, 0.1); border-radius: 5px; border: 1px solid rgba(0, 100, 200, 0.2);"><p style="font-weight: bold"><p>🧠 LLM-Specific</p>
+</p><ul><li><p>llm</p>
+</li><li><p>system_prompt</p>
+</li></ul></div><div style="flex: 1; padding: 10px; background-color: rgba(0, 200, 0, 0.1); border-radius: 5px; border: 1px solid rgba(0, 200, 0, 0.2);"><p style="font-weight: bold"><p>📊 Confidence Scores</p>
+</p><ul><li><p>judges</p>
+</li><li><p>explanations</p>
+</li><li><p>additional_context</p>
+</li></ul></div><div style="flex: 1; padding: 10px; background-color: rgba(200, 0, 200, 0.1); border-radius: 5px; border: 1px solid rgba(200, 0, 200, 0.2);"><p style="font-weight: bold"><p>⚡ Performance</p>
+</p><ul><li><p>max_calls_per_min</p>
+</li></ul></div></div></section>
+<section id="💻-Usage-Examples">
+<h4>💻 Usage Examples<a class="headerlink" href="#💻-Usage-Examples" title="Link to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic usage with single self-judge parameters</span>
+<span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">llm</span><span class="p">])</span>
+
+<span class="c1"># Using two judges with default parameters</span>
+<span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">llm</span><span class="p">,</span> <span class="n">llm2</span><span class="p">])</span>
+
+<span class="c1"># Using two judges with default parameters</span>
+<span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">llm</span><span class="p">,</span> <span class="n">llm2</span><span class="p">])</span>
+
+<span class="c1"># Using judges with explanations enabled</span>
+<span class="n">panel_with_explanations</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">llm</span><span class="p">,</span> <span class="n">llm2</span><span class="p">],</span> <span class="n">explanations</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">judges</span> <span class="o">=</span> <span class="p">[</span><span class="n">ollama_mistral</span><span class="p">,</span> <span class="n">ollama_llama</span><span class="p">,</span> <span class="n">ollama_qwen</span><span class="p">]</span>
+<span class="n">additional_context</span> <span class="o">=</span> <span class="s2">&quot;You are an expert in general-knowledge reasoning questions. Your task is to evaluate the correctness of the proposed answers to the provided questions.&quot;</span>
+
+<span class="c1"># Option 1: With explanations</span>
+<span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">ollama_mistral</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="n">judges</span><span class="p">,</span> <span class="n">additional_context</span><span class="o">=</span><span class="n">additional_context</span><span class="p">,</span> <span class="n">explanations</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Option 2: Without explanations</span>
+<span class="c1"># panel = LLMPanel(llm=ollama_mistral, judges=judges, additional_context=additional_context))</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="🔄-Class-Methods">
+<h3>🔄 Class Methods<a class="headerlink" href="#🔄-Class-Methods" title="Link to this heading">#</a></h3>
+<table style="border-collapse: collapse; width: 100%; border: 1px solid rgba(127, 127, 127, 0.2);"><tr><th style="background-color: rgba(200, 200, 200, 0.2); width: 25%; padding: 8px; text-align: left; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Method</p>
+</th><th style="background-color: rgba(200, 200, 200, 0.2); width: 75%; padding: 8px; text-align: left; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Description &amp; Parameters</p>
+</th></tr><tr><td style="font-weight: bold; vertical-align: top; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>LLMPanel.generate_and_score</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p><p>Generate responses to provided prompts and use panel to of judges to score responses for correctness.</p>
+</p><p><p>Parameters:</p>
+</p><ul><li><p>prompts - (list of str) A list of input prompts for the model.</p>
+</li></ul><p><p>Returns: UQResult containing data (prompts, responses, sampled responses, and confidence scores) and metadata</p>
+</p><div style="background-color: rgba(0, 200, 0, 0.1); padding: 8px; border-radius: 3px; margin-top: 10px; border: 1px solid rgba(0, 200, 0, 0.2); margin-right: 5px; box-sizing: border-box; width: 100%;"><p>💡 Best For: Complete end-to-end uncertainty quantification when starting with prompts.</p>
+</div></td></tr><tr><td style="font-weight: bold; vertical-align: top; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>LLMPanel.score</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p><p>Use panel to of judges to score provided responses for correctness. Use if responses are already generated. Otherwise, use <code class="docutils literal notranslate"><span class="pre">generate_and_score</span></code>.</p>
+</p><p><p>Parameters:</p>
+</p><ul><li><p>prompts - (list of str) A list of input prompts for the model.</p>
+</li><li><p>responses - (list of str) A list of LLM responses for the prompts.</p>
+</li></ul><p><p>Returns: UQResult containing data (responses and confidence scores) and metadata</p>
+</p><div style="background-color: rgba(0, 200, 0, 0.1); padding: 8px; border-radius: 3px; margin-top: 10px; border: 1px solid rgba(0, 200, 0, 0.2); margin-right: 5px; box-sizing: border-box; width: 100%;"><p>💡 Best For: Computing uncertainty scores when responses are already generated elsewhere.</p>
+</div></td></tr></table><div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">panel</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">)</span>
+
+<span class="c1"># option 2: provide pre-generated responses with score method</span>
+<span class="c1"># result = await panel.score(prompts=prompts, responses=responses)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "e5525fe46a9547c4a66a9ea7d0eecc88", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result_df</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
+<span class="n">result_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>prompt</th>
+      <th>response</th>
+      <th>judge_1</th>
+      <th>judge_1_explanation</th>
+      <th>judge_2</th>
+      <th>judge_2_explanation</th>
+      <th>judge_3</th>
+      <th>judge_3_explanation</th>
+      <th>avg</th>
+      <th>max</th>
+      <th>min</th>
+      <th>median</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>A) Sunlight is the source of energy for nearl...</td>
+      <td>1.0</td>
+      <td>No explanation provided</td>
+      <td>1.0</td>
+      <td>The answer correctly identifies that sunlight ...</td>
+      <td>1.0</td>
+      <td>Photosynthesis is foundational because it conv...</td>
+      <td>1.000000</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>C) breathing mask</td>
+      <td>1.0</td>
+      <td>No explanation provided</td>
+      <td>1.0</td>
+      <td>The breathing mask is used to filter air and p...</td>
+      <td>0.0</td>
+      <td>The breathing mask (B) is designed to filter a...</td>
+      <td>0.666667</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>D) ovary cells</td>
+      <td>NaN</td>
+      <td>The question specifically states that meiosis ...</td>
+      <td>1.0</td>
+      <td>Meiosis occurs in germ cells (sex cells) of or...</td>
+      <td>1.0</td>
+      <td>Meiosis occurs in germ cells to produce haploi...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>D</td>
+      <td>1.0</td>
+      <td>No explanation provided</td>
+      <td>1.0</td>
+      <td>The question asks for the texture of a kitten'...</td>
+      <td>1.0</td>
+      <td>The question asks about the texture of a kitte...</td>
+      <td>1.000000</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>C) a network of interacting positive and nega...</td>
+      <td>0.5</td>
+      <td>While the answer "a network of interacting pos...</td>
+      <td>1.0</td>
+      <td>The structure of an atom is indeed a network o...</td>
+      <td>0.0</td>
+      <td>The correct structure of an atom is a nucleus ...</td>
+      <td>0.500000</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.5</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+</section>
+<section id="3.-Evaluate-Hallucination-Detection-Performance">
+<h2>3. Evaluate Hallucination Detection Performance<a class="headerlink" href="#3.-Evaluate-Hallucination-Detection-Performance" title="Link to this heading">#</a></h2>
+<p>To evaluate hallucination detection performance, we ‘grade’ the responses against an answer key. Note the <code class="docutils literal notranslate"><span class="pre">check_letter_match</span></code> function is specific to our task (multiple choice). <strong>If you are using your own prompts/questions, update the grading method accordingly</strong>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Populate correct answers and grade responses</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ai2_arc</span><span class="o">.</span><span class="n">answer</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_letter_match</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">answer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+
+<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">check_letter_match</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">],</span> <span class="n">ai2_arc</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">])]</span>
+<span class="n">result_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>prompt</th>
+      <th>response</th>
+      <th>judge_1</th>
+      <th>judge_1_explanation</th>
+      <th>judge_2</th>
+      <th>judge_2_explanation</th>
+      <th>judge_3</th>
+      <th>judge_3_explanation</th>
+      <th>avg</th>
+      <th>max</th>
+      <th>min</th>
+      <th>median</th>
+      <th>answer</th>
+      <th>response_correct</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>A) Sunlight is the source of energy for nearl...</td>
+      <td>1.0</td>
+      <td>No explanation provided</td>
+      <td>1.0</td>
+      <td>The answer correctly identifies that sunlight ...</td>
+      <td>1.0</td>
+      <td>Photosynthesis is foundational because it conv...</td>
+      <td>1.000000</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>A</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>C) breathing mask</td>
+      <td>1.0</td>
+      <td>No explanation provided</td>
+      <td>1.0</td>
+      <td>The breathing mask is used to filter air and p...</td>
+      <td>0.0</td>
+      <td>The breathing mask (B) is designed to filter a...</td>
+      <td>0.666667</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>B</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>D) ovary cells</td>
+      <td>NaN</td>
+      <td>The question specifically states that meiosis ...</td>
+      <td>1.0</td>
+      <td>Meiosis occurs in germ cells (sex cells) of or...</td>
+      <td>1.0</td>
+      <td>Meiosis occurs in germ cells to produce haploi...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>D</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>D</td>
+      <td>1.0</td>
+      <td>No explanation provided</td>
+      <td>1.0</td>
+      <td>The question asks for the texture of a kitten'...</td>
+      <td>1.0</td>
+      <td>The question asks about the texture of a kitte...</td>
+      <td>1.000000</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>D</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>You will be given a multiple choice question. ...</td>
+      <td>C) a network of interacting positive and nega...</td>
+      <td>0.5</td>
+      <td>While the answer "a network of interacting pos...</td>
+      <td>1.0</td>
+      <td>The structure of an atom is indeed a network o...</td>
+      <td>0.0</td>
+      <td>The correct structure of an atom is a nucleus ...</td>
+      <td>0.500000</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.5</td>
+      <td>B</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># evaluate precision, recall, and f1-score of Semantic Entropy&#39;s predictions of correctness</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span>
+
+<span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">result_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;judge_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]]</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">result_df</span><span class="o">.</span><span class="n">response_correct</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Judge </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> precision: </span><span class="si">{</span><span class="n">precision_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Judge </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> recall: </span><span class="si">{</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Judge </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> f1-score: </span><span class="si">{</span><span class="n">f1_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Judge 1 precision: 0.7083333333333334
+Judge 1 recall: 0.6938775510204082
+Judge 1 f1-score: 0.7010309278350515
+
+Judge 2 precision: 0.6712328767123288
+Judge 2 recall: 1.0
+Judge 2 f1-score: 0.8032786885245902
+
+Judge 3 precision: 0.9074074074074074
+Judge 3 recall: 1.0
+Judge 3 f1-score: 0.9514563106796117
+
+</pre></div></div>
+</div>
+</section>
+<section id="4.-Scorer-Definitions">
+<h2>4. Scorer Definitions<a class="headerlink" href="#4.-Scorer-Definitions" title="Link to this heading">#</a></h2>
+<p>Under the LLM-as-a-Judge approach, either the same LLM that was used for generating the original responses or a different LLM is asked to form a judgment about a pre-generated response. Below, we define two LLM-as-a-Judge scorer templates. ### Ternary Judge Template (<code class="docutils literal notranslate"><span class="pre">true_false_uncertain</span></code>) We follow the approach proposed by <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a> in which an LLM is instructed to score a question-response concatenation as either <em>incorrect</em>, <em>uncertain</em>, or
+<em>correct</em> using a carefully constructed prompt. These categories are respectively mapped to numerical scores of 0, 0.5, and 1. We denote the LLM-as-a-judge scorers as <span class="math notranslate nohighlight">\(J: \mathcal{Y} \xrightarrow[]{} \{0, 0.5, 1\}\)</span>. Formally, we can write this scorer function as follows:</p>
+<p>:nbsphinx-math:<a href="#id1"><span class="problematic" id="id2">`</span></a>begin{equation}
+J(y_i) = begin{cases}</p>
+<blockquote>
+<div><p>0 &amp; text{LLM states response is incorrect} \
+0.5 &amp; text{LLM states that it is uncertain} \
+1 &amp; text{LLM states response is correct}.</p>
+</div></blockquote>
+<p>end{cases}
+end{equation}`</p>
+<section id="Binary-Judge-Template-(true_false)">
+<h3>Binary Judge Template (<code class="docutils literal notranslate"><span class="pre">true_false</span></code>)<a class="headerlink" href="#Binary-Judge-Template-(true_false)" title="Link to this heading">#</a></h3>
+<p>We modify the ternary approach above and include only two categories: Correct or Incorrect, which respectively map to 1 and 0.</p>
+</section>
+<section id="Continuous-Judge-Template-(continuous)">
+<h3>Continuous Judge Template (<code class="docutils literal notranslate"><span class="pre">continuous</span></code>)<a class="headerlink" href="#Continuous-Judge-Template-(continuous)" title="Link to this heading">#</a></h3>
+<p>For the continuous template, the LLM is asked to directly score a question-response concatenation’s correctness on a scale of 0 to 1.</p>
+</section>
+<section id="Likert-Scale-Judge-Template-(likert)">
+<h3>Likert-Scale Judge Template (<code class="docutils literal notranslate"><span class="pre">likert</span></code>)<a class="headerlink" href="#Likert-Scale-Judge-Template-(likert)" title="Link to this heading">#</a></h3>
+<p>Here the judge is asked to score a question-response concatenation on a 5-point likert scale. We convert these likert scores to a [0,1] scale as follows:</p>
+<p>:nbsphinx-math:<a href="#id3"><span class="problematic" id="id4">`</span></a>begin{equation}
+J(y_i) = begin{cases}</p>
+<blockquote>
+<div><p>0 &amp; text{LLM states response is completely incorrect} \
+0.25 &amp; text{LLM states that it is mostly incorrect} \
+0.5 &amp; text{LLM states that it is partially correct} \
+0.75 &amp; text{LLM states that it is mostly correct} \
+0.1 &amp; text{LLM states that it is completely correct}</p>
+</div></blockquote>
+<p>end{cases}
+end{equation}`</p>
+<p>© 2025 CVS Health and/or one of its affiliates. All rights reserved.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ensemble_tuning_demo.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">🎯 Tunable Ensemble for LLM Uncertainty (Advanced)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="semantic_entropy_demo.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">🎯 Semantic Entropy</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#📊-What-You'll-Do-in-This-Demo">📊 What You’ll Do in This Demo</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#⚖️-Advantages-&amp;-Limitations">⚖️ Advantages &amp; Limitations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#1.-Set-up-LLM-and-Prompts">1. Set up LLM and Prompts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#2.-Generate-responses-and-confidence-scores">2. Generate responses and confidence scores</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#LLMPanel()---Class-for-aggregating-multiple-instances-of-LLMJudge-using-average,-min,-max,-or-majority-voting"><code class="docutils literal notranslate"><span class="pre">LLMPanel()</span></code> - Class for aggregating multiple instances of LLMJudge using average, min, max, or majority voting</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#📋-Class-Attributes">📋 Class Attributes</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#🔍-Parameter-Groups">🔍 Parameter Groups</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#💻-Usage-Examples">💻 Usage Examples</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#🔄-Class-Methods">🔄 Class Methods</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#3.-Evaluate-Hallucination-Detection-Performance">3. Evaluate Hallucination Detection Performance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#4.-Scorer-Definitions">4. Scorer Definitions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Binary-Judge-Template-(true_false)">Binary Judge Template (<code class="docutils literal notranslate"><span class="pre">true_false</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Continuous-Judge-Template-(continuous)">Continuous Judge Template (<code class="docutils literal notranslate"><span class="pre">continuous</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Likert-Scale-Judge-Template-(likert)">Likert-Scale Judge Template (<code class="docutils literal notranslate"><span class="pre">likert</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/_notebooks/examples/judges_demo.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, CVS Health.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

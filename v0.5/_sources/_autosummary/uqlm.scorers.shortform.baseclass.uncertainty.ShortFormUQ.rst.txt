@@ -1,0 +1,33 @@
+uqlm.scorers.shortform.baseclass.uncertainty.ShortFormUQ
+========================================================
+
+.. currentmodule:: uqlm.scorers.shortform.baseclass.uncertainty
+
+.. autoclass:: ShortFormUQ
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ShortFormUQ.__init__
+      ~ShortFormUQ.generate_candidate_responses
+      ~ShortFormUQ.generate_original_responses
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

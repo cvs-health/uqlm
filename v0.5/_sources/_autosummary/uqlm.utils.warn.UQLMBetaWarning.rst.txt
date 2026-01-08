@@ -1,0 +1,6 @@
+uqlm.utils.warn.UQLMBetaWarning
+===============================
+
+.. currentmodule:: uqlm.utils.warn
+
+.. autoexception:: UQLMBetaWarning

@@ -1,0 +1,6 @@
+uqlm.utils.prompts.judge\_prompts.create\_instruction
+=====================================================
+
+.. currentmodule:: uqlm.utils.prompts.judge_prompts
+
+.. autofunction:: create_instruction

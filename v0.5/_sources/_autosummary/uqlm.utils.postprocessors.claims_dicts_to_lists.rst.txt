@@ -1,0 +1,6 @@
+uqlm.utils.postprocessors.claims\_dicts\_to\_lists
+==================================================
+
+.. currentmodule:: uqlm.utils.postprocessors
+
+.. autofunction:: claims_dicts_to_lists

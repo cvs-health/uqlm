@@ -1,0 +1,35 @@
+uqlm.scorers.longform
+=====================
+
+.. automodule:: uqlm.scorers.longform
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: module.rst
+   :recursive:
+
+   baseclass
+   graph
+   longtext
+   qa
+

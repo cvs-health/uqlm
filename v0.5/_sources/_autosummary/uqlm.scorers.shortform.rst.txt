@@ -1,0 +1,38 @@
+uqlm.scorers.shortform
+======================
+
+.. automodule:: uqlm.scorers.shortform
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: module.rst
+   :recursive:
+
+   baseclass
+   black_box
+   density
+   ensemble
+   entropy
+   panel
+   white_box
+

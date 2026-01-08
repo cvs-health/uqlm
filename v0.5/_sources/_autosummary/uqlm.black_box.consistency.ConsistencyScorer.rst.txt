@@ -1,0 +1,32 @@
+uqlm.black\_box.consistency.ConsistencyScorer
+=============================================
+
+.. currentmodule:: uqlm.black_box.consistency
+
+.. autoclass:: ConsistencyScorer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ConsistencyScorer.__init__
+      ~ConsistencyScorer.evaluate
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   
