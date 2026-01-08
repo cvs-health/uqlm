@@ -9,6 +9,13 @@ uqlm.utils.display
 
    
    
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      display_response_refinement
+   
    
 
    

@@ -147,6 +147,42 @@ Below is a sample of code illustrating how to use the `UQEnsemble` class to cond
 As with the other examples, any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`_ may be used in place of `AzureChatOpenAI`. For more detailed demos, refer to our `Off-the-Shelf Ensemble Demo <_notebooks/examples/ensemble_off_the_shelf_demo.ipynb>`_ (quick start) or our `Ensemble Tuning Demo <_notebooks/examples/ensemble_tuning_demo.ipynb>`_ (advanced).
 
 
+Example 5: ``Long-Text Scorers`` for hallucination detection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of black-box scorers, long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses. After scoring claims in the response, the response can be refined by removing claims with confidence scores less than a specified threshold and reconstructing the response from the retained claims. This approach allows for improved factual precision of long-text generations. 
+
+Below is a sample of code illustrating how to use the LongTextUQ class to conduct claim-level hallucination detection and uncertainty-aware response refinement.
+
+.. code-block:: python
+    from langchain_openai import ChatOpenAI
+    llm = ChatOpenAI(model="gpt-4o")
+
+    from uqlm import LongTextUQ
+    luq = LongTextUQ(llm=llm, scorers=["entailment"], response_refinement=True)
+
+    results = await luq.generate_and_score(prompts=prompts, num_responses=5)
+    results_df = results.to_df()
+    results_df
+
+    # Preview the data for a specific claim in the first response
+    # results_df["claims_data"][0][0]
+    # Output:
+    # {
+    #   'claim': 'Suthida Bajrasudhabimalalakshana was born on June 3, 1978.',
+    #   'removed': False,
+    #   'entailment': 0.9548099517822266
+    # }
+
+
+   <p align="center">
+     <img src="./_static/images/long_text_output.png" />
+   </p>
+
+
+Above `response` and `entailment` reflect the original response and response-level confidence score, while `refined_response` and `refined_entailment` are the corresponding values after response refinement. The `claims_data` column includes granular data for each response, including claims, claim-level confidence scores, and whether each claim is retained in the response refinement process. We use `ChatOpenAI` in this example, any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`_ may be used. For a more detailed demo, refer to our `Long-Text UQ Demo <_notebooks/examples/long_text_uq_demo.ipynb>`_.
+
+
 Example notebooks
 -----------------
 Refer to our :doc:`example notebooks <_notebooks/index>` for examples illustrating how to use `uqlm`.

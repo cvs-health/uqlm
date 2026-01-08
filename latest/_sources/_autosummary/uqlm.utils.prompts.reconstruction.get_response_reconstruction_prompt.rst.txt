@@ -1,0 +1,6 @@
+uqlm.utils.prompts.reconstruction.get\_response\_reconstruction\_prompt
+=======================================================================
+
+.. currentmodule:: uqlm.utils.prompts.reconstruction
+
+.. autofunction:: get_response_reconstruction_prompt

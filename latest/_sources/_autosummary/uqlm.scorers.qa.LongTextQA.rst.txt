@@ -1,0 +1,36 @@
+uqlm.scorers.qa.LongTextQA
+==========================
+
+.. currentmodule:: uqlm.scorers.qa
+
+.. autoclass:: LongTextQA
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LongTextQA.__init__
+      ~LongTextQA.generate_and_score
+      ~LongTextQA.generate_candidate_responses
+      ~LongTextQA.generate_original_responses
+      ~LongTextQA.score
+      ~LongTextQA.uncertainty_aware_decode
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

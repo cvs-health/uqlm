@@ -48,12 +48,17 @@ UQLM provides a suite of response-level scorers for quantifying the uncertainty 
      - 🔀 Flexible (combines various scorers)
      - 🔀 Flexible (combines various scorers)
      - ✅ Off-the-shelf (beginner-friendly); 🛠️ Can be tuned (best for advanced users)
+   * - :ref:`Long-Text Scorers <long-text-scorers>`
+     - ⏱️ High-Very high (multiple generations & claim-level comparisons)
+     - 🔀 💸 High (multiple LLM calls)
+     - 🔀 🌍 Universal 
+     - ✅ Off-the-shelf
 
 
 .. _black-box-scorers:
 
-1. Black-Box Scorers(Consistency-Based)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1. Black-Box Scorers (Consistency-Based)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: ./_static/images/black_box_graphic.png
    :class: only-light no-scaled-link responsive-img
@@ -82,8 +87,8 @@ These scorers assess uncertainty by measuring the consistency of multiple respon
 
 .. _white-box-scorers:
 
-2. White-Box Scorers(Token-Probability-Based)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2. White-Box Scorers (Token-Probability-Based)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: ./_static/images/white_box_graphic.png
    :class: only-light no-scaled-link responsive-img
@@ -123,7 +128,7 @@ Lastly, the P(True) scorer is offered, which is a self-reflection method that re
 
 .. _llm-as-a-judge-scorers:
 
-3. LLM-as-a-Judge scorers
+3. LLM-as-a-Judge Scorers
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: ./_static/images/judges_graphic.png
@@ -147,7 +152,7 @@ These scorers use one or more LLMs to evaluate the reliability of the original L
 
 .. _ensemble-scorers:
 
-4. Ensemble scorers
+4. Ensemble Scorers
 ^^^^^^^^^^^^^^^^^^^
 
 .. image:: ./_static/images/uqensemble_generate_score.png
@@ -165,6 +170,38 @@ These scorers leverage a weighted average of multiple individual scorers to prov
   * Generalized Ensemble (`Bouchard & Chauhan, 2025 <https://arxiv.org/abs/2504.19254>`_)
 
 
+.. _long-text-scorers:
+
+1. Long-Text Scorers (Claim-Level)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: ./_static/images/luq_example.png
+   :class: only-light no-scaled-link responsive-img
+   :align: center
+
+.. image:: ./_static/images/luq_example_dark.png
+   :class: only-dark no-scaled-link responsive-img
+   :align: center
+
+These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of black-box scorers, long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses.
+
+.. image:: ./_static/images/uad_graphic.png
+   :class: only-light no-scaled-link responsive-img
+   :align: center
+
+.. image:: ./_static/images/uad_graphic_dark.png
+   :class: only-dark no-scaled-link responsive-img
+   :align: center
+
+After scoring claims in the response, the response can be refined by removing claims with confidence scores less than a specified threshold and reconstructing the response from the retained claims. This approach allows for improved factual precision of long-text generations. 
+
+  * LUQ scorers (`Zhang et al., 2024 <https://arxiv.org/abs/2403.20279>`_; `Zhang et al., 2025 <https://arxiv.org/abs/2410.13246>`_)
+
+  * Graph-based scorers (`Jiang et al., 2024 <https://arxiv.org/abs/2410.20783>`_)
+
+  * Generalized long-form semantic entropy (`Farquhar et al., 2024 <https://www.nature.com/articles/s41586-024-07421-0>`_)
+
+
 Contents
 --------
 
@@ -172,6 +209,7 @@ Contents
    :maxdepth: 1
 
    Get Started <getstarted>
+   Scorer Definitions <scorer_definitions/index>
    API <api>
    /_notebooks/index
    Contributor Guide <contribute>

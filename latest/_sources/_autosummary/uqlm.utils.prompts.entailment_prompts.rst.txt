@@ -1,0 +1,30 @@
+uqlm.utils.prompts.entailment\_prompts
+======================================
+
+.. automodule:: uqlm.utils.prompts.entailment_prompts
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      get_entailment_prompt
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

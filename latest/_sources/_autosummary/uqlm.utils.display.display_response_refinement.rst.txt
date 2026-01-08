@@ -1,0 +1,6 @@
+uqlm.utils.display.display\_response\_refinement
+================================================
+
+.. currentmodule:: uqlm.utils.display
+
+.. autofunction:: display_response_refinement

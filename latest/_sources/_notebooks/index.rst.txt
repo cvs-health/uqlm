@@ -122,6 +122,57 @@ UQLM offers a broad collection of tutorial notebooks to demonstrate usage of the
 
   .. image:: /_static/images/no_image.png
     :alt:
+    
+  :doc:`examples/long_text_uq_demo`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Long-Text Uncertainty Quantification Demo</div>
+    </div>
+    
+    
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="LUQ Demo">
+
+.. only:: html
+
+  .. image:: /_static/images/no_image.png
+    :alt:
+    
+  :doc:`examples/long_text_graph_demo`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Long-Text Graph UQ Demo</div>
+    </div>
+    
+    
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Long-Text Graph UQ Demo">
+
+.. only:: html
+
+  .. image:: /_static/images/no_image.png
+    :alt:
+    
+  :doc:`examples/long_text_qa_demo`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Long-Text Claim-QA Demo</div>
+    </div>
+    
+    
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Long-Text Claim-QA Demo">
+
+.. only:: html
+
+  .. image:: /_static/images/no_image.png
+    :alt:
 
   :doc:`examples/multimodal_demo`
 

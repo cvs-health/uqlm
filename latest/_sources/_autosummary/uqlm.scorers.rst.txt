@@ -29,10 +29,15 @@
    :recursive:
 
    baseclass
+   longform
+   shortform
    black_box
    density
    ensemble
    entropy
    panel
    white_box
+   graph
+   longtext
+   qa
 

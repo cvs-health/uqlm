@@ -1,0 +1,73 @@
+uqlm.utils.nli.NLIResult
+========================
+
+.. currentmodule:: uqlm.utils.nli
+
+.. autoclass:: NLIResult
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NLIResult.__init__
+      ~NLIResult.construct
+      ~NLIResult.copy
+      ~NLIResult.dict
+      ~NLIResult.from_orm
+      ~NLIResult.json
+      ~NLIResult.model_construct
+      ~NLIResult.model_copy
+      ~NLIResult.model_dump
+      ~NLIResult.model_dump_json
+      ~NLIResult.model_json_schema
+      ~NLIResult.model_parametrized_name
+      ~NLIResult.model_post_init
+      ~NLIResult.model_rebuild
+      ~NLIResult.model_validate
+      ~NLIResult.model_validate_json
+      ~NLIResult.model_validate_strings
+      ~NLIResult.parse_file
+      ~NLIResult.parse_obj
+      ~NLIResult.parse_raw
+      ~NLIResult.schema
+      ~NLIResult.schema_json
+      ~NLIResult.update_forward_refs
+      ~NLIResult.validate
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NLIResult.contradiction_probability
+      ~NLIResult.entailment_probability
+      ~NLIResult.label
+      ~NLIResult.model_computed_fields
+      ~NLIResult.model_config
+      ~NLIResult.model_extra
+      ~NLIResult.model_fields
+      ~NLIResult.model_fields_set
+      ~NLIResult.neutral_probability
+      ~NLIResult.style
+      ~NLIResult.binary_label
+      ~NLIResult.binary_probability
+      ~NLIResult.ternary_label
+      ~NLIResult.ternary_probabilities
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

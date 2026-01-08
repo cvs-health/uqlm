@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>uqlm: Uncertainty Quantification for Language Models &#8212; uqlm 0.4 documentation</title>
+    <title>uqlm: Uncertainty Quantification for Language Models &#8212; uqlm 0.5 documentation</title>
   
   
   
@@ -41,17 +41,17 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=7f00635f"></script>
+    <script src="_static/documentation_options.js?v=db78e746"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "displayMath": [["$$", "$$"], ["\\[", "\\]"]]}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -127,8 +127,8 @@
       
     
     
-    <img src="_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.4 documentation - Home"/>
-    <img src="_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.4 documentation - Home"/>
+    <img src="_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.5 documentation - Home"/>
+    <img src="_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.5 documentation - Home"/>
   
   
 </a></div>
@@ -146,6 +146,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="getstarted.html">
     Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="scorer_definitions/index.html">
+    Scorer Definitions
   </a>
 </li>
 
@@ -170,13 +177,23 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="faqs.html">
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="faqs.html">
     FAQs
   </a>
 </li>
 
+                </ul>
+            </li>
+            
   </ul>
 </nav></div>
       
@@ -291,6 +308,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="getstarted.html">
     Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="scorer_definitions/index.html">
+    Scorer Definitions
   </a>
 </li>
 
@@ -417,8 +441,8 @@
 <section id="hallucination-detection">
 <h2>Hallucination Detection<a class="headerlink" href="#hallucination-detection" title="Link to this heading">#</a></h2>
 <p>UQLM provides a suite of response-level scorers for quantifying the uncertainty of Large Language Model (LLM) outputs. Each scorer returns a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.  We categorize these scorers into four main types:</p>
-<div class="pst-scrollable-table-container"><table class="table" id="id18">
-<caption><span class="caption-text">Comparison of Scorer Types</span><a class="headerlink" href="#id18" title="Link to this table">#</a></caption>
+<div class="pst-scrollable-table-container"><table class="table" id="id19">
+<caption><span class="caption-text">Comparison of Scorer Types</span><a class="headerlink" href="#id19" title="Link to this table">#</a></caption>
 <colgroup>
 <col style="width: 20.0%" />
 <col style="width: 20.0%" />
@@ -459,11 +483,17 @@
 <td><p>🔀 Flexible (combines various scorers)</p></td>
 <td><p>✅ Off-the-shelf (beginner-friendly); 🛠️ Can be tuned (best for advanced users)</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#long-text-scorers"><span class="std std-ref">Long-Text Scorers</span></a></p></td>
+<td><p>⏱️ High-Very high (multiple generations &amp; claim-level comparisons)</p></td>
+<td><p>🔀 💸 High (multiple LLM calls)</p></td>
+<td><p>🔀 🌍 Universal</p></td>
+<td><p>✅ Off-the-shelf</p></td>
+</tr>
 </tbody>
 </table>
 </div>
 <section id="black-box-scorers-consistency-based">
-<span id="black-box-scorers"></span><h3>1. Black-Box Scorers(Consistency-Based)<a class="headerlink" href="#black-box-scorers-consistency-based" title="Link to this heading">#</a></h3>
+<span id="black-box-scorers"></span><h3>1. Black-Box Scorers (Consistency-Based)<a class="headerlink" href="#black-box-scorers-consistency-based" title="Link to this heading">#</a></h3>
 <img alt="_images/black_box_graphic.png" class="only-light no-scaled-link responsive-img align-center" src="_images/black_box_graphic.png" />
 <img alt="_images/black_box_graphic_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/black_box_graphic_dark.png" />
 <p>These scorers assess uncertainty by measuring the consistency of multiple responses generated from the same prompt. They are compatible with any LLM, intuitive to use, and don’t require access to internal model states or token probabilities.</p>
@@ -480,7 +510,7 @@
 </div></blockquote>
 </section>
 <section id="white-box-scorers-token-probability-based">
-<span id="white-box-scorers"></span><h3>2. White-Box Scorers(Token-Probability-Based)<a class="headerlink" href="#white-box-scorers-token-probability-based" title="Link to this heading">#</a></h3>
+<span id="white-box-scorers"></span><h3>2. White-Box Scorers (Token-Probability-Based)<a class="headerlink" href="#white-box-scorers-token-probability-based" title="Link to this heading">#</a></h3>
 <img alt="_images/white_box_graphic.png" class="only-light no-scaled-link responsive-img align-center" src="_images/white_box_graphic.png" />
 <img alt="_images/white_box_graphic_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/white_box_graphic_dark.png" />
 <p>These scorers leverage token probabilities to estimate uncertainty.  They offer single-generation scoring, which is significantly faster and cheaper than black-box methods, but require access to the LLM’s internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs. The following single-generation scorers are available:</p>
@@ -511,7 +541,7 @@
 </div></blockquote>
 </section>
 <section id="llm-as-a-judge-scorers">
-<span id="id13"></span><h3>3. LLM-as-a-Judge scorers<a class="headerlink" href="#llm-as-a-judge-scorers" title="Link to this heading">#</a></h3>
+<span id="id13"></span><h3>3. LLM-as-a-Judge Scorers<a class="headerlink" href="#llm-as-a-judge-scorers" title="Link to this heading">#</a></h3>
 <img alt="_images/judges_graphic.png" class="only-light no-scaled-link responsive-img align-center" src="_images/judges_graphic.png" />
 <img alt="_images/judges_graphic_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/judges_graphic_dark.png" />
 <p>These scorers use one or more LLMs to evaluate the reliability of the original LLM’s response. They offer high customizability through prompt engineering and the choice of judge LLM(s).</p>
@@ -525,7 +555,7 @@
 </div></blockquote>
 </section>
 <section id="ensemble-scorers">
-<span id="id16"></span><h3>4. Ensemble scorers<a class="headerlink" href="#ensemble-scorers" title="Link to this heading">#</a></h3>
+<span id="id16"></span><h3>4. Ensemble Scorers<a class="headerlink" href="#ensemble-scorers" title="Link to this heading">#</a></h3>
 <img alt="_images/uqensemble_generate_score.png" class="only-light no-scaled-link responsive-img align-center" src="_images/uqensemble_generate_score.png" />
 <img alt="_images/uqensemble_generate_score_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/uqensemble_generate_score_dark.png" />
 <p>These scorers leverage a weighted average of multiple individual scorers to provide a more robust uncertainty/confidence estimate. They offer high flexibility and customizability, allowing you to tailor the ensemble to specific use cases.</p>
@@ -536,12 +566,29 @@
 </ul>
 </div></blockquote>
 </section>
+<section id="long-text-scorers-claim-level">
+<span id="long-text-scorers"></span><h3>1. Long-Text Scorers (Claim-Level)<a class="headerlink" href="#long-text-scorers-claim-level" title="Link to this heading">#</a></h3>
+<img alt="_images/luq_example.png" class="only-light no-scaled-link responsive-img align-center" src="_images/luq_example.png" />
+<img alt="_images/luq_example_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/luq_example_dark.png" />
+<p>These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of black-box scorers, long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses.</p>
+<img alt="_images/uad_graphic.png" class="only-light no-scaled-link responsive-img align-center" src="_images/uad_graphic.png" />
+<img alt="_images/uad_graphic_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/uad_graphic_dark.png" />
+<p>After scoring claims in the response, the response can be refined by removing claims with confidence scores less than a specified threshold and reconstructing the response from the retained claims. This approach allows for improved factual precision of long-text generations.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>LUQ scorers (<a class="reference external" href="https://arxiv.org/abs/2403.20279">Zhang et al., 2024</a>; <a class="reference external" href="https://arxiv.org/abs/2410.13246">Zhang et al., 2025</a>)</p></li>
+<li><p>Graph-based scorers (<a class="reference external" href="https://arxiv.org/abs/2410.20783">Jiang et al., 2024</a>)</p></li>
+<li><p>Generalized long-form semantic entropy (<a class="reference external" href="https://www.nature.com/articles/s41586-024-07421-0">Farquhar et al., 2024</a>)</p></li>
+</ul>
+</div></blockquote>
+</section>
 </section>
 <section id="contents">
 <h2>Contents<a class="headerlink" href="#contents" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getstarted.html">Get Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scorer_definitions/index.html">Scorer Definitions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_notebooks/index.html">Example Notebooks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contribute.html">Contributor Guide</a></li>
@@ -590,10 +637,11 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hallucination-detection">Hallucination Detection</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#black-box-scorers-consistency-based">1. Black-Box Scorers(Consistency-Based)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#white-box-scorers-token-probability-based">2. White-Box Scorers(Token-Probability-Based)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#llm-as-a-judge-scorers">3. LLM-as-a-Judge scorers</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ensemble-scorers">4. Ensemble scorers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#black-box-scorers-consistency-based">1. Black-Box Scorers (Consistency-Based)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#white-box-scorers-token-probability-based">2. White-Box Scorers (Token-Probability-Based)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#llm-as-a-judge-scorers">3. LLM-as-a-Judge Scorers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ensemble-scorers">4. Ensemble Scorers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#long-text-scorers-claim-level">1. Long-Text Scorers (Claim-Level)</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>

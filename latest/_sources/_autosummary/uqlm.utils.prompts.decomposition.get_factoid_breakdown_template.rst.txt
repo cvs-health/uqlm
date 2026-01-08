@@ -1,0 +1,6 @@
+uqlm.utils.prompts.decomposition.get\_factoid\_breakdown\_template
+==================================================================
+
+.. currentmodule:: uqlm.utils.prompts.decomposition
+
+.. autofunction:: get_factoid_breakdown_template

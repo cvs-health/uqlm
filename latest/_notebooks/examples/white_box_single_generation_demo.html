@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="../../_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="../../_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="../../_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>🎯 White-Box Uncertainty Quantification &#8212; uqlm 0.4 documentation</title>
+    <title>🎯 White-Box Uncertainty Quantification &#8212; uqlm 0.5 documentation</title>
   
   
   
@@ -42,17 +42,17 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=7f00635f"></script>
+    <script src="../../_static/documentation_options.js?v=db78e746"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "displayMath": [["$$", "$$"], ["\\[", "\\]"]]}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_notebooks/examples/white_box_single_generation_demo';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -129,8 +129,8 @@
       
     
     
-    <img src="../../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.4 documentation - Home"/>
-    <img src="../../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.4 documentation - Home"/>
+    <img src="../../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.5 documentation - Home"/>
+    <img src="../../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.5 documentation - Home"/>
   
   
 </a></div>
@@ -148,6 +148,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../getstarted.html">
     Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scorer_definitions/index.html">
+    Scorer Definitions
   </a>
 </li>
 
@@ -172,13 +179,23 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../faqs.html">
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../faqs.html">
     FAQs
   </a>
 </li>
 
+                </ul>
+            </li>
+            
   </ul>
 </nav></div>
       
@@ -291,6 +308,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../getstarted.html">
     Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scorer_definitions/index.html">
+    Scorer Definitions
   </a>
 </li>
 
@@ -623,7 +647,7 @@ Dataset ready!
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>A langchain llm <code class="docutils literal notranslate"><span class="pre">BaseChatModel</span></code>. User is responsible for specifying temperature and other relevant parameters to the constructor of their <code class="docutils literal notranslate"><span class="pre">llm</span></code> object.</p>
 </td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>scorers</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>List[str]default=None</p>
-</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies which white-box (token-probability-based) scorers to include. Must be subset of {“normalized_probability”, “min_probability”, “sequence_probability”, “max_token_negentropy”, “mean_token_negentropy”, “probability_margin”, “monte_carlo_negentropy”, “consistency_and_confidence”}. If None, defaults to [“normalized_probability”, “min_probability”].</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies which white-box (token-probability-based) scorers to include. Must be subset of [“sequence_probability”, “min_probability”, “max_token_negentropy”, “mean_token_negentropy”, “probability_margin”, “monte_carlo_negentropy”, “consistency_and_confidence”]. If None, defaults to [“sequence_probability”, “min_probability”].</p>
 </td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>system_prompt</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>str or Nonedefault=”You are a helpful assistant.”</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Optional argument for user to provide custom system prompt for the LLM.</p>
@@ -1053,8 +1077,8 @@ F-1 optimal threshold    0.59                     0.96                     0.83 
 \[SP(y_i) = \prod_{t \in y_i}  p_t,\]</div>
 <p>where <span class="math notranslate nohighlight">\(p_t\)</span> denotes the token probability for token <span class="math notranslate nohighlight">\(t\)</span>. For more on this scorer, refer to <a class="reference external" href="https://arxiv.org/abs/2406.15627">Vashurin et al., 2024</a>.</p>
 </section>
-<section id="Length-Normalized-Sequence-Probability-(normalized_probability)">
-<h4>Length-Normalized Sequence Probability (<code class="docutils literal notranslate"><span class="pre">normalized_probability</span></code>)<a class="headerlink" href="#Length-Normalized-Sequence-Probability-(normalized_probability)" title="Link to this heading">#</a></h4>
+<section id="Length-Normalized-Sequence-Probability-(sequence_probability-with-length_normalize=True)">
+<h4>Length-Normalized Sequence Probability (<code class="docutils literal notranslate"><span class="pre">sequence_probability</span></code> with <code class="docutils literal notranslate"><span class="pre">length_normalize=True</span></code>)<a class="headerlink" href="#Length-Normalized-Sequence-Probability-(sequence_probability-with-length_normalize=True)" title="Link to this heading">#</a></h4>
 <p>Length-normalized token (sequence) probability (LNTP) computes a length-normalized analog of joint token probability:</p>
 <div class="math notranslate nohighlight">
 \[LNTP(y_i) = \prod_{t \in y_i}  p_t^{\frac{1}{L_i}}.\]</div>
@@ -1158,7 +1182,7 @@ F-1 optimal threshold    0.59                     0.96                     0.83 
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#🔄-Class-Methods">🔄 Class Methods</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#3.1-Filtered-LLM-Accuracy-Evaluation">3.1 Filtered LLM Accuracy Evaluation</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#3.2-Precision,-Recall,-F1-Score-of-Hallucination-Detection">3.2 Precision, Recall, F1-Score of Hallucination Detection</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Length-Normalized-Sequence-Probability-(normalized_probability)">Length-Normalized Sequence Probability (<code class="docutils literal notranslate"><span class="pre">normalized_probability</span></code>)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Length-Normalized-Sequence-Probability-(sequence_probability-with-length_normalize=True)">Length-Normalized Sequence Probability (<code class="docutils literal notranslate"><span class="pre">sequence_probability</span></code> with <code class="docutils literal notranslate"><span class="pre">length_normalize=True</span></code>)</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Minimum-Token-Probability-(min_probability)">Minimum Token Probability (<code class="docutils literal notranslate"><span class="pre">min_probability</span></code>)</a></li>
 </ul>
 </li>

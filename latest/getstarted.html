@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>Quickstart Guide &#8212; uqlm 0.4 documentation</title>
+    <title>Quickstart Guide &#8212; uqlm 0.5 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=7f00635f"></script>
+    <script src="_static/documentation_options.js?v=db78e746"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -49,14 +49,14 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API" href="api.html" />
+    <link rel="next" title="Scorer Definitions" href="scorer_definitions/index.html" />
     <link rel="prev" title="uqlm: Uncertainty Quantification for Language Models" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -126,8 +126,8 @@
       
     
     
-    <img src="_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.4 documentation - Home"/>
-    <img src="_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.4 documentation - Home"/>
+    <img src="_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.5 documentation - Home"/>
+    <img src="_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.5 documentation - Home"/>
   
   
 </a></div>
@@ -145,6 +145,13 @@
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#">
     Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="scorer_definitions/index.html">
+    Scorer Definitions
   </a>
 </li>
 
@@ -169,13 +176,23 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="faqs.html">
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="faqs.html">
     FAQs
   </a>
 </li>
 
+                </ul>
+            </li>
+            
   </ul>
 </nav></div>
       
@@ -288,6 +305,13 @@
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#">
     Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="scorer_definitions/index.html">
+    Scorer Definitions
   </a>
 </li>
 
@@ -543,6 +567,12 @@
 <p align="center">
   <img src="./_static/images/uqensemble_output2.png" />
 </p><p>As with the other examples, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used in place of <cite>AzureChatOpenAI</cite>. For more detailed demos, refer to our <a class="reference internal" href="_notebooks/examples/ensemble_off_the_shelf_demo.html"><span class="doc">Off-the-Shelf Ensemble Demo</span></a> (quick start) or our <a class="reference internal" href="_notebooks/examples/ensemble_tuning_demo.html"><span class="doc">Ensemble Tuning Demo</span></a> (advanced).</p>
+</section>
+<section id="example-5-long-text-scorers-for-hallucination-detection">
+<h2>Example 5: <code class="docutils literal notranslate"><span class="pre">Long-Text</span> <span class="pre">Scorers</span></code> for hallucination detection<a class="headerlink" href="#example-5-long-text-scorers-for-hallucination-detection" title="Link to this heading">#</a></h2>
+<p>These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of black-box scorers, long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses. After scoring claims in the response, the response can be refined by removing claims with confidence scores less than a specified threshold and reconstructing the response from the retained claims. This approach allows for improved factual precision of long-text generations.</p>
+<p>Below is a sample of code illustrating how to use the LongTextUQ class to conduct claim-level hallucination detection and uncertainty-aware response refinement.</p>
+<p>Above <cite>response</cite> and <cite>entailment</cite> reflect the original response and response-level confidence score, while <cite>refined_response</cite> and <cite>refined_entailment</cite> are the corresponding values after response refinement. The <cite>claims_data</cite> column includes granular data for each response, including claims, claim-level confidence scores, and whether each claim is retained in the response refinement process. We use <cite>ChatOpenAI</cite> in this example, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used. For a more detailed demo, refer to our <a class="reference internal" href="_notebooks/examples/long_text_uq_demo.html"><span class="doc">Long-Text UQ Demo</span></a>.</p>
 <section id="example-notebooks">
 <h3>Example notebooks<a class="headerlink" href="#example-notebooks" title="Link to this heading">#</a></h3>
 <p>Refer to our <a class="reference internal" href="_notebooks/index.html"><span class="doc">example notebooks</span></a> for examples illustrating how to use <cite>uqlm</cite>.</p>
@@ -570,11 +600,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="api.html"
+       href="scorer_definitions/index.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API</p>
+        <p class="prev-next-title">Scorer Definitions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -605,7 +635,8 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-1-black-box-scorers-for-hallucination-detection">Example 1: <code class="docutils literal notranslate"><span class="pre">Black-Box</span> <span class="pre">Scorers</span></code> for hallucination detection</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-2-white-box-scorers-for-hallucination-detection">Example 2: <code class="docutils literal notranslate"><span class="pre">White-Box</span> <span class="pre">Scorers</span></code> for hallucination detection</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-3-llm-as-a-judge-scorers-for-hallucination-detection">Example 3: <code class="docutils literal notranslate"><span class="pre">LLM-as-a-Judge</span> <span class="pre">Scorers</span></code> for hallucination detection</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-4-ensemble-scorers-for-hallucination-detection">Example 4: <code class="docutils literal notranslate"><span class="pre">Ensemble</span> <span class="pre">Scorers</span></code> for hallucination detection</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-4-ensemble-scorers-for-hallucination-detection">Example 4: <code class="docutils literal notranslate"><span class="pre">Ensemble</span> <span class="pre">Scorers</span></code> for hallucination detection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-5-long-text-scorers-for-hallucination-detection">Example 5: <code class="docutils literal notranslate"><span class="pre">Long-Text</span> <span class="pre">Scorers</span></code> for hallucination detection</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-notebooks">Example notebooks</a></li>
 </ul>
 </li>

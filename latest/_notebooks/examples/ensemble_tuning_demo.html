@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="../../_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="../../_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="../../_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>🎯 Tunable Ensemble for LLM Uncertainty (Advanced) &#8212; uqlm 0.4 documentation</title>
+    <title>🎯 Tunable Ensemble for LLM Uncertainty (Advanced) &#8212; uqlm 0.5 documentation</title>
   
   
   
@@ -42,17 +42,17 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=7f00635f"></script>
+    <script src="../../_static/documentation_options.js?v=db78e746"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "displayMath": [["$$", "$$"], ["\\[", "\\]"]]}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_notebooks/examples/ensemble_tuning_demo';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -129,8 +129,8 @@
       
     
     
-    <img src="../../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.4 documentation - Home"/>
-    <img src="../../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.4 documentation - Home"/>
+    <img src="../../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.5 documentation - Home"/>
+    <img src="../../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.5 documentation - Home"/>
   
   
 </a></div>
@@ -148,6 +148,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../getstarted.html">
     Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scorer_definitions/index.html">
+    Scorer Definitions
   </a>
 </li>
 
@@ -172,13 +179,23 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../faqs.html">
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../faqs.html">
     FAQs
   </a>
 </li>
 
+                </ul>
+            </li>
+            
   </ul>
 </nav></div>
       
@@ -291,6 +308,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../getstarted.html">
     Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../scorer_definitions/index.html">
+    Scorer Definitions
   </a>
 </li>
 
@@ -670,7 +694,7 @@ Dataset ready!
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>A langchain llm <code class="docutils literal notranslate"><span class="pre">BaseChatModel</span></code>. User is responsible for specifying temperature and other relevant parameters to the constructor of the provided <code class="docutils literal notranslate"><span class="pre">llm</span></code> object.</p>
 </td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>scorers</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Listdefault=None</p>
-</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies which black-box, white-box, or LLM-as-a-Judge scorers to include in the ensemble. List containing instances of BaseChatModel, LLMJudge, black-box scorer names from [‘semantic_negentropy’, ‘noncontradiction’,’exact_match’, ‘bert_score’, ‘cosine_sim’, ‘entailment’, ‘num_semantic_sets’], or white-box scorer names from [“normalized_probability”, “min_probability”]. If None, defaults to the off-the-shelf BS Detector ensemble by Chen &amp; Mueller, 2023 which uses components [“noncontradiction”,
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies which black-box, white-box, or LLM-as-a-Judge scorers to include in the ensemble. List containing instances of BaseChatModel, LLMJudge, black-box scorer names from [‘semantic_negentropy’, ‘noncontradiction’,’exact_match’, ‘bert_score’, ‘cosine_sim’, ‘entailment’, ‘num_semantic_sets’], or white-box scorer names from [“sequence_probability”, “min_probability”]. If None, defaults to the off-the-shelf BS Detector ensemble by Chen &amp; Mueller, 2023 which uses components [“noncontradiction”,
 “exact_match”,”self_reflection”] with respective weights of [0.56, 0.14, 0.3].</p>
 </td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>device</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>str or torch.devicedefault=”cpu”</p>
@@ -1407,8 +1431,8 @@ consider the discrete version of SE, where the final set of clusters is defined 
 \[NCS(y_i; \tilde{\mathbf{y}}_i) = \frac{CS(y_i; \tilde{\mathbf{y}}_i) + 1}{2}.\]</div>
 <p>White-box UQ scorers leverage token probabilities of the LLM’s generated response to quantify uncertainty. All scorers have outputs ranging from 0 to 1, with higher values indicating higher confidence. We define two white-box UQ scorers below.</p>
 </section>
-<section id="Length-Normalized-Token-Probability-(normalized_probability)">
-<h2>Length-Normalized Token Probability (<code class="docutils literal notranslate"><span class="pre">normalized_probability</span></code>)<a class="headerlink" href="#Length-Normalized-Token-Probability-(normalized_probability)" title="Link to this heading">#</a></h2>
+<section id="Length-Normalized-Token-Probability-(sequence_probability)">
+<h2>Length-Normalized Token Probability (<code class="docutils literal notranslate"><span class="pre">sequence_probability</span></code>)<a class="headerlink" href="#Length-Normalized-Token-Probability-(sequence_probability)" title="Link to this heading">#</a></h2>
 <p>Let the tokenization LLM response <span class="math notranslate nohighlight">\(y_i\)</span> be denoted as <span class="math notranslate nohighlight">\(\{t_1,...,t_{L_i}\}\)</span>, where <span class="math notranslate nohighlight">\(L_i\)</span> denotes the number of tokens the response. Length-normalized token probability (LNTP) computes a length-normalized analog of joint token probability:</p>
 <div class="math notranslate nohighlight">
 \[LNTP(y_i) = \prod_{t \in y_i}  p_t^{\frac{1}{L_i}},\]</div>
@@ -1515,7 +1539,7 @@ consider the discrete version of SE, where the final set of clusters is defined 
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Number-of-Semantic-Sets-(num_semantic_sets)">Number of Semantic Sets (<code class="docutils literal notranslate"><span class="pre">num_semantic_sets</span></code>)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#BERTScore-(bert_score)">BERTScore (<code class="docutils literal notranslate"><span class="pre">bert_score</span></code>)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Normalized-Cosine-Similarity-(cosine_sim)">Normalized Cosine Similarity (<code class="docutils literal notranslate"><span class="pre">cosine_sim</span></code>)</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Length-Normalized-Token-Probability-(normalized_probability)">Length-Normalized Token Probability (<code class="docutils literal notranslate"><span class="pre">normalized_probability</span></code>)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Length-Normalized-Token-Probability-(sequence_probability)">Length-Normalized Token Probability (<code class="docutils literal notranslate"><span class="pre">sequence_probability</span></code>)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Minimum-Token-Probability-(min_probability)">Minimum Token Probability (<code class="docutils literal notranslate"><span class="pre">min_probability</span></code>)</a></li>
 </ul>
   </nav></div>

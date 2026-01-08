@@ -14,6 +14,7 @@ uqlm.utils.postprocessors
    .. autosummary::
       :toctree:
    
+      claims_dicts_to_lists
       math_postprocessor
    
    

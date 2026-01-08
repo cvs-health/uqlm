@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="../_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="../_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="../_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>uqlm.utils.display &#8212; uqlm 0.4 documentation</title>
+    <title>uqlm.utils.display &#8212; uqlm 0.5 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=7f00635f"></script>
+    <script src="../_static/documentation_options.js?v=db78e746"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -49,14 +49,14 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
     <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="uqlm.utils.display.ConditionalBarColumn" href="uqlm.utils.display.ConditionalBarColumn.html" />
+    <link rel="next" title="uqlm.utils.display.display_response_refinement" href="uqlm.utils.display.display_response_refinement.html" />
     <link rel="prev" title="uqlm.utils.device.get_best_device" href="uqlm.utils.device.get_best_device.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -126,8 +126,8 @@
       
     
     
-    <img src="../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.4 documentation - Home"/>
-    <img src="../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.4 documentation - Home"/>
+    <img src="../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.5 documentation - Home"/>
+    <img src="../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.5 documentation - Home"/>
   
   
 </a></div>
@@ -145,6 +145,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../getstarted.html">
     Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scorer_definitions/index.html">
+    Scorer Definitions
   </a>
 </li>
 
@@ -169,13 +176,23 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../faqs.html">
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../faqs.html">
     FAQs
   </a>
 </li>
 
+                </ul>
+            </li>
+            
   </ul>
 </nav></div>
       
@@ -292,6 +309,13 @@
 </li>
 
 
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../scorer_definitions/index.html">
+    Scorer Definitions
+  </a>
+</li>
+
+
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../api.html">
     API
@@ -391,6 +415,56 @@
 </details></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.longform.html">uqlm.scorers.longform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.longform.baseclass.html">uqlm.scorers.longform.baseclass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.longform.baseclass.uncertainty.html">uqlm.scorers.longform.baseclass.uncertainty</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.longform.graph.html">uqlm.scorers.longform.graph</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.longform.graph.LongTextGraph.html">uqlm.scorers.longform.graph.LongTextGraph</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.longform.longtext.html">uqlm.scorers.longform.longtext</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.longform.longtext.LongTextUQ.html">uqlm.scorers.longform.longtext.LongTextUQ</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.longform.qa.html">uqlm.scorers.longform.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.longform.qa.LongTextQA.html">uqlm.scorers.longform.qa.LongTextQA</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.shortform.html">uqlm.scorers.shortform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.shortform.baseclass.html">uqlm.scorers.shortform.baseclass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.baseclass.uncertainty.html">uqlm.scorers.shortform.baseclass.uncertainty</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.shortform.black_box.html">uqlm.scorers.shortform.black_box</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.black_box.BlackBoxUQ.html">uqlm.scorers.shortform.black_box.BlackBoxUQ</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.shortform.density.html">uqlm.scorers.shortform.density</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.density.SemanticDensity.html">uqlm.scorers.shortform.density.SemanticDensity</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.shortform.ensemble.html">uqlm.scorers.shortform.ensemble</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.ensemble.UQEnsemble.html">uqlm.scorers.shortform.ensemble.UQEnsemble</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.shortform.entropy.html">uqlm.scorers.shortform.entropy</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.entropy.SemanticEntropy.html">uqlm.scorers.shortform.entropy.SemanticEntropy</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.shortform.panel.html">uqlm.scorers.shortform.panel</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.panel.LLMPanel.html">uqlm.scorers.shortform.panel.LLMPanel</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.shortform.white_box.html">uqlm.scorers.shortform.white_box</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.white_box.WhiteBoxUQ.html">uqlm.scorers.shortform.white_box.WhiteBoxUQ</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.black_box.html">uqlm.scorers.black_box</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.scorers.black_box.BlackBoxUQ.html">uqlm.scorers.black_box.BlackBoxUQ</a></li>
 </ul>
@@ -413,6 +487,18 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.white_box.html">uqlm.scorers.white_box</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.scorers.white_box.WhiteBoxUQ.html">uqlm.scorers.white_box.WhiteBoxUQ</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.graph.html">uqlm.scorers.graph</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.scorers.graph.LongTextGraph.html">uqlm.scorers.graph.LongTextGraph</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.longtext.html">uqlm.scorers.longtext</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.scorers.longtext.LongTextUQ.html">uqlm.scorers.longtext.LongTextUQ</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.qa.html">uqlm.scorers.qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.scorers.qa.LongTextQA.html">uqlm.scorers.qa.LongTextQA</a></li>
 </ul>
 </details></li>
 </ul>
@@ -503,6 +589,7 @@
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">uqlm.utils.display</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.display.display_response_refinement.html">uqlm.utils.display.display_response_refinement</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.display.ConditionalBarColumn.html">uqlm.utils.display.ConditionalBarColumn</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.display.ConditionalSpinnerColumn.html">uqlm.utils.display.ConditionalSpinnerColumn</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.display.ConditionalTextColumn.html">uqlm.utils.display.ConditionalTextColumn</a></li>
@@ -518,6 +605,11 @@
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.llm_config.save_llm_config.html">uqlm.utils.llm_config.save_llm_config</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.nli.html">uqlm.utils.nli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.nli.NLI.html">uqlm.utils.nli.NLI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.nli.NLIResult.html">uqlm.utils.nli.NLIResult</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.plots.html">uqlm.utils.plots</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.plots.plot_filtered_accuracy.html">uqlm.utils.plots.plot_filtered_accuracy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.plots.plot_model_accuracies.html">uqlm.utils.plots.plot_model_accuracies</a></li>
@@ -525,12 +617,41 @@
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.postprocessors.html">uqlm.utils.postprocessors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.postprocessors.claims_dicts_to_lists.html">uqlm.utils.postprocessors.claims_dicts_to_lists</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.postprocessors.math_postprocessor.html">uqlm.utils.postprocessors.math_postprocessor</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.prompts.html">uqlm.utils.prompts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.prompts.create_example.html">uqlm.utils.prompts.create_example</a></li>
-<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.prompts.create_instruction.html">uqlm.utils.prompts.create_instruction</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.claim_qa.html">uqlm.utils.prompts.claim_qa</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.claim_qa.get_answer_template.html">uqlm.utils.prompts.claim_qa.get_answer_template</a></li>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.claim_qa.get_multiple_question_template.html">uqlm.utils.prompts.claim_qa.get_multiple_question_template</a></li>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.claim_qa.get_question_template.html">uqlm.utils.prompts.claim_qa.get_question_template</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.claims_prompts.html">uqlm.utils.prompts.claims_prompts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.claims_prompts.get_claim_breakdown_prompt.html">uqlm.utils.prompts.claims_prompts.get_claim_breakdown_prompt</a></li>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.claims_prompts.get_claim_dedup_prompt.html">uqlm.utils.prompts.claims_prompts.get_claim_dedup_prompt</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.decomposition.html">uqlm.utils.prompts.decomposition</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.decomposition.get_claim_breakdown_prompt.html">uqlm.utils.prompts.decomposition.get_claim_breakdown_prompt</a></li>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.decomposition.get_factoid_breakdown_template.html">uqlm.utils.prompts.decomposition.get_factoid_breakdown_template</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.entailment_prompts.html">uqlm.utils.prompts.entailment_prompts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.entailment_prompts.get_entailment_prompt.html">uqlm.utils.prompts.entailment_prompts.get_entailment_prompt</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.prompts.factscore_prompts.html">uqlm.utils.prompts.factscore_prompts</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.judge_prompts.html">uqlm.utils.prompts.judge_prompts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.judge_prompts.create_example.html">uqlm.utils.prompts.judge_prompts.create_example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.judge_prompts.create_instruction.html">uqlm.utils.prompts.judge_prompts.create_instruction</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.reconstruction.html">uqlm.utils.prompts.reconstruction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.reconstruction.get_response_reconstruction_prompt.html">uqlm.utils.prompts.reconstruction.get_response_reconstruction_prompt</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.response_generator.html">uqlm.utils.response_generator</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -619,6 +740,15 @@
                   
   <section id="module-uqlm.utils.display">
 <span id="uqlm-utils-display"></span><h1>uqlm.utils.display<a class="headerlink" href="#module-uqlm.utils.display" title="Link to this heading">#</a></h1>
+<p class="rubric">Functions</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.display.display_response_refinement.html#uqlm.utils.display.display_response_refinement" title="uqlm.utils.display.display_response_refinement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_response_refinement</span></code></a>(original_text, ...)</p></td>
+<td><p>Display a formatted comparison between original and refined text with highlighted removed claims.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 <p class="rubric">Classes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
@@ -659,11 +789,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="uqlm.utils.display.ConditionalBarColumn.html"
+       href="uqlm.utils.display.display_response_refinement.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">uqlm.utils.display.ConditionalBarColumn</p>
+        <p class="prev-next-title">uqlm.utils.display.display_response_refinement</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

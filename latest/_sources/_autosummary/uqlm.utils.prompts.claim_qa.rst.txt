@@ -1,0 +1,32 @@
+uqlm.utils.prompts.claim\_qa
+============================
+
+.. automodule:: uqlm.utils.prompts.claim_qa
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      get_answer_template
+      get_multiple_question_template
+      get_question_template
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
