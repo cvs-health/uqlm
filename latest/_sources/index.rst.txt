@@ -172,7 +172,7 @@ These scorers leverage a weighted average of multiple individual scorers to prov
 
 .. _long-text-scorers:
 
-1. Long-Text Scorers (Claim-Level)
+5. Long-Text Scorers (Claim-Level)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: ./_static/images/luq_example.png

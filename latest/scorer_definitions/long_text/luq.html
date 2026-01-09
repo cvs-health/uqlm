@@ -58,6 +58,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Graph-Based Uncertainty Quantification (LUQ)" href="graph.html" />
+    <link rel="prev" title="Long-Text Scorers" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -149,7 +151,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../index.html">
     Scorer Definitions
   </a>
@@ -286,10 +288,8 @@
       
       
       
-        
-      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -311,7 +311,7 @@
 </li>
 
 
-<li class="nav-item ">
+<li class="nav-item current active">
   <a class="nav-link nav-internal" href="../index.html">
     Scorer Definitions
   </a>
@@ -403,6 +403,61 @@
     
   </div>
   
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Available Scorers</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../black_box/index.html">Black-Box Scorers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../black_box/semantic_negentropy.html">Normalized Semantic Negentropy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../black_box/semantic_sets_confidence.html">Semantic Sets Confidence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../black_box/noncontradiction.html">Non-Contradiction Probability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../black_box/entailment.html">Entailment Probability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../black_box/exact_match.html">Exact Match Rate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../black_box/bert_score.html">BERTScore</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../black_box/cosine_sim.html">Normalized Cosine Similarity</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../white_box/index.html">White-Box Scorers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../white_box/sequence_probability.html">Sequence Probability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_box/normalized_probability.html">Length-Normalized Sequence Probability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_box/min_probability.html">Minimum Token Probability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_box/mean_token_negentropy.html">Mean Token Negentropy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_box/min_token_negentropy.html">Minimum Token Negentropy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_box/probability_margin.html">Probability Margin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_box/monte_carlo_probability.html">Monte Carlo Sequence Probability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_box/consistency_and_confidence.html">Consistency and Confidence (CoCoA)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_box/semantic_negentropy_whitebox.html">Semantic Negentropy (Token-Probability-Based)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_box/semantic_density.html">Semantic Density</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../white_box/p_true.html">P(True)</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../llm_judges/index.html">LLM-as-a-Judge Scorers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../llm_judges/true_false_uncertain.html">Ternary Judge (True/False/Uncertain)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../llm_judges/true_false.html">Binary Judge (True/False)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../llm_judges/continuous.html">Continuous Judge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../llm_judges/likert.html">Likert Scale Judge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../llm_judges/panel.html">Panel of LLM Judges</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../ensemble/index.html">Ensemble Scorers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ensemble/bs_detector.html">BS Detector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ensemble/generalized_ensemble.html">Generalized Ensemble</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Long-Text Scorers</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Long-Text Uncertainty Quantification (LUQ)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph.html">Graph-Based Uncertainty Quantification (LUQ)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qa.html">QA-Based Uncertainty Quantification (LUQ)</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
       <div class="sidebar-primary-item">
@@ -438,6 +493,12 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Scorer Definitions</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Long-Text Scorers</a></li>
+    
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Long-Text Uncertainty Quantification (LUQ)</span></li>
   </ul>
 </nav>
@@ -527,6 +588,24 @@
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Long-Text Scorers</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="graph.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Graph-Based Uncertainty Quantification (LUQ)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
