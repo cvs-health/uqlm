@@ -244,13 +244,16 @@ UQLM offers a broad collection of tutorial notebooks to demonstrate usage of the
 .. toctree::
    :hidden:
 
+   examples/black_box_demo.ipynb
+   examples/white_box_single_generation_demo.ipynb
+   examples/white_box_multi_generation_demo.ipynb
    examples/ensemble_off_the_shelf_demo.ipynb
    examples/ensemble_tuning_demo.ipynb
    examples/judges_demo.ipynb
+   examples/long_text_uq_demo.ipynb
+   examples/long_text_graph_demo.ipynb
+   examples/long_text_qa_demo.ipynb
    examples/semantic_entropy_demo.ipynb
    examples/semantic_density_demo.ipynb
-   examples/white_box_multi_generation_demo.ipynb
-   examples/white_box_single_generation_demo.ipynb
-   examples/black_box_demo.ipynb
    examples/multimodal_demo.ipynb
    examples/score_calibration_demo.ipynb

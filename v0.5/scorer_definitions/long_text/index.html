@@ -45,6 +45,8 @@
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "displayMath": [["$$", "$$"], ["\\[", "\\]"]]}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'scorer_definitions/long_text/index';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -56,7 +58,7 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="API" href="../../api.html" />
+    <link rel="next" title="Long-Text Uncertainty Quantification (LUQ)" href="luq.html" />
     <link rel="prev" title="Generalized Ensemble" href="../ensemble/generalized_ensemble.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -445,7 +447,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../ensemble/generalized_ensemble.html">Generalized Ensemble</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Long-Text Scorers</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="simple">
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Long-Text Scorers</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="luq.html">Long-Text Uncertainty Quantification (LUQ)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph.html">Graph-Based Uncertainty Quantification (LUQ)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qa.html">QA-Based Uncertainty Quantification (LUQ)</a></li>
 </ul>
 </details></li>
 </ul>
@@ -512,8 +517,8 @@
 <h1>Long-Text Scorers<a class="headerlink" href="#long-text-scorers" title="Link to this heading">#</a></h1>
 <p>Long-form uncertainty quantification implements a three-stage pipeline after response generation:</p>
 <ol class="arabic simple">
-<li><p>Response Decomposition: The response $y$ is decomposed into units (claims or sentences), where a unit as denoted as $s$.</p></li>
-<li><p>Unit-Level Confidence Scoring: Confidence scores are computed using function $c_g(s;cdot) in [0, 1]$. Higher scores indicate greater likelihood of factual correctness. Units with scores below threshold $tau$ are flagged as potential hallucinations.</p></li>
+<li><p>Response Decomposition: The response <span class="math notranslate nohighlight">\(y\)</span> is decomposed into units (claims or sentences), where a unit as denoted as $s$.</p></li>
+<li><p>Unit-Level Confidence Scoring: Confidence scores are computed using a unit-level scoring function with values in <span class="math notranslate nohighlight">\([0, 1]\)</span>. Higher scores indicate greater likelihood of factual correctness. Units with scores below threshold $tau$ are flagged as potential hallucinations.</p></li>
 <li><p>Response-Level Aggregation: Unit scores are combined to provide an overall response confidence.</p></li>
 </ol>
 <p><strong>Key Characteristics:</strong></p>
@@ -527,22 +532,15 @@
 <li><p><strong>Higher Cost:</strong> Requires multiple generations per prompt</p></li>
 <li><p><strong>Limited Compatibility:</strong> Multiple generations and comparison calculations increase latency</p></li>
 </ul>
-<section id="claim-response-scorers">
-<h2>Claim-Response Scorers<a class="headerlink" href="#claim-response-scorers" title="Link to this heading">#</a></h2>
-<p>These scorers directly compare claims or sentences in the original responses with sampled responses generated from the same prompt.</p>
+<section id="long-text-scoring-methods">
+<h2>Long-Text Scoring Methods<a class="headerlink" href="#long-text-scoring-methods" title="Link to this heading">#</a></h2>
+<p>There are three main categories of long-text scoring methods offered by UQLM:</p>
 <div class="toctree-wrapper compound">
-</div>
-</section>
-<section id="graph-based-scorers">
-<h2>Graph-Based Scorers<a class="headerlink" href="#graph-based-scorers" title="Link to this heading">#</a></h2>
-<p>These scorers decompose original and sampled responses into claims, obtain the union of unique claims across all responses, and compute graph centrality metrics on the bipartite graph of claim-response entailment to measure uncertainty.</p>
-<div class="toctree-wrapper compound">
-</div>
-</section>
-<section id="claim-qa-scorers">
-<h2>Claim-QA Scorers<a class="headerlink" href="#claim-qa-scorers" title="Link to this heading">#</a></h2>
-<p>These scorers decompose responses into granular units (sentences or claims), convert each claim or sentence to a question, sample LLM responses to those questions, and measure consistency among those answers to score the claim.</p>
-<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="luq.html">Long-Text Uncertainty Quantification (LUQ)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="graph.html">Graph-Based Uncertainty Quantification (LUQ)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qa.html">QA-Based Uncertainty Quantification (LUQ)</a></li>
+</ul>
 </div>
 </section>
 </section>
@@ -567,11 +565,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="../../api.html"
+       href="luq.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API</p>
+        <p class="prev-next-title">Long-Text Uncertainty Quantification (LUQ)</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -594,9 +592,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#claim-response-scorers">Claim-Response Scorers</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graph-based-scorers">Graph-Based Scorers</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#claim-qa-scorers">Claim-QA Scorers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#long-text-scoring-methods">Long-Text Scoring Methods</a></li>
 </ul>
   </nav></div>
 

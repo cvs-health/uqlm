@@ -1,5 +1,5 @@
-Long-Text Uncertainty Quantification (LUQ)
-==========================================
+QA-Based Uncertainty Quantification (LUQ)
+=========================================
 
 .. currentmodule:: uqlm.scorers
 

@@ -174,11 +174,11 @@ Below is a sample of code illustrating how to use the LongTextUQ class to conduc
     #   'entailment': 0.9548099517822266
     # }
 
+.. raw:: html
 
    <p align="center">
      <img src="./_static/images/long_text_output.png" />
    </p>
-
 
 Above `response` and `entailment` reflect the original response and response-level confidence score, while `refined_response` and `refined_entailment` are the corresponding values after response refinement. The `claims_data` column includes granular data for each response, including claims, claim-level confidence scores, and whether each claim is retained in the response refinement process. We use `ChatOpenAI` in this example, any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`_ may be used. For a more detailed demo, refer to our `Long-Text UQ Demo <_notebooks/examples/long_text_uq_demo.ipynb>`_.
 
