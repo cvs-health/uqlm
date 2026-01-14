@@ -1,0 +1,33 @@
+uqlm.nli.entailment.EntailmentClassifier
+========================================
+
+.. currentmodule:: uqlm.nli.entailment
+
+.. autoclass:: EntailmentClassifier
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EntailmentClassifier.__init__
+      ~EntailmentClassifier.evaluate_claim_entailment
+      ~EntailmentClassifier.judge_entailment
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

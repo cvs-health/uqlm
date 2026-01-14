@@ -10,9 +10,9 @@ The Claim-QA approach demonstrated here is adapted from Farquhar et al. (2024). 
 
 .. math::
 
-    c_g(s; y_0^{(s)}, \mathbf{y}^{(s)}_{\text{cand}}) = \frac{1}{m} \sum_{j=1}^m \eta(y_0^{(s)}, y_j^{(s)}), s
+    c_g(s; y_0^{(s)}, \mathbf{y}^{(s)}_{\text{cand}}) = \frac{1}{m} \sum_{j=1}^m \eta(y_0^{(s)}, y_j^{(s)})
 
-where :math:`y_0^{(s)}` is the original unit response, :math:`\mathbf{y}^{(s)}_{\text{cand}} = {y_1^{(s)}, ..., y_m^{(s)}}` are :math:`m` candidate responses to the unit's question, and :math:`\eta` is a consistency function such as contradiction probability, cosine similarity, or BERTScore F1. Semantic entropy, which follows a slightly different functional form, can also be used to measure consistency.
+where :math:`y_0^{(s)}` is the original unit response, :math:`\mathbf{y}^{(s)}_{\text{cand}} = \{y_1^{(s)}, ..., y_m^{(s)}\}` are :math:`m` candidate responses to the unit's question, and :math:`\eta` is a consistency function such as contradiction probability, cosine similarity, or BERTScore F1. Semantic entropy, which follows a slightly different functional form, can also be used to measure consistency.
 
 **Key Properties:**
 

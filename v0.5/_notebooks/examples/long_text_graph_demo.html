@@ -630,6 +630,9 @@ Dataset ready!
 </td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>claim_decomposition_llm</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>BaseChatModeldefault=None</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>A langchain llm <code class="docutils literal notranslate"><span class="pre">BaseChatModel</span></code> to be used for decomposing responses into individual claims. Also used for claim refinement. If granularity=”claim” and claim_decomposition_llm is None, the provided <code class="docutils literal notranslate"><span class="pre">llm</span></code> will be used for claim decomposition.</p>
+</td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>nli_llm</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>BaseChatModeldefault=None</p>
+</td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>A LangChain chat model for LLM-based NLI inference. If provided, takes precedence over nli_model_name. Only used for mode=”unit_response”</p>
 </td></tr><tr><td style="font-weight: bold; padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>device</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>str or torch.devicedefault=None</p>
 </td><td style="padding: 8px; border: 1px solid rgba(127, 127, 127, 0.2);"><p>Specifies the device that NLI model use for prediction. If None, detects and returns the best available PyTorch device. Prioritizes CUDA (NVIDIA GPU), then MPS (macOS), then CPU.</p>
@@ -658,6 +661,8 @@ Dataset ready!
 </p><ul><li><p>llm</p>
 </li><li><p>system_prompt</p>
 </li><li><p>sampling_temperature</p>
+</li><li><p>claim_decomposition_llm</p>
+</li><li><p>nli_llm</p>
 </li></ul></div><div style="flex: 1; padding: 10px; background-color: rgba(0, 200, 0, 0.1); border-radius: 5px; border: 1px solid rgba(0, 200, 0, 0.2);"><p style="font-weight: bold"><p>📊 Confidence Scores</p>
 </p><ul><li><p>granularity</p>
 </li><li><p>scorers</p>
@@ -1357,7 +1362,7 @@ value.:nbsphinx-math:<cite>footnote{Specifically, $B_{text{max}}=frac{1}{2} [m^2
 <li><p><strong>Laplacian Centrality</strong> - <span class="math notranslate nohighlight">\(\frac{E_L (G)-E_L (G_{\text{-} s})}{E_L (G)}\)</span> is the proportional drop in Laplacian energy <span class="math notranslate nohighlight">\(E_L (G)\)</span> resulting from dropping node <span class="math notranslate nohighlight">\(s\)</span> from the graph, where <span class="math notranslate nohighlight">\(G_{\text{-}s}\)</span> denotes the graph <span class="math notranslate nohighlight">\(G\)</span> with node <span class="math notranslate nohighlight">\(s\)</span> removed, <span class="math notranslate nohighlight">\(E_L (G)  = \sum_{i} \lambda_i^2\)</span>, and <span class="math notranslate nohighlight">\(\lambda_i\)</span> are the eigenvalues of <span class="math notranslate nohighlight">\(G\)</span>’s Laplacian matrix.</p></li>
 <li><p><strong>PageRank</strong> - $ <span class="math">\frac{1-d}{|V|}</span> + d <span class="math">\sum</span>_{v <span class="math">\in `N(s)} :nbsphinx-math:</span>frac{C_{PR}(v)}{N(v)}`$ is the stationary distribution probability of a random walk with restart probability <span class="math notranslate nohighlight">\((1-d)\)</span>, where <span class="math notranslate nohighlight">\(N(s)\)</span> denotes the set of neighboring nodes of <span class="math notranslate nohighlight">\(s\)</span> and <span class="math notranslate nohighlight">\(C_{PR}(v)\)</span> is PageRank of node <span class="math notranslate nohighlight">\(v\)</span>.</p></li>
 </ul>
-<p>where <span class="math notranslate nohighlight">\(\mathbf{y}^{(s)}_{\text{cand}} = {y_1^{(s)}, ..., y_m^{(s)}}\)</span> are <span class="math notranslate nohighlight">\(m\)</span> candidate responses.</p>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{y}^{(s)}_{\text{cand}} = \{y_1^{(s)}, ..., y_m^{(s)}\}\)</span> are <span class="math notranslate nohighlight">\(m\)</span> candidate responses.</p>
 <p>© 2025 CVS Health and/or one of its affiliates. All rights reserved.</p>
 </section>
 </section>

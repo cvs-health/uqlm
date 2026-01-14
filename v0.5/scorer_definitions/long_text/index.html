@@ -517,8 +517,8 @@
 <h1>Long-Text Scorers<a class="headerlink" href="#long-text-scorers" title="Link to this heading">#</a></h1>
 <p>Long-form uncertainty quantification implements a three-stage pipeline after response generation:</p>
 <ol class="arabic simple">
-<li><p>Response Decomposition: The response <span class="math notranslate nohighlight">\(y\)</span> is decomposed into units (claims or sentences), where a unit as denoted as $s$.</p></li>
-<li><p>Unit-Level Confidence Scoring: Confidence scores are computed using a unit-level scoring function with values in <span class="math notranslate nohighlight">\([0, 1]\)</span>. Higher scores indicate greater likelihood of factual correctness. Units with scores below threshold $tau$ are flagged as potential hallucinations.</p></li>
+<li><p>Response Decomposition: The response <span class="math notranslate nohighlight">\(y\)</span> is decomposed into units (claims or sentences), where a unit as denoted as <span class="math notranslate nohighlight">\(s\)</span>.</p></li>
+<li><p>Unit-Level Confidence Scoring: Confidence scores are computed using a unit-level scoring function with values in <span class="math notranslate nohighlight">\([0, 1]\)</span>. Higher scores indicate greater likelihood of factual correctness. Units with scores below threshold <span class="math notranslate nohighlight">\(\tau\)</span> are flagged as potential hallucinations.</p></li>
 <li><p>Response-Level Aggregation: Unit scores are combined to provide an overall response confidence.</p></li>
 </ol>
 <p><strong>Key Characteristics:</strong></p>

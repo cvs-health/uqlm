@@ -33,7 +33,6 @@
    display
    grader
    llm_config
-   nli
    plots
    postprocessors
    prompts

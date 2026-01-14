@@ -1,0 +1,32 @@
+uqlm.longform.decomposition
+===========================
+
+.. automodule:: uqlm.longform.decomposition
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: module.rst
+   :recursive:
+
+   response_decomposer
+

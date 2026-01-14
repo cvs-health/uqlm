@@ -1,0 +1,68 @@
+uqlm.longform.luq.baseclass.claims\_scorer.ClaimScore
+=====================================================
+
+.. currentmodule:: uqlm.longform.luq.baseclass.claims_scorer
+
+.. autoclass:: ClaimScore
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ClaimScore.__init__
+      ~ClaimScore.construct
+      ~ClaimScore.copy
+      ~ClaimScore.dict
+      ~ClaimScore.from_orm
+      ~ClaimScore.json
+      ~ClaimScore.model_construct
+      ~ClaimScore.model_copy
+      ~ClaimScore.model_dump
+      ~ClaimScore.model_dump_json
+      ~ClaimScore.model_json_schema
+      ~ClaimScore.model_parametrized_name
+      ~ClaimScore.model_post_init
+      ~ClaimScore.model_rebuild
+      ~ClaimScore.model_validate
+      ~ClaimScore.model_validate_json
+      ~ClaimScore.model_validate_strings
+      ~ClaimScore.parse_file
+      ~ClaimScore.parse_obj
+      ~ClaimScore.parse_raw
+      ~ClaimScore.schema
+      ~ClaimScore.schema_json
+      ~ClaimScore.update_forward_refs
+      ~ClaimScore.validate
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ClaimScore.model_computed_fields
+      ~ClaimScore.model_config
+      ~ClaimScore.model_extra
+      ~ClaimScore.model_fields
+      ~ClaimScore.model_fields_set
+      ~ClaimScore.claim
+      ~ClaimScore.original_response
+      ~ClaimScore.scores
+      ~ClaimScore.scorer_type
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

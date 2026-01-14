@@ -1,0 +1,32 @@
+uqlm.longform.qa.question\_generator.QuestionGenerator
+======================================================
+
+.. currentmodule:: uqlm.longform.qa.question_generator
+
+.. autoclass:: QuestionGenerator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~QuestionGenerator.__init__
+      ~QuestionGenerator.generate_questions
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

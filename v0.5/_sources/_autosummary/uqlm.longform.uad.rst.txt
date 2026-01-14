@@ -1,0 +1,32 @@
+uqlm.longform.uad
+=================
+
+.. automodule:: uqlm.longform.uad
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: module.rst
+   :recursive:
+
+   uad
+
