@@ -155,6 +155,7 @@ These scorers take a fine-grained approach and score confidence/uncertainty at t
 Below is a sample of code illustrating how to use the LongTextUQ class to conduct claim-level hallucination detection and uncertainty-aware response refinement.
 
 .. code-block:: python
+
     from langchain_openai import ChatOpenAI
     llm = ChatOpenAI(model="gpt-4o")
 

@@ -1,0 +1,32 @@
+uqlm.longform.luq.baseclass.claims\_scorer.ClaimScorer
+======================================================
+
+.. currentmodule:: uqlm.longform.luq.baseclass.claims_scorer
+
+.. autoclass:: ClaimScorer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ClaimScorer.__init__
+      ~ClaimScorer.evaluate
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

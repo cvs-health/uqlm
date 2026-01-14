@@ -1,0 +1,31 @@
+uqlm.longform.luq.matched\_unit
+===============================
+
+.. automodule:: uqlm.longform.luq.matched_unit
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: class.rst
+   
+      MatchedUnitScorer
+   
+   
+
+   
+   
+   
+
+
+

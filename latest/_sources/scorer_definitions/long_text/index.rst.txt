@@ -3,9 +3,9 @@ Long-Text Scorers
 
 Long-form uncertainty quantification implements a three-stage pipeline after response generation:
 
-1. Response Decomposition: The response :math:`y` is decomposed into units (claims or sentences), where a unit as denoted as $s$.
+1. Response Decomposition: The response :math:`y` is decomposed into units (claims or sentences), where a unit as denoted as :math:`s`.
 
-2. Unit-Level Confidence Scoring: Confidence scores are computed using a unit-level scoring function with values in :math:`[0, 1]`. Higher scores indicate greater likelihood of factual correctness. Units with scores below threshold $\tau$ are flagged as potential hallucinations.
+2. Unit-Level Confidence Scoring: Confidence scores are computed using a unit-level scoring function with values in :math:`[0, 1]`. Higher scores indicate greater likelihood of factual correctness. Units with scores below threshold :math:`\tau` are flagged as potential hallucinations.
 
 3. Response-Level Aggregation: Unit scores are combined to provide an overall response confidence.
 

@@ -1,0 +1,31 @@
+uqlm.longform.luq.unit\_response
+================================
+
+.. automodule:: uqlm.longform.luq.unit_response
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: class.rst
+   
+      UnitResponseScorer
+   
+   
+
+   
+   
+   
+
+
+

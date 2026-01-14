@@ -29,5 +29,6 @@
    :recursive:
 
    cluster
+   entailment
    nli
 

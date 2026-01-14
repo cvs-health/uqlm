@@ -1,0 +1,32 @@
+uqlm.longform.graph.graph\_scorer.GraphScorer
+=============================================
+
+.. currentmodule:: uqlm.longform.graph.graph_scorer
+
+.. autoclass:: GraphScorer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GraphScorer.__init__
+      ~GraphScorer.evaluate
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

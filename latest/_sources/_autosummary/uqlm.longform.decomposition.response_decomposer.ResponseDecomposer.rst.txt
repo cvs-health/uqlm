@@ -1,0 +1,35 @@
+uqlm.longform.decomposition.response\_decomposer.ResponseDecomposer
+===================================================================
+
+.. currentmodule:: uqlm.longform.decomposition.response_decomposer
+
+.. autoclass:: ResponseDecomposer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ResponseDecomposer.__init__
+      ~ResponseDecomposer.decompose_candidate_claims
+      ~ResponseDecomposer.decompose_candidate_sentences
+      ~ResponseDecomposer.decompose_claims
+      ~ResponseDecomposer.decompose_sentences
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

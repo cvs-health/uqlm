@@ -1,0 +1,32 @@
+uqlm.longform.uad.uad.UncertaintyAwareDecoder
+=============================================
+
+.. currentmodule:: uqlm.longform.uad.uad
+
+.. autoclass:: UncertaintyAwareDecoder
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UncertaintyAwareDecoder.__init__
+      ~UncertaintyAwareDecoder.reconstruct_responses
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

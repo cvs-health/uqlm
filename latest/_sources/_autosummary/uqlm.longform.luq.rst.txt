@@ -1,0 +1,34 @@
+uqlm.longform.luq
+=================
+
+.. automodule:: uqlm.longform.luq
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: module.rst
+   :recursive:
+
+   baseclass
+   matched_unit
+   unit_response
+

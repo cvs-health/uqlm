@@ -1,0 +1,32 @@
+uqlm.longform.qa
+================
+
+.. automodule:: uqlm.longform.qa
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: module.rst
+   :recursive:
+
+   question_generator
+

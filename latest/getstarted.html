@@ -572,6 +572,26 @@
 <h2>Example 5: <code class="docutils literal notranslate"><span class="pre">Long-Text</span> <span class="pre">Scorers</span></code> for hallucination detection<a class="headerlink" href="#example-5-long-text-scorers-for-hallucination-detection" title="Link to this heading">#</a></h2>
 <p>These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of black-box scorers, long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses. After scoring claims in the response, the response can be refined by removing claims with confidence scores less than a specified threshold and reconstructing the response from the retained claims. This approach allows for improved factual precision of long-text generations.</p>
 <p>Below is a sample of code illustrating how to use the LongTextUQ class to conduct claim-level hallucination detection and uncertainty-aware response refinement.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOpenAI</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LongTextUQ</span>
+<span class="n">luq</span> <span class="o">=</span> <span class="n">LongTextUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;entailment&quot;</span><span class="p">],</span> <span class="n">response_refinement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">luq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">results_df</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
+<span class="n">results_df</span>
+
+<span class="c1"># Preview the data for a specific claim in the first response</span>
+<span class="c1"># results_df[&quot;claims_data&quot;][0][0]</span>
+<span class="c1"># Output:</span>
+<span class="c1"># {</span>
+<span class="c1">#   &#39;claim&#39;: &#39;Suthida Bajrasudhabimalalakshana was born on June 3, 1978.&#39;,</span>
+<span class="c1">#   &#39;removed&#39;: False,</span>
+<span class="c1">#   &#39;entailment&#39;: 0.9548099517822266</span>
+<span class="c1"># }</span>
+</pre></div>
+</div>
 <p align="center">
   <img src="./_static/images/long_text_output.png" />
 </p><p>Above <cite>response</cite> and <cite>entailment</cite> reflect the original response and response-level confidence score, while <cite>refined_response</cite> and <cite>refined_entailment</cite> are the corresponding values after response refinement. The <cite>claims_data</cite> column includes granular data for each response, including claims, claim-level confidence scores, and whether each claim is retained in the response refinement process. We use <cite>ChatOpenAI</cite> in this example, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used. For a more detailed demo, refer to our <a class="reference internal" href="_notebooks/examples/long_text_uq_demo.html"><span class="doc">Long-Text UQ Demo</span></a>.</p>
