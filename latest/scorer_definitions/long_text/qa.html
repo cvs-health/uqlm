@@ -520,14 +520,14 @@
 <h1>QA-Based Uncertainty Quantification (LUQ)<a class="headerlink" href="#qa-based-uncertainty-quantification-luq" title="Link to this heading">#</a></h1>
 <section id="definition">
 <h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
-<p>The Claim-QA approach demonstrated here is adapted from Farquhar et al. (2024). It uses an LLM to convert each unit (sentence or claim) into a question for which that unit would be the answer. The method measures consistency across multiple responses to these questions, effectively applying standard black-box uncertainty quantification to those sampled responses to the unit questions. Formally, a claim-QA scorer <span class="math notranslate nohighlight">\(c_g(s;\cdot)\)</span> is defined as follows:</p>
+<p>The Claim-QA approach demonstrated here is adapted from Farquhar et al. (2024).  The original response <span class="math notranslate nohighlight">\(y\)</span> is decomposed into units (claims or sentences) and LLM is used to convert each unit <span class="math notranslate nohighlight">\(s\)</span> (sentence or claim) into a question for which that unit would be the answer. The method measures consistency across multiple responses to these questions, effectively applying standard black-box uncertainty quantification to those sampled responses to the unit questions. Formally, a claim-QA scorer <span class="math notranslate nohighlight">\(c_g(s;\cdot)\)</span> is defined as follows:</p>
 <div class="math notranslate nohighlight">
 \[c_g(s; y_0^{(s)}, \mathbf{y}^{(s)}_{\text{cand}}) = \frac{1}{m} \sum_{j=1}^m \eta(y_0^{(s)}, y_j^{(s)})\]</div>
 <p>where <span class="math notranslate nohighlight">\(y_0^{(s)}\)</span> is the original unit response, <span class="math notranslate nohighlight">\(\mathbf{y}^{(s)}_{\text{cand}} = \{y_1^{(s)}, ..., y_m^{(s)}\}\)</span> are <span class="math notranslate nohighlight">\(m\)</span> candidate responses to the unit’s question, and <span class="math notranslate nohighlight">\(\eta\)</span> is a consistency function such as contradiction probability, cosine similarity, or BERTScore F1. Semantic entropy, which follows a slightly different functional form, can also be used to measure consistency.</p>
 <p><strong>Key Properties:</strong></p>
 <ul class="simple">
 <li><p>Claim or sententence-level scoring</p></li>
-<li><p>Less complex (cost and latency) than other long-form scoring methods</p></li>
+<li><p>More complex (cost and latency) than LUQ-style scoring methods</p></li>
 <li><p>Score range: <span class="math notranslate nohighlight">\([0, 1]\)</span></p></li>
 </ul>
 </section>

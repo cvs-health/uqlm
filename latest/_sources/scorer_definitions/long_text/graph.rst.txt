@@ -11,7 +11,7 @@ Graph-based scorers, proposed by Jiang et al. (2024), decompose original and sam
 
 * **Degree Centrality** - :math:`\frac{1}{m} \sum_{j=1}^m P(\text{entail}|y_j, s)` is the average edge weight, measured by entailment probability for claim node `s`. 
 
-* **Betweenness Centrality** - :math:`\frac{1}{B_{\text{max}}}\sum_{u \neq v \neq s} \frac{\sigma_{uv}(s)}{\sigma_{uv}}` measures uncertainty by calculating the proportion of shortest paths between node pairs that pass through node :math:`s`, where :math:`\sigma_{uv}` represents all shortest paths between nodes :math:`u` and :math:`v`, and :math:`B_{\text{max}}` is the maximum possible value, given by :math:`B_{\text{max}}=\frac{1}{2} [m^2 (p + 1)^2 + m (p + 1)(2t - p - 1) - t (2p - t + 3)]`, `p = \frac{(|\mathbf{s}| - 1)}{m}`, and `t = (|\mathbf{s}| - 1) \mod m`.
+* **Betweenness Centrality** - :math:`\frac{1}{B_{\text{max}}}\sum_{u \neq v \neq s} \frac{\sigma_{uv}(s)}{\sigma_{uv}}` measures uncertainty by calculating the proportion of shortest paths between node pairs that pass through node :math:`s`, where :math:`\sigma_{uv}` represents all shortest paths between nodes :math:`u` and :math:`v`, and :math:`B_{\text{max}}` is the maximum possible value, given by :math:`B_{\text{max}}=\frac{1}{2} [m^2 (p + 1)^2 + m (p + 1)(2t - p - 1) - t (2p - t + 3)]`, :math:`p = \frac{(|\mathbf{s}| - 1)}{m}`, and :math:`t = (|\mathbf{s}| - 1) \mod m`.
 
 
 * **Closeness Centrality** - :math:`\frac{m + 2(|\mathbf{s}| - 1) }{\sum_{v \neq s}dist(s, v)}` measures the inverse sum of distances to all other nodes, normalized by the minimum possible distance.
@@ -27,7 +27,7 @@ where :math:`\mathbf{y}^{(s)}_{\text{cand}} = \{y_1^{(s)}, ..., y_m^{(s)}\}` are
 **Key Properties:**
 
 - Claim or sententence-level scoring
-- Less complex (cost and latency) than other long-form scoring methods
+- More complex (cost and latency) than LUQ-style scoring methods
 - Score range: :math:`[0, 1]`
 
 How It Works

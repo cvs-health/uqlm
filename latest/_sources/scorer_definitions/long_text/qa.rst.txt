@@ -6,7 +6,7 @@ QA-Based Uncertainty Quantification (LUQ)
 Definition
 ----------
 
-The Claim-QA approach demonstrated here is adapted from Farquhar et al. (2024). It uses an LLM to convert each unit (sentence or claim) into a question for which that unit would be the answer. The method measures consistency across multiple responses to these questions, effectively applying standard black-box uncertainty quantification to those sampled responses to the unit questions. Formally, a claim-QA scorer :math:`c_g(s;\cdot)` is defined as follows:
+The Claim-QA approach demonstrated here is adapted from Farquhar et al. (2024).  The original response :math:`y` is decomposed into units (claims or sentences) and LLM is used to convert each unit :math:`s` (sentence or claim) into a question for which that unit would be the answer. The method measures consistency across multiple responses to these questions, effectively applying standard black-box uncertainty quantification to those sampled responses to the unit questions. Formally, a claim-QA scorer :math:`c_g(s;\cdot)` is defined as follows:
 
 .. math::
 
@@ -17,7 +17,7 @@ where :math:`y_0^{(s)}` is the original unit response, :math:`\mathbf{y}^{(s)}_{
 **Key Properties:**
 
 - Claim or sententence-level scoring
-- Less complex (cost and latency) than other long-form scoring methods
+- More complex (cost and latency) than LUQ-style scoring methods
 - Score range: :math:`[0, 1]`
 
 How It Works
