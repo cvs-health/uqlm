@@ -6,13 +6,13 @@ Long-Text Uncertainty Quantification (LUQ)
 Definition
 ----------
 
-The Long-text UQ (LUQ) approach demonstrated here is adapted from Zhang et al. (2024). Similar to standard black-box UQ, this approach requires generating a original response and sampled candidate responses to the same prompt. The original response is then decomposed into units (claims or sentences). Unit-level confidence scores are then obtained by averaging entailment probabilities across candidate responses:
+The Long-text UQ (LUQ) approach demonstrated here is adapted from Zhang et al. (2024). Similar to standard black-box UQ, this approach requires generating a original response and sampled candidate responses to the same prompt. The original response :math:`y` is then decomposed into units (claims or sentences). A confidence score for each unit :math:`s` is then obtained by averaging entailment probabilities across candidate responses:
 
 .. math::
 
     c_g(s; \mathbf{y}_{\text{cand}}) = \frac{1}{m} \sum_{j=1}^m P(\text{entail}|y_j, s)
 
-where :math:`\mathbf{y}^{(s)}_{\text{cand}} = {y_1^{(s)}, ..., y_m^{(s)}}` are :math:`m` candidate responses, and :math:`P(\text{entail}|y_j, s)` denotes the NLI-estimated probability that :math:`s` is entailed in :math:`y_j`.
+where :math:`\mathbf{y}^{(s)}_{\text{cand}} = \{y_1^{(s)}, ..., y_m^{(s)}\}` are :math:`m` candidate responses, and :math:`P(\text{entail}|y_j, s)` denotes the NLI-estimated probability that :math:`s` is entailed in :math:`y_j`.
 
 **Key Properties:**
 

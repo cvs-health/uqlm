@@ -520,10 +520,10 @@
 <h1>Long-Text Uncertainty Quantification (LUQ)<a class="headerlink" href="#long-text-uncertainty-quantification-luq" title="Link to this heading">#</a></h1>
 <section id="definition">
 <h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
-<p>The Long-text UQ (LUQ) approach demonstrated here is adapted from Zhang et al. (2024). Similar to standard black-box UQ, this approach requires generating a original response and sampled candidate responses to the same prompt. The original response is then decomposed into units (claims or sentences). Unit-level confidence scores are then obtained by averaging entailment probabilities across candidate responses:</p>
+<p>The Long-text UQ (LUQ) approach demonstrated here is adapted from Zhang et al. (2024). Similar to standard black-box UQ, this approach requires generating a original response and sampled candidate responses to the same prompt. The original response <span class="math notranslate nohighlight">\(y\)</span> is then decomposed into units (claims or sentences). A confidence score for each unit <span class="math notranslate nohighlight">\(s\)</span> is then obtained by averaging entailment probabilities across candidate responses:</p>
 <div class="math notranslate nohighlight">
 \[c_g(s; \mathbf{y}_{\text{cand}}) = \frac{1}{m} \sum_{j=1}^m P(\text{entail}|y_j, s)\]</div>
-<p>where <span class="math notranslate nohighlight">\(\mathbf{y}^{(s)}_{\text{cand}} = {y_1^{(s)}, ..., y_m^{(s)}}\)</span> are <span class="math notranslate nohighlight">\(m\)</span> candidate responses, and <span class="math notranslate nohighlight">\(P(\text{entail}|y_j, s)\)</span> denotes the NLI-estimated probability that <span class="math notranslate nohighlight">\(s\)</span> is entailed in <span class="math notranslate nohighlight">\(y_j\)</span>.</p>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{y}^{(s)}_{\text{cand}} = \{y_1^{(s)}, ..., y_m^{(s)}\}\)</span> are <span class="math notranslate nohighlight">\(m\)</span> candidate responses, and <span class="math notranslate nohighlight">\(P(\text{entail}|y_j, s)\)</span> denotes the NLI-estimated probability that <span class="math notranslate nohighlight">\(s\)</span> is entailed in <span class="math notranslate nohighlight">\(y_j\)</span>.</p>
 <p><strong>Key Properties:</strong></p>
 <ul class="simple">
 <li><p>Claim or sententence-level scoring</p></li>
