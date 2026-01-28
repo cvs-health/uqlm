@@ -192,12 +192,14 @@ class ResponseGenerator:
             raise ValueError("prompts must be list of strings or list of lists of BaseMessage instances. For support with LangChain BaseMessage usage, refer here: https://python.langchain.com/docs/concepts/messages")
 
         if not self.top_k_logprobs:
-            result = await self.llm.agenerate([messages])
+            result = await self.llm.ainvoke(messages)
             logprobs = [None] * count
             if hasattr(self.llm, "logprobs"):
                 if self.llm.logprobs:
                     logprobs = self._extract_logprobs(logprobs=logprobs, result=result, count=count)
-            result_dict = {"logprobs": logprobs, "responses": [result.generations[0][i].text for i in range(count)]}
+            # result_dict = {"logprobs": logprobs, "responses": [result.generations[0][i].text for i in range(count)]}
+            result_dict = {"logprobs": logprobs, "responses": result.content}
+            # print(f"result dict: {result_dict}")
         else:
             result_dict = await self.agenerate_with_top_logprobs(messages, count=count)
         if self.progress_bar:
@@ -210,33 +212,36 @@ class ResponseGenerator:
         logprobs = [None] * count
         result = None
         if "openai" in self.llm.__str__().lower():
-            result = await self.llm.agenerate([messages], logprobs=True, top_logprobs=self.top_k_logprobs)
+            result = await self.llm.ainvoke(messages, logprobs=True, top_logprobs=self.top_k_logprobs)
         elif "google" in self.llm.__str__().lower() or "gemini" in self.llm.__str__().lower():
             self.llm.logprobs = self.top_k_logprobs
-            result = await self.llm.agenerate([messages])
+            result = await self.llm.ainvoke(messages)
         else:
             try:
-                result = await self.llm.agenerate([messages], logprobs=True, top_logprobs=self.top_k_logprobs)
+                result = await self.llm.ainvoke(messages, logprobs=True, top_logprobs=self.top_k_logprobs)
             except Exception:
                 try:
                     self.llm.logprobs = self.top_k_logprobs
-                    result = await self.llm.agenerate([messages])
+                    result = await self.llm.ainvoke(messages)
                 except Exception:
                     pass
         if result is None:  # if all attempts fail
             return {"logprobs": [None] * count, "responses": []}
         logprobs = self._extract_logprobs(logprobs=logprobs, result=result, count=count)
-        return {"logprobs": logprobs, "responses": [result.generations[0][i].text for i in range(count)]}
+        return {"logprobs": logprobs, "responses": result.content}
 
     @staticmethod
     def _extract_logprobs(logprobs: Any, result: Any, count: int):
+        # print("extracting logprobs")
         for i in range(count):
-            if "logprobs_result" in result.generations[0][i].generation_info:
-                logprobs[i] = result.generations[0][i].generation_info["logprobs_result"]
-
-            elif "logprobs" in result.generations[0][i].generation_info:
-                if "content" in result.generations[0][i].generation_info["logprobs"]:
-                    logprobs[i] = result.generations[0][i].generation_info["logprobs"]["content"]
+            if "logprobs_result" in result.response_metadata:
+                print("logprobs_result found new")
+                logprobs[i] = result.response_metadata["logprobs_result"]
+            elif "logprobs" in result.response_metadata:
+                print("logprobs found new")
+                if "content" in result.response_metadata["logprobs"]:
+                    print("content logprobs found new")
+                    logprobs[i] = result.response_metadata["logprobs"]["content"]
             else:
                 warnings.warn("Model did not provide logprobs in API response. White-box scores for this response may be set to np.nan.")
                 logprobs[i] = [{"token": "UNABLE TO GET LOGPROBS", "logprob": np.nan, "top_logprobs": []}]
