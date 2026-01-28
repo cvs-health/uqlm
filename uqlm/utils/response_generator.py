@@ -212,7 +212,7 @@ class ResponseGenerator:
         logprobs = [None] * count
         result = None
         if "openai" in self.llm.__str__().lower():
-            result = await self.llm.agenerate([messages], logprobs=True, top_logprobs=self.top_k_logprobs)
+            result = await self.llm.ainvoke(messages, logprobs=True, top_logprobs=self.top_k_logprobs)
         elif "google" in self.llm.__str__().lower() or "gemini" in self.llm.__str__().lower():
             self.llm.logprobs = self.top_k_logprobs
             result = await self.llm.ainvoke(messages)
