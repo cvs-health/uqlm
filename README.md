@@ -337,21 +337,22 @@ Each notebook includes detailed explanations and code samples that you can adapt
 
 
 ## Citation
-A technical description of the `uqlm` scorers and extensive experimental results are presented in **[this paper](https://arxiv.org/abs/2504.19254)**. If you use our framework or toolkit, please cite:
+A technical description of the `uqlm` scorers and extensive experimental results are presented in **[this paper](https://openreview.net/pdf?id=WOFspd4lq5)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our framework or toolkit, please cite:
 
 ```bibtex
-@misc{bouchard2025uncertaintyquantificationlanguagemodels,
-      title={Uncertainty Quantification for Language Models: A Suite of Black-Box, White-Box, LLM Judge, and Ensemble Scorers}, 
-      author={Dylan Bouchard and Mohit Singh Chauhan},
-      year={2025},
-      eprint={2504.19254},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2504.19254}, 
+@article{
+bouchard2025uncertainty,
+title={Uncertainty Quantification for Language Models: A Suite of Black-Box, White-Box, {LLM} Judge, and Ensemble Scorers},
+author={Dylan Bouchard and Mohit Singh Chauhan},
+journal={Transactions on Machine Learning Research},
+issn={2835-8856},
+year={2025},
+url={https://openreview.net/forum?id=WOFspd4lq5},
+note={}
 }
 ```
 
-The `uqlm` software package is described in this **[this paper](https://arxiv.org/abs/2507.06196)**. If you use the software, please cite:
+The `uqlm` software package is described in this **[this paper](https://arxiv.org/abs/2507.06196)**, published in the **Journal of Machine Learning Research (JMLR)**. If you use the software, please cite:
 
 ```bibtex
 @misc{bouchard2025uqlmpythonpackageuncertainty,
