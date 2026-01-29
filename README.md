@@ -7,13 +7,42 @@
 </p>
 
 
-# uqlm: Uncertainty Quantification for Language Models
+<h1 align="center">uqlm: Uncertainty Quantification for Language Models</h1>
 
-[![Build Status](https://github.com/cvs-health/uqlm/actions/workflows/ci.yaml/badge.svg)](https://github.com/cvs-health/uqlm/actions)
-[![PyPI version](https://badge.fury.io/py/uqlm.svg)](https://pypi.org/project/uqlm/)
-[![Documentation Status](https://img.shields.io/badge/docs-latest-blue.svg)](https://cvs-health.github.io/uqlm/latest/index.html)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![](https://img.shields.io/badge/arXiv-2504.19254-B31B1B.svg)](https://arxiv.org/abs/2504.19254)
+<p align="center">
+  <!-- Project Status -->
+  <a href="https://github.com/cvs-health/uqlm/actions">
+    <img src="https://github.com/cvs-health/uqlm/actions/workflows/ci.yaml/badge.svg" alt="Build Status">
+  </a>
+<a href="https://pypi.org/project/uqlm/">
+    <img src="https://badge.fury.io/py/uqlm.svg" alt="PyPI version">
+  </a>
+  <a href="https://cvs-health.github.io/uqlm/latest/index.html">
+    <img src="https://img.shields.io/badge/docs-latest-blue.svg" alt="Documentation Status">
+  </a>
+  <a href="https://pypi.org/project/uqlm/">
+    <img src="https://img.shields.io/pypi/pyversions/uqlm" alt="Python Versions">
+  </a>
+  <a href="https://opensource.org/licenses/Apache-2.0">
+    <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
+  </a>
+  <a href="https://github.com/astral-sh/ruff">
+    <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff">
+  </a>
+</p>
+
+<p align="center">
+  <!-- Publications -->
+  <a href="https://arxiv.org/pdf/2507.06196">
+    <img src="https://img.shields.io/badge/JMLR-Published-blue?style=flat" alt="JMLR Publication">
+  </a>
+  <a href="https://openreview.net/pdf?id=WOFspd4lq5">
+    <img src="https://img.shields.io/badge/TMLR-Published-blue?style=flat" alt="TMLR Publication">
+  </a>
+  <a href="https://arxiv.org/abs/2504.19254">
+    <img src="https://img.shields.io/badge/arXiv-2504.19254-B31B1B.svg" alt="arXiv">
+  </a>
+</p>
 
 UQLM is a Python library for Large Language Model (LLM) hallucination detection using state-of-the-art uncertainty quantification techniques. 
 
