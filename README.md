@@ -6,13 +6,13 @@
   </picture>
 </p>
 
-
 <h1 align="center">uqlm: Uncertainty Quantification for Language Models</h1>
 
 <p align="center">
   <a href="https://github.com/cvs-health/uqlm/actions">
     <img src="https://github.com/cvs-health/uqlm/actions/workflows/ci.yaml/badge.svg" alt="Build Status">
   </a>
+  
   <a href="https://pypi.org/project/uqlm/">
     <img src="https://badge.fury.io/py/uqlm.svg" alt="PyPI version">
   </a>
@@ -30,7 +30,6 @@
     <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff">
   </a>
 </p>
-
 <p align="center">
   <a href="https://arxiv.org/pdf/2507.06196">
     <img src="https://img.shields.io/badge/JMLR-Published-blue?style=flat" alt="JMLR Publication">
@@ -41,7 +40,7 @@
   <a href="https://arxiv.org/abs/2504.19254">
     <img src="https://img.shields.io/badge/arXiv-2504.19254-B31B1B.svg" alt="arXiv">
   </a>
-</p>>
+</p>
 
 UQLM is a Python library for Large Language Model (LLM) hallucination detection using state-of-the-art uncertainty quantification techniques. 
 
