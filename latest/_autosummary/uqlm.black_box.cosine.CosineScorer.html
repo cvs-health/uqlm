@@ -801,17 +801,17 @@
 <h1>uqlm.black_box.cosine.CosineScorer<a class="headerlink" href="#uqlm-black-box-cosine-cosinescorer" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="uqlm.black_box.cosine.CosineScorer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uqlm.black_box.cosine.</span></span><span class="sig-name descname"><span class="pre">CosineScorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all-MiniLM-L6-v2'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.black_box.cosine.CosineScorer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uqlm.black_box.cosine.</span></span><span class="sig-name descname"><span class="pre">CosineScorer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sentence-transformers/all-MiniLM-L6-v2'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.black_box.cosine.CosineScorer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SimilarityScorer</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="uqlm.black_box.cosine.CosineScorer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all-MiniLM-L6-v2'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.black_box.cosine.CosineScorer.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sentence-transformers/all-MiniLM-L6-v2'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.black_box.cosine.CosineScorer.__init__" title="Link to this definition">#</a></dt>
 <dd><p>Compute cosine similarity betwee original and candidate responses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>transformer</strong> (<em>str</em><em> (</em><em>HuggingFace sentence transformer</em><em>)</em><em>, </em><em>default='all-MiniLM-L6-v2'</em>) – Specifies which huggingface sentence transformer to use when computing cosine distance. See
+<dd class="field-odd"><p><strong>transformer</strong> (<em>str</em><em> (</em><em>HuggingFace sentence transformer</em><em>)</em><em>, </em><em>default='all-MiniLM-L6-v2'</em>) – Specifies which huggingface sentence transformer to use when computing cosine similarity. See
 <a class="reference external" href="https://huggingface.co/sentence-transformers?sort_models=likes#models">https://huggingface.co/sentence-transformers?sort_models=likes#models</a>
-for more information. The recommended sentence transformer is ‘all-MiniLM-L6-v2’.</p>
+for more information. The recommended sentence transformer is ‘sentence-transformers/all-MiniLM-L6-v2’.</p>
 </dd>
 </dl>
 </dd></dl>
