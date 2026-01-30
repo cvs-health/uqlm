@@ -814,8 +814,9 @@
 relevant parameters to the constructor of their <cite>llm</cite> object.</p></li>
 <li><p><strong>scorers</strong> (<em>List</em><em>[</em><em>Union</em><em>[</em><em>str</em><em>, </em><em>BaseChatModel</em><em>]</em><em>] </em><em>default=None</em>) – Specifies which UQ components to include. List containing instances of BaseChatModel, LLMJudge, black-box scorer names from
 [‘semantic_negentropy’, ‘noncontradiction’,’exact_match’, ‘bert_score’, ‘cosine_sim’], or white-box scorer names from
-[“normalized_probability”, “min_probability”] (other white-box scorers not yet supported). If None, defaults to the
-off-the-shelf BS Detector ensemble by Chen and Mueller (2023) <a class="footnote-reference brackets" href="#footcite-chen2023quantifyinguncertaintyanswerslanguage" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
+[“sequence_probability”, “min_probability”, “min_token_negentropy”, “mean_token_negentropy”, “probability_margin”,
+“semantic_negentropy”, “semantic_density”, “monte_carlo_probability”, “consistency_and_confidence”, “p_true”].
+If None, defaults to the off-the-shelf BS Detector ensemble by Chen and Mueller (2023) <a class="footnote-reference brackets" href="#footcite-chen2023quantifyinguncertaintyanswerslanguage" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>
 which uses components [“noncontradiction”, “exact_match”, llm] with respective weights of [0.56, 0.14, 0.3]</p></li>
 <li><p><strong>device</strong> (<em>str</em><em> or </em><em>torch.device input</em><em> or </em><em>torch.device object</em><em>, </em><em>default=&quot;cpu&quot;</em>) – Specifies the device that NLI model use for prediction. Only applies to ‘semantic_negentropy’, ‘noncontradiction’
 scorers. If None, detects and returns the best available PyTorch device. Prioritizes CUDA (NVIDIA GPU), then MPS (macOS), then CPU.</p></li>
