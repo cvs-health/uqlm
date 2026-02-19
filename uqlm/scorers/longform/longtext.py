@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, List, Optional
+from typing import Any, Callable, List, Optional, Union
 from rich.progress import Progress
 from langchain_core.language_models.chat_models import BaseChatModel
 from uqlm.scorers.longform.baseclass.uncertainty import LongFormUQ
@@ -35,6 +35,7 @@ class LongTextUQ(LongFormUQ):
         response_refinement: bool = False,
         claim_filtering_scorer: Optional[str] = None,
         claim_decomposition_llm: Optional[BaseChatModel] = None,
+        claim_decomposition_prompt: Union[str, Callable] = "zhang_2025",
         nli_llm: Optional[BaseChatModel] = None,
         device: Any = None,
         nli_model_name: str = "microsoft/deberta-large-mnli",
@@ -81,6 +82,12 @@ class LongTextUQ(LongFormUQ):
             A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Also used for claim refinement.
             If granularity="claim" and claim_decomposition_llm is None, the provided `llm` will be used for claim decomposition.
 
+        claim_decomposition_prompt : Union[str, Callable], default="zhang_2025"
+            Specifies the prompt template used to decompose responses into atomic claims. Accepts one of the
+            following string keys: ``"zhang_2025"``, ``"farquhar_2024"``, ``"mohri_2024"``, ``"jiang_2024"``,
+            or a custom callable with signature ``(response: str) -> str``. Only applies when
+            ``granularity="claim"``.
+
         nli_llm : BaseChatModel, default=None
             A LangChain chat model for LLM-based NLI inference. If provided, takes precedence over nli_model_name. Only used for
             mode="unit_response"
@@ -112,7 +119,9 @@ class LongTextUQ(LongFormUQ):
             avoid OutOfMemoryError
         """
         self.scorers = ["entailment"] if not scorers else scorers
-        super().__init__(llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_filtering_scorer=claim_filtering_scorer, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
+        super().__init__(
+            llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_filtering_scorer=claim_filtering_scorer, claim_decomposition_llm=claim_decomposition_llm, claim_decomposition_prompt=claim_decomposition_prompt, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param
+        )
         self.nli_model_name = nli_model_name
         self.mode = mode
         self.max_length = max_length
