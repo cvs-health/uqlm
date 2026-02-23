@@ -142,21 +142,17 @@ async def test_multiple_logprobs_and_temperature(monkeypatch):
     # Test the temperature handling in _generate_responses
     uq_temp = ShortFormUQ(llm=mock_object)
 
-    # Mock the LLM's agenerate method directly
-    async def mock_llm_agenerate(*args, **kwargs):
-        class MockGeneration:
-            def __init__(self):
-                self.text = "test response"
-                self.generation_info = {"logprobs_result": [0.1, 0.2]}
-
+    # Mock the LLM's ainvoke method directly
+    async def mock_llm_ainvoke(*args, **kwargs):
         class MockResult:
             def __init__(self):
-                self.generations = [[MockGeneration()]]
+                self.content = "test response"
+                self.response_metadata = {"logprobs_result": [0.1, 0.2]}
 
         return MockResult()
 
     # Mock at the LLM class level
-    monkeypatch.setattr("langchain_openai.AzureChatOpenAI.agenerate", mock_llm_agenerate)
+    monkeypatch.setattr("langchain_openai.AzureChatOpenAI.ainvoke", mock_llm_ainvoke)
     result = await uq_temp._generate_responses(prompts=["test"], count=1, temperature=0.5)
     assert result is not None
     assert "responses" in result

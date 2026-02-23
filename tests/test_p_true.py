@@ -17,20 +17,16 @@ def create_mock_llm():
     mock_llm.logprobs = True
     mock_llm.temperature = 0.7
 
-    # Mock the agenerate method
-    async def mock_agenerate(messages, **kwargs):
-        class MockGeneration:
-            def __init__(self):
-                self.text = "Mocked response"
-                self.generation_info = {"logprobs_result": [{"token": "True", "logprob": -0.1}]}
-
+    # Mock the ainvoke method
+    async def mock_ainvoke(messages, **kwargs):
         class MockResult:
             def __init__(self):
-                self.generations = [[MockGeneration()]]
+                self.content = "Mocked response"
+                self.response_metadata = {"logprobs_result": [{"token": "True", "logprob": -0.1}]}
 
         return MockResult()
 
-    mock_llm.agenerate = mock_agenerate
+    mock_llm.ainvoke = mock_ainvoke
     return mock_llm
 
 
