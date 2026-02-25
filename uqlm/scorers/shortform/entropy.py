@@ -206,7 +206,7 @@ class SemanticEntropy(ShortFormUQ):
         num_semantic_sets = [None] * n_prompts
 
         def _process_i(i):
-            candidates = [self.responses[i]] + self.sampled_responses[i]
+            candidates = [str(self.responses[i])] + [str(x) for x in self.sampled_responses[i]]
             candidate_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i] if (self.logprobs and self.multiple_logprobs) else None
             tmp = self._semantic_entropy_process(candidates=candidates, i=i, logprobs_results=candidate_logprobs, best_response_selection=self.best_response_selection)
             best_responses[i], discrete_semantic_entropy[i], tokenprob_semantic_entropy[i], num_semantic_sets[i] = tmp

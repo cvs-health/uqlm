@@ -1,101 +1,87 @@
-[tool.poetry]
+[project]
 name = "uqlm"
 version = "0.5.4"
 description = "UQLM (Uncertainty Quantification for Language Models) is a Python package for UQ-based LLM hallucination detection."
-authors = ["Dylan Bouchard <dylan.bouchard@cvshealth.com>", "Mohit Singh Chauhan <mohitsingh.chauhan@cvshealth.com>"]
-maintainers = [
-    "Dylan Bouchard <dbouchard92@gmail.com>", 
-    "Mohit Singh Chauhan <mohitcek@gmail.com>",
-    "David Skarbrevik <skarbrevik@gmail.com>",
-    "Ho-Kyeong Ra <doyajii1@gmail.com>",
-    "Viren Bajaj <virenbajaj4@gmail.com>",
-    "Zeya Ahmad <zeyahmd@gmail.com>"
-]
-repository = "https://github.com/cvs-health/uqlm"
-homepage = "https://github.com/cvs-health/uqlm"
-documentation = "https://cvs-health.github.io/uqlm/latest/index.html"
-license = "Apache-2.0"
 readme = "assets/README_PYPI.md"
+license = "Apache-2.0"
+requires-python = ">=3.10, <4.0"
+authors = [
+    { name = "Dylan Bouchard", email = "dylan.bouchard@cvshealth.com" },
+    { name = "Mohit Singh Chauhan", email = "mohitsingh.chauhan@cvshealth.com" },
+]
+maintainers = [
+    { name = "Dylan Bouchard", email = "dbouchard92@gmail.com" },
+    { name = "Mohit Singh Chauhan", email = "mohitcek@gmail.com" },
+    { name = "David Skarbrevik", email = "skarbrevik@gmail.com" },
+    { name = "Ho-Kyeong Ra", email = "doyajii1@gmail.com" },
+    { name = "Viren Bajaj", email = "virenbajaj4@gmail.com" },
+    { name = "Zeya Ahmad", email = "zeyahmd@gmail.com" },
+]
+keywords = ["LLM", "large language model", "LLM evaluation", "hallucination", "uncertainty quantification"]
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
-    "Topic :: Software Development :: Libraries :: Python Modules"
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-packages = [
-    { include = "uqlm" },
-    { include = "uqlm/scorers" },
-    { include = "uqlm/judges" },
-    { include = "uqlm/black_box" },
-    { include = "uqlm/white_box" },
-    { include = "uqlm/longform" },
-    { include = "uqlm/calibration" },
-    { include = "uqlm/resources" },
-    { include = "uqlm/utils" },
+dependencies = [
+    "langchain>=0.3.7,<1.1.0",
+    "langchain-model-profiles>=0.0.3,<0.0.4",
+    "transformers>=4.45.2,<5.0.0",
+    "scikit-learn>=1.5.2,<2.0.0; python_version < '3.13'",
+    "scikit-learn>=1.7.0,<2.0.0; python_version >= '3.13'",
+    "numpy>=1.26.4,<2.0.0; python_version < '3.13'",
+    "numpy>=2.3.1; python_version >= '3.13'",
+    "scipy>=1.15.0,<2.0.0; python_version >= '3.13'",
+    "matplotlib>=3.10.0,<4.0.0",
+    "optuna>=4.0.0,<5.0.0",
+    "bert-score>=0.3.0,<0.4.0",
+    "pandas>=2.3.0,<3.0.0",
+    "sentence-transformers>=3.4,<6.0",
+    "datasets>=3.3.2,<5.0.0",
+    "rich>=13.8.0,<14.0.0",
+    "ipywidgets>=8.1.7,<9.0.0",
 ]
-exclude = ["docs", "docs_src"] # never include documentation in build
-keywords = ["LLM", "large language model", "LLM evaluation", "hallucination", "uncertainty quantification"]  # Add your keywords here
 
-[tool.poetry.dependencies]
-python = ">=3.10, <4.0"
-langchain = ">=0.3.7"
-langchain-model-profiles = "^0.0.3"
-transformers = "^4.45.2"
-scikit-learn = [
-    { version = "^1.5.2", markers = "python_version < '3.13'" },
-    { version = "^1.7.0", markers = "python_version >= '3.13'" }
+[project.urls]
+repository = "https://github.com/cvs-health/uqlm"
+homepage = "https://github.com/cvs-health/uqlm"
+documentation = "https://cvs-health.github.io/uqlm/latest/index.html"
+
+[dependency-groups]
+dev = [
+    "python-dotenv>=1.2.0,<2.0.0",
+    "ruff==0.9.7",
+    "pre-commit>=4.1.0,<5.0.0",
+    "ipykernel>=6.29.5,<7.0.0",
+    "langchain-openai>=0.2.6",
+    "langchain-google-vertexai>=2.0.8",
 ]
-numpy = [
-    { version = "^1.26.4", markers = "python_version < '3.13'" },
-    { version = ">=2.3.1", markers = "python_version >= '3.13'" }
+docs = [
+    "sphinx==7.4.7",
+    "pydata_sphinx_theme==0.16.1",
+    "sphinxcontrib-bibtex==2.6.3",
+    "sphinx-autodoc-typehints==2.3.0",
+    "sphinx-gallery==0.18.0",
+    "sphinx-favicon==1.0.1",
+    "nbsphinx==0.9.6",
 ]
-scipy = {version = "^1.15.0", markers = "python_version >= '3.13'"}
-matplotlib = "^3.10.0"
-optuna = "^4.0.0"
-bert-score = "^0.3.0"
-pandas = "^2.3.0"
-sentence-transformers = ">=3.4,<6.0"
-datasets = ">=3.3.2,<5.0.0"
-rich = "^13.8.0"
-ipywidgets = "^8.1.7"
+test = [
+    "ipykernel>=6.29.5,<7.0.0",
+    "langchain-openai>=0.2.6",
+    "pytest>=8.3.5,<9.0.0",
+    "langchain-google-vertexai>=2.0.8",
+    "pytest-asyncio>=0.25.3,<1.2.0",
+    "pytest-cov>=6,<8",
+    "pytest-rerunfailures>=16.0,<17.0",
+]
 
-[tool.poetry.group.dev]
-optional = true
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry.group.dev.dependencies]
-python-dotenv = "^1.2.0"
-ruff = "0.9.7"
-pre-commit = "^4.1.0"
-ipykernel = "^6.29.5"
-langchain-openai = ">=0.2.6"
-langchain-google-vertexai = ">=2.0.8"
-
-[tool.poetry.group.docs]
-optional = true
-
-[tool.poetry.group.docs.dependencies]
-sphinx= "7.4.7"
-pydata_sphinx_theme = "0.16.1"
-sphinxcontrib-bibtex = "2.6.3"
-sphinx-autodoc-typehints = "2.3.0"
-sphinx-gallery = "0.18.0"
-sphinx-favicon = "1.0.1"
-nbsphinx = "0.9.6"
-
-
-[tool.poetry.group.test]
-optional = true
-
-[tool.poetry.group.test.dependencies]
-ipykernel = "^6.29.5"
-langchain-openai = ">=0.2.6"
-pytest = "^8.3.5"
-langchain-google-vertexai = ">=2.0.8"
-pytest-asyncio = ">=0.25.3,<1.2.0"
-pytest-cov = ">=6,<8"
-pytest-rerunfailures = "^16.0"
-
-
+[tool.hatch.build.targets.wheel]
+packages = ["uqlm"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -104,11 +90,6 @@ reruns_delay = 2.0
 markers = [
     "asyncio"
 ]
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
