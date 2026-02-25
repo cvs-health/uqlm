@@ -1025,7 +1025,7 @@ input type List[List[BaseMessage]], refer to <a class="reference external" href=
 <li><p><strong>responses</strong> (<em>list</em><em> of </em><em>str</em>) – A list of model responses for the prompts.</p></li>
 <li><p><strong>sampled_responses</strong> (<em>list</em><em> of </em><em>list</em><em> of </em><em>str</em><em>, </em><em>default=None</em>) – A list of lists of sampled LLM responses for each prompt. These will be used to compute consistency scores by comparing to
 the corresponding response from <cite>responses</cite>. Must be provided if using black box scorers.</p></li>
-<li><p><strong>logprobs_results</strong> (<em>list</em><em> of </em><em>logprobs_result</em><em>, </em><em>default=None</em>) – List of lists of dictionaries, each returned by BaseChatModel.agenerate. Must be provided if using white box scorers.</p></li>
+<li><p><strong>logprobs_results</strong> (<em>list</em><em> of </em><em>logprobs_result</em><em>, </em><em>default=None</em>) – List of lists of dictionaries, each returned by BaseChatModel.ainvoke. Must be provided if using white box scorers.</p></li>
 <li><p><strong>num_responses</strong> (<em>int</em><em>, </em><em>default=5</em>) – The number of sampled responses used to compute consistency. Not value will not be used if sampled_responses is provided</p></li>
 <li><p><strong>show_progress_bars</strong> (<em>bool</em><em>, </em><em>default=True</em>) – If True, displays a progress bar while scoring responses</p></li>
 </ul>

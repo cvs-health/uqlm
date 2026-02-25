@@ -948,12 +948,12 @@ input type List[List[BaseMessage]], refer to <a class="reference external" href=
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>logprobs_results</strong> (<em>list</em><em> of </em><em>logprobs_result</em>) – List of dictionaries, each returned by BaseChatModel.agenerate</p></li>
+<li><p><strong>logprobs_results</strong> (<em>list</em><em> of </em><em>logprobs_result</em>) – List of dictionaries, each returned by BaseChatModel.ainvoke</p></li>
 <li><p><strong>prompts</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>default=None</em>) – A list of input prompts for the model. Required only for “p_true” scorer.</p></li>
 <li><p><strong>responses</strong> (<em>list</em><em> of </em><em>str</em><em>, </em><em>default=None</em>) – A list of model responses for the prompts. Required for “monte_carlo_probability”, “consistency_and_confidence”, “semantic_negentropy”, “semantic_density”, “p_true” scorers.</p></li>
 <li><p><strong>sampled_responses</strong> (<em>list</em><em> of </em><em>list</em><em> of </em><em>str</em><em>, </em><em>default=None</em>) – A list of lists of sampled LLM responses for each prompt. These will be used to compute consistency scores by comparing to
 the corresponding response from <cite>responses</cite>. Required for “monte_carlo_probability”, “consistency_and_confidence”, “semantic_negentropy”, “semantic_density” scorers.</p></li>
-<li><p><strong>sampled_logprobs_results</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>logprobs_result</em>) – List of list of dictionaries, each returned by BaseChatModel.agenerate corresponding to sampled_responses. Required only for “monte_carlo_probability”, “semantic_negentropy”, “semantic_density” scorers.</p></li>
+<li><p><strong>sampled_logprobs_results</strong> (<em>list</em><em> of </em><em>lists</em><em> of </em><em>logprobs_result</em>) – List of list of dictionaries, each returned by BaseChatModel.ainvoke corresponding to sampled_responses. Required only for “monte_carlo_probability”, “semantic_negentropy”, “semantic_density” scorers.</p></li>
 <li><p><strong>show_progress_bars</strong> (<em>bool</em><em>, </em><em>default=True</em>) – If True, displays a progress bar while scoring responses</p></li>
 </ul>
 </dd>
