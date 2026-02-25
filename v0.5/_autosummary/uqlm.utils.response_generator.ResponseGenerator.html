@@ -826,8 +826,8 @@ relevant parameters to the constructor of their <cite>llm</cite> object.</p></li
 <tr class="row-odd"><td><p><a class="reference internal" href="#uqlm.utils.response_generator.ResponseGenerator.__init__" title="uqlm.utils.response_generator.ResponseGenerator.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([llm, max_calls_per_min, ...])</p></td>
 <td><p>Class for generating data from a provided set of prompts</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#uqlm.utils.response_generator.ResponseGenerator.agenerate_with_top_logprobs" title="uqlm.utils.response_generator.ResponseGenerator.agenerate_with_top_logprobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">agenerate_with_top_logprobs</span></code></a>(messages, count)</p></td>
-<td><p>Use agenerate method with top_logprobs configured</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#uqlm.utils.response_generator.ResponseGenerator.ainvoke_with_top_logprobs" title="uqlm.utils.response_generator.ResponseGenerator.ainvoke_with_top_logprobs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ainvoke_with_top_logprobs</span></code></a>(messages, count)</p></td>
+<td><p>Use ainvoke method with top_logprobs configured</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#uqlm.utils.response_generator.ResponseGenerator.generate_responses" title="uqlm.utils.response_generator.ResponseGenerator.generate_responses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_responses</span></code></a>(prompts[, system_prompt, ...])</p></td>
 <td><p>Generates responses from a provided set of prompts.</p></td>
@@ -836,9 +836,9 @@ relevant parameters to the constructor of their <cite>llm</cite> object.</p></li
 </table>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="uqlm.utils.response_generator.ResponseGenerator.agenerate_with_top_logprobs">
-<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">agenerate_with_top_logprobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.utils.response_generator.ResponseGenerator.agenerate_with_top_logprobs" title="Link to this definition">#</a></dt>
-<dd><p>Use agenerate method with top_logprobs configured</p>
+<dt class="sig sig-object py" id="uqlm.utils.response_generator.ResponseGenerator.ainvoke_with_top_logprobs">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ainvoke_with_top_logprobs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">messages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.utils.response_generator.ResponseGenerator.ainvoke_with_top_logprobs" title="Link to this definition">#</a></dt>
+<dd><p>Use ainvoke method with top_logprobs configured</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span></p>
@@ -948,7 +948,7 @@ defaults to “You are a helpful assistant.”</p></li>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.utils.response_generator.ResponseGenerator"><code class="docutils literal notranslate"><span class="pre">ResponseGenerator</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.utils.response_generator.ResponseGenerator.__init__"><code class="docutils literal notranslate"><span class="pre">ResponseGenerator.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.utils.response_generator.ResponseGenerator.agenerate_with_top_logprobs"><code class="docutils literal notranslate"><span class="pre">ResponseGenerator.agenerate_with_top_logprobs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.utils.response_generator.ResponseGenerator.ainvoke_with_top_logprobs"><code class="docutils literal notranslate"><span class="pre">ResponseGenerator.ainvoke_with_top_logprobs()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.utils.response_generator.ResponseGenerator.generate_responses"><code class="docutils literal notranslate"><span class="pre">ResponseGenerator.generate_responses()</span></code></a></li>
 </ul>
 </li>

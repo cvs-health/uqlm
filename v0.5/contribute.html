@@ -531,8 +531,8 @@
 <li><p>Clone the repository: <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span> <span class="pre">https://github.aetna.com/analytics-org/uqlm.git</span></code></p></li>
 <li><p>Navigate to the project directory: <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">uqlm</span></code></p></li>
 <li><p>Create and activate a virtual environment (using <code class="docutils literal notranslate"><span class="pre">venv</span></code> or <code class="docutils literal notranslate"><span class="pre">conda</span></code>)</p></li>
-<li><p>Install poetry (if you don’t already have it): <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">poetry</span></code></p></li>
-<li><p>Install uqlm with dev dependencies: <code class="docutils literal notranslate"><span class="pre">poetry</span> <span class="pre">install</span> <span class="pre">--with</span> <span class="pre">dev</span></code></p></li>
+<li><p>Install uv (if you don’t already have it): <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">uv</span></code> or <code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">-LsSf</span> <span class="pre">https://astral.sh/uv/install.sh</span> <span class="pre">|</span> <span class="pre">sh</span></code></p></li>
+<li><p>Install uqlm with dev dependencies: <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--group</span> <span class="pre">dev</span></code></p></li>
 <li><p>Install our pre-commit hooks to ensure code style compliance: <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code></p></li>
 <li><p>Run tests to ensure everything is working: <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">--all-files`</span></code></p></li>
 </ol>

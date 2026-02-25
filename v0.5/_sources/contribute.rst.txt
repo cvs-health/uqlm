@@ -70,8 +70,8 @@ Development Setup
 1. Clone the repository: ``git clone https://github.aetna.com/analytics-org/uqlm.git``
 2. Navigate to the project directory: ``cd uqlm``
 3. Create and activate a virtual environment (using ``venv`` or ``conda``)
-4. Install poetry (if you don't already have it): ``pip install poetry``
-5. Install uqlm with dev dependencies: ``poetry install --with dev``
+4. Install uv (if you don't already have it): ``pip install uv`` or ``curl -LsSf https://astral.sh/uv/install.sh | sh``
+5. Install uqlm with dev dependencies: ``uv sync --group dev``
 6. Install our pre-commit hooks to ensure code style compliance: ``pre-commit install``
 7. Run tests to ensure everything is working: ``pre-commit run --all-files```
 
