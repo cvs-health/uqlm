@@ -25,8 +25,8 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "langchain>=0.3.7,<1.1.0",
-    "langchain-model-profiles>=0.0.3,<0.0.4",
+    "langchain>=0.3.7",
+    "langchain-model-profiles>=0.0.3",
     "transformers>=4.45.2,<5.0.0",
     "scikit-learn>=1.5.2,<2.0.0; python_version < '3.13'",
     "scikit-learn>=1.7.0,<2.0.0; python_version >= '3.13'",
