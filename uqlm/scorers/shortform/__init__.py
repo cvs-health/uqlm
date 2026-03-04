@@ -18,5 +18,6 @@ from uqlm.scorers.shortform.panel import LLMPanel
 from uqlm.scorers.shortform.white_box import WhiteBoxUQ
 from uqlm.scorers.shortform.black_box import BlackBoxUQ
 from uqlm.scorers.shortform.density import SemanticDensity
+from uqlm.scorers.shortform.codegen import CodeGenUQ
 
-__all__ = ["UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "SemanticDensity"]
+__all__ = ["UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "SemanticDensity", "CodeGenUQ"]
