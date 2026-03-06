@@ -5,7 +5,7 @@ from uqlm.utils.results import UQResult
 from uqlm.code.clusterer import CodeClusterer
 
 
-class FunctionalEntropy():
+class FunctionalEntropy:
     def __init__(self, equivalence_llm: Any, system_prompt: Optional[str] = None, length_normalize: bool = False, language: str = "python", retries: int = 5) -> None:
         """
         Class for computing discrete and token-probability-based semantic entropy and associated confidence scores. For more on semantic entropy, refer to Farquhar et al.(2024) :footcite:`farquhar2024detectinghallucinations`.

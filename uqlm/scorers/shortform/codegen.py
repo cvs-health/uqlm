@@ -8,7 +8,22 @@ from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ
 
 
 class CodeGenUQ(ShortFormUQ):
-    def __init__(self, llm: Optional[BaseChatModel] = None, scorers: Optional[List[str]] = None, equivalence_llm: Optional[BaseChatModel] = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, sampling_temperature: float = 1.0, top_k_logprobs: int = 15, length_normalize: bool = True, device: Any = None, max_length: int = 2000, sentence_transformer: str = "jinaai/jina-embeddings-v2-base-code", language: str = "python", retries: int = 5):
+    def __init__(
+        self,
+        llm: Optional[BaseChatModel] = None,
+        scorers: Optional[List[str]] = None,
+        equivalence_llm: Optional[BaseChatModel] = None,
+        system_prompt: Optional[str] = None,
+        max_calls_per_min: Optional[int] = None,
+        sampling_temperature: float = 1.0,
+        top_k_logprobs: int = 15,
+        length_normalize: bool = True,
+        device: Any = None,
+        max_length: int = 2000,
+        sentence_transformer: str = "jinaai/jina-embeddings-v2-base-code",
+        language: str = "python",
+        retries: int = 5,
+    ):
         """
         Class for computing confidence scores for code generation use cases.
 
@@ -110,7 +125,7 @@ class CodeGenUQ(ShortFormUQ):
         if "codebleu" in self.scorers:
             data["codebleu"] = self.cb.evaluate(responses=responses, sampled_responses=sampled_responses)
             data["code_bleu_pair_score"] = self.cb.pair_scores
-        
+
         # Compute Functional Entropy scores
         if "functional_entropy" in self.scorers:
             fe_results = await self.fe.evaluate(responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results)
