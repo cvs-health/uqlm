@@ -10,6 +10,28 @@ from uqlm.utils.prompts.codegen import PYTHON_JAVA_SYSTEM_PROMPT, SQL_SYSTEM_PRO
 
 class CodeClusterer:
     def __init__(self, llm: Any, system_prompt: Optional[str] = None, length_normalize: bool = False, language: str = "python", retries: int = 5):
+        """
+        Class for clustering code responses.
+
+        Parameters
+        ----------
+        llm : Any
+            A langchain llm object to get passed to chain constructor. This is used for CodeEquivalence and FunctionalEntropy scorers. User is responsible for specifying
+            temperature and other relevant parameters to the constructor of their `llm` object.
+
+        system_prompt : Optional[str], default=None
+            Optional argument for user to provide custom system prompt. If prompts are list of strings and system_prompt is None,
+            defaults to "You are a helpful assistant."
+
+        length_normalize : bool, default=False
+            Specifies whether to length normalize the logprobs.
+
+        language : str, default="python"
+            Specifies the language of the code. Must be one of python, java, sql.
+
+        retries : int, default=5
+            Specifies the number of retries to make if the equivalence score is not found.
+        """
         self.llm = llm
         self.system_prompt = system_prompt
         self.length_normalize = length_normalize
@@ -25,43 +47,24 @@ class CodeClusterer:
         self.indicators, self.scores = None, None
         self.progress_bar = None
 
-    async def get_equivalence_scores(self, responses: List[str], sampled_responses: List[List[str]]) -> List[List[float]]:
-        if len(responses) == 0 or len(sampled_responses) == 0:
-            raise ValueError("Either responses or sampled responses is empty")
-
-        n_prompts = len(responses)
-        self.scores = [[None for _ in range(len(sampled_responses[i]))] for i in range(n_prompts)]
-        self.equivalence_cache = {}
-        indices = []
-        pairs = []
-        for i in range(n_prompts):
-            for j in range(len(sampled_responses[i])):
-                pairs.append([responses[i], sampled_responses[i][j]])
-                indices.append((i, j))
-        scores = await self._get_equivalence_responses(pairs)
-        scores_df = pd.DataFrame({"pair": pairs, "scores": scores}, index=indices)
-
-        retry = 0
-        while retry <= self.retries:
-            retry += 1
-
-            score_failures = scores_df[pd.isna(scores_df.scores)]
-            if len(score_failures) > 0:
-                failure_indices = set(score_failures.index)
-
-                tasks_tmp = [self._generate_with_identical_skip(pair) for pair in list(scores_df.loc[list(failure_indices)]["pair"])]
-                retry_data = await asyncio.gather(*tasks_tmp)
-
-                scores_df.loc[list(failure_indices), "scores"] = retry_data
-
-            if len(score_failures) == 0:
-                break
-
-        for i, j in scores_df.index:
-            self.scores[i][j] = scores_df["scores"][(i, j)]
-        return self.scores
-
     async def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[Progress] = None) -> Tuple[List[List[List[int]]], List[List[float]]]:
+        """
+        Evaluate the cluster of responses.
+
+        Parameters
+        ----------
+        responses : List[str]
+            List of responses to cluster.
+        sampled_responses : List[List[str]]
+            List of sampled responses to cluster.
+        progress_bar : Progress, default=None
+            A progress bar to display the progress of the clustering.
+
+        Returns
+        -------
+        Tuple[List[List[List[int]]], List[List[float]]]
+            A tuple containing the cluster indices and the original equivalence scores.
+        """
         n_prompts = len(responses)
         n_samples = len(sampled_responses[0])
 
@@ -140,7 +143,71 @@ class CodeClusterer:
 
         return {"cluster_indices": cluster_indices, "original_equivalence_scores": round1_scores}
 
+    async def get_equivalence_scores(self, responses: List[str], sampled_responses: List[List[str]]) -> List[List[float]]:
+        """
+        Get the equivalence scores for the responses.
+
+        Parameters
+        ----------
+        responses : List[str]
+            List of responses to get equivalence scores for.
+        sampled_responses : List[List[str]]
+            List of sampled responses to get equivalence scores for.
+
+        Returns
+        -------
+        List[List[float]]
+            A list of lists of equivalence scores.
+        """
+        if len(responses) == 0 or len(sampled_responses) == 0:
+            raise ValueError("Either responses or sampled responses is empty")
+
+        n_prompts = len(responses)
+        self.scores = [[None for _ in range(len(sampled_responses[i]))] for i in range(n_prompts)]
+        self.equivalence_cache = {}
+        indices = []
+        pairs = []
+        for i in range(n_prompts):
+            for j in range(len(sampled_responses[i])):
+                pairs.append([responses[i], sampled_responses[i][j]])
+                indices.append((i, j))
+        scores = await self._get_equivalence_responses(pairs)
+        scores_df = pd.DataFrame({"pair": pairs, "scores": scores}, index=indices)
+
+        retry = 0
+        while retry <= self.retries:
+            retry += 1
+
+            score_failures = scores_df[pd.isna(scores_df.scores)]
+            if len(score_failures) > 0:
+                failure_indices = set(score_failures.index)
+
+                tasks_tmp = [self._generate_with_identical_skip(pair) for pair in list(scores_df.loc[list(failure_indices)]["pair"])]
+                retry_data = await asyncio.gather(*tasks_tmp)
+
+                scores_df.loc[list(failure_indices), "scores"] = retry_data
+
+            if len(score_failures) == 0:
+                break
+
+        for i, j in scores_df.index:
+            self.scores[i][j] = scores_df["scores"][(i, j)]
+        return self.scores
+
     async def _generate_with_identical_skip(self, pair: List[str]) -> float:
+        """
+        Generate the equivalence score for a pair of responses.
+
+        Parameters
+        ----------
+        pair : List[str]
+            A pair of responses to generate the equivalence score for.
+
+        Returns
+        -------
+        float
+            The equivalence score for the pair of responses.
+        """
         code_a = str(pair[0]).strip()
         code_b = str(pair[1]).strip()
         if code_a == code_b:
@@ -161,12 +228,41 @@ class CodeClusterer:
         return float(score)
 
     async def _get_equivalence_responses(self, pairs: List[List[str]]) -> List[float]:
+        """
+        Get the equivalence scores for a list of pairs of responses.
+
+        Parameters
+        ----------
+        pairs : List[List[str]]
+            A list of pairs of responses to get equivalence scores for.
+
+        Returns
+        -------
+        List[float]
+            A list of equivalence scores for the pairs of responses.
+        """
         tasks = [self._generate_with_identical_skip(pair) for pair in pairs]
         scores = await asyncio.gather(*tasks)
         return [float(score) for score in scores]
 
     @staticmethod
     def _progress_update_loop(progress_bar, progress_task, not_yet_clustered_indices, rows_completed, n_prompts):
+        """
+        Update the progress bar for the clustering.
+
+        Parameters
+        ----------
+        progress_bar : Progress
+            A progress bar to update.
+        progress_task : Task
+            A task to update the progress bar.
+        not_yet_clustered_indices : List[List[int]]
+            A list of lists of indices of responses that have not yet been clustered.
+        rows_completed : List[bool]
+            A list of booleans indicating whether the row has been completed.
+        n_prompts : int
+            The number of prompts to cluster.
+        """
         for i in range(n_prompts):
             if not not_yet_clustered_indices[i] and not rows_completed[i]:
                 progress_bar.update(progress_task, advance=1)
@@ -174,10 +270,38 @@ class CodeClusterer:
 
     @staticmethod
     def build_user_prompt(code_a: str, code_b: str) -> str:
+        """
+        Build the user prompt for the equivalence score.
+
+        Parameters
+        ----------
+        code_a : str
+            The first code to compare.
+        code_b : str
+            The second code to compare.
+
+        Returns
+        -------
+        str
+            The user prompt for the equivalence score.
+        """
         return f"Code A:\n{code_a}\n\nCode B:\n{code_b}\n"
 
     @staticmethod
     def normalize_verdict(text: str) -> int:
+        """
+        Normalize the verdict for the equivalence score.
+
+        Parameters
+        ----------
+        text : str
+            The text to normalize.
+
+        Returns
+        -------
+        int
+            The normalized verdict for the equivalence score.
+        """
         if not isinstance(text, str):
             return np.nan
         t = text.strip().lower().replace("-", " ")

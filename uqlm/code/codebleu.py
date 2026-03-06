@@ -4,8 +4,16 @@ from typing import List
 
 
 class CodeBLEU:
-    def __init__(self, lang: str = "python"):
-        self.lang = lang
+    def __init__(self, language: str = "python"):
+        """
+        Class for computing CodeBLEU scores.
+
+        Parameters
+        ----------
+        language : str
+            Specifies the language of the code. Must be one of python, java, sql.
+        """
+        self.language = language
         # Check if codebleu is installed
         codebleu_spec = importlib.util.find_spec("codebleu")
         if codebleu_spec is None:
@@ -14,7 +22,22 @@ class CodeBLEU:
 
         self.calc_codebleu = calc_codebleu
 
-    def score(self, responses: List[str], sampled_responses: List[List[str]]) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]]) -> List[float]:
+        """
+        Evaluate CodeBLEU scores on the provided responses and sampled responses.
+
+        Parameters
+        ----------
+        responses : List[str]
+            List of responses to evaluate.
+        sampled_responses : List[List[str]]
+            List of lists of sampled responses to evaluate.
+
+        Returns
+        -------
+        List[float]
+            List of CodeBLEU scores.
+        """
         if len(responses) == 0 or len(sampled_responses) == 0:
             raise ValueError("Either responses or sampled responses is empty")
         n_prompts = len(responses)
@@ -26,24 +49,48 @@ class CodeBLEU:
     def codebleu_confidence(self, response: str, sampled_responses: List[str]) -> float:
         """
         Calculate CodeBLEU confidence for a list of code strings.
+
+        Parameters
+        ----------
+        response : str
+            The response to evaluate.
+        sampled_responses : List[str]
+            List of sampled responses to evaluate.
+
+        Returns
+        -------
+        float
+            The CodeBLEU confidence score.
         """
         if not sampled_responses:
             return float("nan")
 
-        tmp_scores = [self.codebleu_pair(response, candidate, lang=self.lang) for candidate in sampled_responses]
+        tmp_scores = [self.codebleu_pair(response, candidate) for candidate in sampled_responses]
         tmp_scores_no_nan = [score for score in tmp_scores if not math.isnan(score)]
         score = float("nan") if not tmp_scores_no_nan else sum(tmp_scores_no_nan) / len(tmp_scores_no_nan)
         return score, tmp_scores
 
-    def codebleu_pair(self, response: str, candidate: str, lang: str = "python") -> float:
+    def codebleu_pair(self, response: str, candidate: str) -> float:
         """
         Calculate CodeBLEU score for a pair of code strings.
+
+        Parameters
+        ----------
+        response : str
+            The response to evaluate.
+        candidate : str
+            The candidate response to evaluate.
+
+        Returns
+        -------
+        float
+            The CodeBLEU score.
         """
         if not response or not candidate:
             return float("nan")
 
         try:
-            res = self.calc_codebleu([str(response)], [candidate], lang=lang, weights=(0.25, 0.25, 0.25, 0.25), tokenizer=None)
+            res = self.calc_codebleu([str(response)], [candidate], lang=self.language, weights=(0.25, 0.25, 0.25, 0.25), tokenizer=None)
             return float(res["codebleu"])
         except Exception as e:
             print(e)
