@@ -87,8 +87,8 @@ class CosineScorer(SimilarityScorer):
         """
         Helper function to get cosine distance between a response and candidate responses
         """
-        response = response[:self.max_length]
-        candidates = [candidate[:self.max_length] for candidate in candidates]
+        response = response[: self.max_length]
+        candidates = [candidate[: self.max_length] for candidate in candidates]
         duplicate_responses = [response] * len(candidates)
         embeddings1, embeddings2 = self._get_embeddings(duplicate_responses, candidates)
         cosine_list = []

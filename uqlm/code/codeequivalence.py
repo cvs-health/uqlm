@@ -5,6 +5,7 @@ import numpy as np
 from langchain_core.messages import SystemMessage, HumanMessage
 from uqlm.utils.prompts.codegen import PYTHON_JAVA_SYSTEM_PROMPT, SQL_SYSTEM_PROMPT
 
+
 class CodeEquivalence:
     def __init__(self, llm: Any, system_prompt: Optional[str] = None, retries: int = 5, language="python"):
         self.llm = llm
@@ -20,9 +21,7 @@ class CodeEquivalence:
         self.retries = retries
         self.indicators, self.scores = None, None
 
-    async def score(
-        self, responses: List[str], sampled_responses: List[List[str]]
-    ) -> List[List[float]]:
+    async def score(self, responses: List[str], sampled_responses: List[List[str]]) -> List[List[float]]:
         if len(responses) == 0 or len(sampled_responses) == 0:
             raise ValueError("Either responses or sampled responses is empty")
         n_prompts, n_samples = len(responses), len(sampled_responses[0])
@@ -62,7 +61,7 @@ class CodeEquivalence:
         code_b = str(pair[1]).strip()
         if code_a == code_b:
             return 1.0
-        
+
         key = code_a + "_*|\n|*_" + code_b
         rev_key = code_b + "_*|\n|*_" + code_a
 
@@ -76,7 +75,7 @@ class CodeEquivalence:
         score = self.normalize_verdict(getattr(generation, "content", ""))
         self.equivalence_cache[key] = score
         return float(score)
-            
+
     async def get_equivalence_responses(self, pairs: List[List[str]]) -> List[float]:
         tasks = [self._generate_with_identical_skip(pair) for pair in pairs]
         scores = await asyncio.gather(*tasks)

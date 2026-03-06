@@ -64,6 +64,7 @@ Output EXACTLY one of: "Equivalent" OR "Not Equivalent".
 Do not add explanations, reasoning, punctuation, or extra text.
 """
 
+
 class CodeClusterer:
     def __init__(self, llm: Any, system_prompt: Optional[str] = None, length_normalize: bool = False, language: str = "python", retries: int = 5):
         self.llm = llm
@@ -81,12 +82,10 @@ class CodeClusterer:
         self.indicators, self.scores = None, None
         self.progress_bar = None
 
-    async def get_equivalence_scores(
-        self, responses: List[str], sampled_responses: List[List[str]]
-    ) -> List[List[float]]:
+    async def get_equivalence_scores(self, responses: List[str], sampled_responses: List[List[str]]) -> List[List[float]]:
         if len(responses) == 0 or len(sampled_responses) == 0:
             raise ValueError("Either responses or sampled responses is empty")
-            
+
         n_prompts = len(responses)
         self.scores = [[None for _ in range(len(sampled_responses[i]))] for i in range(n_prompts)]
         self.equivalence_cache = {}
@@ -118,18 +117,11 @@ class CodeClusterer:
         for i, j in scores_df.index:
             self.scores[i][j] = scores_df["scores"][(i, j)]
         return self.scores
-    
-    async def evaluate(
-        self, 
-        responses: List[str], 
-        sampled_responses: List[List[str]], 
-        progress_bar: Optional[Progress] = None
-    ) -> Tuple[List[List[List[int]]], List[List[float]]]:
-        
+
+    async def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[Progress] = None) -> Tuple[List[List[List[int]]], List[List[float]]]:
         n_prompts = len(responses)
         n_samples = len(sampled_responses[0])
-        
-        
+
         if progress_bar:
             progress_task = progress_bar.add_task("  - Scoring responses with semantic sets...", total=len(responses))
             rows_completed = [False] * n_prompts
@@ -144,11 +136,10 @@ class CodeClusterer:
             for j in range(n_samples):
                 if round1_scores[i][j]:
                     cluster_indices[i][0].append(j + 1)  # +1 because anchor is index 0
-                    not_yet_clustered_indices[i].remove(j + 1)         
+                    not_yet_clustered_indices[i].remove(j + 1)
             if progress_bar and not not_yet_clustered_indices[i]:
                 progress_bar.update(progress_task, advance=1)
-                rows_completed[i] = True                
-                
+                rows_completed[i] = True
 
         # Round 2+: Iteratively cluster remaining responses
         while any(not_yet_clustered_indices):
@@ -167,7 +158,7 @@ class CodeClusterer:
             responses_tmp = []
             sampled_responses_tmp = []
             prompt_mapping = []  # Maps tmp index back to (prompt_idx, new_cluster_idx)
-            
+
             for i in range(n_prompts):
                 if new_anchor_indices[i] is None or not not_yet_clustered_indices[i]:
                     continue
@@ -175,10 +166,10 @@ class CodeClusterer:
                 # Get the actual response text for the new anchor
                 all_responses_i = [responses[i]] + list(sampled_responses[i])
                 new_anchor = all_responses_i[new_anchor_idx]
-                
+
                 # Remaining responses to compare against
                 remaining = [all_responses_i[idx] for idx in not_yet_clustered_indices[i]]
-                
+
                 responses_tmp.append(new_anchor)
                 sampled_responses_tmp.append(remaining)
                 prompt_mapping.append((i, len(cluster_indices[i]) - 1, list(not_yet_clustered_indices[i])))
@@ -195,13 +186,13 @@ class CodeClusterer:
                     if round_scores[tmp_idx][j]:
                         cluster_indices[prompt_idx][cluster_idx].append(orig_idx)
                         not_yet_clustered_indices[prompt_idx].remove(orig_idx)
-                        
+
             if progress_bar:
                 self._progress_update_loop(progress_bar, progress_task, not_yet_clustered_indices, rows_completed, n_prompts)
-                        
+
         if progress_bar:
             self._progress_update_loop(progress_bar, progress_task, not_yet_clustered_indices, rows_completed, n_prompts)
-                        
+
         time.sleep(0.2)
 
         return {"cluster_indices": cluster_indices, "original_equivalence_scores": round1_scores}
@@ -211,7 +202,7 @@ class CodeClusterer:
         code_b = str(pair[1]).strip()
         if code_a == code_b:
             return 1.0
-        
+
         key = code_a + "_*|\n|*_" + code_b
         rev_key = code_b + "_*|\n|*_" + code_a
 
@@ -223,14 +214,14 @@ class CodeClusterer:
         prompt = self.build_user_prompt(code_a, code_b)
         generation = await self.llm.ainvoke([SystemMessage(content=self.system_prompt), HumanMessage(content=prompt)])
         score = self.normalize_verdict(getattr(generation, "content", ""))
-        self.equivalence_cache[key] = score        
+        self.equivalence_cache[key] = score
         return float(score)
-            
+
     async def _get_equivalence_responses(self, pairs: List[List[str]]) -> List[float]:
         tasks = [self._generate_with_identical_skip(pair) for pair in pairs]
         scores = await asyncio.gather(*tasks)
         return [float(score) for score in scores]
-    
+
     @staticmethod
     def _progress_update_loop(progress_bar, progress_task, not_yet_clustered_indices, rows_completed, n_prompts):
         for i in range(n_prompts):

@@ -10,20 +10,7 @@ from uqlm.code.clusterer import CodeClusterer
 
 
 class FunctionalEntropy(ShortFormUQ):
-    def __init__(
-        self,
-        equivalence_llm,
-        llm=None,
-        postprocessor: Any = None,
-        device: Any = None,
-        system_prompt: Optional[str] = None,
-        max_calls_per_min: Optional[int] = None,
-        use_n_param: bool = False,
-        sampling_temperature: float = 1.0,
-        return_responses: str = "all",
-        length_normalize: bool = True,
-        language: str = "python"
-    ) -> None:
+    def __init__(self, equivalence_llm, llm=None, postprocessor: Any = None, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, sampling_temperature: float = 1.0, return_responses: str = "all", length_normalize: bool = True, language: str = "python") -> None:
         """
         Class for computing discrete and token-probability-based semantic entropy and associated confidence scores. For more on semantic entropy, refer to Farquhar et al.(2024) :footcite:`farquhar2024detectinghallucinations`.
 
@@ -160,7 +147,7 @@ class FunctionalEntropy(ShortFormUQ):
         self.num_responses = len(self.sampled_responses[0])
         self.logprobs = logprobs_results if logprobs_results else self.logprobs
         self.multiple_logprobs = sampled_logprobs_results if sampled_logprobs_results else self.multiple_logprobs
-        
+
         if not equivalence_indicators:
             equivalence_indicators = [{} for i in responses]
         else:
@@ -170,16 +157,16 @@ class FunctionalEntropy(ShortFormUQ):
 
         self._construct_progress_bar(show_progress_bars)
         self._display_scoring_header(show_progress_bars and _display_header)
-        
+
         n_prompts = len(self.responses)
         discrete_semantic_entropy = [None] * n_prompts
         tokenprob_semantic_entropy = [None] * n_prompts
         num_semantic_sets = [None] * n_prompts
-        
+
         cluster_result = await self.clusterer.evaluate(responses=responses, sampled_responses=sampled_responses, progress_bar=self.progress_bar)
         cluster_indices = cluster_result["cluster_indices"]
         original_equivalence_scores = cluster_result["original_equivalence_scores"]
-        
+
         for i in range(n_prompts):
             candidate_logprobs = [list(self.logprobs[i])] + [list(ml) for ml in self.multiple_logprobs[i]] if (self.logprobs and self.multiple_logprobs) else None
             tmp = self._semantic_entropy_process(single_prompt_cluster_indices=cluster_indices[i], logprobs_results=candidate_logprobs)
@@ -191,9 +178,9 @@ class FunctionalEntropy(ShortFormUQ):
         data_to_return["discrete_entropy_values"] = discrete_semantic_entropy
         data_to_return["discrete_confidence_scores"] = [1 - ne for ne in self._normalize_entropy(discrete_semantic_entropy)]
         data_to_return["num_semantic_sets"] = num_semantic_sets
-        data_to_return["semantic_sets_confidence"] = [(self.num_responses + 1 - num_semantic_sets[i]) / (self.num_responses) for i in range(n_prompts)]        
+        data_to_return["semantic_sets_confidence"] = [(self.num_responses + 1 - num_semantic_sets[i]) / (self.num_responses) for i in range(n_prompts)]
         data_to_return["cluster_indices"] = cluster_indices
-        
+
         if tokenprob_semantic_entropy[0] is not None:
             data_to_return["tokenprob_entropy_values"] = tokenprob_semantic_entropy
             data_to_return["tokenprob_confidence_scores"] = [1 - ne for ne in self._normalize_entropy(tokenprob_semantic_entropy)]
@@ -226,10 +213,10 @@ class FunctionalEntropy(ShortFormUQ):
             tokenprob_semantic_entropy = self._compute_semantic_entropy(cluster_probabilities=tokenprob_cluster_probabilities)
 
         return (discrete_semantic_entropy, tokenprob_semantic_entropy, num_semantic_sets)
-    
+
     def _normalize_entropy(self, entropy_values):
         return [e / math.log(self.num_responses + 1) for e in entropy_values]
-    
+
     def _compute_response_probabilities(self, logprobs_results: List[List[Dict[str, Any]]], num_responses: int = None) -> List[float]:
         """Compute response probabilities"""
         uniform_response_probabilities = [1 / num_responses] * num_responses

@@ -9,14 +9,7 @@ from typing import Any, Dict, List, Optional, Union, Tuple
 from uqlm.utils.response_generator import ResponseGenerator
 
 
-LIKERT_TO_SCORES_DICT = {
-    0.0: "no chance",
-    0.2: "little chance",
-    0.4: "less than even",
-    0.6: "fairly possible",
-    0.8: "very good chance",
-    1.0: "almost certain",
-}
+LIKERT_TO_SCORES_DICT = {0.0: "no chance", 0.2: "little chance", 0.4: "less than even", 0.6: "fairly possible", 0.8: "very good chance", 1.0: "almost certain"}
 
 
 class VerbalizedConfidence(ResponseGenerator):
@@ -43,13 +36,7 @@ class VerbalizedConfidence(ResponseGenerator):
         self.system_prompt = None
         self.is_judge = True
 
-    async def judge_responses(
-        self,
-        prompts: List[str],
-        responses: List[str],
-        retries: int = 5,
-        progress_bar: Optional[rich.progress.Progress] = None,
-    ) -> Dict[str, Any]:
+    async def judge_responses(self, prompts: List[str], responses: List[str], retries: int = 5, progress_bar: Optional[rich.progress.Progress] = None) -> Dict[str, Any]:
         """
         Judge responses for correctness.
 
@@ -72,31 +59,15 @@ class VerbalizedConfidence(ResponseGenerator):
         Dict
             Dictionary containing Q/A concatenation prompts, judge responses, judge scores
         """
-        judge_prompts = [
-            self._construct_claim_prompt(
-                original_question=prompts[i], claim=responses[i]
-            )
-            for i in range(len(prompts))
-        ]
+        judge_prompts = [self._construct_claim_prompt(original_question=prompts[i], claim=responses[i]) for i in range(len(prompts))]
         with contextlib.redirect_stdout(io.StringIO()):
-            data = await self.generate_responses(
-                prompts=judge_prompts,
-                count=1,
-                system_prompt=self.system_prompt,
-                progress_bar=progress_bar,
-            )
+            data = await self.generate_responses(prompts=judge_prompts, count=1, system_prompt=self.system_prompt, progress_bar=progress_bar)
 
         # Extract scores
         extracted_data = self._extract_answers(responses=data["data"]["response"])
 
         scores = extracted_data
-        df = pd.DataFrame(
-            {
-                "judge_prompts": data["data"]["prompt"],
-                "judge_responses": data["data"]["response"],
-                "scores": scores,
-            }
-        )
+        df = pd.DataFrame({"judge_prompts": data["data"]["prompt"], "judge_responses": data["data"]["response"], "scores": scores})
 
         # Retry logic for failed extractions
         retry = 0
@@ -112,12 +83,7 @@ class VerbalizedConfidence(ResponseGenerator):
                 failure_indices = set(score_failures.index)
 
                 with contextlib.redirect_stdout(io.StringIO()):
-                    tmp = await self.generate_responses(
-                        prompts=list(df.loc[list(failure_indices), "judge_prompts"]),
-                        count=1,
-                        system_prompt=self.system_prompt,
-                        progress_bar=False,
-                    )
+                    tmp = await self.generate_responses(prompts=list(df.loc[list(failure_indices), "judge_prompts"]), count=1, system_prompt=self.system_prompt, progress_bar=False)
 
                 retry_data = self._extract_answers(responses=tmp["data"]["response"])
 
@@ -151,9 +117,7 @@ class VerbalizedConfidence(ResponseGenerator):
         """
         return claim_prompt
 
-    def _extract_answers(
-        self, responses: List[str]
-    ) -> Union[List[float], Tuple[List[float], List[str]]]:
+    def _extract_answers(self, responses: List[str]) -> Union[List[float], Tuple[List[float], List[str]]]:
         """
         List-level implementation of _extract_single_answer
         """

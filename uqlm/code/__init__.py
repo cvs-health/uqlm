@@ -6,11 +6,4 @@ from uqlm.code.cosine import CosineScorer
 from uqlm.code.clusterer import CodeClusterer
 
 
-__all__ = [
-    "CodeEquivalence",
-    "CodeBLEU",
-    "VerbalizedConfidence",
-    "FunctionalEntropy",
-    "CosineScorer",
-    "CodeClusterer",
-]
+__all__ = ["CodeEquivalence", "CodeBLEU", "VerbalizedConfidence", "FunctionalEntropy", "CosineScorer", "CodeClusterer"]
