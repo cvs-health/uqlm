@@ -20,24 +20,20 @@ class CodeBLEU:
         n_prompts = len(responses)
         self.scores, self.pair_scores = [0] * n_prompts, [[]] * n_prompts
         for i in range(n_prompts):
-            self.scores[i] = self.codebleu_confidence(responses[i], sampled_responses[i], i)
+            self.scores[i], self.pair_scores[i] = self.codebleu_confidence(responses[i], sampled_responses[i])
         return self.scores
 
-    def codebleu_confidence(self, response: str, sampled_responses: List[str], ind_: int) -> float:
+    def codebleu_confidence(self, response: str, sampled_responses: List[str]) -> float:
         """
         Calculate CodeBLEU confidence for a list of code strings.
         """
         if not sampled_responses:
             return float("nan")
 
-        tmp_scores = []
-        for candidate in sampled_responses:
-            score = self.codebleu_pair(response, candidate, lang=self.lang)
-            self.pair_scores[ind_].append(score)
-            if not math.isnan(score):
-                tmp_scores.append(score)
-
-        return float("nan") if not tmp_scores else sum(tmp_scores) / len(tmp_scores)
+        tmp_scores = [self.codebleu_pair(response, candidate, lang=self.lang) for candidate in sampled_responses]
+        tmp_scores_no_nan = [score for score in tmp_scores if not math.isnan(score)]
+        score = float("nan") if not tmp_scores_no_nan else sum(tmp_scores_no_nan) / len(tmp_scores_no_nan)
+        return score, tmp_scores
 
     def codebleu_pair(self, response: str, candidate: str, lang: str = "python") -> float:
         """
