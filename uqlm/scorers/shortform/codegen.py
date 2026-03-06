@@ -1,6 +1,7 @@
 from typing import Any, List, Optional
 from langchain_core.language_models.chat_models import BaseChatModel
-from uqlm.code import CodeEquivalence, CodeBLEU, VerbalizedConfidence, FunctionalEntropy, CosineScorer
+from uqlm.code import CodeEquivalence, CodeBLEU, VerbalizedConfidence, FunctionalEntropy
+from uqlm.black_box import CosineScorer
 from uqlm.scorers.shortform.white_box import WhiteBoxUQ
 from uqlm.utils.results import UQResult
 from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ
@@ -19,7 +20,6 @@ class CodeGenUQ(ShortFormUQ):
         device: Any = None,
         max_length: int = 2000,
         sentence_transformer: str = "jinaai/jina-embeddings-v2-base-code",
-        nli_model_name: str = "microsoft/deberta-large-mnli",
         lang: str = "python"
     ):
         """
@@ -64,10 +64,6 @@ class CodeGenUQ(ShortFormUQ):
             https://huggingface.co/jinaai?sort_models=likes#models
             for more information. The recommended sentence transformer is 'jinaai/jina-embeddings-v2-base-code'.
 
-        nli_model_name : str, default="microsoft/deberta-large-mnli"
-            Specifies which NLI model to use. Must be acceptable input to AutoTokenizer.from_pretrained() and
-            AutoModelForSequenceClassification.from_pretrained()
-
         lang : str, default="python"
             Specifies the language of the code, this is used while computing CodeBleu and CodeEquivalence scores (if "codebleu" or "code_equivalence" is in scorers). 
             This might require user to install additional dependencies. Must be one of ["python", "java", "sql"].
@@ -79,7 +75,6 @@ class CodeGenUQ(ShortFormUQ):
         self.length_normalize = length_normalize
         self.max_length = max_length
         self.sentence_transformer = sentence_transformer
-        self.nli_model_name = nli_model_name
         self.lang = lang
         self._validate_scorers()
 
@@ -100,14 +95,12 @@ class CodeGenUQ(ShortFormUQ):
     async def score(self, prompts: List[str], responses: List[str], sampled_responses: List[List[str]], logprobs_results: List[List[float]], sampled_logprobs_results: List[List[float]]) -> UQResult:
         data = {"prompts": prompts, "responses": responses, "logprob": logprobs_results, "sampled_responses": sampled_responses, "sampled_logprob": sampled_logprobs_results}
         data = {key: val for key, val in data.items() if val}
-        
+
         # Compute Cosine Similarity
         if "cosine_sim" in self.scorers:
             data['cosine_sim'] = self.cos.evaluate(responses=responses, sampled_responses=sampled_responses)
             data["cosine_sim_pair_score"] = self.cos.pair_scores
-            # if 'consistency_and_confidence' in self.scorers and 'sequence_probability' in self.scorers:
-            #     data['cosine_sim'] = [data['consistency_and_confidence'][i]/data['sequence_probability'][i] for i in range(len(prompts))]
-
+            
         # Compute White-box UQ scores
         if len(self.wbuq_scorers)>0:
             self.wbuq.progress_bar = self.progress_bar
@@ -118,12 +111,6 @@ class CodeGenUQ(ShortFormUQ):
         
         if "consistency_and_confidence" in self.scorers and "consistency_and_confidence" not in self.wbuq_scorers:
             data['consistency_and_confidence'] = [data['cosine_sim'][i]*data['sequence_probability'][i] for i in range(len(prompts))]
-        
-        # TODO: Remove this code block
-        # # Compute Code Equivalence scores
-        # if "code_equivalence" in self.scorers:
-        #     data["code_equivalence"] = await self.ce.score(responses=responses, sampled_responses=sampled_responses)
-        #     data["code_equivalence_cache"] = self.ce.equivalence_cache
 
         # Compute Code BLEU confidence scores
         if "codebleu" in self.scorers:
@@ -133,7 +120,6 @@ class CodeGenUQ(ShortFormUQ):
         if "verbalized_confidence" in self.scorers:
             data["verbalized_confidence"] = await self.vc.judge_responses(prompts=prompts, responses=responses, progress_bar=self.progress_bar)
         
-        # TODO: Compute other scores here if functional entropy is not in scorers
         # Compute Functional Entropy scores
         if "functional_entropy" in self.scorers:
             # eq = self.ce.equivalence_cache if "code_equivalence" in self.scorers else None
@@ -161,11 +147,18 @@ class CodeGenUQ(ShortFormUQ):
         deafult_black_box_scorers = ["functional_entropy", "semantic_sets", "cosine_sim"]
         if not self.scorers:
             self.scorers = default_white_box_scorers + default_judge_scorers + deafult_black_box_scorers
+        
         self.wbuq_scorers = []
         for scorer in self.scorers:
             if scorer in default_white_box_scorers:
-                if scorer == "consistency_and_confidence" and "cosine_sim" in self.scorers and "sequence_probability" in self.scorers:
-                    continue
+                if scorer == "consistency_and_confidence":
+                    if "cosine_sim" in self.scorers and "sequence_probability" in self.scorers:
+                        continue
+                    elif "cosine_sim" in self.scorers:
+                        self.wbuq_scorers.append("sequence_probability")
+                    else:
+                        if "cosine_sim" not in self.scorers:
+                            self.scorers.append("cosine_sim")
                 self.wbuq_scorers.append(scorer)
 
         if len(self.wbuq_scorers)>0:
@@ -182,4 +175,4 @@ class CodeGenUQ(ShortFormUQ):
         if "functional_entropy" in self.scorers:
             self.fe = FunctionalEntropy(equivalence_llm=self.llm, llm=self.llm, system_prompt=self.system_prompt)
         if "cosine_sim" in self.scorers:
-            self.cos = CosineScorer(transformer=self.sentence_transformer)
+            self.cos = CosineScorer(transformer=self.sentence_transformer, max_length=self.max_length)
