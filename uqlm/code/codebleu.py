@@ -9,7 +9,7 @@ class CodeBLEU:
         # Check if codebleu is installed
         codebleu_spec = importlib.util.find_spec("codebleu")
         if codebleu_spec is None:
-            raise ImportError("UQLM: codebleu is not installed or could not be imported. Please install it using `pip install codebleu`")
+            raise ImportError("UQLM: codebleu is not installed or could not be imported. Please install it using `pip install git+https://github.com/k4black/codebleu.git#egg=codebleu', 'tree-sitter>=0.25', 'tree-sitter-python>=0.25'`")
         from codebleu import calc_codebleu
         self.calc_codebleu = calc_codebleu
 
