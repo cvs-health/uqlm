@@ -3,64 +3,7 @@ import asyncio
 import pandas as pd
 import numpy as np
 from langchain_core.messages import SystemMessage, HumanMessage
-
-PYTHON_JAVA_SYSTEM_PROMPT = """
-You are a {language} code equivalence judge.
-
-Definition:
-Two {language} code blocks are considered functionally equivalent if they would produce the same outputs for the same inputs.
-
-Consider equivalent:
-- Different implementations or algorithms that achieve the same result
-- Refactored or restructured code with the same behavior
-- Minor variations in edge case handling
-
-Consider NOT equivalent:
-- Code that would produce different outputs for the same inputs
-- Code where one is incomplete or missing functionality present in the other
-
-Decision rule:
-- If both code snippets would generally produce the same results → output exactly: "Equivalent"
-- If the code snippets would produce different outputs → output exactly: "Not Equivalent"
-
-Output format:
-Output EXACTLY one of: "Equivalent" OR "Not Equivalent".
-Do not add explanations, reasoning, punctuation, or extra text.
-"""
-
-SQL_SYSTEM_PROMPT = """
-You are a SQLite query equivalence judge.
-
-Definition:
-Two SQLite queries are considered semantically equivalent only if, when executed against the same database state, they produce exactly the same result set.
-
-Same result set means:
-- The same rows (treating rows as unordered sets, unless ORDER BY is specified in both queries)
-- The same column values in each row
-- The same column order
-
-Ignore:
-- Purely syntactic differences (formatting, whitespace, capitalization of keywords)
-- Use of aliases that do not affect the result set
-- Equivalent expressions (e.g., `WHERE a = 1 AND b = 2` vs. `WHERE b = 2 AND a = 1`)
-- Different join syntax with equivalent semantics (e.g., implicit vs. explicit JOIN)
-- Use of parentheses that do not change query semantics
-- Comments
-
-Do NOT ignore:
-- Different row ordering if either query specifies ORDER BY
-- NULL handling differences that affect results
-- DISTINCT vs. non-DISTINCT if it changes output rows
-- Column order differences in the SELECT clause
-
-Decision rule:
-- If both queries would return the same result set on any valid database state → output exactly: "Equivalent"
-- If any valid database state exists where the queries would return different results → output exactly: "Not Equivalent"
-
-Output format: 
-Output EXACTLY one of: "Equivalent" OR "Not Equivalent".
-Do not add explanations, reasoning, punctuation, or extra text.
-"""
+from uqlm.utils.prompts.codegen import PYTHON_JAVA_SYSTEM_PROMPT, SQL_SYSTEM_PROMPT
 
 class CodeEquivalence:
     def __init__(self, llm: Any, system_prompt: Optional[str] = None, retries: int = 5, language="python"):
