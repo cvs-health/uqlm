@@ -61,10 +61,10 @@ class CosineScorer(SimilarityScorer):
         """
         if progress_bar:
             progress_task = progress_bar.add_task("  - Scoring responses with cosine similarity...", total=len(responses))
-        results = []
+        results, self.pair_scores = [], []
         for i in range(len(responses)):
-            score = self._compute_score(response=responses[i], candidates=sampled_responses[i])
-            results.append(score)
+            self.pair_scores.append(self._compute_score(response=responses[i], candidates=sampled_responses[i]))
+            results.append(np.mean(self.pair_scores[-1]))
             if progress_bar:
                 progress_bar.update(progress_task, advance=1)
         time.sleep(0.1)
@@ -89,4 +89,4 @@ class CosineScorer(SimilarityScorer):
             cosine_i = np.dot(embeddings1[i], embeddings2[i]) / (norm(embeddings1[i]) * norm(embeddings2[i]))
             norm_cosine_i = 0.5 + cosine_i / 2
             cosine_list.append(norm_cosine_i)
-        return np.mean(cosine_list)
+        return cosine_list
