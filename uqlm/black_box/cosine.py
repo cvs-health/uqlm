@@ -24,7 +24,7 @@ from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
 
 class CosineScorer(SimilarityScorer):
-    def __init__(self, transformer: str = "sentence-transformers/all-MiniLM-L6-v2") -> None:
+    def __init__(self, transformer: str = "sentence-transformers/all-MiniLM-L6-v2", max_length: int = 2000) -> None:
         """Compute cosine similarity betwee original and candidate responses.
 
         Parameters
@@ -33,11 +33,16 @@ class CosineScorer(SimilarityScorer):
             Specifies which huggingface sentence transformer to use when computing cosine similarity. See
             https://huggingface.co/sentence-transformers?sort_models=likes#models
             for more information. The recommended sentence transformer is 'sentence-transformers/all-MiniLM-L6-v2'.
+
+        max_length : int, default=2000
+            Specifies the maximum allowed string length. Responses longer than this value will be truncated to
+            avoid OutOfMemoryError
         """
         from sentence_transformers import SentenceTransformer
 
         self.transformer = transformer
         self.model = SentenceTransformer(f"{transformer}", trust_remote_code=True)
+        self.max_length = max_length
 
     def evaluate(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[Progress] = None) -> List[float]:
         """
@@ -80,8 +85,10 @@ class CosineScorer(SimilarityScorer):
 
     def _compute_score(self, response: str, candidates: List[str]) -> float:
         """
-        Helper function to get cosine dist
+        Helper function to get cosine distance between a response and candidate responses
         """
+        response = response[:self.max_length]
+        candidates = [candidate[:self.max_length] for candidate in candidates]
         duplicate_responses = [response] * len(candidates)
         embeddings1, embeddings2 = self._get_embeddings(duplicate_responses, candidates)
         cosine_list = []
