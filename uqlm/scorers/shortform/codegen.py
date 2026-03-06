@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 from langchain_core.language_models.chat_models import BaseChatModel
-from uqlm.code import CodeEquivalence, CodeBLEU, VerbalizedConfidence, FunctionalEntropy
+from uqlm.code import CodeBLEU, VerbalizedConfidence, FunctionalEntropy
 from uqlm.black_box import CosineScorer
 from uqlm.scorers.shortform.white_box import WhiteBoxUQ
 from uqlm.utils.results import UQResult
@@ -149,9 +149,7 @@ class CodeGenUQ(ShortFormUQ):
                 self.wbuq_scorers.append(scorer)
 
         if len(self.wbuq_scorers) > 0:
-            self.wbuq = WhiteBoxUQ(llm=self.llm, scorers=self.wbuq_scorers, system_prompt=self.system_prompt, max_calls_per_min=self.max_calls_per_min, sampling_temperature=self.sampling_temperature, top_k_logprobs=self.top_k_logprobs, length_normalize=self.length_normalize, prompts_in_nli=False, sentence_transformer=self.sentence_transformer, nli_model_name=self.nli_model_name)
-        if "code_equivalence" in self.scorers:
-            self.ce = CodeEquivalence(llm=self.llm, system_prompt=self.system_prompt, language=self.lang)
+            self.wbuq = WhiteBoxUQ(llm=self.llm, scorers=self.wbuq_scorers, system_prompt=self.system_prompt, max_calls_per_min=self.max_calls_per_min, sampling_temperature=self.sampling_temperature, top_k_logprobs=self.top_k_logprobs, length_normalize=self.length_normalize, prompts_in_nli=False, sentence_transformer=self.sentence_transformer)
         if "codebleu" in self.scorers:
             self.cb = CodeBLEU(lang=self.lang)
         if "verbalized_confidence" in self.scorers:
