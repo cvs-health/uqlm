@@ -61,7 +61,7 @@ docs = [
     "sphinx==7.4.7",
     "pydata_sphinx_theme==0.16.1",
     "sphinxcontrib-bibtex==2.6.3",
-    "sphinx-autodoc-typehints==2.3.0",
+    "sphinx-autodoc-typehints==3.0.1",
     "sphinx-gallery==0.20.0",
     "sphinx-favicon==1.0.1",
     "nbsphinx==0.9.8",
