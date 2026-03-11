@@ -16,20 +16,13 @@ jobs:
         runs-on: ubuntu-latest
         steps:
         - uses: actions/checkout@v4
-        - name: Set up Python
-          uses: actions/setup-python@v5
+        - name: Set up uv
+          uses: astral-sh/setup-uv@v5
           with:
-            python-version: "3.9"
-            cache: 'pip'
-        - name: Get Ruff version and install
-          run: |
-              pip install poetry
-              RUFF_VERSION=$(poetry show --only=dev | grep '^ruff ' | awk '{print $3}')
-              echo "Installing ruff==$RUFF_VERSION"
-              pip install ruff==$RUFF_VERSION
+            python-version: "3.12"
+        - name: Install dev dependencies
+          run: uv sync --group dev --no-install-project
         - name: Lint with Ruff
-          run: |
-            ruff check uqlm/
+          run: uv run ruff check uqlm/
         - name: Check for unformatted files
-          run: |
-            ruff format --check uqlm/
+          run: uv run ruff format --check uqlm/

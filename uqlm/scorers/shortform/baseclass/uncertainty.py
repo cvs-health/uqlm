@@ -93,7 +93,7 @@ class ShortFormUQ(UncertaintyQuantifier):
         """Updates best"""
         self.original_responses = self.responses.copy()
         for i, response in enumerate(self.responses):
-            all_candidates = [response] + self.sampled_responses[i]
+            all_candidates = [str(response)] + [str(x) for x in self.sampled_responses[i]]
             index_of_best = all_candidates.index(best_responses[i])
 
             all_candidates.remove(best_responses[i])
