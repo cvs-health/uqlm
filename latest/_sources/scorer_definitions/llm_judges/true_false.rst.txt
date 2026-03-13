@@ -81,7 +81,8 @@ References
 ----------
 
 - Chen, J. & Mueller, J. (2023). `Quantifying Uncertainty in Answers from any Language Model and Enhancing their Trustworthiness <https://arxiv.org/abs/2308.16175>`_. *arXiv*.
-- Luo, H., et al. (2023). `ChatGPT as a Factual Inconsistency Evaluator for Text Summarization <https://arxiv.org/abs/2303.15621>`_. *arXiv*.
+- Manakul, P., et al. (2023). `SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models <https://arxiv.org/abs/2303.08896>`_. *arXiv*.
+- Luo, Z., et al. (2023). `ChatGPT as a Factual Inconsistency Evaluator for Text Summarization <https://arxiv.org/abs/2303.15621>`_. *arXiv*.
 
 See Also
 --------

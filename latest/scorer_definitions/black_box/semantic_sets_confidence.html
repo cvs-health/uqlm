@@ -523,13 +523,15 @@
 the computation of semantic entropy and normalizes this count to obtain a confidence score.</p>
 <section id="definition">
 <h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
-<p>Let <span class="math notranslate nohighlight">\(N_C\)</span> denote the number of unique semantic clusters and <span class="math notranslate nohighlight">\(m\)</span> denote the number of
-sampled responses. We normalize this count to obtain a confidence score in <span class="math notranslate nohighlight">\([0,1]\)</span> as follows:</p>
+<p>Clustering is performed over the original response plus all sampled responses (the full candidate set).
+Let <span class="math notranslate nohighlight">\(N_C\)</span> denote the number of unique semantic clusters and <span class="math notranslate nohighlight">\(m\)</span> denote the total number
+of responses (original plus sampled; e.g. if you sample <span class="math notranslate nohighlight">\(k\)</span> responses, <span class="math notranslate nohighlight">\(m = k+1\)</span>).
+We normalize this count to obtain a confidence score in <span class="math notranslate nohighlight">\([0,1]\)</span> as follows:</p>
 <div class="math notranslate nohighlight">
 \[SSC(y_i; \tilde{\mathbf{y}}_i) = \frac{m - N_C}{m - 1}\]</div>
 <p><strong>Interpretation:</strong></p>
 <ul class="simple">
-<li><p>When <span class="math notranslate nohighlight">\(N_C = 1\)</span>: All sampled responses are semantically equivalent, so the confidence score is <strong>1</strong></p></li>
+<li><p>When <span class="math notranslate nohighlight">\(N_C = 1\)</span>: All responses are semantically equivalent, so the confidence score is <strong>1</strong></p></li>
 <li><p>When <span class="math notranslate nohighlight">\(N_C = m\)</span>: All responses are semantically distinct, so the confidence score is <strong>0</strong></p></li>
 </ul>
 </section>
@@ -571,7 +573,7 @@ with higher confidence in the response accuracy.</p>
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Lin, Z., et al. (2024). <a class="reference external" href="https://arxiv.org/abs/2305.19187">Generating with Confidence: Uncertainty Quantification for Black-box Large Language Models</a>. <em>arXiv</em>.</p></li>
-<li><p>Vashurin, R., et al. (2025). <a class="reference external" href="https://arxiv.org/abs/2406.15627">Benchmarking LLM Uncertainty Quantification Methods for Agentic AI</a>. <em>arXiv</em>.</p></li>
+<li><p>Vashurin, R., et al. (2025). <a class="reference external" href="https://arxiv.org/abs/2406.15627">Benchmarking Uncertainty Quantification Methods for Large Language Models with LM-Polygraph</a>. <em>arXiv</em>.</p></li>
 <li><p>Kuhn, L., et al. (2023). <a class="reference external" href="https://arxiv.org/abs/2302.09664">Semantic Uncertainty: Linguistic Invariances for Uncertainty Estimation in Natural Language Generation</a>. <em>arXiv</em>.</p></li>
 </ul>
 </section>
