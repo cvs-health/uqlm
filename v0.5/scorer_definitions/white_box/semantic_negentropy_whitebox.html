@@ -532,8 +532,9 @@ sequence probabilities</strong> (normalized or otherwise), rather than uniform p
 discrete version.</p>
 <p>Normalized Semantic Negentropy (NSN) is then:</p>
 <div class="math notranslate nohighlight">
-\[NSN(y_i; \tilde{\mathbf{y}}_i) = 1 - \frac{SE(y_i; \tilde{\mathbf{y}}_i)}{\log m}\]</div>
-<p>where <span class="math notranslate nohighlight">\(\log m\)</span> normalizes the support.</p>
+\[NSN(y_i; \tilde{\mathbf{y}}_i) = 1 - \frac{SE(y_i; \tilde{\mathbf{y}}_i)}{\log(m+1)}\]</div>
+<p>where <span class="math notranslate nohighlight">\(m\)</span> is the number of sampled responses and the total number of responses (original plus
+sampled) is <span class="math notranslate nohighlight">\(m+1\)</span>. The divisor <span class="math notranslate nohighlight">\(\log(m+1)\)</span> normalizes the support.</p>
 <p><strong>Key Differences from Discrete Version:</strong></p>
 <ul class="simple">
 <li><p>Uses token probabilities to weight each response’s contribution to its cluster</p></li>
@@ -580,7 +581,7 @@ discrete version.</p>
 <ul class="simple">
 <li><p>Farquhar, S., et al. (2024). <a class="reference external" href="https://www.nature.com/articles/s41586-024-07421-0">Detecting hallucinations in large language models using semantic entropy</a>. <em>Nature</em>.</p></li>
 <li><p>Kuhn, L., et al. (2023). <a class="reference external" href="https://arxiv.org/abs/2302.09664">Semantic Uncertainty: Linguistic Invariances for Uncertainty Estimation in Natural Language Generation</a>. <em>arXiv</em>.</p></li>
-<li><p>Bouchard, D. &amp; Chauhan, M. S. (2025). <a class="reference external" href="https://arxiv.org/abs/2504.19254">Generalized Ensembles for Robust Uncertainty Quantification of LLMs</a>. <em>arXiv</em>.</p></li>
+<li><p>Bouchard, D. &amp; Chauhan, M. S. (2025). <a class="reference external" href="https://arxiv.org/abs/2504.19254">Uncertainty Quantification for Language Models: A Suite of Black-Box, White-Box, LLM Judge, and Ensemble Scorers</a>. <em>arXiv</em>.</p></li>
 </ul>
 </section>
 <section id="see-also">

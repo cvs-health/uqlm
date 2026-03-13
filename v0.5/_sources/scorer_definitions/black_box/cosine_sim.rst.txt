@@ -75,7 +75,7 @@ Example
 References
 ----------
 
-- Shorinwa, O., et al. (2024). `A Survey of Confidence Estimation and Calibration in Large Language Models <https://arxiv.org/abs/2412.05563>`_. *arXiv*.
+- Shorinwa, O., et al. (2024). `A Survey on Uncertainty Quantification of Large Language Models: Taxonomy, Open Research Challenges, and Future Directions <https://arxiv.org/abs/2412.05563>`_. *arXiv*.
 - `Sentence Transformers - all-MiniLM-L6-v2 <https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2>`_. *HuggingFace*.
 
 See Also

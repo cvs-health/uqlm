@@ -520,17 +520,18 @@
 <h1>Monte Carlo Sequence Probability<a class="headerlink" href="#monte-carlo-sequence-probability" title="Link to this heading">#</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">monte_carlo_probability</span></code></p>
 <p>Monte Carlo Sequence Probability (MCSP) computes the average length-normalized sequence probability
-across multiple sampled responses.</p>
+over the original response and all sampled responses.</p>
 <section id="definition">
 <h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
-<p>Let <span class="math notranslate nohighlight">\(y_1, y_2, ..., y_m\)</span> denote <span class="math notranslate nohighlight">\(m\)</span> sampled responses generated from the same prompt.
-Monte Carlo Sequence Probability is defined as:</p>
+<p>Let <span class="math notranslate nohighlight">\(y_0\)</span> be the original response and <span class="math notranslate nohighlight">\(y_1, y_2, ..., y_m\)</span> be <span class="math notranslate nohighlight">\(m\)</span> sampled responses
+generated from the same prompt. The implementation averages over all <span class="math notranslate nohighlight">\(m+1\)</span> responses (original plus
+sampled). Monte Carlo Sequence Probability is defined as:</p>
 <div class="math notranslate nohighlight">
-\[MCSP(y_1, y_2, ..., y_m) = \frac{1}{m} \sum_{i=1}^m \prod_{t \in y_i} p_t^{\frac{1}{L_i}}\]</div>
+\[MCSP(y_0; y_1, ..., y_m) = \frac{1}{m+1} \sum_{i=0}^{m} \prod_{t \in y_i} p_t^{\frac{1}{L_i}}\]</div>
 <p>where <span class="math notranslate nohighlight">\(L_i\)</span> is the number of tokens in response <span class="math notranslate nohighlight">\(y_i\)</span> and <span class="math notranslate nohighlight">\(p_t\)</span> is the token probability.</p>
 <p><strong>Key Properties:</strong></p>
 <ul class="simple">
-<li><p>Combines multiple response samples for more robust probability estimation</p></li>
+<li><p>Combines the original and multiple sampled responses for more robust probability estimation</p></li>
 <li><p>Length-normalized to allow fair comparison across responses</p></li>
 <li><p>Score range: <span class="math notranslate nohighlight">\([0, 1]\)</span></p></li>
 </ul>
@@ -538,9 +539,9 @@ Monte Carlo Sequence Probability is defined as:</p>
 <section id="how-it-works">
 <h2>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h2>
 <ol class="arabic simple">
-<li><p>Generate multiple responses from the same prompt with logprobs enabled</p></li>
-<li><p>For each response, compute the length-normalized sequence probability (geometric mean of token probabilities)</p></li>
-<li><p>Average across all sampled responses</p></li>
+<li><p>Generate an original response and multiple sampled responses from the same prompt with logprobs enabled</p></li>
+<li><p>For each response (original and sampled), compute the length-normalized sequence probability (geometric mean of token probabilities)</p></li>
+<li><p>Average across the original and all sampled responses</p></li>
 </ol>
 <p>This scorer combines the sampling approach of black-box methods with token probability information,
 providing a more robust estimate than single-response probability.</p>
@@ -579,7 +580,7 @@ providing a more robust estimate than single-response probability.</p>
 <ul class="simple">
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code> - Main class for white-box uncertainty quantification</p></li>
 <li><p><a class="reference internal" href="consistency_and_confidence.html"><span class="doc">Consistency and Confidence (CoCoA)</span></a> - Alternative multi-generation scorer</p></li>
-<li><p><a class="reference internal" href="normalized_probability.html"><span class="doc">Length-Normalized Sequence Probability</span></a> - Single-generation length-normalized probability</p></li>
+<li><p><a class="reference internal" href="sequence_probability.html"><span class="doc">Sequence Probability</span></a> - Single-generation sequence probability (length-normalized by default)</p></li>
 </ul>
 </section>
 </section>

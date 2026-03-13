@@ -45,8 +45,16 @@ The generalized ensemble can include any combination of:
 
 **White-Box Scorers:**
 
-- ``normalized_probability``
+- ``sequence_probability``
 - ``min_probability``
+- ``min_token_negentropy``
+- ``mean_token_negentropy``
+- ``probability_margin``
+- ``semantic_negentropy``
+- ``semantic_density``
+- ``monte_carlo_probability``
+- ``consistency_and_confidence``
+- ``p_true``
 
 **LLM-as-a-Judge:**
 
@@ -148,7 +156,7 @@ Loading a saved configuration:
 References
 ----------
 
-- Bouchard, D. & Chauhan, M. S. (2025). `Generalized Ensembles for Robust Uncertainty Quantification of LLMs <https://arxiv.org/abs/2504.19254>`_. *arXiv*.
+- Bouchard, D. & Chauhan, M. S. (2025). `Uncertainty Quantification for Language Models: A Suite of Black-Box, White-Box, LLM Judge, and Ensemble Scorers <https://arxiv.org/abs/2504.19254>`_. *arXiv*.
 
 See Also
 --------

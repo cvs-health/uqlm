@@ -6,32 +6,33 @@ Monte Carlo Sequence Probability
 ``monte_carlo_probability``
 
 Monte Carlo Sequence Probability (MCSP) computes the average length-normalized sequence probability
-across multiple sampled responses.
+over the original response and all sampled responses.
 
 Definition
 ----------
 
-Let :math:`y_1, y_2, ..., y_m` denote :math:`m` sampled responses generated from the same prompt.
-Monte Carlo Sequence Probability is defined as:
+Let :math:`y_0` be the original response and :math:`y_1, y_2, ..., y_m` be :math:`m` sampled responses
+generated from the same prompt. The implementation averages over all :math:`m+1` responses (original plus
+sampled). Monte Carlo Sequence Probability is defined as:
 
 .. math::
 
-    MCSP(y_1, y_2, ..., y_m) = \frac{1}{m} \sum_{i=1}^m \prod_{t \in y_i} p_t^{\frac{1}{L_i}}
+    MCSP(y_0; y_1, ..., y_m) = \frac{1}{m+1} \sum_{i=0}^{m} \prod_{t \in y_i} p_t^{\frac{1}{L_i}}
 
 where :math:`L_i` is the number of tokens in response :math:`y_i` and :math:`p_t` is the token probability.
 
 **Key Properties:**
 
-- Combines multiple response samples for more robust probability estimation
+- Combines the original and multiple sampled responses for more robust probability estimation
 - Length-normalized to allow fair comparison across responses
 - Score range: :math:`[0, 1]`
 
 How It Works
 ------------
 
-1. Generate multiple responses from the same prompt with logprobs enabled
-2. For each response, compute the length-normalized sequence probability (geometric mean of token probabilities)
-3. Average across all sampled responses
+1. Generate an original response and multiple sampled responses from the same prompt with logprobs enabled
+2. For each response (original and sampled), compute the length-normalized sequence probability (geometric mean of token probabilities)
+3. Average across the original and all sampled responses
 
 This scorer combines the sampling approach of black-box methods with token probability information,
 providing a more robust estimate than single-response probability.
@@ -71,5 +72,5 @@ See Also
 
 - :class:`WhiteBoxUQ` - Main class for white-box uncertainty quantification
 - :doc:`consistency_and_confidence` - Alternative multi-generation scorer
-- :doc:`normalized_probability` - Single-generation length-normalized probability
+- :doc:`sequence_probability` - Single-generation sequence probability (length-normalized by default)
 

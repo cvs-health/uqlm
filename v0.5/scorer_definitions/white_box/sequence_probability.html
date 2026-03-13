@@ -519,18 +519,26 @@
   <section id="sequence-probability">
 <h1>Sequence Probability<a class="headerlink" href="#sequence-probability" title="Link to this heading">#</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">sequence_probability</span></code></p>
-<p>Sequence Probability (SP) computes the joint probability of all tokens in the generated response.</p>
+<p>Sequence Probability (SP) computes a probability measure over the tokens in the generated response.
+By default it is length-normalized (geometric mean of token probabilities); with
+<code class="docutils literal notranslate"><span class="pre">length_normalize=False</span></code> it is the raw joint probability.</p>
 <section id="definition">
 <h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
-<p>Sequence probability is the joint probability of all tokens:</p>
+<p><strong>Default (length-normalized):</strong> With <code class="xref py py-class docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code> default <code class="docutils literal notranslate"><span class="pre">length_normalize=True</span></code>, sequence
+probability is the geometric mean of token probabilities (length-normalized token probability, LNTP):</p>
+<div class="math notranslate nohighlight">
+\[SP(y_i) = \prod_{t \in y_i} p_t^{\frac{1}{L_i}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(L_i\)</span> is the number of tokens in response <span class="math notranslate nohighlight">\(y_i\)</span> and <span class="math notranslate nohighlight">\(p_t\)</span> denotes the token
+probability. This is length-invariant and in <span class="math notranslate nohighlight">\([0, 1]\)</span>.</p>
+<p><strong>Non-normalized:</strong> With <code class="docutils literal notranslate"><span class="pre">length_normalize=False</span></code>, sequence probability is the joint probability:</p>
 <div class="math notranslate nohighlight">
 \[SP(y_i) = \prod_{t \in y_i} p_t\]</div>
-<p>where <span class="math notranslate nohighlight">\(p_t\)</span> denotes the token probability for token <span class="math notranslate nohighlight">\(t\)</span>.</p>
+<p>which tends to decrease with longer responses and is typically very small for longer sequences.</p>
 <p><strong>Key Properties:</strong></p>
 <ul class="simple">
 <li><p>Direct measure of how likely the model considers its own output</p></li>
-<li><p>Not length-normalized, so tends to decrease with longer responses</p></li>
-<li><p>Score range: <span class="math notranslate nohighlight">\([0, 1]\)</span> but typically very small for longer sequences</p></li>
+<li><p>Default is length-normalized (geometric mean) for fair comparison across response lengths</p></li>
+<li><p>Score range: <span class="math notranslate nohighlight">\([0, 1]\)</span></p></li>
 </ul>
 </section>
 <section id="how-it-works">
@@ -538,14 +546,14 @@
 <ol class="arabic simple">
 <li><p>Generate a response with logprobs enabled</p></li>
 <li><p>Extract the probability for each token in the response</p></li>
-<li><p>Multiply all token probabilities together</p></li>
+<li><p>With default <code class="docutils literal notranslate"><span class="pre">length_normalize=True</span></code>, compute the geometric mean of token probabilities; otherwise compute the product</p></li>
 </ol>
-<p>Note that due to the multiplicative nature, sequence probability decreases rapidly with response
-length. For length-invariant scoring, consider <a class="reference internal" href="normalized_probability.html"><span class="doc">Length-Normalized Sequence Probability</span></a>.</p>
 </section>
 <section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
-<p>When using <code class="xref py py-class docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code>, specify <code class="docutils literal notranslate"><span class="pre">&quot;sequence_probability&quot;</span></code> in the <code class="docutils literal notranslate"><span class="pre">scorers</span></code> list.</p>
+<p>When using <code class="xref py py-class docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code>, specify <code class="docutils literal notranslate"><span class="pre">&quot;sequence_probability&quot;</span></code> in the <code class="docutils literal notranslate"><span class="pre">scorers</span></code> list. Use
+<code class="docutils literal notranslate"><span class="pre">length_normalize=False</span></code> when you want the raw joint probability instead of the default
+length-normalized form.</p>
 </section>
 <section id="example">
 <h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
@@ -568,15 +576,15 @@ length. For length-invariant scoring, consider <a class="reference internal" hre
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>Vashurin, R., et al. (2024). <a class="reference external" href="https://arxiv.org/abs/2406.15627">Benchmarking LLM Uncertainty Quantification Methods for Agentic AI</a>. <em>arXiv</em>.</p></li>
+<li><p>Vashurin, R., et al. (2024). <a class="reference external" href="https://arxiv.org/abs/2406.15627">Benchmarking Uncertainty Quantification Methods for Large Language Models with LM-Polygraph</a>. <em>arXiv</em>.</p></li>
 </ul>
 </section>
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code> - Main class for white-box uncertainty quantification</p></li>
-<li><p><a class="reference internal" href="normalized_probability.html"><span class="doc">Length-Normalized Sequence Probability</span></a> - Length-normalized version of sequence probability</p></li>
 <li><p><a class="reference internal" href="min_probability.html"><span class="doc">Minimum Token Probability</span></a> - Minimum token probability across the response</p></li>
+<li><p><a class="reference internal" href="monte_carlo_probability.html"><span class="doc">Monte Carlo Sequence Probability</span></a> - Multi-generation average of length-normalized sequence probability</p></li>
 </ul>
 </section>
 </section>

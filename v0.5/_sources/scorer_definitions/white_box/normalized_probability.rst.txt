@@ -38,31 +38,32 @@ allowing fair comparison across responses of varying lengths.
 Parameters
 ----------
 
-When using :class:`WhiteBoxUQ`, specify ``"normalized_probability"`` in the ``scorers`` list.
-
 .. note::
 
-    This scorer will be deprecated in favor of ``sequence_probability`` with ``length_normalize=True``
-    in a future version.
+    **Deprecated.** This scorer is deprecated as of v0.5. Use ``sequence_probability`` with
+    ``length_normalize=True`` (the default) instead. Specifying ``"normalized_probability"`` in the
+    ``scorers`` list will raise a :class:`ValueError`.
 
 Example
 -------
+
+Use :doc:`sequence_probability` with the default ``length_normalize=True`` for the same behavior:
 
 .. code-block:: python
 
     from uqlm import WhiteBoxUQ
 
-    # Initialize with normalized_probability scorer
+    # Use sequence_probability (length-normalized by default) instead of normalized_probability
     wbuq = WhiteBoxUQ(
         llm=llm,
-        scorers=["normalized_probability"]
+        scorers=["sequence_probability"]
     )
 
     # Generate responses and compute scores
     results = await wbuq.generate_and_score(prompts=prompts)
 
-    # Access the normalized_probability scores
-    print(results.to_df()["normalized_probability"])
+    # Access the sequence_probability scores (equivalent to former normalized_probability)
+    print(results.to_df()["sequence_probability"])
 
 References
 ----------
@@ -73,6 +74,6 @@ See Also
 --------
 
 - :class:`WhiteBoxUQ` - Main class for white-box uncertainty quantification
-- :doc:`sequence_probability` - Non-normalized sequence probability
+- :doc:`sequence_probability` - Sequence probability (length-normalized by default; replaces this scorer)
 - :doc:`min_probability` - Minimum token probability across the response
 

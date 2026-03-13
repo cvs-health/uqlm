@@ -70,17 +70,17 @@ UQLM provides a suite of response-level scorers for quantifying the uncertainty 
 
 These scorers assess uncertainty by measuring the consistency of multiple responses generated from the same prompt. They are compatible with any LLM, intuitive to use, and don't require access to internal model states or token probabilities.
 
-  * Discrete Semantic Entropy (`Farquhar et al., 2024 <https://www.nature.com/articles/s41586-024-07421-0>`_; `Kuh et al., 2023 <https://arxiv.org/pdf/2302.09664>`_)
+  * Discrete Semantic Entropy (`Farquhar et al., 2024 <https://www.nature.com/articles/s41586-024-07421-0>`_; `Kuhn et al., 2023 <https://arxiv.org/pdf/2302.09664>`_)
 
   * Number of Semantic Sets (`Lin et al., 2024 <https://arxiv.org/abs/2305.19187>`_; `Vashurin et al., 2025  <https://arxiv.org/abs/2406.15627>`_; `Kuhn et al., 2023 <https://arxiv.org/pdf/2302.09664>`_)
 
-  * Non-Contradiction Probability (`Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`_; `Lin et al., 2025 <https://arxiv.org/abs/2305.19187>`_; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_)
+  * Non-Contradiction Probability (`Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`_; `Lin et al., 2024 <https://arxiv.org/abs/2305.19187>`_; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_)
 
-  * Entailment Probability (`Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`_; `Lin et al., 2025 <https://arxiv.org/abs/2305.19187>`_; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_)
+  * Entailment Probability (`Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`_; `Lin et al., 2024 <https://arxiv.org/abs/2305.19187>`_; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_)
 
   * Exact Match (`Cole et al., 2023 <https://arxiv.org/abs/2305.14613>`_; `Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`_)
 
-  * BERT-score (`Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_; `Zheng et al., 2020 <https://arxiv.org/abs/1904.09675>`_)
+  * BERT-score (`Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`_; `Zhang et al., 2020 <https://arxiv.org/abs/1904.09675>`_)
 
   * Cosine Similarity (`Shorinwa et al., 2024 <https://arxiv.org/pdf/2412.05563>`_; `HuggingFace <https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2>`_)
 
