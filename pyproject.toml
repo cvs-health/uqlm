@@ -27,7 +27,7 @@ classifiers = [
 dependencies = [
     "langchain>=0.3.7",
     "langchain-model-profiles>=0.0.3",
-    "transformers>=4.45.2,<5.0.0",
+    "transformers>=4.45.2,<6.0.0",
     "scikit-learn>=1.5.2,<2.0.0; python_version < '3.13'",
     "scikit-learn>=1.7.0,<2.0.0; python_version >= '3.13'",
     "numpy>=1.26.4,<2.0.0; python_version < '3.13'",
