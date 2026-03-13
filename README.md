@@ -311,6 +311,30 @@ results_df
 
 Above `response` and `entailment` reflect the original response and response-level confidence score, while `refined_response` and `refined_entailment` are the corresponding values after response refinement. The `claims_data` column includes granular data for each response, including claims, claim-level confidence scores, and whether each claim is retained in the response refinement process. We use `ChatOpenAI` in this example, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used. For a more detailed demo, refer to our [Long-Text UQ Demo](./examples/long_text_uq_demo.ipynb).
 
+**Claim Decomposition Prompts:**
+
+Long-text scorers decompose LLM responses into atomic claims using configurable prompt templates. UQLM supports four research-backed decomposition strategies, each optimized for different UQ methods:
+
+```python
+# zhang_2025 (default) - Most atomic decomposition
+luq = LongTextUQ(llm=llm, claim_decomposition_prompt="zhang_2025")
+
+# farquhar_2024 - Coarser claims for semantic entropy
+luq = LongTextUQ(llm=llm, claim_decomposition_prompt="farquhar_2024")
+
+# mohri_2024 - Non-overlapping claims for conformal prediction
+luq = LongTextUQ(llm=llm, claim_decomposition_prompt="mohri_2024")
+
+# jiang_2024 - Fine-grained claims for graph-based UQ
+luq = LongTextUQ(llm=llm, claim_decomposition_prompt="jiang_2024")
+
+# Custom prompt (advanced)
+def custom_prompt(response: str) -> str:
+    return f"Break into facts:\n{response}\nFormat: ### <claim>"
+luq = LongTextUQ(llm=llm, claim_decomposition_prompt=custom_prompt)
+```
+
+See our [claim decomposition comparison notebook](./examples/claim_decomposition_comparison.ipynb) for detailed examples and benchmarks.
 
 **Available Scorers:**
 
