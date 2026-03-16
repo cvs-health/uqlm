@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from typing import Any, List, Optional
+from typing import Any, Callable, List, Optional, Union
 import numpy as np
 from langchain_core.language_models.chat_models import BaseChatModel
 from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
@@ -23,7 +23,19 @@ from uqlm.longform.uad import UncertaintyAwareDecoder
 
 class LongFormUQ(UncertaintyQuantifier):
     def __init__(
-        self, llm: Any = None, scorers: Optional[List[str]] = None, granularity: str = "claim", aggregation: str = "mean", claim_decomposition_llm: Optional[BaseChatModel] = None, response_refinement: bool = False, claim_filtering_scorer: Optional[str] = None, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False
+        self,
+        llm: Any = None,
+        scorers: Optional[List[str]] = None,
+        granularity: str = "claim",
+        aggregation: str = "mean",
+        claim_decomposition_llm: Optional[BaseChatModel] = None,
+        claim_decomposition_prompt: Union[str, Callable] = "zhang_2025",
+        response_refinement: bool = False,
+        claim_filtering_scorer: Optional[str] = None,
+        device: Any = None,
+        system_prompt: Optional[str] = None,
+        max_calls_per_min: Optional[int] = None,
+        use_n_param: bool = False,
     ) -> None:
         """
         Parent class for uncertainty quantification of LLM responses
@@ -46,6 +58,12 @@ class LongFormUQ(UncertaintyQuantifier):
         claim_decomposition_llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Also used for claim refinement.
             If granularity="claim" and claim_decomposition_llm is None, the provided `llm` will be used for claim decomposition.
+
+        claim_decomposition_prompt : Union[str, Callable], default="zhang_2025"
+            Specifies the prompt template used to decompose responses into atomic claims. Accepts one of the
+            following string keys: ``"zhang_2025"``, ``"farquhar_2024"``, ``"mohri_2024"``, ``"jiang_2024"``,
+            or a custom callable with signature ``(response: str) -> str``. Only applies when
+            ``granularity="claim"``.
 
         response_refinement : bool, default=False
             Specifies whether to refine responses with uncertainty-aware decoding. This approach removes claims with confidence
@@ -75,7 +93,8 @@ class LongFormUQ(UncertaintyQuantifier):
         """
         super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
         self.claim_decomposition_llm = claim_decomposition_llm
-        self.decomposer = ResponseDecomposer(claim_decomposition_llm=claim_decomposition_llm if claim_decomposition_llm else llm)
+        self.claim_decomposition_prompt = claim_decomposition_prompt
+        self.decomposer = ResponseDecomposer(claim_decomposition_llm=claim_decomposition_llm if claim_decomposition_llm else llm, response_template=claim_decomposition_prompt)
         self.granularity = granularity
         self.scorers = scorers
         self.aggregation = aggregation
