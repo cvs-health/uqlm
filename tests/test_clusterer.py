@@ -3,10 +3,11 @@ import numpy as np
 import pandas as pd
 from unittest.mock import MagicMock, AsyncMock, patch
 
-from uqlm.code.clusterer import CodeClusterer 
+from uqlm.code.clusterer import CodeClusterer
 
 
 # Fixtures
+
 
 @pytest.fixture
 def mock_llm():
@@ -20,8 +21,8 @@ def clusterer(mock_llm):
     return CodeClusterer(llm=mock_llm, language="python")
 
 
-
 # Utility function tests
+
 
 def test_build_user_prompt():
     prompt = CodeClusterer.build_user_prompt("x=1", "x=2")
@@ -31,17 +32,7 @@ def test_build_user_prompt():
     assert "x=2" in prompt
 
 
-@pytest.mark.parametrize(
-    "text,expected",
-    [
-        ("Equivalent", 1.0),
-        ("NOT EQUIVALENT", 0.0),
-        ("These behave the same", 1.0),
-        ("they behave differently", 0.0),
-        ("random unrelated text", np.nan),
-        (123, np.nan),
-    ],
-)
+@pytest.mark.parametrize("text,expected", [("Equivalent", 1.0), ("NOT EQUIVALENT", 0.0), ("These behave the same", 1.0), ("they behave differently", 0.0), ("random unrelated text", np.nan), (123, np.nan)])
 def test_normalize_verdict(text, expected):
     out = CodeClusterer.normalize_verdict(text)
     if np.isnan(expected):
@@ -50,8 +41,8 @@ def test_normalize_verdict(text, expected):
         assert out == expected
 
 
-
 # _generate_with_identical_skip tests
+
 
 @pytest.mark.asyncio
 async def test_generate_with_identical_skip_shortcircuits():
@@ -80,7 +71,7 @@ async def test_generate_with_identical_skip_calls_llm():
     mock_llm.ainvoke = AsyncMock(return_value=MagicMock(content="Equivalent"))
 
     cl = CodeClusterer(llm=mock_llm)
-    cl.equivalence_cache = {}     
+    cl.equivalence_cache = {}
 
     score = await cl._generate_with_identical_skip(["a", "c"])
     assert score == 1.0
@@ -89,12 +80,11 @@ async def test_generate_with_identical_skip_calls_llm():
 
 # get_equivalence_scores tests
 
+
 @pytest.mark.asyncio
 async def test_get_equivalence_scores_basic(clusterer):
     """LLM returns scores with no retries."""
-    clusterer._generate_with_identical_skip = AsyncMock(
-        side_effect=[1.0, 0.0, 1.0]
-    )
+    clusterer._generate_with_identical_skip = AsyncMock(side_effect=[1.0, 0.0, 1.0])
 
     responses = ["A", "B"]
     sampled = [["A1", "A2"], ["B1"]]
@@ -108,9 +98,7 @@ async def test_get_equivalence_scores_basic(clusterer):
 async def test_get_equivalence_scores_retries_on_nan(clusterer):
     """If scores come back as NaN, retry logic should call again."""
 
-    clusterer._generate_with_identical_skip = AsyncMock(
-        side_effect=[np.nan, 1.0]
-    )
+    clusterer._generate_with_identical_skip = AsyncMock(side_effect=[np.nan, 1.0])
 
     responses = ["A"]
     sampled = [["A1"]]
@@ -130,7 +118,6 @@ async def test_get_equivalence_scores_empty_inputs(clusterer):
         await clusterer.get_equivalence_scores(["x"], [])
 
 
-
 # evaluate() clustering tests
 
 
@@ -143,7 +130,7 @@ async def test_evaluate_single_prompt_simple_cluster(clusterer):
 
     # Round 1: anchor (0) matches sample (1)
     clusterer.get_equivalence_scores = AsyncMock(
-        return_value=[[True, False]]   # index 0 matches; 1 does not
+        return_value=[[True, False]]  # index 0 matches; 1 does not
     )
 
     responses = ["def f(): pass"]
@@ -169,7 +156,7 @@ async def test_evaluate_multiple_rounds(clusterer):
     clusterer.get_equivalence_scores = AsyncMock(
         side_effect=[
             [[False, False]],  # round 1: nothing matches
-            [[True]]          # round 2: new anchor matches remaining sample
+            [[True]],  # round 2: new anchor matches remaining sample
         ]
     )
 
@@ -185,14 +172,12 @@ async def test_evaluate_multiple_rounds(clusterer):
     assert clusters[0][1] == [1, 2]
 
 
-
 # _get_equivalence_responses tests
+
 
 @pytest.mark.asyncio
 async def test_get_equivalence_responses(clusterer):
-    clusterer._generate_with_identical_skip = AsyncMock(
-        side_effect=[1.0, 0.0, 1.0]
-    )
+    clusterer._generate_with_identical_skip = AsyncMock(side_effect=[1.0, 0.0, 1.0])
 
     pairs = [["a", "b"], ["x", "x"], ["p", "q"]]
     result = await clusterer._get_equivalence_responses(pairs)

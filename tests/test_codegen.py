@@ -13,34 +13,18 @@ def mock_llm():
 
 @pytest.fixture
 def all_scorers():
-    return [
-        "sequence_probability",
-        "min_probability",
-        "mean_token_negentropy",
-        "min_token_negentropy",
-        "probability_margin",
-        "p_true",
-        "consistency_and_confidence",
-        "monte_carlo_probability",
-        "codebleu",
-        "code_equivalence",
-        "verbalized_confidence",
-        "functional_entropy",
-        "semantic_sets",
-        "cosine_sim",
-    ]
+    return ["sequence_probability", "min_probability", "mean_token_negentropy", "min_token_negentropy", "probability_margin", "p_true", "consistency_and_confidence", "monte_carlo_probability", "codebleu", "code_equivalence", "verbalized_confidence", "functional_entropy", "semantic_sets", "cosine_sim"]
 
 
 # ---------- validate_scorers ----------------------------------------------------
+
 
 @patch("uqlm.scorers.shortform.codegen.WhiteBoxUQ")
 @patch("uqlm.scorers.shortform.codegen.CosineScorer")
 @patch("uqlm.scorers.shortform.codegen.CodeBLEU")
 @patch("uqlm.scorers.shortform.codegen.VerbalizedConfidence")
 @patch("uqlm.scorers.shortform.codegen.FunctionalEntropy")
-def test_validate_scorers_initializes_components(
-    mock_fe, mock_vc, mock_cb, mock_cos, mock_wb, mock_llm, all_scorers
-):
+def test_validate_scorers_initializes_components(mock_fe, mock_vc, mock_cb, mock_cos, mock_wb, mock_llm, all_scorers):
     cg = CodeGenUQ(llm=mock_llm, scorers=all_scorers)
 
     mock_wb.assert_called_once()
@@ -52,9 +36,9 @@ def test_validate_scorers_initializes_components(
 
 # ---------- generate_and_score --------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_generate_and_score_calls_dependencies(mock_llm, all_scorers):
-
     cg = CodeGenUQ(llm=mock_llm, scorers=all_scorers)
 
     cg.generate_original_responses = AsyncMock(return_value=["A"])
@@ -76,9 +60,9 @@ async def test_generate_and_score_calls_dependencies(mock_llm, all_scorers):
 
 # ---------- score() ------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_score_produces_expected_data(mock_llm, all_scorers):
-
     cg = CodeGenUQ(llm=mock_llm, scorers=all_scorers)
 
     # Mock components
@@ -97,19 +81,7 @@ async def test_score_produces_expected_data(mock_llm, all_scorers):
     cg.wbuq = MagicMock()
     cg.wbuq.score = AsyncMock(return_value=MagicMock(data={"sequence_probability": [0.4]}))
 
-    fe_result = UQResult(
-        result={
-            "data": {
-                "discrete_confidence_scores": [0.1],
-                "tokenprob_confidence_scores": [0.2],
-                "num_semantic_sets": [1],
-                "semantic_sets_confidence": [0.3],
-                "cluster_indices": [[0]],
-                "equivalence_rate": [1.0],
-                "original_equivalence_scores": [0.7],
-            }
-        }
-    )
+    fe_result = UQResult(result={"data": {"discrete_confidence_scores": [0.1], "tokenprob_confidence_scores": [0.2], "num_semantic_sets": [1], "semantic_sets_confidence": [0.3], "cluster_indices": [[0]], "equivalence_rate": [1.0], "original_equivalence_scores": [0.7]}})
 
     cg.fe = MagicMock()
     cg.fe.evaluate = AsyncMock(return_value=fe_result)
@@ -121,17 +93,11 @@ async def test_score_produces_expected_data(mock_llm, all_scorers):
     logprobs = [[-1.2]]
     sampled_lp = [[-1.1]]
 
-    result = await cg.score(
-        prompts=prompts,
-        responses=responses,
-        sampled_responses=sampled_res,
-        logprobs_results=logprobs,
-        sampled_logprobs_results=sampled_lp,
-    )
+    result = await cg.score(prompts=prompts, responses=responses, sampled_responses=sampled_res, logprobs_results=logprobs, sampled_logprobs_results=sampled_lp)
 
     assert isinstance(result, UQResult)
 
-    data = result.data 
+    data = result.data
 
     assert "verbalized_confidence" in data
     assert "cosine_sim" in data
