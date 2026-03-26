@@ -16,6 +16,9 @@ import json
 import numpy as np
 from uqlm.black_box import BertScorer, CosineScorer, MatchScorer
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
+import os, platform, pytest
+
+pytestmark = pytest.mark.skipif(os.getenv("CI") == "true" and platform.system() == "Linux", reason="Skipped on CI due to hardware-dependent transformer backend imports")
 
 datafile_path = "tests/data/similarity/similarity_results_file.json"
 with open(datafile_path, "r") as f:

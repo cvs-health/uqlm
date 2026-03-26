@@ -1,6 +1,9 @@
 import pytest
 from unittest.mock import MagicMock, patch
 from uqlm.white_box.sampled_logprobs import SampledLogprobsScorer, SAMPLED_LOGPROBS_SCORER_NAMES
+import os, platform
+
+pytestmark = pytest.mark.skipif(os.getenv("CI") == "true" and platform.system() == "Linux", reason="Skipped on CI due to hardware-dependent transformer backend imports")
 
 
 @pytest.fixture

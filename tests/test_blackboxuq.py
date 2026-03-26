@@ -17,6 +17,9 @@ import json
 from uqlm.scorers import BlackBoxUQ
 from uqlm.scorers.shortform.baseclass.uncertainty import DEFAULT_BLACK_BOX_SCORERS
 from langchain_openai import AzureChatOpenAI
+import os, platform
+
+pytestmark = pytest.mark.skipif(os.getenv("CI") == "true" and platform.system() == "Linux", reason="Skipped on CI due to hardware-dependent transformer backend imports")
 
 datafile_path = "tests/data/scorers/blackbox_results_file.json"
 with open(datafile_path, "r") as f:
