@@ -1,13 +1,10 @@
 import sys
 import types
 import importlib.util
+import os
 
-# Disable MPS (Mac GPU) during tests to avoid OOM errors
-import torch
-
-if hasattr(torch.backends, "mps"):
-    torch.backends.mps.is_available = lambda: False
-    torch.backends.mps.is_built = lambda: False
+# Force PyTorch to fall back to CPU instead of MPS on macOS (prevents MPS OOM)
+os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 
 def make_fake_module(name: str):
