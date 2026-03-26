@@ -25,6 +25,7 @@ from uqlm.scorers.longform.longtext import LongTextUQ
 import os, platform
 
 pytestmark = pytest.mark.skipif(os.getenv("CI") == "true" and platform.system() == "Linux", reason="Skipped on CI due to hardware-dependent transformer backend imports")
+pytestmark = pytest.mark.skipif(platform.system() == "Windows", reason="Skipping due to Windows accelerator backend import issues")
 
 
 class TestLongTextUQ:

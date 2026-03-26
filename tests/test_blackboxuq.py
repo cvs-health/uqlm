@@ -20,6 +20,7 @@ from langchain_openai import AzureChatOpenAI
 import os, platform
 
 pytestmark = pytest.mark.skipif(os.getenv("CI") == "true" and platform.system() == "Linux", reason="Skipped on CI due to hardware-dependent transformer backend imports")
+pytestmark = pytest.mark.skipif(platform.system() == "Windows", reason="Skipping due to Windows accelerator backend import issues")
 
 datafile_path = "tests/data/scorers/blackbox_results_file.json"
 with open(datafile_path, "r") as f:

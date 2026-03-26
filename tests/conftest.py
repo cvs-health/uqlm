@@ -2,6 +2,13 @@ import sys
 import types
 import importlib.util
 
+# Disable MPS (Mac GPU) during tests to avoid OOM errors
+import torch
+
+if hasattr(torch.backends, "mps"):
+    torch.backends.mps.is_available = lambda: False
+    torch.backends.mps.is_built = lambda: False
+
 
 def make_fake_module(name: str):
     """Creating a fake module with a valid spec so importlib does not crash"""
