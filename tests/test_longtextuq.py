@@ -22,6 +22,9 @@ from uqlm.utils.results import UQResult
 from uqlm.longform.luq.matched_unit import MatchedUnitScorer
 from uqlm.longform.luq.unit_response import UnitResponseScorer
 from uqlm.scorers.longform.longtext import LongTextUQ
+import os, platform
+
+pytestmark = pytest.mark.skipif(os.getenv("CI") == "true" and platform.system() == "Linux", reason="Skipped on CI due to hardware-dependent transformer backend imports")
 
 
 class TestLongTextUQ:
