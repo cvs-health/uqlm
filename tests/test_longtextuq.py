@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import pytest, os, platform
 
-import pytest
+pytestmark = pytest.mark.skipif((os.getenv("CI") == "true" and platform.system() == "Linux") or platform.system() == "Windows", reason="Skipping transformer-heavy tests on CI Linux and Windows")
 import numpy as np
 from unittest.mock import MagicMock, patch, AsyncMock
 from rich.progress import Progress
@@ -22,10 +23,6 @@ from uqlm.utils.results import UQResult
 from uqlm.longform.luq.matched_unit import MatchedUnitScorer
 from uqlm.longform.luq.unit_response import UnitResponseScorer
 from uqlm.scorers.longform.longtext import LongTextUQ
-import os, platform
-
-pytestmark = pytest.mark.skipif(os.getenv("CI") == "true" and platform.system() == "Linux", reason="Skipped on CI due to hardware-dependent transformer backend imports")
-pytestmark = pytest.mark.skipif(platform.system() == "Windows", reason="Skipping due to Windows accelerator backend import issues")
 
 
 class TestLongTextUQ:

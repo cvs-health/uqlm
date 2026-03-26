@@ -1,10 +1,9 @@
-import sys
-import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
-import os, platform
+import pytest, os, platform
 
-pytestmark = pytest.mark.skipif(os.getenv("CI") == "true" and platform.system() == "Linux", reason="Skipped on CI due to hardware-dependent transformer backend imports")
-pytestmark = pytest.mark.skipif(platform.system() == "Windows", reason="Skipping due to Windows accelerator backend import issues")
+pytestmark = pytest.mark.skipif((os.getenv("CI") == "true" and platform.system() == "Linux") or platform.system() == "Windows", reason="Skipping transformer-heavy tests on CI Linux and Windows")
+import sys
+from unittest.mock import MagicMock, AsyncMock, patch
+
 #  Patch Cosine module before CodeGenUQ is imported
 cosine_mock = MagicMock()
 sys.modules["uqlm.black_box.cosine"] = cosine_mock  # Prevent importing sentence-transformers

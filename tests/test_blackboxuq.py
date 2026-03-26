@@ -11,16 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import pytest, os, platform
 
-import pytest
+pytestmark = pytest.mark.skipif((os.getenv("CI") == "true" and platform.system() == "Linux") or platform.system() == "Windows", reason="Skipping transformer-heavy tests on CI Linux and Windows")
 import json
 from uqlm.scorers import BlackBoxUQ
 from uqlm.scorers.shortform.baseclass.uncertainty import DEFAULT_BLACK_BOX_SCORERS
 from langchain_openai import AzureChatOpenAI
-import os, platform
-
-pytestmark = pytest.mark.skipif(os.getenv("CI") == "true" and platform.system() == "Linux", reason="Skipped on CI due to hardware-dependent transformer backend imports")
-pytestmark = pytest.mark.skipif(platform.system() == "Windows", reason="Skipping due to Windows accelerator backend import issues")
 
 datafile_path = "tests/data/scorers/blackbox_results_file.json"
 with open(datafile_path, "r") as f:
