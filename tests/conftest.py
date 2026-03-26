@@ -1,4 +1,3 @@
-# tests/conftest.py
 import sys
 import types
 import importlib.util
@@ -12,7 +11,8 @@ def make_fake_module(name: str):
 
 
 # blocking hardware acceleration backends
-BACKEND_MODULES = ["flash_attn", "habana_frameworks", "torch_npu", "optimum.habana", "optimum.graphcore", "optimum.neuron"]
+BACKEND_MODULES = ["flash_attn", "flash_attn.ops", "flash_attn.flash_attn_interface", "habana_frameworks", "habana_frameworks.torch", "habana_frameworks.torch.hpu", "torch_npu", "optimum", "optimum.habana", "optimum.neuron", "optimum.graphcore"]
+
 
 for name in BACKEND_MODULES:
     sys.modules[name] = make_fake_module(name)
