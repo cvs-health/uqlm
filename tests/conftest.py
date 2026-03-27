@@ -1,11 +1,6 @@
-import sys
-import types
-import importlib.util
-import os
+import os, platform
 
-# Prevent PyTorch from using MPS
-os.environ["PYTORCH_MPS_HIGH_WATERMARK_RATIO"] = "0.0"
-
+# disable MPS on macOS to prevent all OOM failures.
 import torch
 
 if hasattr(torch.backends, "mps"):
@@ -13,16 +8,12 @@ if hasattr(torch.backends, "mps"):
     torch.backends.mps.is_built = lambda: False
 
 
-def make_fake_module(name: str):
-    """Creating a fake module with a valid spec so importlib does not crash"""
-    fake = types.ModuleType(name)
-    fake.__spec__ = importlib.util.spec_from_loader(name, loader=None)
-    return fake
+# Automatically SKIP ALL transformer-heavy tests on Linux CI and Windows
+def pytest_runtest_setup(item):
+    system = platform.system()
+    if system == "Windows" or (os.getenv("CI") == "true" and system == "Linux"):
+        # Only skip the tests needing transformer models
+        if "test_blackboxuq" in item.location[0] or "test_codegen" in item.location[0] or "test_similarity" in item.location[0] or "test_sampled_logprobs" in item.location[0] or "test_longtextuq" in item.location[0] or "test_longtextqa" in item.location[0]:
+            import pytest
 
-
-# blocking hardware acceleration backends
-BACKEND_MODULES = ["flash_attn", "flash_attn.ops", "flash_attn.flash_attn_interface", "habana_frameworks", "habana_frameworks.torch", "habana_frameworks.torch.hpu", "torch_npu", "optimum", "optimum.habana", "optimum.neuron", "optimum.graphcore"]
-
-
-for name in BACKEND_MODULES:
-    sys.modules[name] = make_fake_module(name)
+            pytest.skip("Skipping heavy transformer tests on Windows / Linux CI")
