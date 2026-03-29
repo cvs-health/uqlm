@@ -1,4 +1,6 @@
-import pytest
+import pytest, os, platform
+
+pytestmark = pytest.mark.skipif((os.getenv("CI") == "true" and platform.system() == "Linux") or platform.system() == "Windows", reason="Skipping transformer-heavy tests on CI Linux and Windows")
 from unittest.mock import MagicMock, patch
 from uqlm.white_box.sampled_logprobs import SampledLogprobsScorer, SAMPLED_LOGPROBS_SCORER_NAMES
 
