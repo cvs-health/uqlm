@@ -82,7 +82,7 @@ class ClaimScorer(ABC):
         # entail_prob = nli_result.entailment_probability
         # contradict_prob = nli_result.contradiction_probability
         entail_prob = nli_result[:, -1]
-        contradict_prob = 1 - nli_result[:, 0]
+        contradict_prob = nli_result[:, 0]
         contrast_entail_prob = entail_prob / (entail_prob + contradict_prob)
         return entail_prob, (1 - contradict_prob), contrast_entail_prob
 
