@@ -144,17 +144,7 @@ class BlackBoxUQ(ShortFormUQ):
         self._display_generation_header(show_progress_bars, generation_type=self.generation_type)
 
         responses = await self.generate_original_responses(prompts=prompts, progress_bar=self.progress_bar)
-
-        retries = 0
-        sampled_responses = None
-        while retries < 5 and not sampled_responses:
-            try:
-                sampled_responses = await self.generate_candidate_responses(prompts=prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
-            except Exception:
-                retries += 1
-                print("retry ", retries)
-                pass
-        print("QA generation completed")
+        sampled_responses = await self.generate_candidate_responses(prompts=prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
         result = self.score(responses=responses, sampled_responses=sampled_responses, show_progress_bars=show_progress_bars)
         return result
 
