@@ -144,7 +144,17 @@ class BlackBoxUQ(ShortFormUQ):
         self._display_generation_header(show_progress_bars, generation_type=self.generation_type)
 
         responses = await self.generate_original_responses(prompts=prompts, progress_bar=self.progress_bar)
-        sampled_responses = await self.generate_candidate_responses(prompts=prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
+
+        retries = 0
+        sampled_responses = None
+        while retries < 5 and not sampled_responses:
+            try:
+                sampled_responses = await self.generate_candidate_responses(prompts=prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
+            except Exception:
+                retries += 1
+                print("retry ", retries)
+                pass
+        print("QA generation completed")
         result = self.score(responses=responses, sampled_responses=sampled_responses, show_progress_bars=show_progress_bars)
         return result
 
@@ -185,7 +195,7 @@ class BlackBoxUQ(ShortFormUQ):
             if "semantic_negentropy" in self.scorer_names:
                 self.scores_dict["semantic_negentropy"] = [1 - s for s in self.scorer_objects["semantic_negentropy"]._normalize_entropy(se_tmp.data["discrete_entropy_values"])]  # Convert to confidence score
             if "semantic_sets_confidence" in self.scorer_names:
-                self.scores_dict["semantic_sets_confidence"] = [1 - (s - 1) / (self.num_responses - 1) for s in se_tmp.data["num_semantic_sets"]]  # Convert to confidence score
+                self.scores_dict["semantic_sets_confidence"] = [(self.num_responses + 1 - s) / self.num_responses for s in se_tmp.data["num_semantic_sets"]]  # Convert to confidence score; max sets = num_responses + 1 (conf=0), min sets = 1 (conf=1)
             available_nli_scores = self.scorer_objects["semantic_negentropy"].clusterer.nli_scores
             if self.use_best:
                 self._update_best(se_tmp.data["responses"], include_logprobs=False)
