@@ -92,7 +92,7 @@ Using with LLMPanel:
 References
 ----------
 
-- Bai, Y., et al. (2023). `Benchmarking ChatGPT for Retrieving and Recommending Medical Information <https://arxiv.org/abs/2306.04181>`_. *arXiv*.
+- Bai, Y., et al. (2023). `Benchmarking Foundation Models with Language-Model-as-an-Examiner <https://arxiv.org/abs/2306.04181>`_. *arXiv*.
 
 See Also
 --------

@@ -84,7 +84,7 @@ Example
 References
 ----------
 
-- Vashurin, R., et al. (2025). `CoCoA: Towards Efficient Multi-Criteria Conformal Calibration of Large Language Models <https://arxiv.org/abs/2502.04964>`_. *arXiv*.
+- Vashurin, R., et al. (2025). `Uncertainty Quantification for LLMs through Minimum Bayes Risk: Bridging Confidence and Consistency <https://arxiv.org/abs/2502.04964>`_. *arXiv*.
 
 See Also
 --------

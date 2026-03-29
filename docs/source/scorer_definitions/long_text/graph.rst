@@ -26,7 +26,7 @@ where :math:`\mathbf{y}^{(s)}_{\text{cand}} = \{y_1^{(s)}, ..., y_m^{(s)}\}` are
 
 **Key Properties:**
 
-- Claim or sententence-level scoring
+- Claim or sentence-level scoring
 - More complex (cost and latency) than LUQ-style scoring methods
 - Score range: :math:`[0, 1]`
 

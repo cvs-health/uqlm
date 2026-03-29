@@ -111,7 +111,7 @@ You can also use the dedicated :class:`SemanticDensity` class:
 References
 ----------
 
-- Qiu, L., et al. (2024). `Semantic Density: Uncertainty Quantification for Large Language Models through Confidence Measurement in Semantic Space <https://arxiv.org/abs/2405.13845>`_. *arXiv*.
+- Qiu, X., et al. (2024). `Semantic Density: Uncertainty Quantification for Large Language Models through Confidence Measurement in Semantic Space <https://arxiv.org/abs/2405.13845>`_. *arXiv*.
 
 See Also
 --------
