@@ -23,6 +23,7 @@ from rich.errors import LiveError
 from uqlm.utils.response_generator import ResponseGenerator
 from uqlm.nli.nli import NLI
 from uqlm.utils.display import ConditionalBarColumn, ConditionalTimeElapsedColumn, ConditionalTextColumn, ConditionalSpinnerColumn
+from uqlm.utils.warn import deprecation_warning
 
 
 class UncertaintyQuantifier:
@@ -65,6 +66,9 @@ class UncertaintyQuantifier:
         self.progress_bar = None
         self.raw_responses = None
         self.raw_sampled_responses = None
+
+        if self.use_n_param:
+            deprecation_warning("The `use_n_param` option is deprecated and will not be used to generate responses.")
 
     async def generate_original_responses(self, prompts: List[Union[str, List[BaseMessage]]], top_k_logprobs: Optional[int] = None, progress_bar: Optional[Progress] = None) -> List[str]:
         """

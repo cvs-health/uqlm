@@ -220,7 +220,7 @@ class UQEnsemble(ShortFormUQ):
             the corresponding response from `responses`. Must be provided if using black box scorers.
 
         logprobs_results : list of logprobs_result, default=None
-            List of lists of dictionaries, each returned by BaseChatModel.agenerate. Must be provided if using white box scorers.
+            List of lists of dictionaries, each returned by BaseChatModel.ainvoke. Must be provided if using white box scorers.
 
         num_responses : int, default=5
             The number of sampled responses used to compute consistency. Not value will not be used if sampled_responses is provided

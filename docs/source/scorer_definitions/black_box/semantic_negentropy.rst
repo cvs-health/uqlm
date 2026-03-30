@@ -32,9 +32,11 @@ corresponding to higher confidence, we implement the following normalization to 
 
 .. math::
 
-    NSN(y_i; \tilde{\mathbf{y}}_i) = 1 - \frac{SE(y_i; \tilde{\mathbf{y}}_i)}{\log m}
+    NSN(y_i; \tilde{\mathbf{y}}_i) = 1 - \frac{SE(y_i; \tilde{\mathbf{y}}_i)}{\log(m+1)}
 
-where :math:`\log m` is included to normalize the support.
+where :math:`m` is the number of sampled responses and the total number of responses (original plus
+sampled) is :math:`m+1`. The divisor :math:`\log(m+1)` normalizes the support, since maximum entropy
+occurs when all :math:`m+1` responses fall into distinct clusters.
 
 How It Works
 ------------
@@ -77,7 +79,7 @@ References
 
 - Farquhar, S., et al. (2024). `Detecting hallucinations in large language models using semantic entropy <https://www.nature.com/articles/s41586-024-07421-0>`_. *Nature*.
 - Kuhn, L., et al. (2023). `Semantic Uncertainty: Linguistic Invariances for Uncertainty Estimation in Natural Language Generation <https://arxiv.org/abs/2302.09664>`_. *arXiv*.
-- Bouchard, D. & Chauhan, M. S. (2025). `Generalized Ensembles for Robust Uncertainty Quantification of LLMs <https://arxiv.org/abs/2504.19254>`_. *arXiv*.
+- Bouchard, D. & Chauhan, M. S. (2025). `Uncertainty Quantification for Language Models: A Suite of Black-Box, White-Box, LLM Judge, and Ensemble Scorers <https://arxiv.org/abs/2504.19254>`_. *arXiv*.
 
 See Also
 --------

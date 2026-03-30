@@ -82,9 +82,9 @@ Example
 References
 ----------
 
-- Scalena, D., et al. (2025). `TrustScore: Reference-Free Evaluation of LLM Response Trustworthiness <https://arxiv.org/abs/2510.11170>`_. *arXiv*.
+- Scalena, D., et al. (2025). `EAGER: Entropy-Aware GEneRation for Adaptive Inference-Time Scaling <https://arxiv.org/abs/2510.11170>`_. *arXiv*.
 - Manakul, P., et al. (2023). `SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models <https://arxiv.org/abs/2303.08896>`_. *arXiv*.
-- Bouchard, D. & Chauhan, M. S. (2025). `Generalized Ensembles for Robust Uncertainty Quantification of LLMs <https://arxiv.org/abs/2504.19254>`_. *arXiv*.
+- Bouchard, D. & Chauhan, M. S. (2025). `Uncertainty Quantification for Language Models: A Suite of Black-Box, White-Box, LLM Judge, and Ensemble Scorers <https://arxiv.org/abs/2504.19254>`_. *arXiv*.
 
 See Also
 --------

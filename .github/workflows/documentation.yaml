@@ -42,14 +42,10 @@ jobs:
           sed -i "s/^release = .*/release = '${{ steps.version.outputs.clean_version }}'/" docs/source/conf.py
           head -n 20 docs/source/conf.py
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: 3.12
-
-      - name: Install Poetry
-        run: |
-          pip install poetry
+          python-version: "3.12"
 
       - name: Download and install Pandoc
         run: |
@@ -66,10 +62,7 @@ jobs:
         run: pandoc --version
 
       - name: Install dependencies
-        run: |
-          poetry lock
-          poetry install --with docs
-          eval $(poetry env activate)
+        run: uv sync --group docs
 
       - name: Checkout gh-pages branch to get versions.json
         uses: actions/checkout@v4
@@ -87,7 +80,7 @@ jobs:
       
       - name: Build Sphinx docs
         run: |
-          eval $(poetry env activate)
+          source .venv/bin/activate
           make -C docs clean
           make -C docs html
 

@@ -5,39 +5,50 @@ Sequence Probability
 
 ``sequence_probability``
 
-Sequence Probability (SP) computes the joint probability of all tokens in the generated response.
+Sequence Probability (SP) computes a probability measure over the tokens in the generated response.
+By default it is length-normalized (geometric mean of token probabilities); with
+``length_normalize=False`` it is the raw joint probability.
 
 Definition
 ----------
 
-Sequence probability is the joint probability of all tokens:
+**Default (length-normalized):** With :class:`WhiteBoxUQ` default ``length_normalize=True``, sequence
+probability is the geometric mean of token probabilities (length-normalized token probability, LNTP):
+
+.. math::
+
+    SP(y_i) = \prod_{t \in y_i} p_t^{\frac{1}{L_i}}
+
+where :math:`L_i` is the number of tokens in response :math:`y_i` and :math:`p_t` denotes the token
+probability. This is length-invariant and in :math:`[0, 1]`.
+
+**Non-normalized:** With ``length_normalize=False``, sequence probability is the joint probability:
 
 .. math::
 
     SP(y_i) = \prod_{t \in y_i} p_t
 
-where :math:`p_t` denotes the token probability for token :math:`t`.
+which tends to decrease with longer responses and is typically very small for longer sequences.
 
 **Key Properties:**
 
 - Direct measure of how likely the model considers its own output
-- Not length-normalized, so tends to decrease with longer responses
-- Score range: :math:`[0, 1]` but typically very small for longer sequences
+- Default is length-normalized (geometric mean) for fair comparison across response lengths
+- Score range: :math:`[0, 1]`
 
 How It Works
 ------------
 
 1. Generate a response with logprobs enabled
 2. Extract the probability for each token in the response
-3. Multiply all token probabilities together
-
-Note that due to the multiplicative nature, sequence probability decreases rapidly with response
-length. For length-invariant scoring, consider :doc:`normalized_probability`.
+3. With default ``length_normalize=True``, compute the geometric mean of token probabilities; otherwise compute the product
 
 Parameters
 ----------
 
-When using :class:`WhiteBoxUQ`, specify ``"sequence_probability"`` in the ``scorers`` list.
+When using :class:`WhiteBoxUQ`, specify ``"sequence_probability"`` in the ``scorers`` list. Use
+``length_normalize=False`` when you want the raw joint probability instead of the default
+length-normalized form.
 
 Example
 -------
@@ -61,12 +72,12 @@ Example
 References
 ----------
 
-- Vashurin, R., et al. (2024). `Benchmarking LLM Uncertainty Quantification Methods for Agentic AI <https://arxiv.org/abs/2406.15627>`_. *arXiv*.
+- Vashurin, R., et al. (2024). `Benchmarking Uncertainty Quantification Methods for Large Language Models with LM-Polygraph <https://arxiv.org/abs/2406.15627>`_. *arXiv*.
 
 See Also
 --------
 
 - :class:`WhiteBoxUQ` - Main class for white-box uncertainty quantification
-- :doc:`normalized_probability` - Length-normalized version of sequence probability
 - :doc:`min_probability` - Minimum token probability across the response
+- :doc:`monte_carlo_probability` - Multi-generation average of length-normalized sequence probability
 

@@ -80,7 +80,7 @@ Example
 References
 ----------
 
-- Scalena, D., et al. (2025). `TrustScore: Reference-Free Evaluation of LLM Response Trustworthiness <https://arxiv.org/abs/2510.11170>`_. *arXiv*.
+- Scalena, D., et al. (2025). `EAGER: Entropy-Aware GEneRation for Adaptive Inference-Time Scaling <https://arxiv.org/abs/2510.11170>`_. *arXiv*.
 - Manakul, P., et al. (2023). `SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models <https://arxiv.org/abs/2303.08896>`_. *arXiv*.
 
 See Also

@@ -75,7 +75,7 @@ Example
 References
 ----------
 
-- Farr, C., et al. (2024). `Measuring Uncertainty in Large Language Models through Semantic Embeddings <https://arxiv.org/abs/2408.08217>`_. *arXiv*.
+- Farr, C., et al. (2024). `RED-CT: A Systems Design Methodology for Using LLM-labeled Data to Train and Deploy Edge Classifiers for Computational Social Science <https://arxiv.org/abs/2408.08217>`_. *arXiv*.
 
 See Also
 --------

@@ -102,21 +102,17 @@ def test_assertions_and_static_methods():
 async def test_logprobs_extraction_branches(monkeypatch):
     """Test the actual logprobs extraction by mocking LLM"""
 
-    # Mock the LLM's agenerate method at the class level
-    async def mock_agenerate_with_logprobs_result(self, messages, **kwargs):
-        class MockGeneration:
-            def __init__(self):
-                self.text = MOCKED_RESPONSES[0]
-                self.generation_info = {"logprobs_result": ["logprob1", "logprob2"]}
-
+    # Mock the LLM's ainvoke method at the class level
+    async def mock_ainvoke_with_logprobs_result(self, messages, **kwargs):
         class MockResult:
             def __init__(self):
-                self.generations = [[MockGeneration()]]
+                self.content = MOCKED_RESPONSES[0]
+                self.response_metadata = {"logprobs_result": ["logprob1", "logprob2"]}
 
         return MockResult()
 
     # Patch at the class level
-    monkeypatch.setattr(AzureChatOpenAI, "agenerate", mock_agenerate_with_logprobs_result)
+    monkeypatch.setattr(AzureChatOpenAI, "ainvoke", mock_ainvoke_with_logprobs_result)
     mock_object = create_mock_llm()
     mock_object.logprobs = True
     generator_object = ResponseGenerator(llm=mock_object)
@@ -128,20 +124,16 @@ async def test_logprobs_extraction_branches(monkeypatch):
 async def test_logprobs_content_extraction(monkeypatch):
     """Test the logprobs content extraction branch"""
 
-    async def mock_agenerate_with_content_logprobs(self, messages, **kwargs):
-        class MockGeneration:
-            def __init__(self):
-                self.text = MOCKED_RESPONSES[1]
-                self.generation_info = {"logprobs": {"content": ["content_logprob1", "content_logprob2"]}}
-
+    async def mock_ainvoke_with_content_logprobs(self, messages, **kwargs):
         class MockResult:
             def __init__(self):
-                self.generations = [[MockGeneration()]]
+                self.content = MOCKED_RESPONSES[1]
+                self.response_metadata = {"logprobs": {"content": ["content_logprob1", "content_logprob2"]}}
 
         return MockResult()
 
     # Patch at the class level
-    monkeypatch.setattr(AzureChatOpenAI, "agenerate", mock_agenerate_with_content_logprobs)
+    monkeypatch.setattr(AzureChatOpenAI, "ainvoke", mock_ainvoke_with_content_logprobs)
     mock_object = create_mock_llm()
     mock_object.logprobs = True
     generator_object = ResponseGenerator(llm=mock_object)
@@ -191,15 +183,15 @@ async def test_async_api_call_with_base_message_list():
     # Create a list of BaseMessage prompts
     prompt = [HumanMessage(content="Hello"), HumanMessage(content="How are you?")]
 
-    # Mock the LLM's agenerate method
-    mock_llm.agenerate = AsyncMock(return_value=MagicMock(generations=[[MagicMock(text="Response")]]))
+    # Mock the LLM's ainvoke method
+    mock_llm.ainvoke = AsyncMock(return_value=MagicMock(content="Response"))
 
     # Call the _async_api_call method
     result = await generator._async_api_call(prompt=prompt, count=1)
 
     # Assert that the messages were constructed correctly
     expected_messages = [generator.system_message] + prompt
-    mock_llm.agenerate.assert_called_once_with([expected_messages])
+    mock_llm.ainvoke.assert_called_once_with(expected_messages)
 
     # Assert progress bar was updated
     mock_progress.update.assert_called_once_with("mock_task", advance=1)
@@ -227,15 +219,15 @@ async def test_async_api_call_with_top_logprobs_and_progress_bar():
     # Create a list of BaseMessage prompts
     prompt = [HumanMessage(content="Hello")]
 
-    # Mock agenerate_with_top_logprobs
-    generator.agenerate_with_top_logprobs = AsyncMock(return_value={"logprobs": [None], "responses": ["Response"]})
+    # Mock ainvoke_with_top_logprobs
+    generator.ainvoke_with_top_logprobs = AsyncMock(return_value={"logprobs": [None], "responses": ["Response"]})
 
     # Call the _async_api_call method
     result = await generator._async_api_call(prompt=prompt, count=1)
 
-    # Assert that agenerate_with_top_logprobs was called with correct messages
+    # Assert that ainvoke_with_top_logprobs was called with correct messages
     expected_messages = [generator.system_message] + prompt
-    generator.agenerate_with_top_logprobs.assert_called_once_with(expected_messages, count=1)
+    generator.ainvoke_with_top_logprobs.assert_called_once_with(expected_messages, count=1)
 
     # Assert that the progress bar was updated
     mock_progress.update.assert_called_once_with("mock_task", advance=1)
@@ -247,20 +239,20 @@ async def test_async_api_call_with_top_logprobs_and_progress_bar():
 
 
 @pytest.mark.asyncio
-async def test_agenerate_with_top_logprobs_openai():
-    """Test agenerate_with_top_logprobs for the 'openai' branch."""
+async def test_ainvoke_with_top_logprobs_openai():
+    """Test ainvoke_with_top_logprobs for the 'openai' branch."""
     mock_llm = MagicMock()
     mock_llm.__str__.return_value = "openai"
     generator = ResponseGenerator(llm=mock_llm, top_k_logprobs=5)
 
-    # Mock agenerate
-    mock_llm.agenerate = AsyncMock(return_value=MagicMock(generations=[[MagicMock(text="Response")]]))
+    # Mock ainvoke
+    mock_llm.ainvoke = AsyncMock(return_value=MagicMock(content="Response"))
 
     messages = [HumanMessage(content="Hello")]
-    result = await generator.agenerate_with_top_logprobs(messages=messages, count=1)
+    result = await generator.ainvoke_with_top_logprobs(messages=messages, count=1)
 
-    # Assert agenerate was called with the correct arguments
-    mock_llm.agenerate.assert_called_once_with([messages], logprobs=True, top_logprobs=5)
+    # Assert ainvoke was called with the correct arguments
+    mock_llm.ainvoke.assert_called_once_with(messages, logprobs=True, top_logprobs=5)
 
     # Assert the result structure
     assert "logprobs" in result
@@ -269,21 +261,21 @@ async def test_agenerate_with_top_logprobs_openai():
 
 
 @pytest.mark.asyncio
-async def test_agenerate_with_top_logprobs_google():
-    """Test agenerate_with_top_logprobs for the 'google' or 'gemini' branch."""
+async def test_ainvoke_with_top_logprobs_google():
+    """Test ainvoke_with_top_logprobs for the 'google' or 'gemini' branch."""
     mock_llm = MagicMock()
     mock_llm.__str__.return_value = "google"
     generator = ResponseGenerator(llm=mock_llm, top_k_logprobs=5)
 
-    # Mock agenerate
-    mock_llm.agenerate = AsyncMock(return_value=MagicMock(generations=[[MagicMock(text="Response")]]))
+    # Mock ainvoke
+    mock_llm.ainvoke = AsyncMock(return_value=MagicMock(content="Response"))
 
     messages = [HumanMessage(content="Hello")]
-    result = await generator.agenerate_with_top_logprobs(messages=messages, count=1)
+    result = await generator.ainvoke_with_top_logprobs(messages=messages, count=1)
 
-    # Assert logprobs was set and agenerate was called
+    # Assert logprobs was set and ainvoke was called
     assert mock_llm.logprobs == 5
-    mock_llm.agenerate.assert_called_once_with([messages])
+    mock_llm.ainvoke.assert_called_once_with(messages)
 
     # Assert the result structure
     assert "logprobs" in result
@@ -292,20 +284,20 @@ async def test_agenerate_with_top_logprobs_google():
 
 
 @pytest.mark.asyncio
-async def test_agenerate_with_top_logprobs_else_branch():
-    """Test agenerate_with_top_logprobs for the 'else' branch."""
+async def test_ainvoke_with_top_logprobs_else_branch():
+    """Test ainvoke_with_top_logprobs for the 'else' branch."""
     mock_llm = MagicMock()
     mock_llm.__str__.return_value = "other"
     generator = ResponseGenerator(llm=mock_llm, top_k_logprobs=5)
 
-    # Mock agenerate
-    mock_llm.agenerate = AsyncMock(return_value=MagicMock(generations=[[MagicMock(text="Response")]]))
+    # Mock ainvoke
+    mock_llm.ainvoke = AsyncMock(return_value=MagicMock(content="Response"))
 
     messages = [HumanMessage(content="Hello")]
-    result = await generator.agenerate_with_top_logprobs(messages=messages, count=1)
+    result = await generator.ainvoke_with_top_logprobs(messages=messages, count=1)
 
-    # Assert agenerate was called with the correct arguments
-    mock_llm.agenerate.assert_called_once_with([messages], logprobs=True, top_logprobs=5)
+    # Assert ainvoke was called with the correct arguments
+    mock_llm.ainvoke.assert_called_once_with(messages, logprobs=True, top_logprobs=5)
 
     # Assert the result structure
     assert "logprobs" in result
@@ -314,16 +306,16 @@ async def test_agenerate_with_top_logprobs_else_branch():
 
 
 @pytest.mark.asyncio
-async def test_agenerate_with_top_logprobs_exception_handling():
-    """Test agenerate_with_top_logprobs exception handling."""
+async def test_ainvoke_with_top_logprobs_exception_handling():
+    """Test ainvoke_with_top_logprobs exception handling."""
     mock_llm = MagicMock()
     generator = ResponseGenerator(llm=mock_llm, top_k_logprobs=5)
 
     # Simulate exceptions in both the try and except blocks
-    mock_llm.agenerate = AsyncMock(side_effect=Exception("Mocked exception"))
+    mock_llm.ainvoke = AsyncMock(side_effect=Exception("Mocked exception"))
 
     messages = [HumanMessage(content="Hello")]
-    result = await generator.agenerate_with_top_logprobs(messages=messages, count=1)
+    result = await generator.ainvoke_with_top_logprobs(messages=messages, count=1)
 
     # Assert that the result structure is still returned even after exceptions
     assert "logprobs" in result
