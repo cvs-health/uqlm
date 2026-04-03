@@ -139,7 +139,6 @@ class CodeGenUQ(ShortFormUQ):
             data["tokenprob_semantic_entropy"] = fe_results.data["tokenprob_confidence_scores"]
             if "semantic_sets" in self.scorers:
                 data["num_semantic_sets"] = fe_results.data["num_semantic_sets"]
-            data["functional_entropy_equivalence_indicators"] = self.fe.equivalence_indicators
 
             data["semantic_negentropy"] = fe_results.data["discrete_confidence_scores"]
             data["semantic_negentropy_whitebox"] = fe_results.data["tokenprob_confidence_scores"]
