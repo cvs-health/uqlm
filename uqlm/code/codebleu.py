@@ -1,6 +1,7 @@
 import math
 import importlib
-from typing import List
+from typing import List,Optional
+from rich.progress import Progress
 
 
 class CodeBLEU:
@@ -22,7 +23,7 @@ class CodeBLEU:
 
         self.calc_codebleu = calc_codebleu
 
-    def evaluate(self, responses: List[str], sampled_responses: List[List[str]]) -> List[float]:
+    def evaluate(self, responses: List[str], sampled_responses: List[List[str]],progress_bar: Optional[Progress] = None,) -> List[float]:
         """
         Evaluate CodeBLEU scores on the provided responses and sampled responses.
 
@@ -42,8 +43,22 @@ class CodeBLEU:
             raise ValueError("Either responses or sampled responses is empty")
         n_prompts = len(responses)
         self.scores, self.pair_scores = [0] * n_prompts, [[]] * n_prompts
+
+        # Progress bar 
+        progress_task = None
+        if progress_bar:
+            progress_task = progress_bar.add_task(
+                "  - Scoring responses with CodeBleu....",
+                total=n_prompts,
+            )
+
         for i in range(n_prompts):
             self.scores[i], self.pair_scores[i] = self.codebleu_confidence(responses[i], sampled_responses[i])
+
+            if progress_bar and progress_task is not None:
+                progress_bar.update(progress_task, advance=1)
+                
+
         return self.scores
 
     def codebleu_confidence(self, response: str, sampled_responses: List[str]) -> float:
