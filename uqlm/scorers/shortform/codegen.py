@@ -87,19 +87,24 @@ class CodeGenUQ(ShortFormUQ):
         self.language = language
         self.equivalence_llm = equivalence_llm if equivalence_llm else llm
         self.retries = retries
+        self.generation_type = "default"
         self._validate_scorers()
 
-    async def generate_and_score(self, prompts: List[str], num_responses: Optional[int] = 5) -> UQResult:
-        self._construct_progress_bar(True)
+    async def generate_and_score(self, prompts: List[str], num_responses: Optional[int] = 5, show_progress_bars: Optional[bool] = True) -> UQResult:
+        # self._construct_progress_bar(True)
+        self._construct_progress_bar(show_progress_bars)
+        self._display_generation_header(show_progress_bars, generation_type=self.generation_type)
         self.llm.logprobs = True
         self.responses = await self.generate_original_responses(prompts, top_k_logprobs=self.top_k_logprobs, progress_bar=self.progress_bar)
         self.sampled_responses = await self.generate_candidate_responses(prompts=prompts, num_responses=num_responses, progress_bar=self.progress_bar)
-        results = await self.score(prompts=prompts, responses=self.responses, sampled_responses=self.sampled_responses, logprobs_results=self.logprobs, sampled_logprobs_results=self.multiple_logprobs)
+        results = await self.score(prompts=prompts, responses=self.responses, sampled_responses=self.sampled_responses, logprobs_results=self.logprobs, sampled_logprobs_results=self.multiple_logprobs, show_progress_bars=show_progress_bars)
         return results
 
-    async def score(self, prompts: List[str], responses: List[str], sampled_responses: List[List[str]], logprobs_results: List[List[float]], sampled_logprobs_results: List[List[float]]) -> UQResult:
+    async def score(self, prompts: List[str], responses: List[str], sampled_responses: List[List[str]], logprobs_results: List[List[float]], sampled_logprobs_results: List[List[float]], show_progress_bars: Optional[bool] = True, _display_header: bool = True) -> UQResult:
         data = {"prompts": prompts, "responses": responses, "logprob": logprobs_results, "sampled_responses": sampled_responses, "sampled_logprob": sampled_logprobs_results}
         data = {key: val for key, val in data.items() if val}
+
+        self._display_scoring_header(show_progress_bars and _display_header)
 
         # Compute Verbalized Confidence scores
         if "verbalized_confidence" in self.scorers:
@@ -107,13 +112,13 @@ class CodeGenUQ(ShortFormUQ):
 
         # Compute Cosine Similarity
         if "cosine_sim" in self.scorers:
-            data["cosine_sim"] = self.cos.evaluate(responses=responses, sampled_responses=sampled_responses)
+            data["cosine_sim"] = self.cos.evaluate(responses=responses, sampled_responses=sampled_responses, progress_bar=self.progress_bar)
             data["cosine_sim_pair_score"] = self.cos.pair_scores
 
         # Compute White-box UQ scores
         if len(self.wbuq_scorers) > 0:
             self.wbuq.progress_bar = self.progress_bar
-            self.wb_results = await self.wbuq.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results)
+            self.wb_results = await self.wbuq.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results, _display_header=False)
             for key in self.wb_results.data:
                 if key in self.scorers:
                     data[key] = self.wb_results.data[key]
@@ -123,11 +128,12 @@ class CodeGenUQ(ShortFormUQ):
 
         # Compute Code BLEU confidence scores
         if "codebleu" in self.scorers:
-            data["codebleu"] = self.cb.evaluate(responses=responses, sampled_responses=sampled_responses)
+            data["codebleu"] = self.cb.evaluate(responses=responses, sampled_responses=sampled_responses, progress_bar=self.progress_bar)
             data["code_bleu_pair_score"] = self.cb.pair_scores
 
         # Compute Functional Entropy scores
         if "functional_entropy" in self.scorers:
+            self.fe.progress_bar = self.progress_bar
             fe_results = await self.fe.evaluate(responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results)
             data["semantic_entropy"] = fe_results.data["discrete_confidence_scores"]
             data["tokenprob_semantic_entropy"] = fe_results.data["tokenprob_confidence_scores"]
@@ -143,6 +149,7 @@ class CodeGenUQ(ShortFormUQ):
             if "code_equivalence" in self.scorers:
                 data["equivalence_rate"] = fe_results.data["equivalence_rate"]
                 data["original_equivalence_scores"] = fe_results.data["original_equivalence_scores"]
+
         return UQResult(result={"data": data})
 
     def _validate_scorers(self):
