@@ -3,6 +3,7 @@ import numpy as np
 from typing import Any, List, Optional, Dict
 from uqlm.utils.results import UQResult
 from uqlm.code.clusterer import CodeClusterer
+from rich.progress import Progress
 
 
 class FunctionalEntropy:
@@ -40,7 +41,7 @@ class FunctionalEntropy:
         self.clusterer = CodeClusterer(llm=equivalence_llm, language=language, system_prompt=system_prompt, retries=retries)
         self.progress_bar = None
 
-    async def evaluate(self, responses: List[str] = None, sampled_responses: List[List[str]] = None, logprobs_results: Optional[List[List[Dict[str, Any]]]] = None, sampled_logprobs_results: Optional[List[List[List[Dict[str, Any]]]]] = None, equivalence_indicators: List[Dict] = None, show_progress_bars: Optional[bool] = True, _display_header: bool = True) -> UQResult:
+    async def evaluate(self, responses: List[str] = None, sampled_responses: List[List[str]] = None, logprobs_results: Optional[List[List[Dict[str, Any]]]] = None, sampled_logprobs_results: Optional[List[List[List[Dict[str, Any]]]]] = None, progress_bar: Optional[Progress] = None) -> UQResult:
         """
         Evaluate functional entropy scores on the provided responses and sampled responses.
 
@@ -73,16 +74,6 @@ class FunctionalEntropy:
         self.logprobs = logprobs_results if logprobs_results else self.logprobs
         self.multiple_logprobs = sampled_logprobs_results if sampled_logprobs_results else self.multiple_logprobs
 
-        if not equivalence_indicators:
-            equivalence_indicators = [{} for i in responses]
-        else:
-            if len(equivalence_indicators) != len(responses):
-                raise RuntimeError("UQLM: Length of equivalence_indicators and responses does not match.")
-        self.equivalence_indicators = equivalence_indicators
-
-        # self._construct_progress_bar(show_progress_bars)
-        # self._display_scoring_header(show_progress_bars and _display_header)
-
         n_prompts = len(self.responses)
         discrete_semantic_entropy = [None] * n_prompts
         tokenprob_semantic_entropy = [None] * n_prompts
@@ -112,8 +103,6 @@ class FunctionalEntropy:
 
         result = {"data": data_to_return, "metadata": {"parameters": {}}}
 
-        # self._stop_progress_bar()
-        self.progress_bar = None  # if re-run ensure the same progress object is not used
         return UQResult(result)
 
     def _semantic_entropy_process(self, single_prompt_cluster_indices: List[str], i: int = None, logprobs_results: List[List[Dict[str, Any]]] = None) -> Any:
