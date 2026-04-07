@@ -9,7 +9,7 @@ from uqlm.utils.prompts.codegen import PYTHON_JAVA_SYSTEM_PROMPT, SQL_SYSTEM_PRO
 
 
 class CodeClusterer:
-    def __init__(self, llm: Any, system_prompt: Optional[str] = None, length_normalize: bool = False, language: str = "python", retries: int = 5):
+    def __init__(self, llm: Any, system_prompt: Optional[str] = None, language: str = "python", retries: int = 5):
         """
         Class for clustering code responses.
 
@@ -23,9 +23,6 @@ class CodeClusterer:
             Optional argument for user to provide custom system prompt. If prompts are list of strings and system_prompt is None,
             defaults to "You are a helpful assistant."
 
-        length_normalize : bool, default=False
-            Specifies whether to length normalize the logprobs.
-
         language : str, default="python"
             Specifies the language of the code. Must be one of python, java, sql.
 
@@ -34,7 +31,6 @@ class CodeClusterer:
         """
         self.llm = llm
         self.system_prompt = system_prompt
-        self.length_normalize = length_normalize
         self.language = language
         if not self.system_prompt:
             if self.language in ["python", "java"]:
@@ -145,7 +141,7 @@ class CodeClusterer:
 
         return {"cluster_indices": cluster_indices, "original_equivalence_scores": round1_scores}
 
-    async def get_equivalence_scores(self, responses: List[str], sampled_responses: List[List[str]]) -> List[List[float]]:
+    async def get_equivalence_scores(self, responses: List[str], sampled_responses: List[List[str]], progress_bar: Optional[Progress] = None) -> List[List[float]]:
         """
         Get the equivalence scores for the responses.
 
@@ -164,6 +160,11 @@ class CodeClusterer:
         if len(responses) == 0 or len(sampled_responses) == 0:
             raise ValueError("Either responses or sampled responses is empty")
 
+        if progress_bar:
+            self.rows_scored = 0
+            self.num_samples = len(sampled_responses[0])
+            self.equivalence_task = progress_bar.add_task("  - Scoring responses with functional equivalence...", total=len(responses))
+
         n_prompts = len(responses)
         self.scores = [[None for _ in range(len(sampled_responses[i]))] for i in range(n_prompts)]
         self.equivalence_cache = {}
@@ -173,7 +174,7 @@ class CodeClusterer:
             for j in range(len(sampled_responses[i])):
                 pairs.append([responses[i], sampled_responses[i][j]])
                 indices.append((i, j))
-        scores = await self._get_equivalence_responses(pairs)
+        scores = await self._get_equivalence_responses(pairs, progress_bar=progress_bar)
         scores_df = pd.DataFrame({"pair": pairs, "scores": scores}, index=indices)
 
         retry = 0
@@ -196,7 +197,7 @@ class CodeClusterer:
             self.scores[i][j] = scores_df["scores"][(i, j)]
         return self.scores
 
-    async def _generate_with_identical_skip(self, pair: List[str]) -> float:
+    async def _generate_with_identical_skip(self, pair: List[str], progress_bar: Optional[Progress] = None) -> float:
         """
         Generate the equivalence score for a pair of responses.
 
@@ -227,9 +228,13 @@ class CodeClusterer:
         generation = await self.llm.ainvoke([SystemMessage(content=self.system_prompt), HumanMessage(content=prompt)])
         score = self.normalize_verdict(getattr(generation, "content", ""))
         self.equivalence_cache[key] = score
+        if progress_bar:
+            self.rows_scored += 1
+            if self.rows_scored % self.num_samples == 0:
+                progress_bar.update(self.equivalence_task, advance=1)
         return float(score)
 
-    async def _get_equivalence_responses(self, pairs: List[List[str]]) -> List[float]:
+    async def _get_equivalence_responses(self, pairs: List[List[str]], progress_bar: Optional[Progress] = None) -> List[float]:
         """
         Get the equivalence scores for a list of pairs of responses.
 
@@ -243,7 +248,7 @@ class CodeClusterer:
         List[float]
             A list of equivalence scores for the pairs of responses.
         """
-        tasks = [self._generate_with_identical_skip(pair) for pair in pairs]
+        tasks = [self._generate_with_identical_skip(pair, progress_bar=progress_bar) for pair in pairs]
         scores = await asyncio.gather(*tasks)
         return [float(score) for score in scores]
 

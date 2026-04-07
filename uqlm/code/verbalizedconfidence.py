@@ -32,7 +32,7 @@ class VerbalizedConfidence(ResponseGenerator):
             limit is specified.
         """
         super().__init__(llm=llm, max_calls_per_min=max_calls_per_min)
-        self.response_generator_type = "judge"
+        self.response_generator_type = "verbalized_confidence"
         self.system_prompt = None
         self.is_judge = True
 
