@@ -1,9 +1,23 @@
-import math
+# Copyright 2025 CVS Health and/or one of its affiliates
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import numpy as np
 from typing import Any, List, Optional, Dict
 from uqlm.utils.results import UQResult
 from uqlm.code.clusterer import CodeClusterer
 from rich.progress import Progress
+from uqlm.nli.entropy_utils import compute_response_probabilities, compute_semantic_entropy, normalize_cluster_probabilities, normalize_entropy
 
 
 class FunctionalEntropy:
@@ -92,14 +106,14 @@ class FunctionalEntropy:
         data_to_return["original_equivalence_scores"] = original_equivalence_scores
         data_to_return["equivalence_rate"] = [np.mean(oes) for oes in original_equivalence_scores]
         data_to_return["discrete_entropy_values"] = discrete_semantic_entropy
-        data_to_return["discrete_confidence_scores"] = [1 - ne for ne in self._normalize_entropy(discrete_semantic_entropy)]
+        data_to_return["discrete_confidence_scores"] = [1 - ne for ne in normalize_entropy(discrete_semantic_entropy, num_responses=self.num_responses)]
         data_to_return["num_semantic_sets"] = num_semantic_sets
         data_to_return["semantic_sets_confidence"] = [(self.num_responses + 1 - num_semantic_sets[i]) / (self.num_responses) for i in range(n_prompts)]
         data_to_return["cluster_indices"] = cluster_indices
 
         if tokenprob_semantic_entropy[0] is not None:
             data_to_return["tokenprob_entropy_values"] = tokenprob_semantic_entropy
-            data_to_return["tokenprob_confidence_scores"] = [1 - ne for ne in self._normalize_entropy(tokenprob_semantic_entropy)]
+            data_to_return["tokenprob_confidence_scores"] = [1 - ne for ne in normalize_entropy(tokenprob_semantic_entropy, num_responses=self.num_responses)]
 
         result = {"data": data_to_return, "metadata": {"parameters": {}}}
 
@@ -111,54 +125,27 @@ class FunctionalEntropy:
         of Equivalence scores for response pairs.
         """
         # Compute response probabilities
-        tokenprob_response_probabilities, response_probabilities = self._compute_response_probabilities(logprobs_results=logprobs_results, num_responses=self.num_responses)
+        tokenprob_response_probabilities, response_probabilities = compute_response_probabilities(logprobs_results=logprobs_results, num_responses=self.num_responses, length_normalize=self.length_normalize)
 
         # Compute Clusters and Equivalence scores
         cluster_probabilities = self._compute_cluster_probabilities(response_probabilities=response_probabilities, single_prompt_cluster_indices=single_prompt_cluster_indices)
         num_semantic_sets = len(cluster_probabilities)
 
         # Compute discrete semantic entropy
-        discrete_semantic_entropy = self._compute_semantic_entropy(cluster_probabilities=cluster_probabilities)
+        discrete_semantic_entropy = compute_semantic_entropy(cluster_probabilities=cluster_probabilities)
 
         # Compute token-level semantic entropy
         tokenprob_semantic_entropy = None
         if tokenprob_response_probabilities:
             tokenprob_cluster_probabilities = self._compute_cluster_probabilities(response_probabilities=tokenprob_response_probabilities, single_prompt_cluster_indices=single_prompt_cluster_indices)
-            tokenprob_semantic_entropy = self._compute_semantic_entropy(cluster_probabilities=tokenprob_cluster_probabilities)
+            tokenprob_semantic_entropy = compute_semantic_entropy(cluster_probabilities=tokenprob_cluster_probabilities)
 
         return (discrete_semantic_entropy, tokenprob_semantic_entropy, num_semantic_sets)
 
-    def _normalize_entropy(self, entropy_values):
-        return [e / math.log(self.num_responses + 1) for e in entropy_values]
-
-    def _compute_response_probabilities(self, logprobs_results: List[List[Dict[str, Any]]], num_responses: int = None) -> List[float]:
-        """Compute response probabilities"""
-        uniform_response_probabilities = [1 / num_responses] * num_responses
-        tokenprob_response_probabilities = [self.length_norm_sequence_prob(logprobs_i, self.length_normalize) if logprobs_i else np.nan for logprobs_i in logprobs_results] if logprobs_results else None
-        return tokenprob_response_probabilities, uniform_response_probabilities
-
-    def _compute_cluster_probabilities(self, single_prompt_cluster_indices: List[List[int]], response_probabilities: List[float]) -> List[float]:
+    @staticmethod
+    def _compute_cluster_probabilities(single_prompt_cluster_indices: List[List[int]], response_probabilities: List[float]) -> List[float]:
         """Compute cluster probabilities"""
         cluster_probabilities = [0] * len(single_prompt_cluster_indices)
         for i, cluster_index in enumerate(single_prompt_cluster_indices):
             cluster_probabilities[i] = sum([response_probabilities[j - 1] for j in cluster_index])
-        return self._normalize_cluster_probabilities(cluster_probabilities=cluster_probabilities)
-
-    @staticmethod
-    def _compute_semantic_entropy(cluster_probabilities: List[float]) -> float:
-        """
-        Helper function to compute semantic entropy score from cluster probabilities
-        """
-        return abs(sum([p * math.log(p) if p > 0.0 else 0 for p in cluster_probabilities]))
-
-    @staticmethod
-    def length_norm_sequence_prob(logprobs: List[Dict[str, Any]], length_normalize: bool = True) -> float:
-        "Compute length normalized sequence logprob"
-        factor = 1 / len(logprobs) if length_normalize else 1
-        return np.exp(np.sum([d["logprob"] for d in logprobs]) * factor)
-
-    @staticmethod
-    def _normalize_cluster_probabilities(cluster_probabilities: List[float]) -> float:
-        """Normalize cluster probabilities"""
-        total_probability = sum(cluster_probabilities)
-        return [cp_i / total_probability for cp_i in cluster_probabilities]
+        return normalize_cluster_probabilities(cluster_probabilities=cluster_probabilities)

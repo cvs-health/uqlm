@@ -69,12 +69,19 @@ class CodeClusterer:
         n_samples = len(sampled_responses[0])
 
         if progress_bar:
-            progress_task = progress_bar.add_task("  - Scoring responses with semantic sets...", total=len(responses))
-            rows_completed = [False] * n_prompts
+            progress_task = progress_bar.add_task("  - Scoring responses with semantic sets...", total=n_prompts)
+            clustered_count = [0] * n_prompts  # Track clustered responses per prompt
+            prompt_completed = [False] * n_prompts
 
-        # Initialize: each prompt starts with cluster containing just the anchor (index 0)
         cluster_indices = [[[0]] for _ in range(n_prompts)]
         not_yet_clustered_indices = [[j for j in range(1, n_samples + 1)] for _ in range(n_prompts)]
+
+        def mark_clustered(prompt_idx):
+            if progress_bar:
+                clustered_count[prompt_idx] += 1
+                if clustered_count[prompt_idx] == n_samples and not prompt_completed[prompt_idx]:
+                    progress_bar.update(progress_task, advance=1)
+                    prompt_completed[prompt_idx] = True
 
         # Round 1: Compare all anchors against all their samples
         round1_scores = await self.get_equivalence_scores(responses=responses, sampled_responses=sampled_responses)
@@ -83,13 +90,12 @@ class CodeClusterer:
                 if round1_scores[i][j]:
                     cluster_indices[i][0].append(j + 1)  # +1 because anchor is index 0
                     not_yet_clustered_indices[i].remove(j + 1)
-            if progress_bar and not not_yet_clustered_indices[i]:
-                progress_bar.update(progress_task, advance=1)
-                rows_completed[i] = True
+                    mark_clustered(i)
 
         # Round 2+: Iteratively cluster remaining responses
         while any(not_yet_clustered_indices):
             # Build new cluster anchors from first non-clustered response in each row
+            print("new round")
             new_anchor_indices = []
             for i in range(n_prompts):
                 if not_yet_clustered_indices[i]:
@@ -97,6 +103,7 @@ class CodeClusterer:
                     cluster_indices[i].append([new_anchor_idx])
                     not_yet_clustered_indices[i].remove(new_anchor_idx)
                     new_anchor_indices.append((i, new_anchor_idx))
+                    mark_clustered(i)
                 else:
                     new_anchor_indices.append(None)
 
@@ -132,12 +139,7 @@ class CodeClusterer:
                     if round_scores[tmp_idx][j]:
                         cluster_indices[prompt_idx][cluster_idx].append(orig_idx)
                         not_yet_clustered_indices[prompt_idx].remove(orig_idx)
-
-            if progress_bar:
-                self._progress_update_loop(progress_bar, progress_task, not_yet_clustered_indices, rows_completed, n_prompts)
-
-        if progress_bar:
-            self._progress_update_loop(progress_bar, progress_task, not_yet_clustered_indices, rows_completed, n_prompts)
+                        mark_clustered(prompt_idx)
 
         time.sleep(0.2)
 
@@ -244,29 +246,6 @@ class CodeClusterer:
         tasks = [self._generate_with_identical_skip(pair) for pair in pairs]
         scores = await asyncio.gather(*tasks)
         return [float(score) for score in scores]
-
-    @staticmethod
-    def _progress_update_loop(progress_bar, progress_task, not_yet_clustered_indices, rows_completed, n_prompts):
-        """
-        Update the progress bar for the clustering.
-
-        Parameters
-        ----------
-        progress_bar : Progress
-            A progress bar to update.
-        progress_task : Task
-            A task to update the progress bar.
-        not_yet_clustered_indices : List[List[int]]
-            A list of lists of indices of responses that have not yet been clustered.
-        rows_completed : List[bool]
-            A list of booleans indicating whether the row has been completed.
-        n_prompts : int
-            The number of prompts to cluster.
-        """
-        for i in range(n_prompts):
-            if not not_yet_clustered_indices[i] and not rows_completed[i]:
-                progress_bar.update(progress_task, advance=1)
-                rows_completed[i] = True
 
     @staticmethod
     def build_user_prompt(code_a: str, code_b: str) -> str:
