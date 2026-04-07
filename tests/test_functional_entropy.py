@@ -4,8 +4,8 @@ import math
 from unittest.mock import MagicMock, AsyncMock
 
 from uqlm.code.entropy import FunctionalEntropy
-from uqlm.code.clusterer import CodeClusterer
 from uqlm.utils.results import UQResult
+from uqlm.nli.entropy_utils import compute_response_probabilities, compute_semantic_entropy, length_norm_sequence_prob, normalize_cluster_probabilities
 
 
 # Fixtures
@@ -97,7 +97,7 @@ def test_compute_response_probabilities():
 
     logprobs = [[{"logprob": -1}], [{"logprob": -2}]]
 
-    tokenprob, resp_probs = fe._compute_response_probabilities(logprobs_results=logprobs, num_responses=2)
+    tokenprob, resp_probs = compute_response_probabilities(logprobs_results=logprobs, num_responses=2, length_normalize=fe.length_normalize)
 
     assert len(tokenprob) == 2
     assert resp_probs == [0.5, 0.5]
@@ -121,7 +121,7 @@ def test_compute_cluster_probabilities():
 
 def test_compute_semantic_entropy():
     p = [0.5, 0.5]
-    out = FunctionalEntropy._compute_semantic_entropy(p)
+    out = compute_semantic_entropy(p)
     expected = abs(0.5 * math.log(0.5) * 2)
     assert np.isclose(out, expected)
 
@@ -131,7 +131,7 @@ def test_compute_semantic_entropy():
 
 def test_length_norm_sequence_prob():
     logs = [{"logprob": -1.0}, {"logprob": -1.0}]
-    out = FunctionalEntropy.length_norm_sequence_prob(logs, length_normalize=True)
+    out = length_norm_sequence_prob(logs, length_normalize=True)
     assert np.isclose(out, np.exp(-2 * 0.5))
 
 
@@ -139,5 +139,5 @@ def test_length_norm_sequence_prob():
 
 
 def test_normalize_cluster_probabilities():
-    res = FunctionalEntropy._normalize_cluster_probabilities([2, 2])
+    res = normalize_cluster_probabilities([2, 2])
     assert res == [0.5, 0.5]
