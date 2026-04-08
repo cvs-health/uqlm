@@ -14,14 +14,12 @@
 
 
 import pytest
-import asyncio
-import re
 from unittest.mock import AsyncMock, MagicMock, patch
-from typing import List, Callable
 from rich.progress import Progress
 from langchain_core.messages import AIMessage
 
 from uqlm.longform.decomposition import ResponseDecomposer
+from uqlm.utils.prompts import get_claim_breakdown_prompt, get_farquhar_2024_breakdown_prompt, get_mohri_2024_breakdown_prompt, get_jiang_2024_breakdown_prompt, DECOMPOSITION_PROMPT_MAP
 
 
 class TestResponseDecomposer:
@@ -128,7 +126,9 @@ class TestResponseDecomposer:
     async def test_decompose_claims_with_custom_template(self, decomposer):
         """Test decomposing claims with a custom template."""
         responses = ["Response"]
-        custom_template = lambda x: f"Custom: {x}"
+
+        def custom_template(x):
+            return f"Custom: {x}"
 
         with patch.object(decomposer, "_decompose_claims") as mock_decompose:
             mock_decompose.return_value = [["Claim"]]
@@ -303,3 +303,101 @@ class TestResponseDecomposer:
 
             # Verify _get_claims_from_response was called with None progress bar
             mock_get_claims.assert_called_once_with(response="Response", progress_bar=None)
+
+
+class TestDecompositionPromptMap:
+    """Tests for DECOMPOSITION_PROMPT_MAP and prompt template functions."""
+
+    def test_map_contains_all_keys(self):
+        """DECOMPOSITION_PROMPT_MAP must contain all four expected keys."""
+        expected_keys = {"zhang_2025", "farquhar_2024", "mohri_2024", "jiang_2024"}
+        assert set(DECOMPOSITION_PROMPT_MAP.keys()) == expected_keys
+
+    def test_map_values_are_callable(self):
+        """All values in DECOMPOSITION_PROMPT_MAP must be callable."""
+        for key, fn in DECOMPOSITION_PROMPT_MAP.items():
+            assert callable(fn), f"Value for key '{key}' is not callable"
+
+    def test_zhang_2025_returns_string(self):
+        resp = "Albert Einstein was a physicist."
+        result = get_claim_breakdown_prompt(resp)
+        assert isinstance(result, str)
+        assert resp in result
+
+    def test_farquhar_2024_returns_string(self):
+        resp = "Albert Einstein was a physicist."
+        result = get_farquhar_2024_breakdown_prompt(resp)
+        assert isinstance(result, str)
+        assert resp in result
+
+    def test_mohri_2024_returns_string(self):
+        resp = "Albert Einstein was a physicist."
+        result = get_mohri_2024_breakdown_prompt(resp)
+        assert isinstance(result, str)
+        assert resp in result
+
+    def test_jiang_2024_returns_string(self):
+        resp = "Albert Einstein was a physicist."
+        result = get_jiang_2024_breakdown_prompt(resp)
+        assert isinstance(result, str)
+        assert resp in result
+
+    def test_map_callables_match_standalone_functions(self):
+        """Ensure DECOMPOSITION_PROMPT_MAP entries produce the same output as standalone functions."""
+        resp = "The Eiffel Tower is in Paris."
+        assert DECOMPOSITION_PROMPT_MAP["zhang_2025"](resp) == get_claim_breakdown_prompt(resp)
+        assert DECOMPOSITION_PROMPT_MAP["farquhar_2024"](resp) == get_farquhar_2024_breakdown_prompt(resp)
+        assert DECOMPOSITION_PROMPT_MAP["mohri_2024"](resp) == get_mohri_2024_breakdown_prompt(resp)
+        assert DECOMPOSITION_PROMPT_MAP["jiang_2024"](resp) == get_jiang_2024_breakdown_prompt(resp)
+
+
+class TestResponseDecomposerTemplateResolution:
+    """Tests for ResponseDecomposer._resolve_template and string-key initialization."""
+
+    def test_string_key_zhang_2025(self):
+        decomposer = ResponseDecomposer(response_template="zhang_2025")
+        assert decomposer.response_template is get_claim_breakdown_prompt
+
+    def test_string_key_farquhar_2024(self):
+        decomposer = ResponseDecomposer(response_template="farquhar_2024")
+        assert decomposer.response_template is get_farquhar_2024_breakdown_prompt
+
+    def test_string_key_mohri_2024(self):
+        decomposer = ResponseDecomposer(response_template="mohri_2024")
+        assert decomposer.response_template is get_mohri_2024_breakdown_prompt
+
+    def test_string_key_jiang_2024(self):
+        decomposer = ResponseDecomposer(response_template="jiang_2024")
+        assert decomposer.response_template is get_jiang_2024_breakdown_prompt
+
+    def test_callable_template_passthrough(self):
+        def custom_fn(r):
+            return f"Custom: {r}"
+
+        decomposer = ResponseDecomposer(response_template=custom_fn)
+        assert decomposer.response_template is custom_fn
+
+    def test_invalid_string_key_raises_value_error(self):
+        with pytest.raises(ValueError, match="Invalid claim_decomposition_prompt"):
+            ResponseDecomposer(response_template="unknown_key")
+
+    def test_invalid_type_raises_type_error(self):
+        with pytest.raises(TypeError, match="claim_decomposition_prompt must be a string key or callable"):
+            ResponseDecomposer(response_template=42)
+
+    def test_default_template_is_zhang_2025(self):
+        """Default response_template should resolve to zhang_2025."""
+        decomposer = ResponseDecomposer()
+        assert decomposer.response_template is get_claim_breakdown_prompt
+
+    @pytest.mark.asyncio
+    async def test_decompose_claims_string_key_override(self):
+        """Passing a string key as response_template to decompose_claims should update the template."""
+        mock_llm = AsyncMock()
+        mock_llm.ainvoke.return_value = AIMessage(content="### Claim A\n### Claim B")
+        decomposer = ResponseDecomposer(claim_decomposition_llm=mock_llm, response_template="zhang_2025")
+
+        with patch.object(decomposer, "_decompose_claims", return_value=[["Claim A", "Claim B"]]):
+            await decomposer.decompose_claims(["Some response"], response_template="farquhar_2024")
+
+        assert decomposer.response_template is get_farquhar_2024_breakdown_prompt
