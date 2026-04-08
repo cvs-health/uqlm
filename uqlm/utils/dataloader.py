@@ -85,6 +85,7 @@ _dataset_default_params = {
     "factscore": {"load_params": {"path": "dskar/FActScore", "split": "test"}, "extra_processing": {}},
     "hotpotqa": {"load_params": {"path": "hotpotqa/hotpot_qa", "name": "distractor", "split": "validation"}, "extra_processing": {"subset_columns": ["question", "answer"]}},
     "simpleqa": {"load_params": {"path": "google/simpleqa-verified", "split": "eval"}, "extra_processing": {"subset_columns": ["question", "answer"], "rename_columns": {"problem": "question"}}},
+    "livecodebench": {"load_params": {"path": "livecodebench/code_generation_lite", "split": "test"}, "extra_processing": {"subset_columns": ["question_title", "question_content", "platform", "question_id", "starter_code", "public_test_cases", "metadata", "difficulty"]}},
 }
 
 
@@ -101,7 +102,7 @@ def list_dataset_names() -> list:
     -------
     >>> from uqlm.utils.dataloader import list_dataset_names
     >>> list_dataset_names()
-    ['ai2_arc', 'csqa', 'dialogue_sum', 'gsm8k', 'nq_open', 'popqa', 'svamp', 'triviaqa', 'factscore', 'hotpotqa', 'simpleqa']
+    ['ai2_arc', 'csqa', 'dialogue_sum', 'gsm8k', 'nq_open', 'popqa', 'svamp', 'triviaqa', 'factscore', 'hotpotqa', 'simpleqa','livecodebench']
     """
     return list(_dataset_default_params.keys())
 
