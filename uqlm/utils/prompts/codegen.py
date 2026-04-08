@@ -70,3 +70,51 @@ Output format:
 Output EXACTLY one of: "Equivalent" OR "Not Equivalent".
 Do not add explanations, reasoning, punctuation, or extra text.
 """
+
+
+def python_prompt_template(question_content, starter_code):
+    return f"""
+You are an expert Python programmer. You always return complete, executable Python code.
+
+Your task:
+- Read the problem description.
+- Complete the method inside the starter code.
+- Return only valid Python code with no explanations or markdown.
+
+Problem:
+{question_content}
+
+Starter code:
+{starter_code}
+
+Guidelines:
+- Keep the class name and method signature exactly as provided.
+- NEVER rename the function or modify its arguments.
+- NEVER return only the function body.
+- Do not add print statements or extra text.
+- Just return the completed Python solution.
+"""
+
+
+def python_prompt_template_stdio(question_content: str) -> str:
+    return f"""
+You are an expert Python programmer. You always return complete, executable Python code.
+
+Your task:
+- Read ALL input from standard input (stdin).
+- Produce the required output to standard output (stdout) ONLY.
+- Return only valid Python code with no explanations or markdown.
+
+Problem:
+{question_content}
+
+Guidelines:
+- Parse input exactly as described (use input() or sys.stdin).
+- Print outputs exactly as specified (correct order, spacing, and newlines).
+- Do NOT print any extra text (no debug logs, prompts, or explanations).
+- Do NOT read or write files, and do NOT use network access.
+- Use only the Python standard library.
+- Ensure the program terminates promptly and handles edge cases within time limits.
+
+Just return the completed Python solution.
+""".strip()
