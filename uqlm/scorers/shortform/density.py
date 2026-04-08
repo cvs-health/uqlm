@@ -17,6 +17,7 @@ from uqlm.utils.results import UQResult
 from typing import Any, Optional, List
 import time
 from uqlm.nli.cluster import SemanticClusterer
+from uqlm.nli.entropy_utils import compute_response_probabilities
 from typing import Dict
 import numpy as np
 
@@ -80,7 +81,8 @@ class SemanticDensity(ShortFormUQ):
         self.return_responses = return_responses
         self._setup_nli(nli_model_name)
         self.prompts = None
-        self.clusterer = SemanticClusterer(nli=self.nli, length_normalize=length_normalize)
+        self.length_normalize = length_normalize
+        self.clusterer = SemanticClusterer(nli=self.nli)
 
     async def generate_and_score(self, prompts: List[str], num_responses: int = 5, show_progress_bars: Optional[bool] = True) -> UQResult:
         """
@@ -200,7 +202,7 @@ class SemanticDensity(ShortFormUQ):
             print("Question No. - ", i + 1)
 
         # Get the length-normalized tokenwise probability for each candidate response
-        tokenprob_response_probabilities, _ = self.clusterer.compute_response_probabilities(logprobs_results=logprobs_results, num_responses=len(candidates))
+        tokenprob_response_probabilities, _ = compute_response_probabilities(logprobs_results=logprobs_results, num_responses=len(candidates), length_normalize=self.length_normalize)
 
         # Compute entailment of each candidate response by the original response,
         # conditioned on prompt

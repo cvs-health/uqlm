@@ -25,7 +25,15 @@ from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from uqlm.utils.warn import beta_warning, deprecation_warning
 
 
-generator_type_to_progress_msg = {"judge": "Scoring responses with LLM-as-a-Judge", "original": "Generating responses", "p_true": "Scoring responses with P(True)", "grader": "Grading responses against provided ground truth answers", "factscore_grader": "Grading claims/sentences against Wikipedia texts", "question_generator": "Generating questions for each claim/sentence"}
+generator_type_to_progress_msg = {
+    "judge": "Scoring responses with LLM-as-a-Judge",
+    "original": "Generating responses",
+    "p_true": "Scoring responses with P(True)",
+    "verbalized_confidence": "Scoring responses with verbalized confidence",
+    "grader": "Grading responses against provided ground truth answers",
+    "factscore_grader": "Grading claims/sentences against Wikipedia texts",
+    "question_generator": "Generating questions for each claim/sentence",
+}
 
 
 class ResponseGenerator:
