@@ -1,16 +1,18 @@
-import pytest, os, platform
-
-pytestmark = pytest.mark.skipif((os.getenv("CI") == "true" and platform.system() == "Linux") or platform.system() == "Windows", reason="Skipping transformer-heavy tests on CI Linux and Windows")
+import pytest
+import os
+import platform
 import sys
 from unittest.mock import MagicMock, AsyncMock, patch
+from uqlm.scorers.shortform.codegen import CodeGenUQ
+from uqlm.utils.results import UQResult
+
+pytestmark = pytest.mark.skipif((os.getenv("CI") == "true" and platform.system() == "Linux") or platform.system() == "Windows", reason="Skipping transformer-heavy tests on CI Linux and Windows")
 
 #  Patch Cosine module before CodeGenUQ is imported
 cosine_mock = MagicMock()
 sys.modules["uqlm.black_box.cosine"] = cosine_mock  # Prevent importing sentence-transformers
 
 # IMPORT AFTER PATCHING MODULES
-from uqlm.scorers.shortform.codegen import CodeGenUQ
-from uqlm.utils.results import UQResult
 
 
 @pytest.fixture
@@ -36,6 +38,7 @@ def test_validate_scorers_initializes_components(mock_wb, mock_fe, mock_vc, mock
     # Patch CodeBLEU inside the test
     with patch.dict(sys.modules, {"codebleu": MagicMock(calc_codebleu=MagicMock(return_value={"codebleu": 0.75}))}):
         cg = CodeGenUQ(llm=mock_llm, scorers=all_scorers)
+        assert isinstance(cg, CodeGenUQ)
 
 
 # generate_and_score
@@ -88,7 +91,7 @@ async def test_score_produces_expected_data(mock_wb, mock_find_spec, mock_llm, a
         cg.wbuq = MagicMock()
         cg.wbuq.score = AsyncMock(return_value=MagicMock(data={"sequence_probability": [0.4]}))
 
-        fe_result = UQResult(result={"data": {"discrete_confidence_scores": [0.1], "tokenprob_confidence_scores": [0.2], "num_semantic_sets": [1], "semantic_sets_confidence": [0.3], "cluster_indices": [[0]], "equivalence_rate": [1.0], "original_equivalence_scores": [0.7]}})
+        fe_result = {"functional_negentropy": [0.1], "functional_negentropy_whitebox": [0.2], "functional_sets_confidence": [0.3], "functional_equivalence_rate": [1.0]}
 
         cg.fe = MagicMock()
         cg.fe.evaluate = AsyncMock(return_value=fe_result)
@@ -102,6 +105,4 @@ async def test_score_produces_expected_data(mock_wb, mock_find_spec, mock_llm, a
         assert "cosine_sim" in data
         assert "sequence_probability" in data
         assert "codebleu" in data
-        assert "semantic_entropy" in data
-        assert "functional_entropy_equivalence_indicators" in data
-        assert "semantic_negentropy" in data
+        assert "functional_negentropy" in data

@@ -1,5 +1,6 @@
 from typing import Any, List, Optional
 from langchain_core.language_models.chat_models import BaseChatModel
+import numpy as np
 from uqlm.code import CodeBLEU, VerbalizedConfidence, FunctionalEntropy
 from uqlm.black_box import CosineScorer
 from uqlm.scorers.shortform.white_box import WhiteBoxUQ
@@ -141,7 +142,8 @@ class CodeGenUQ(ShortFormUQ):
 
         # Compute Functional Entropy scores
         if self.functional_equivalence_scorers == ["functional_equivalence_rate"]:
-            data["functional_equivalence_rate"] = await self.fe.clusterer.get_equivalence_scores(responses=responses, sampled_responses=sampled_responses, progress_bar=self.progress_bar)
+            fe_scores = await self.fe.clusterer.get_equivalence_scores(responses=responses, sampled_responses=sampled_responses, progress_bar=self.progress_bar)
+            data["functional_equivalence_rate"] = [np.mean(s) for s in fe_scores]
 
         elif self.functional_equivalence_scorers:
             fe_results = await self.fe.evaluate(responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results, progress_bar=self.progress_bar)

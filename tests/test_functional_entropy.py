@@ -4,7 +4,6 @@ import math
 from unittest.mock import MagicMock, AsyncMock
 
 from uqlm.code.entropy import FunctionalEntropy
-from uqlm.utils.results import UQResult
 from uqlm.nli.entropy_utils import compute_response_probabilities, compute_semantic_entropy, length_norm_sequence_prob, normalize_cluster_probabilities
 
 
@@ -57,22 +56,19 @@ async def test_evaluate_basic(fe, fake_clusterer):
     # logprobs for sampled
     sampled_logprobs = [[[{"logprob": -0.5}], [{"logprob": -2.0}]]]
 
-    result = await fe.evaluate(responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs)
-
-    assert isinstance(result, UQResult)
-    data = result.data
+    data = await fe.evaluate(responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs)
 
     assert "original_equivalence_scores" in data
     assert "cluster_indices" in data
     assert "discrete_entropy_values" in data
-    assert "discrete_confidence_scores" in data
-    assert "semantic_sets_confidence" in data
+    assert "functional_negentropy" in data
+    assert "functional_sets_confidence" in data
 
 
 # Test _semantic_entropy_process()
 
 
-def test_semantic_entropy_process():
+def test_functional_entropy_process():
     fe = FunctionalEntropy(equivalence_llm=MagicMock())
 
     fe.num_responses = 2  # anchor + 2 samples → 3 total
@@ -81,7 +77,7 @@ def test_semantic_entropy_process():
 
     logprobs = [[{"logprob": -1}], [{"logprob": -1}], [{"logprob": -1}]]
 
-    discrete, tokenprob, num_sets = fe._semantic_entropy_process(single_prompt_cluster_indices=cluster_indices, logprobs_results=logprobs)
+    discrete, tokenprob, num_sets = fe._functional_entropy_process(single_prompt_cluster_indices=cluster_indices, logprobs_results=logprobs)
 
     assert num_sets == 2
     assert discrete >= 0
