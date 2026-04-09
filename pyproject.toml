@@ -126,7 +126,7 @@ line-length = 400
 
 [tool.ruff.lint]
 #What rules to enable
-select = ["E", "F"]
+select = ["E", "F", "I"]
 # E = pycodestyle errors
 # F = pyflakes
 # I = isort (import sorting)
