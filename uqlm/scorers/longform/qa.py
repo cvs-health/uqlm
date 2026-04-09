@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import numpy as np
-from typing import List, Optional, Any
+from typing import Callable, List, Optional, Any, Union
 from rich.progress import Progress
 from langchain_core.language_models.chat_models import BaseChatModel
 from uqlm.longform.qa.question_generator import QuestionGenerator
@@ -34,6 +34,7 @@ class LongTextQA(LongFormUQ):
         claim_filtering_scorer: Optional[str] = None,
         system_prompt: str = "You are a helpful assistant.",
         claim_decomposition_llm: BaseChatModel = None,
+        claim_decomposition_prompt: Union[str, Callable] = "zhang_2025",
         question_generator_llm: BaseChatModel = None,
         sampling_temperature: float = 1.0,
         max_calls_per_min: Optional[int] = None,
@@ -74,6 +75,12 @@ class LongTextQA(LongFormUQ):
             A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Also used for claim refinement.
             If granularity="claim" and claim_decomposition_llm is None, the provided `llm` will be used for claim decomposition.
 
+        claim_decomposition_prompt : Union[str, Callable], default="zhang_2025"
+            Specifies the prompt template used to decompose responses into atomic claims. Accepts one of the
+            following string keys: ``"zhang_2025"``, ``"farquhar_2024"``, ``"mohri_2024"``, ``"jiang_2024"``,
+            or a custom callable with signature ``(response: str) -> str``. Only applies when
+            ``granularity="claim"``.
+
         question_generator_llm : langchain `BaseChatModel`, default=None
             A langchain llm `BaseChatModel` to be used for decomposing responses into individual claims. Used for generating questions
             from claims or sentences in claim-QA approach. If None, defaults to claim_decomposition_llm.
@@ -105,7 +112,9 @@ class LongTextQA(LongFormUQ):
             avoid OutOfMemoryError
         """
         self.scorers = ["semantic_negentropy"] if not scorers else scorers
-        super().__init__(llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_filtering_scorer=claim_filtering_scorer, claim_decomposition_llm=claim_decomposition_llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param)
+        super().__init__(
+            llm=llm, granularity=granularity, aggregation=aggregation, scorers=self.scorers, response_refinement=response_refinement, claim_filtering_scorer=claim_filtering_scorer, claim_decomposition_llm=claim_decomposition_llm, claim_decomposition_prompt=claim_decomposition_prompt, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param
+        )
         self.question_generator = QuestionGenerator(question_generator_llm=question_generator_llm if question_generator_llm is not None else self.decomposer.claim_decomposition_llm, max_calls_per_min=questioner_max_calls_per_min)
         self.bb_object = BlackBoxUQ(llm=llm, scorers=self.scorers, device=device, max_calls_per_min=max_calls_per_min, sampling_temperature=sampling_temperature, max_length=max_length)
         self.uad_result = {}
