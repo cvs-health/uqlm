@@ -112,3 +112,71 @@ def test_score_mocked():
     assert "semantic_density_values" in result.data
     assert "multiple_logprobs" in result.data
     semantic_density._semantic_density_process.assert_called()
+
+
+def test_semantic_density_process_verbose_and_cached_nli():
+    """Cover density.py lines 202 (verbose print) and 215 (cached NLI probabilities)."""
+    import numpy as np
+    from unittest.mock import patch, MagicMock
+
+    with patch("uqlm.scorers.baseclass.uncertainty.NLI"), \
+         patch("uqlm.scorers.shortform.density.SemanticClusterer"):
+        sd = SemanticDensity(verbose=True)
+
+    mock_nli = MagicMock()
+    mock_nli.label_mapping = ["contradiction", "neutral", "entailment"]
+    # Pre-populate probabilities cache so the else-branch (line 215) is taken
+    cached_score = np.array([[0.1, 0.1, 0.8]])
+    prompt_response_key = "prompt\nresponse_prompt\ncandidate"
+    mock_nli.probabilities = {prompt_response_key: cached_score}
+    sd.nli = mock_nli
+    sd.length_normalize = True
+
+    logprobs = [[{"token": "x", "logprob": -0.1}]]
+    # i=0 triggers the verbose print (line 202); cached key triggers line 215
+    result = sd._semantic_density_process("prompt", "response", ["candidate"], i=0, logprobs_results=logprobs)
+    assert result is not None  # returns (semantic_density, nli_scores)
+    # nli.predict should NOT have been called (used cache instead)
+    mock_nli.predict.assert_not_called()
+
+
+def test_semantic_density_process_zero_probabilities():
+    """Cover density.py line 230: semantic_density = np.nan when weights sum to zero."""
+    import numpy as np
+    from unittest.mock import patch, MagicMock
+
+    with patch("uqlm.scorers.baseclass.uncertainty.NLI"), \
+         patch("uqlm.scorers.shortform.density.SemanticClusterer"):
+        sd = SemanticDensity()
+
+    mock_nli = MagicMock()
+    mock_nli.label_mapping = ["contradiction", "neutral", "entailment"]
+    mock_nli.probabilities = {}
+    mock_nli.predict.return_value = np.array([[0.1, 0.1, 0.8]])
+    sd.nli = mock_nli
+    sd.length_normalize = True
+
+    # logprob of -1000 underflows to exp(-1000)=0.0, so weights sum to zero
+    zero_logprobs = [[{"token": "x", "logprob": -1000}]]
+    result_val, nli_scores = sd._semantic_density_process("prompt", "response", ["candidate"], i=None, logprobs_results=zero_logprobs)
+    # With zero weights, semantic_density should be np.nan (line 230)
+    import math
+    assert math.isnan(result_val)
+
+
+@pytest.mark.asyncio
+async def test_semanticdensity_no_logprobs_raises():
+    """generate_and_score raises ValueError when LLM lacks logprobs attribute (line 115)."""
+    from unittest.mock import MagicMock, patch
+    from langchain_core.language_models.chat_models import BaseChatModel
+
+    mock_no_logprobs = MagicMock(spec=BaseChatModel)
+    mock_no_logprobs.temperature = 0.7
+
+    with patch("uqlm.scorers.baseclass.uncertainty.NLI") as MockNLI, \
+         patch("uqlm.scorers.shortform.density.SemanticClusterer"):
+        MockNLI.return_value = MagicMock()
+        sd = SemanticDensity(llm=mock_no_logprobs)
+
+    with pytest.raises(ValueError, match="does not support logprobs"):
+        await sd.generate_and_score(prompts=["test prompt"])

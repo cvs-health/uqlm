@@ -197,3 +197,23 @@ def test_plot_excludes_ignore_columns(mock_show):
     plot_filtered_accuracy(uq_result, correct, scorers_names=["semantic_negentropy", "normalized_probability", "ensemble_scores"])
     Ignore_Columns.remove("metadata")  # Clean up
     assert mock_show.called
+
+
+@patch("matplotlib.pyplot.show")
+def test_plot_ranked_auc_with_judge_column_and_write_path(mock_show, tmp_path):
+    """judge_ column hits lines 263, 309, 327-328; write_path hits line 288."""
+    uq_result = UQResult(
+        result={
+            "data": {
+                "responses": ["A", "B", "C", "D"],
+                "judge_1": [0.9, 0.1, 0.8, 0.2],
+            },
+            "metadata": {},
+        }
+    )
+    correct = [False, True, False, True]
+    write_path = str(tmp_path / "ranked_auc.png")
+
+    plot_ranked_auc(uq_result, correct, metric_type="auroc", write_path=write_path)
+    mock_show.assert_called_once()
+    assert os.path.exists(write_path)

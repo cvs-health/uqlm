@@ -157,3 +157,36 @@ def test_combine_question_and_choices_dict_format():
     df = pd.DataFrame({"question": ["What is 2+2?"], "choices": [{"text": "Four", "label": "D"}], "text": ["Four"], "label": ["D"]})
     result = _combine_question_and_choices(df, "question", "choices", choice_text_col="text", choice_label_col="label")
     assert len(result) == 1
+
+
+def test_load_dataset_with_split_param():
+    """load_example_dataset with split parameter covers line 140."""
+    import pandas as pd
+    from unittest.mock import patch, MagicMock
+
+    mock_ds = MagicMock()
+    mock_ds.to_pandas.return_value = pd.DataFrame({"question": ["Q1"], "answer": ["A1"]})
+
+    with patch("uqlm.utils.dataloader.load_dataset", return_value=mock_ds), \
+         patch("uqlm.utils.dataloader.disable_progress_bars"):
+        result = load_example_dataset("gsm8k", split="test", n=1)
+    assert isinstance(result, pd.DataFrame)
+
+
+def test_load_popqa_ast_eval():
+    """load_example_dataset popqa branch covers line 158 (ast.literal_eval on answer)."""
+    import pandas as pd
+    from unittest.mock import patch, MagicMock
+
+    mock_ds = MagicMock()
+    # popqa renames 'possible_answers' → 'answer', applies to_lower, subset_columns
+    mock_ds.to_pandas.return_value = pd.DataFrame({
+        "question": ["What is the capital of France?"],
+        "possible_answers": ["['Paris', 'paris']"],
+    })
+
+    with patch("uqlm.utils.dataloader.load_dataset", return_value=mock_ds), \
+         patch("uqlm.utils.dataloader.disable_progress_bars"):
+        result = load_example_dataset("popqa", n=1)
+    assert isinstance(result, pd.DataFrame)
+    assert isinstance(result["answer"].iloc[0], list)

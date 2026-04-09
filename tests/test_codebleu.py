@@ -118,6 +118,22 @@ def test_codebleu_pair_empty(mock_codebleu_module):
         assert math.isnan(cb.codebleu_pair("a", ""))
 
 
+def test_evaluate_with_progress_bar(mock_codebleu_module):
+    """evaluate() with a progress_bar hits lines 50 and 56."""
+    mock_progress = MagicMock()
+    mock_progress.add_task.return_value = "task_id"
+
+    with patch("importlib.util.find_spec", return_value=True), patch.dict("sys.modules", {"codebleu": mock_codebleu_module}):
+        cb = CodeBLEU()
+        responses = ["print(1)", "x=2"]
+        sampled = [["print(1)"], ["x=2"]]
+        scores = cb.evaluate(responses, sampled, progress_bar=mock_progress)
+
+        assert scores == [0.75, 0.75]
+        mock_progress.add_task.assert_called_once()
+        assert mock_progress.update.call_count == 2
+
+
 def test_codebleu_pair_exception_returns_nan(mock_codebleu_module):
     """Exceptions in calc_codebleu should return NaN."""
     mock_codebleu_module.calc_codebleu = MagicMock(side_effect=Exception("fail"))

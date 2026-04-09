@@ -179,6 +179,26 @@ class TestScoreCalibrator:
         assert len(uq_result.data["calibrated_judge_1"]) == 2
         assert np.all((uq_result.data["calibrated_judge_1"] >= 0) & (uq_result.data["calibrated_judge_1"] <= 1))
 
+    def test_transform_scorer_mismatch(self):
+        """transform raises ValueError when UQResult has different scorers than fitted ones (line 123)."""
+        calibrator = ScoreCalibrator()
+        fit_result = UQResult(result={"data": {"scorer_a": [0.3, 0.7]}})
+        calibrator.fit(fit_result, [0, 1])
+
+        transform_result = UQResult(result={"data": {"scorer_b": [0.3, 0.7]}})
+        with pytest.raises(ValueError, match="Scorer outputs contained in the provided UQResult"):
+            calibrator.transform(transform_result)
+
+    def test_transform_unknown_method_after_fit(self):
+        """transform raises ValueError when method is unknown after fitting (line 133)."""
+        calibrator = ScoreCalibrator()
+        uq_result = UQResult(result={"data": {"scorer_a": [0.3, 0.7]}})
+        calibrator.fit(uq_result, [0, 1])
+        # Bypass __init__ validation by overriding method post-fit
+        calibrator.method = "_unknown_method_xyz_"
+        with pytest.raises(ValueError, match="Unknown method"):
+            calibrator.transform(uq_result)
+
 
 # class TestFitAndEvaluateCal
 

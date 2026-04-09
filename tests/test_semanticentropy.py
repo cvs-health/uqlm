@@ -58,3 +58,53 @@ async def test_semanticentropy(monkeypatch):
         assert all([abs(se_results.data["discrete_entropy_values"][i] - data["entropy_values"][i]) < 1e-5 for i in range(len(PROMPTS))])
         assert all([abs(se_results.data["discrete_confidence_scores"][i] - data["confidence_scores"][i]) < 1e-5 for i in range(len(PROMPTS))])
         assert se_results.metadata == metadata
+
+
+@pytest.mark.asyncio
+async def test_semanticentropy_no_logprobs_warns():
+    """generate_and_score warns when LLM lacks logprobs attribute (line 151)."""
+    import warnings
+    from unittest.mock import MagicMock, patch, AsyncMock
+    from langchain_core.language_models.chat_models import BaseChatModel
+
+    mock_no_logprobs = MagicMock(spec=BaseChatModel)
+    mock_no_logprobs.temperature = 0.7
+
+    with patch("uqlm.scorers.baseclass.uncertainty.NLI") as MockNLI, \
+         patch("uqlm.scorers.shortform.entropy.SemanticClusterer"):
+        MockNLI.return_value = MagicMock()
+        se = SemanticEntropy(llm=mock_no_logprobs, use_best=False)
+
+    se.generate_original_responses = AsyncMock(return_value=["response"])
+    se.generate_candidate_responses = AsyncMock(return_value=[["sample1", "sample2"]])
+    se.score = MagicMock(return_value=MagicMock())
+
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        await se.generate_and_score(prompts=["test prompt"], show_progress_bars=False)
+
+    assert any("does not support logprobs" in str(warning.message) for warning in w)
+
+
+def test_score_with_use_best():
+    """Cover entropy.py line 226: _update_best is called when use_best=True."""
+    from unittest.mock import MagicMock, patch
+
+    with patch("uqlm.scorers.baseclass.uncertainty.NLI") as MockNLI, \
+         patch("uqlm.scorers.shortform.entropy.SemanticClusterer"):
+        MockNLI.return_value = MagicMock()
+        se = SemanticEntropy(use_best=True)
+
+    se._semantic_entropy_process = MagicMock(return_value=("best_r", 0.5, None, 2))
+    se._construct_progress_bar = MagicMock()
+    se._display_scoring_header = MagicMock()
+    se._stop_progress_bar = MagicMock()
+    se._construct_black_box_return_data = MagicMock(return_value={})
+    se._update_best = MagicMock()
+    se.progress_bar = None
+
+    responses = ["r1"]
+    sampled_responses = [["s1", "s2"]]
+
+    se.score(responses=responses, sampled_responses=sampled_responses)
+    se._update_best.assert_called_once()  # line 226

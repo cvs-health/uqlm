@@ -369,3 +369,35 @@ class TestMatchedUnitScorer:
             mock_nli_compute.assert_called_once()
             mock_cosine_compute.assert_called_once()
             mock_bert_compute.assert_called_once()
+
+    def test_compute_response_level_cosine_score_lists_with_progress_bar(self, scorer_cosine_only):
+        """progress_bar branches in _compute_response_level_cosine_score_lists (lines 96, 102)."""
+        claim_sets = [["Claim 1", "Claim 2"], ["Claim 3"]]
+        sampled_claim_sets = [[["R1"], ["R2"]], [["R3"]]]
+
+        mock_pb = MagicMock(spec=Progress)
+        mock_pb.add_task.return_value = "task_id"
+        scorer_cosine_only.progress_bar = mock_pb
+
+        with patch.object(MatchedUnitScorer, "_compute_claim_level_cosine_scores") as mock_compute:
+            mock_compute.side_effect = [np.ones((2, 2)) * 0.75, np.ones((1, 1)) * 0.75]
+            scorer_cosine_only._compute_response_level_cosine_score_lists(claim_sets=claim_sets, sampled_claim_sets=sampled_claim_sets)
+
+        mock_pb.add_task.assert_called_once()
+        assert mock_pb.update.call_count == 2
+
+    def test_compute_response_level_bert_score_lists_with_progress_bar(self, scorer_bert_only):
+        """progress_bar branches in _compute_response_level_bert_score_lists (lines 126, 132)."""
+        claim_sets = [["Claim A"], ["Claim B"]]
+        sampled_claim_sets = [[["R1"]], [["R2"]]]
+
+        mock_pb = MagicMock(spec=Progress)
+        mock_pb.add_task.return_value = "task_id"
+        scorer_bert_only.progress_bar = mock_pb
+
+        with patch.object(MatchedUnitScorer, "_compute_claim_level_bert_scores") as mock_compute:
+            mock_compute.side_effect = [np.ones((1, 1)) * 0.85, np.ones((1, 1)) * 0.85]
+            scorer_bert_only._compute_response_level_bert_score_lists(claim_sets=claim_sets, sampled_claim_sets=sampled_claim_sets)
+
+        mock_pb.add_task.assert_called_once()
+        assert mock_pb.update.call_count == 2

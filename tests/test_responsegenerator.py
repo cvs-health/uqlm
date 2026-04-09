@@ -322,3 +322,26 @@ async def test_ainvoke_with_top_logprobs_exception_handling():
     assert "responses" in result
     assert result["logprobs"] == [None]
     assert result["responses"] == []
+
+
+@pytest.mark.asyncio
+async def test_generate_responses_base_message_triggers_beta_warning(monkeypatch):
+    """Passing List[List[BaseMessage]] prompts triggers beta_warning (line 116)."""
+    import warnings
+    from langchain_core.messages import HumanMessage
+
+    mock_object = create_mock_llm()
+    generator = ResponseGenerator(llm=mock_object)
+
+    async def mock_generate_in_batches(*args, **kwargs):
+        return {"responses": ["response"], "logprobs": [None]}, ["test prompt"]
+
+    monkeypatch.setattr(generator, "_generate_in_batches", mock_generate_in_batches)
+
+    prompts = [[HumanMessage(content="Hello")]]
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        result = await generator.generate_responses(prompts=prompts, count=1)
+
+    assert any("BaseMessage" in str(warning.message) for warning in w)
+    assert result is not None

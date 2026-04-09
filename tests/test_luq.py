@@ -247,3 +247,60 @@ class TestUnitResponseScorer:
             assert np.all(entail_scores[0] == 0.8)
             assert np.all(noncontradict_scores[0] == 0.9)
             assert np.all(contrast_entail_scores[0] == 0.89)
+
+    def test_initialization_with_nli_llm(self):
+        """Passing nli_llm creates EntailmentClassifier instead of NLI (line 46)."""
+        import asyncio
+        from unittest.mock import AsyncMock, MagicMock
+
+        mock_llm = MagicMock()
+        mock_llm.ainvoke = AsyncMock(return_value=MagicMock(content="yes"))
+        scorer = UnitResponseScorer(nli_llm=mock_llm)
+        assert hasattr(scorer, "entailment_classifier")
+        assert not hasattr(scorer, "nli")
+
+    def test_evaluate_with_llm(self):
+        """evaluate_with_llm uses entailment_classifier (lines 98-102)."""
+        import asyncio
+        from unittest.mock import AsyncMock, MagicMock
+        import numpy as np
+
+        mock_llm = MagicMock()
+        scorer = UnitResponseScorer(nli_llm=mock_llm)
+
+        # Mock the entailment_classifier
+        scorer.entailment_classifier = MagicMock()
+        scorer.entailment_classifier.evaluate_claim_entailment = AsyncMock(return_value=[np.array([[1.0, 0.0]])])
+
+        claim_sets = [["claim A"]]
+        sampled_responses = [["response 1", "response 2"]]
+        result = asyncio.run(scorer.evaluate_with_llm(claim_sets=claim_sets, sampled_responses=sampled_responses))
+        assert result is not None
+
+    def test_evaluate_with_llm_mismatched_lengths(self):
+        """evaluate_with_llm raises ValueError on mismatched lengths (line 100)."""
+        import asyncio
+        from unittest.mock import MagicMock
+
+        mock_llm = MagicMock()
+        scorer = UnitResponseScorer(nli_llm=mock_llm)
+        claim_sets = [["Claim 1"], ["Claim 2"]]
+        sampled_responses = [["Response 1"]]  # Shorter than claim_sets
+
+        with pytest.raises(ValueError, match="claim_sets and sampled_responses must be of equal length"):
+            asyncio.run(scorer.evaluate_with_llm(claim_sets=claim_sets, sampled_responses=sampled_responses))
+
+    def test_compute_claim_level_nli_scores_matched_claim(self, scorer):
+        """_compute_claim_level_nli_scores with matched_claim=True covers line 110."""
+        scorer.matched_claim = True
+        claims = ["Claim 1", "Claim 2"]
+        # When matched_claim=True, each candidate is a list of claims
+        candidates = [["Candidate 1a", "Candidate 1b"], ["Candidate 2a"]]
+
+        with patch.object(UnitResponseScorer, "_compute_matched_nli_scores", return_value=(0.8, 0.9, 0.89)):
+            entail_scores, noncontradict_scores, contrast_entail_scores = scorer._compute_claim_level_nli_scores(claims, candidates)
+
+        assert entail_scores.shape == (2, 2)
+        assert np.all(entail_scores == 0.8)
+        assert np.all(noncontradict_scores == 0.9)
+        assert np.all(contrast_entail_scores == 0.89)

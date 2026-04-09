@@ -106,3 +106,10 @@ def test_construct_ptrue_prompt():
     # Test without sampled_responses
     result = PTrueScorer._construct_ptrue_prompt(prompt, response, None)
     assert "Here are some possible answers:" not in result
+
+
+@pytest.mark.asyncio
+async def test_ptrue_scorer_evaluate_no_sampled_responses(ptrue_scorer, mock_response_generator):
+    """evaluate() without sampled_responses hits line 43 (sampled_responses = [None] * len)."""
+    result = await ptrue_scorer.evaluate(MOCKED_PROMPTS, MOCKED_RESPONSES)
+    assert "p_true" in result

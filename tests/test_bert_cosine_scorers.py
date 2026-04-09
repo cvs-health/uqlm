@@ -151,8 +151,10 @@ def test_bert_scorer_compute_score(bert_scorer):
 @pytest.fixture
 def cosine_scorer():
     """CosineScorer with SentenceTransformer mocked."""
-    with patch("uqlm.black_box.cosine.CosineScorer.__init__", lambda self, *a, **kw: None):
-        scorer = CosineScorer.__new__(CosineScorer)
+    # Use __new__ directly — no need to patch __init__ since __new__ never calls it.
+    # Patching via sys.modules lookup breaks when test_cosine_scorer_init temporarily
+    # re-imports the module and leaves a MagicMock in sys.modules.
+    scorer = CosineScorer.__new__(CosineScorer)
     mock_model = MagicMock()
     scorer.model = mock_model
     scorer.max_length = 2000

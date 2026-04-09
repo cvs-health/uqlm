@@ -190,3 +190,10 @@ async def test_llmpanel_without_explanations(monkeypatch, mock_judges, mock_llm)
     # Ensure no explanation columns are present
     assert "judge_1_explanation" not in result.data
     assert "judge_2_explanation" not in result.data
+
+
+@pytest.mark.asyncio
+async def test_generate_and_score_non_string_prompts(quantifier):
+    """generate_and_score raises ValueError when prompts contain non-strings (line 94)."""
+    with pytest.raises(ValueError, match="prompts must be list of strings when using LLMPanel"):
+        await quantifier.generate_and_score(prompts=[123, 456])

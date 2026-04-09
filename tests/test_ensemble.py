@@ -67,6 +67,14 @@ def test_validate_grader(mock_llm):
         uqe._validate_grader(lambda response, answer: len(response) + len(answer))
     assert "grader_function must return boolean" == str(value_error.value)
 
+    # Lines 582-583: function raises on scalar answer, succeeds with list answer
+    def grader_list_only(response, answer):
+        if isinstance(answer, str):
+            raise TypeError("expected list")
+        return answer[0] == response
+
+    uqe._validate_grader(grader_list_only)  # should not raise
+
 
 def test_wrong_components(mock_llm):
     with pytest.raises(ValueError) as value_error:
@@ -548,3 +556,37 @@ class TestUQEnsembleConfig:
 
         finally:
             os.unlink(config_path)
+
+
+@pytest.mark.asyncio
+async def test_generate_and_score_non_string_prompts_with_judges(mock_llm):
+    """Non-string prompts raise ValueError when judges are in ensemble (line 181)."""
+    mock_judge = MagicMock(spec=BaseChatModel)
+    mock_judge.temperature = 0.7
+    uqe = UQEnsemble(llm=mock_llm, scorers=["exact_match", mock_judge], device="cpu")
+
+    with pytest.raises(ValueError, match="prompts must be list of strings when using LLM judges with UQEnsemble"):
+        await uqe.generate_and_score(prompts=[123, 456])
+
+
+@pytest.mark.asyncio
+async def test_generate_and_score_top_logprobs_scorer(monkeypatch, mock_llm):
+    """top_k_logprobs is set to 15 when TOP_LOGPROBS scorer is used (line 189)."""
+    uqe = UQEnsemble(llm=mock_llm, scorers=["mean_token_negentropy"], device="cpu")
+
+    captured_kwargs = {}
+
+    async def mock_generate_original_responses(*args, **kwargs):
+        captured_kwargs.update(kwargs)
+        uqe.logprobs = MOCKED_LOGPROBS
+        return MOCKED_RESPONSES
+
+    async def mock_white_box_score(*args, **kwargs):
+        return UQResult({"data": {"mean_token_negentropy": [0.5] * len(PROMPTS)}})
+
+    monkeypatch.setattr(uqe, "generate_original_responses", mock_generate_original_responses)
+    monkeypatch.setattr(uqe.white_box_object, "score", mock_white_box_score)
+
+    await uqe.generate_and_score(prompts=PROMPTS, show_progress_bars=False)
+
+    assert captured_kwargs.get("top_k_logprobs") == 15

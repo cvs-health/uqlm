@@ -173,3 +173,35 @@ def test_grid_search_weights_progress_k3(mock_progress):
     assert len(result) == 3
     mock_progress.add_task.assert_called_once()
     assert mock_progress.update.call_count > 0
+
+
+def test_optimize_objective_progress_joint_k3(mock_progress):
+    """k > 2, optimize_jointly=True, with progress_bar covers Optuna path (lines 155, 159)."""
+    tuner = Tuner()
+    score_lists = [[0.2, 0.8], [0.5, 0.6], [0.3, 0.9]]  # k=3
+    correct_indicators = [True, False]
+    tuner.tune_params(
+        score_lists=score_lists,
+        correct_indicators=correct_indicators,
+        weights_objective="fbeta_score",
+        thresh_objective="fbeta_score",  # same → optimize_jointly=True, k>2 → Optuna
+        progress_bar=mock_progress,
+        n_trials=2,
+    )
+    mock_progress.add_task.assert_called()
+
+
+def test_optimize_objective_progress_separate_k4(mock_progress):
+    """k > 3, optimize_jointly=False, with progress_bar covers Optuna path (lines 174, 179)."""
+    tuner = Tuner()
+    score_lists = [[0.2, 0.8], [0.5, 0.6], [0.3, 0.9], [0.1, 0.7]]  # k=4
+    correct_indicators = [True, False]
+    tuner.tune_params(
+        score_lists=score_lists,
+        correct_indicators=correct_indicators,
+        weights_objective="roc_auc",  # different → optimize_jointly=False, k>3 → Optuna
+        thresh_objective="fbeta_score",
+        progress_bar=mock_progress,
+        n_trials=2,
+    )
+    mock_progress.add_task.assert_called()

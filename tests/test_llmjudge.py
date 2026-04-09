@@ -272,3 +272,12 @@ def test_parse_structured_response_exception(monkeypatch):
         assert np.isnan(score)
         assert explanation == "Parsing failed - using NaN"
         assert any("Failed to parse judge response" in str(warn.message) for warn in w)
+
+
+def test_extract_score_from_text_unknown_template_returns_nan():
+    """Bypass __init__ validation: unknown scoring_template → fallback return np.nan (line 237)."""
+    judge = LLMJudge(llm=None, scoring_template="true_false")
+    # Override after construction to bypass _validate_inputs
+    judge.scoring_template = "_unknown_template_xyz_"
+    result = judge._extract_score_from_text("yes")
+    assert np.isnan(result)

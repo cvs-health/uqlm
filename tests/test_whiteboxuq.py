@@ -122,3 +122,15 @@ async def test_whiteboxuq_top_logprobs_full(monkeypatch):
 
     results = await wbuq.generate_and_score(prompts=PROMPTS, show_progress_bars=False)
     assert "mean_token_negentropy" in results.data
+
+
+def test_whiteboxuq_scorers_none_uses_default():
+    """scorers=None falls back to white_box_names (line 209)."""
+    wbuq = WhiteBoxUQ(llm=mock_object, scorers=None)
+    assert len(wbuq.scorers) > 0
+
+
+def test_whiteboxuq_normalized_probability_deprecated():
+    """normalized_probability scorer raises deprecation ValueError (line 212)."""
+    with pytest.raises(ValueError, match="normalized_probability is deprecated"):
+        WhiteBoxUQ(llm=mock_object, scorers=["normalized_probability"])
