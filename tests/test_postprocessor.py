@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.utils.postprocessors import math_postprocessor
+from uqlm.utils.postprocessors import claims_dicts_to_lists, math_postprocessor
 
 
 TEST_DATA = {"$3.134": "3", "the answer is 12 cookies": "12", "Hmmm /n perhaps 555.,7&333$5x": "555"}
@@ -21,3 +21,39 @@ TEST_DATA = {"$3.134": "3", "the answer is 12 cookies": "12", "Hmmm /n perhaps 5
 def test_math_postprocessor():
     for key in TEST_DATA:
         assert TEST_DATA[key] == math_postprocessor(key)
+
+
+# ---------------------------------------------------------------------------
+# claims_dicts_to_lists
+# ---------------------------------------------------------------------------
+
+
+def test_claims_dicts_to_lists_basic():
+    claims_data = [
+        [{"score": 0.9, "label": "true"}, {"score": 0.4, "label": "false"}],
+        [{"score": 0.7, "label": "true"}],
+    ]
+    result = claims_dicts_to_lists(claims_data)
+    assert result["score"] == [[0.9, 0.4], [0.7]]
+    assert result["label"] == [["true", "false"], ["true"]]
+
+
+def test_claims_dicts_to_lists_preserves_all_keys():
+    claims_data = [[{"a": 1, "b": 2, "c": 3}]]
+    result = claims_dicts_to_lists(claims_data)
+    assert set(result.keys()) == {"a", "b", "c"}
+
+
+def test_claims_dicts_to_lists_single_response_single_claim():
+    claims_data = [[{"score": 0.5}]]
+    result = claims_dicts_to_lists(claims_data)
+    assert result == {"score": [[0.5]]}
+
+
+def test_claims_dicts_to_lists_multiple_responses():
+    claims_data = [
+        [{"score": 0.1}, {"score": 0.2}],
+        [{"score": 0.3}, {"score": 0.4}, {"score": 0.5}],
+    ]
+    result = claims_dicts_to_lists(claims_data)
+    assert result["score"] == [[0.1, 0.2], [0.3, 0.4, 0.5]]
