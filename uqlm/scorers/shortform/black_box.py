@@ -193,7 +193,7 @@ class BlackBoxUQ(ShortFormUQ):
             if "semantic_negentropy" in self.scorer_names:
                 self.scores_dict["semantic_negentropy"] = [1 - s for s in self.scorer_objects["semantic_negentropy"]._normalize_entropy(se_tmp.data["discrete_entropy_values"])]  # Convert to confidence score
             if "semantic_sets_confidence" in self.scorer_names:
-                self.scores_dict["semantic_sets_confidence"] = [1 - (s - 1) / (self.num_responses - 1) for s in se_tmp.data["num_semantic_sets"]]  # Convert to confidence score
+                self.scores_dict["semantic_sets_confidence"] = [(self.num_responses + 1 - s) / self.num_responses for s in se_tmp.data["num_semantic_sets"]]  # Convert to confidence score; max sets = num_responses + 1 (conf=0), min sets = 1 (conf=1)
             available_nli_scores = self.scorer_objects["semantic_negentropy"].clusterer.nli_scores
             if self.use_best:
                 self._update_best(se_tmp.data["responses"], include_logprobs=False)
