@@ -68,6 +68,7 @@ docs = [
     "sphinx-gallery==0.20.0",
     "sphinx-favicon==1.0.1",
     "nbsphinx==0.9.8",
+    "sphinx-design==0.6.1",
 ]
 test = [
     "ipykernel>=6.29.5,<7.0.0",
