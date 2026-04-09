@@ -6,8 +6,8 @@ Only the latest release of uqlm receives security fixes.
 
 | Version | Supported |
 | ------- | --------- |
-| 0.5.x (latest) | :white_check_mark: |
-| < 0.5.0 | :x: |
+| 0.6.x (latest) | :white_check_mark: |
+| < 0.6.0 | :x: |
 
 ## Reporting a Vulnerability
 
@@ -16,7 +16,7 @@ Only the latest release of uqlm receives security fixes.
 To report a vulnerability, use one of the following options:
 
 1. **GitHub Private Vulnerability Reporting** (preferred): [Report a vulnerability](https://github.com/cvs-health/uqlm/security/advisories/new)
-2. **Email**: dylan.bouchard@cvshealth.com
+2. **Email**: mohitsingh.chauhan@cvshealth.com
 
 Please include as much of the following information as possible:
 
