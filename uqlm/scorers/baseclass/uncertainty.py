@@ -27,7 +27,7 @@ from uqlm.utils.warn import deprecation_warning
 
 
 class UncertaintyQuantifier:
-    def __init__(self, llm: Any = None, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, postprocessor: Optional[Any] = None) -> None:
+    def __init__(self, llm: Any = None, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, postprocessor: Optional[Any] = None, structured_response: Optional[Any] = None, output_extractor: Optional[Any] = None) -> None:
         """
         Parent class for uncertainty quantification of LLM responses
 
@@ -56,6 +56,12 @@ class UncertaintyQuantifier:
         postprocessor : callable, default=None
             A user-defined function that takes a string input and returns a string. Used for postprocessing
             outputs.
+
+        structured_response : Any, default=None
+            If specified, should be a structure such as a pydantic BaseModel class or dict that will be applied to the llm in the as `llm.with_structured_output(structured_response)`. Only used if `output_extractor` is also specified.
+
+        output_extractor : callable, default=None
+            A user-defined function that takes the output of `structured_llm` and extracts the response. Only used if `structured_response` is not None.
         """
         self.llm = llm
         self.device = device
@@ -63,6 +69,8 @@ class UncertaintyQuantifier:
         self.system_prompt = system_prompt
         self.max_calls_per_min = max_calls_per_min
         self.use_n_param = use_n_param
+        self.structured_response = structured_response
+        self.output_extractor = output_extractor
         self.progress_bar = None
         self.raw_responses = None
         self.raw_sampled_responses = None
@@ -143,7 +151,7 @@ class UncertaintyQuantifier:
             llm_temperature = self.llm.temperature
             if temperature:
                 self.llm.temperature = temperature
-            generator_object = ResponseGenerator(llm=self.llm, max_calls_per_min=self.max_calls_per_min, use_n_param=self.use_n_param, top_k_logprobs=top_k_logprobs)
+            generator_object = ResponseGenerator(llm=self.llm, max_calls_per_min=self.max_calls_per_min, use_n_param=self.use_n_param, top_k_logprobs=top_k_logprobs, structured_response=self.structured_response, output_extractor=self.output_extractor)
             with contextlib.redirect_stdout(io.StringIO()):
                 generations = await generator_object.generate_responses(prompts=prompts, count=count, system_prompt=self.system_prompt, progress_bar=progress_bar)
             self.llm.temperature = llm_temperature
