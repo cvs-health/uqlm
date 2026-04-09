@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("uqlm")
+except PackageNotFoundError:
+    __version__ = "unknown"
+
 from uqlm.scorers.shortform.ensemble import UQEnsemble
 from uqlm.scorers.shortform.entropy import SemanticEntropy
 from uqlm.scorers.shortform.panel import LLMPanel
