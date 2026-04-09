@@ -87,6 +87,7 @@ packages = ["uqlm"]
 testpaths = ["tests"]
 reruns = 3
 reruns_delay = 2.0
+addopts = "--cov=uqlm --cov-report=xml --cov-report=term-missing --cov-fail-under=75"
 markers = [
     "asyncio"
 ]
