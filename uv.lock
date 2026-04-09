@@ -5713,7 +5713,7 @@ wheels = [
 
 [[package]]
 name = "uqlm"
-version = "0.5.5"
+version = "0.5.8"
 source = { editable = "." }
 dependencies = [
     { name = "bert-score" },
