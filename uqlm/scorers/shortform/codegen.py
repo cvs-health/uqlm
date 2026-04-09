@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import List, Optional
 from langchain_core.language_models.chat_models import BaseChatModel
 import numpy as np
 from uqlm.code import CodeBLEU, VerbalizedConfidence, FunctionalEntropy
@@ -26,7 +26,6 @@ class CodeGenUQ(ShortFormUQ):
         sampling_temperature: float = 1.0,
         top_k_logprobs: int = 15,
         length_normalize: bool = True,
-        device: Any = None,
         max_length: int = 2000,
         sentence_transformer: str = "jinaai/jina-embeddings-v2-base-code",
         language: str = "python",
@@ -43,8 +42,9 @@ class CodeGenUQ(ShortFormUQ):
 
         scorers : List[str], default=None
             Specifies which scorers to include. Must be subset of ["sequence_probability", "min_probability", "mean_token_negentropy",
-            "min_token_negentropy", "probability_margin", "p_true", "consistency_and_confidence", "monte_carlo_probability", "codebleu",
-            "functional_equivalence_rate", "verbalized_confidence", "functional_negentropy", "functional_sets_confidence", "cosine_sim"]. If None, defaults to all scorers.
+            "min_token_negentropy", "probability_margin", "p_true", "consistency_and_confidence", "monte_carlo_probability", "code_bleu",
+            "functional_equivalence_rate", "verbalized_confidence", "functional_negentropy", "functional_sets_confidence", "cosine_sim"].
+            If None, defaults to ["functional_equivalence_rate", "cosine_sim"].
 
         equivalence_llm : BaseChatModel, default=None
             A langchain llm object to get passed to chain constructor. This is used for CodeEquivalence and FunctionalEntropy scorers. User is responsible for specifying
@@ -66,10 +66,6 @@ class CodeGenUQ(ShortFormUQ):
 
         length_normalize : bool, default=True
             Specifies whether to length normalize the logprobs.
-
-        device : Any, default=None
-            Specifies the device that NLI model use for prediction. If None, detects and returns the best available PyTorch device.
-            Prioritizes CUDA (NVIDIA GPU), then MPS (macOS), then CPU.
 
         max_length : int, default=2000
             Specifies the maximum allowed string length. Responses longer than this value will be truncated to
@@ -112,7 +108,12 @@ class CodeGenUQ(ShortFormUQ):
         return results
 
     async def score(self, prompts: List[str], responses: List[str], sampled_responses: List[List[str]], logprobs_results: List[List[float]], sampled_logprobs_results: List[List[float]], show_progress_bars: Optional[bool] = True, _display_header: bool = True) -> UQResult:
-        data = {"prompts": prompts, "responses": responses, "logprob": logprobs_results, "sampled_responses": sampled_responses, "sampled_logprob": sampled_logprobs_results}
+        data = {"prompts": prompts, "responses": responses, "sampled_responses": sampled_responses}
+        if logprobs_results[0] is not None:
+            data["logprob"] = sampled_logprobs_results
+        if sampled_logprobs_results[0][0] is not None:
+            data["sampled_logprob"] = sampled_logprobs_results
+
         data = {key: val for key, val in data.items() if val}
 
         self._display_scoring_header(show_progress_bars and _display_header)
@@ -151,6 +152,9 @@ class CodeGenUQ(ShortFormUQ):
                 data[scorer] = fe_results[scorer]
             if "functional_negentropy_whitebox" in fe_results:
                 data["functional_negentropy_whitebox"] = fe_results["functional_negentropy_whitebox"]
+
+        self._stop_progress_bar()
+        self.progress_bar = None  # if re-run ensure the same progress object is not used
 
         return UQResult(result={"data": data})
 
