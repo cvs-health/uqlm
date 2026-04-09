@@ -13,6 +13,10 @@
     <img src="https://github.com/cvs-health/uqlm/actions/workflows/ci.yaml/badge.svg" alt="Build Status">
   </a>
   
+  <a href="https://codecov.io/gh/cvs-health/uqlm">
+    <img src="https://codecov.io/gh/cvs-health/uqlm/branch/main/graph/badge.svg" alt="Coverage">
+  </a>
+  
   <a href="https://pypi.org/project/uqlm/">
     <img src="https://badge.fury.io/py/uqlm.svg" alt="PyPI version">
   </a>
