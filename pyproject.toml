@@ -92,6 +92,11 @@ markers = [
     "asyncio"
 ]
 
+[tool.coverage.run]
+omit = [
+    "uqlm/code/lcb_grader.py",
+]
+
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
 exclude = [
