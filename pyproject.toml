@@ -16,6 +16,9 @@ maintainers = [
     { name = "Ho-Kyeong Ra", email = "doyajii1@gmail.com" },
     { name = "Viren Bajaj", email = "virenbajaj4@gmail.com" },
     { name = "Zeya Ahmad", email = "zeyahmd@gmail.com" },
+    { name = "Vipin Gyanchandani", email = "vipingyanchandani@gmail.com" },
+    { name = "Aaron Lohner", email = "aaron.lohner@gmail.com" },
+    { name = "Kaushik Tummalapalli", email = "kaushiktummalapalli55@gmail.com" },
 ]
 keywords = ["LLM", "large language model", "LLM evaluation", "hallucination", "uncertainty quantification"]
 classifiers = [
@@ -126,7 +129,7 @@ line-length = 400
 
 [tool.ruff.lint]
 #What rules to enable
-select = ["E", "F", "I"]
+select = ["E", "F"]
 # E = pycodestyle errors
 # F = pyflakes
 # I = isort (import sorting)
