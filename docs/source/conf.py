@@ -33,6 +33,7 @@ extensions = [
     "sphinxcontrib.bibtex",  # Bibliographic references
     "sphinx_favicon",  # Add favicon
     "nbsphinx",  # Execute Jupyter notebooks + OSX  brew install pandoc
+    "sphinx_design",  # Cards, grids, badges, buttons
 ]
 
 # MathJax configuration for LaTeX rendering
