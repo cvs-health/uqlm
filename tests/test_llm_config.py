@@ -338,3 +338,36 @@ class TestLLMConfigUtils:
         assert config["temperature"] == 0.5
         assert config["class_name"] == "TestLLM"
         assert config["module"] == "test.module"
+
+    def test_save_llm_config_skips_unreadable_attributes(self):
+        """Attributes that raise AttributeError or TypeError are silently skipped (lines 62-64).
+
+        The try/except is on the second getattr call (line 59), so we need an attribute
+        that returns a non-callable on the first access (so callable() passes) but raises
+        AttributeError on the second access (inside the try block).
+        """
+        # Descriptor that raises on every access after the first
+        class VolatileDescriptor:
+            def __set_name__(self, owner, name):
+                self._count_attr = f"__volatile_count_{name}__"
+
+            def __get__(self, obj, objtype=None):
+                if obj is None:
+                    return self
+                count = obj.__dict__.get(self._count_attr, 0)
+                obj.__dict__[self._count_attr] = count + 1
+                if count >= 1:
+                    raise AttributeError("volatile second access")
+                return 42  # non-callable, non-None on first access
+
+        class FaultyLLM:
+            volatile_attr = VolatileDescriptor()
+
+        FaultyLLM.__name__ = "FaultyLLM"
+        FaultyLLM.__module__ = "test.module"
+
+        llm = FaultyLLM()
+        # volatile_attr passes callable() check (returns 42, not callable)
+        # then raises AttributeError inside the try block → caught and skipped
+        config = save_llm_config(llm)
+        assert "volatile_attr" not in config

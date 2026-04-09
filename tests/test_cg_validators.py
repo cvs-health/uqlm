@@ -77,3 +77,24 @@ def test_codegen_default_attributes(mock_llm):
 def test_validate_scorers_equivalence_llm_defaults_to_llm(mock_llm):
     cg = CodeGenUQ(llm=mock_llm, scorers=["cosine_sim"])
     assert cg.equivalence_llm is mock_llm
+
+
+def test_validate_scorers_consistency_and_confidence_narrows_scorers(mock_llm):
+    """consistency_and_confidence branch narrows scorers list (line 165)."""
+    cg = CodeGenUQ(llm=mock_llm, scorers=["consistency_and_confidence", "cosine_sim", "sequence_probability"])
+    # After line 165, only cosine_sim and sequence_probability should remain
+    assert "consistency_and_confidence" not in cg.scorers
+
+
+
+def test_validate_scorers_verbalized_confidence_creates_vc(mock_llm):
+    """verbalized_confidence scorer constructs VerbalizedConfidence (line 169)."""
+    cg = CodeGenUQ(llm=mock_llm, scorers=["verbalized_confidence"])
+    assert hasattr(cg, "vc")
+
+
+def test_validate_scorers_wbuq_scorers_creates_wbuq(mock_llm):
+    """White-box scorers in list trigger WhiteBoxUQ construction (line 175)."""
+    cg = CodeGenUQ(llm=mock_llm, scorers=["sequence_probability"])
+    assert len(cg.wbuq_scorers) > 0
+    assert hasattr(cg, "wbuq")
