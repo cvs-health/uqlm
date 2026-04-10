@@ -79,6 +79,8 @@ jobs:
           cp gh-pages/versions.json docsVersion/versions.json           
       
       - name: Build Sphinx docs
+        env:
+          SPHINX_GITHUB_CHANGELOG_TOKEN: ${{ secrets.SPHINX_GITHUB_CHANGELOG_TOKEN }}
         run: |
           source .venv/bin/activate
           make -C docs clean
