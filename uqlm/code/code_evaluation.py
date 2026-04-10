@@ -28,7 +28,7 @@ def evaluate_python_code(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def evaluate_row_unified(row, timeout=6, runner_path="lcb_runner.py"):
+def evaluate_row_unified(row, timeout=6, runner_path="lcb_grader.py"):
     """
     Evaluates a single row of the dataset using the LCB runner.
 
@@ -56,7 +56,7 @@ def evaluate_row_unified(row, timeout=6, runner_path="lcb_runner.py"):
     if func_name and isinstance(func_name, str) and len(func_name.strip()) > 0:
         payload["fn_name"] = func_name.strip()
 
-    # Call lcb_runner
+    # Call lcb_grader
     res = subprocess.run(["python3", runner_path], input=json.dumps(payload), text=True, capture_output=True)
 
     # Try to decode LCB output

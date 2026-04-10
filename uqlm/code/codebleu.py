@@ -33,6 +33,8 @@ class CodeBLEU:
             List of responses to evaluate.
         sampled_responses : List[List[str]]
             List of lists of sampled responses to evaluate.
+        progress_bar : Progress, default=None
+            A progress bar to display the progress of evaluation of CodeBLEU scores.
 
         Returns
         -------

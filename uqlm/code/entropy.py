@@ -35,10 +35,6 @@ class FunctionalEntropy:
             Optional argument for user to provide custom system prompt. If prompts are list of strings and system_prompt is None,
             defaults to "You are a helpful assistant."
 
-        max_calls_per_min : int, default=None
-            Specifies how many api calls to make per minute to avoid a rate limit error. By default, no
-            limit is specified.
-
         length_normalize : bool, default=False
             Specifies whether to length normalize the logprobs.
 
@@ -73,8 +69,8 @@ class FunctionalEntropy:
         sampled_logprobs_results : list of list of list of dict, default=None
             A list of lists of lists of logprobs results for each prompt.
 
-        show_progress_bars : bool, default=True
-            If True, displays a progress bar while evaluating the functional entropy scores.
+        progress_bar : Progress, default=None
+            A progress bar to display progress while evaluating the functional entropy scores.
 
         Returns
         -------

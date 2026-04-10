@@ -45,7 +45,7 @@ class VerbalizedConfidence(ResponseGenerator):
         prompts : list of str
             A list of input prompts for the model.
 
-        claim_sets: list of str
+        responses : list of str
             A list of model responses for the provided prompts.
 
         retries : int, default=5
