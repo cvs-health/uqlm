@@ -1,0 +1,6 @@
+uqlm.utils.prompts.decomposition.get\_jiang\_2024\_breakdown\_prompt
+====================================================================
+
+.. currentmodule:: uqlm.utils.prompts.decomposition
+
+.. autofunction:: get_jiang_2024_breakdown_prompt

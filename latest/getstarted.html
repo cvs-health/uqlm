@@ -33,7 +33,8 @@
 <link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=662d8ef6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=65412f6b" />
   
   <!-- So that users can add custom icons -->
   <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -44,6 +45,7 @@
     <script src="_static/documentation_options.js?v=db78e746"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'getstarted';</script>
     <script>
@@ -187,6 +189,13 @@
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="faqs.html">
     FAQs
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="changelog.html">
+    Release Notes
   </a>
 </li>
 
@@ -343,6 +352,13 @@
   </a>
 </li>
 
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog.html">
+    Release Notes
+  </a>
+</li>
+
   </ul>
 </nav></div>
           
@@ -474,15 +490,81 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>uqlm
 </pre></div>
 </div>
-<section id="usage">
-<h3>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h3>
-<p>Below are minimal examples for hallucination detection.</p>
+<section id="scorer-types">
+<h3>Scorer Types<a class="headerlink" href="#scorer-types" title="Link to this heading">#</a></h3>
+<p>UQLM provides a suite of response-level scorers for quantifying LLM output uncertainty.
+Each scorer returns a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.
+The five scorer categories differ in latency, cost, and compatibility:</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id3">
+<caption><span class="caption-text">Comparison of Scorer Types</span><a class="headerlink" href="#id3" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Scorer Type</p></th>
+<th class="head"><p>Added Latency</p></th>
+<th class="head"><p>Added Cost</p></th>
+<th class="head"><p>Compatibility</p></th>
+<th class="head"><p>Off-the-Shelf / Effort</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#black-box-scorers"><span class="std std-ref">Black-Box Scorers</span></a></p></td>
+<td><p>⏱️ Medium-High (multiple generations &amp; comparisons)</p></td>
+<td><p>💸 High (multiple LLM calls)</p></td>
+<td><p>🌍 Universal (works with any LLM)</p></td>
+<td><p>✅ Off-the-shelf</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#white-box-scorers"><span class="std std-ref">White-Box Scorers</span></a></p></td>
+<td><p>⚡ Minimal (token probabilities already returned)</p></td>
+<td><p>✔️ None (no extra LLM calls)</p></td>
+<td><p>🔒 Limited (requires access to token probabilities)</p></td>
+<td><p>✅ Off-the-shelf</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#llm-as-a-judge-scorers"><span class="std std-ref">LLM-as-a-Judge Scorers</span></a></p></td>
+<td><p>⏳ Low-Medium (additional judge calls add latency)</p></td>
+<td><p>💵 Low-High (depends on number of judges)</p></td>
+<td><p>🌍 Universal (any LLM can serve as judge)</p></td>
+<td><p>✅ Off-the-shelf; Can be customized</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ensemble-scorers"><span class="std std-ref">Ensemble Scorers</span></a></p></td>
+<td><p>🔀 Flexible (combines various scorers)</p></td>
+<td><p>🔀 Flexible (combines various scorers)</p></td>
+<td><p>🔀 Flexible (combines various scorers)</p></td>
+<td><p>✅ Off-the-shelf (beginner-friendly); 🛠️ Can be tuned (best for advanced users)</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#long-text-scorers"><span class="std std-ref">Long-Text Scorers</span></a></p></td>
+<td><p>⏱️ High-Very high (multiple generations &amp; claim-level comparisons)</p></td>
+<td><p>🔀 💸 High (multiple LLM calls)</p></td>
+<td><p>🔀 🌍 Universal</p></td>
+<td><p>✅ Off-the-shelf</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </section>
 </section>
-<section id="example-1-black-box-scorers-for-hallucination-detection">
-<h2>Example 1: <code class="docutils literal notranslate"><span class="pre">Black-Box</span> <span class="pre">Scorers</span></code> for hallucination detection<a class="headerlink" href="#example-1-black-box-scorers-for-hallucination-detection" title="Link to this heading">#</a></h2>
+<section id="black-box-scorers-consistency-based">
+<span id="black-box-scorers"></span><h2>1. Black-Box Scorers (Consistency-Based)<a class="headerlink" href="#black-box-scorers-consistency-based" title="Link to this heading">#</a></h2>
+<img alt="_images/black_box_graphic.png" class="only-light no-scaled-link responsive-img align-center" src="_images/black_box_graphic.png" />
+<img alt="_images/black_box_graphic_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/black_box_graphic_dark.png" />
 <p>These scorers assess uncertainty by measuring the consistency of multiple responses generated from the same prompt. They are compatible with any LLM, intuitive to use, and don’t require access to internal model states or token probabilities.</p>
-<p>Below is a sample of code illustrating how to use the <cite>BlackBoxUQ</cite> class to conduct hallucination detection.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Discrete Semantic Entropy (<a class="reference external" href="https://www.nature.com/articles/s41586-024-07421-0">Farquhar et al., 2024</a>; <a class="reference external" href="https://arxiv.org/pdf/2302.09664">Kuhn et al., 2023</a>)</p></li>
+<li><p>Number of Semantic Sets (<a class="reference external" href="https://arxiv.org/abs/2305.19187">Lin et al., 2024</a>; <a class="reference external" href="https://arxiv.org/abs/2406.15627">Vashurin et al., 2025</a>; <a class="reference external" href="https://arxiv.org/pdf/2302.09664">Kuhn et al., 2023</a>)</p></li>
+<li><p>Non-Contradiction Probability (<a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2305.19187">Lin et al., 2024</a>; <a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
+<li><p>Entailment Probability (<a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2305.19187">Lin et al., 2024</a>; <a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
+<li><p>Exact Match (<a class="reference external" href="https://arxiv.org/abs/2305.14613">Cole et al., 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>)</p></li>
+<li><p>BERT-score (<a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>; <a class="reference external" href="https://arxiv.org/abs/1904.09675">Zhang et al., 2020</a>)</p></li>
+<li><p>Cosine Similarity (<a class="reference external" href="https://arxiv.org/pdf/2412.05563">Shorinwa et al., 2024</a>; <a class="reference external" href="https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2">HuggingFace</a>)</p></li>
+</ul>
+</div></blockquote>
+<p>Below is a minimal example using the <code class="docutils literal notranslate"><span class="pre">BlackBoxUQ</span></code> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOpenAI</span>
 <span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">)</span>
 
@@ -495,12 +577,39 @@
 </div>
 <p align="center">
   <img src="./_static/images/black_box_output4.png" />
-</p><p>Above, <cite>use_best=True</cite> implements mitigation so that the uncertainty-minimized responses is selected. Note that although we use <cite>ChatOpenAI</cite> in this example, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a>  may be used. For a more detailed demo, refer to our <a class="reference internal" href="_notebooks/examples/black_box_demo.html"><span class="doc">Black-Box UQ Demo</span></a>.</p>
+</p><p><code class="docutils literal notranslate"><span class="pre">use_best=True</span></code> implements mitigation so that the uncertainty-minimized response is selected. Any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used. For a more detailed demo refer to our <a class="reference internal" href="_notebooks/examples/black_box_demo.html"><span class="doc">Black-Box UQ Demo</span></a>, or see the <a class="reference internal" href="scorer_definitions/black_box/index.html"><span class="doc">Black-Box Scorer Definitions</span></a> for formal definitions.</p>
 </section>
-<section id="example-2-white-box-scorers-for-hallucination-detection">
-<h2>Example 2: <code class="docutils literal notranslate"><span class="pre">White-Box</span> <span class="pre">Scorers</span></code> for hallucination detection<a class="headerlink" href="#example-2-white-box-scorers-for-hallucination-detection" title="Link to this heading">#</a></h2>
-<p>These scorers leverage token probabilities to estimate uncertainty.  They offer single-generation scoring, which is significantly faster and cheaper than black-box methods, but require access to the LLM’s internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs.</p>
-<p>Below is a sample of code illustrating how to use the WhiteBoxUQ class to conduct hallucination detection.</p>
+<section id="white-box-scorers-token-probability-based">
+<span id="white-box-scorers"></span><h2>2. White-Box Scorers (Token-Probability-Based)<a class="headerlink" href="#white-box-scorers-token-probability-based" title="Link to this heading">#</a></h2>
+<img alt="_images/white_box_graphic.png" class="only-light no-scaled-link responsive-img align-center" src="_images/white_box_graphic.png" />
+<img alt="_images/white_box_graphic_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/white_box_graphic_dark.png" />
+<p>These scorers leverage token probabilities to estimate uncertainty. They offer single-generation scoring, which is significantly faster and cheaper than black-box methods, but require access to the LLM’s internal probabilities. The following single-generation scorers are available:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Minimum token probability (<a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
+<li><p>Length-Normalized Joint Token Probability (<a class="reference external" href="https://arxiv.org/pdf/2002.07650">Malinin &amp; Gales, 2021</a>)</p></li>
+<li><p>Sequence Probability (<a class="reference external" href="https://arxiv.org/abs/2406.15627">Vashurin et al., 2024</a>)</p></li>
+<li><p>Mean Top-K Token Negentropy (<a class="reference external" href="https://arxiv.org/abs/2510.11170">Scalena et al., 2025</a>; <a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
+<li><p>Min Top-K Token Negentropy (<a class="reference external" href="https://arxiv.org/abs/2510.11170">Scalena et al., 2025</a>; <a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>)</p></li>
+<li><p>Probability Margin (<a class="reference external" href="https://arxiv.org/abs/2408.08217">Farr et al., 2024</a>)</p></li>
+</ul>
+</div></blockquote>
+<p>UQLM also offers sampling-based white-box methods with superior detection performance:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Monte Carlo Sequence Probability (<a class="reference external" href="https://arxiv.org/abs/2302.09664">Kuhn et al., 2023</a>)</p></li>
+<li><p>Consistency and Confidence (CoCoA) (<a class="reference external" href="https://arxiv.org/abs/2502.04964">Vashurin et al., 2025</a>)</p></li>
+<li><p>Semantic Entropy (<a class="reference external" href="https://www.nature.com/articles/s41586-024-07421-0">Farquhar et al., 2024</a>)</p></li>
+<li><p>Semantic Density (<a class="reference external" href="https://arxiv.org/abs/2405.13845">Qiu et al., 2024</a>)</p></li>
+</ul>
+</div></blockquote>
+<p>Lastly, the P(True) scorer is a self-reflection method requiring one additional generation per response:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>P(True) (<a class="reference external" href="https://arxiv.org/abs/2207.05221">Kadavath et al., 2022</a>)</p></li>
+</ul>
+</div></blockquote>
+<p>Below is a minimal example using the <code class="docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
 <span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gemini-2.5-pro&#39;</span><span class="p">)</span>
 
@@ -513,12 +622,22 @@
 </div>
 <p align="center">
   <img src="./_static/images/white_box_output2.png" />
-</p><p>Again, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used in place of <cite>ChatVertexAI</cite>. For a more detailed demo, refer to our <a class="reference external" href="_notebooks/examples/white_box_demo.ipynb">White-Box UQ Demo</a>.</p>
+</p><p>Any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used in place of <code class="docutils literal notranslate"><span class="pre">ChatVertexAI</span></code>. For a more detailed demo refer to our <a class="reference external" href="_notebooks/examples/white_box_demo.ipynb">White-Box UQ Demo</a>, or see the <a class="reference internal" href="scorer_definitions/white_box/index.html"><span class="doc">White-Box Scorer Definitions</span></a> for formal definitions.</p>
 </section>
-<section id="example-3-llm-as-a-judge-scorers-for-hallucination-detection">
-<h2>Example 3: <code class="docutils literal notranslate"><span class="pre">LLM-as-a-Judge</span> <span class="pre">Scorers</span></code> for hallucination detection<a class="headerlink" href="#example-3-llm-as-a-judge-scorers-for-hallucination-detection" title="Link to this heading">#</a></h2>
+<section id="llm-as-a-judge-scorers">
+<span id="id1"></span><h2>3. LLM-as-a-Judge Scorers<a class="headerlink" href="#llm-as-a-judge-scorers" title="Link to this heading">#</a></h2>
+<img alt="_images/judges_graphic.png" class="only-light no-scaled-link responsive-img align-center" src="_images/judges_graphic.png" />
+<img alt="_images/judges_graphic_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/judges_graphic_dark.png" />
 <p>These scorers use one or more LLMs to evaluate the reliability of the original LLM’s response. They offer high customizability through prompt engineering and the choice of judge LLM(s).</p>
-<p>Below is a sample of code illustrating how to use the LLMPanel class to conduct hallucination detection using a panel of LLM judges.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Categorical LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/abs/2303.08896">Manakul et al., 2023</a>; <a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>; <a class="reference external" href="https://arxiv.org/pdf/2303.15621">Luo et al., 2023</a>)</p></li>
+<li><p>Continuous LLM-as-a-Judge (<a class="reference external" href="https://arxiv.org/pdf/2306.13063">Xiong et al., 2024</a>)</p></li>
+<li><p>Likert Scale Scoring (<a class="reference external" href="https://arxiv.org/pdf/2306.04181">Bai et al., 2023</a>)</p></li>
+<li><p>Panel of LLM Judges (<a class="reference external" href="https://arxiv.org/abs/2404.18796">Verga et al., 2024</a>)</p></li>
+</ul>
+</div></blockquote>
+<p>Below is a minimal example using the <code class="docutils literal notranslate"><span class="pre">LLMPanel</span></code> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_ollama</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOllama</span>
 <span class="n">llama</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;llama3&quot;</span><span class="p">)</span>
 <span class="n">mistral</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;mistral&quot;</span><span class="p">)</span>
@@ -533,12 +652,20 @@
 </div>
 <p align="center">
   <img src="./_static/images/panel_output2.png" />
-</p><p>Note that although we use <cite>ChatOllama</cite> in this example, we can use any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> as judges. For a more detailed demo, refer to our <a class="reference internal" href="_notebooks/examples/judges_demo.html"><span class="doc">LLM-as-a-Judge Demo</span></a>.</p>
+</p><p>Any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used as judges. For a more detailed demo refer to our <a class="reference internal" href="_notebooks/examples/judges_demo.html"><span class="doc">LLM-as-a-Judge Demo</span></a>, or see the <a class="reference internal" href="scorer_definitions/llm_judges/index.html"><span class="doc">LLM-as-a-Judge Scorer Definitions</span></a> for formal definitions.</p>
 </section>
-<section id="example-4-ensemble-scorers-for-hallucination-detection">
-<h2>Example 4: <code class="docutils literal notranslate"><span class="pre">Ensemble</span> <span class="pre">Scorers</span></code> for hallucination detection<a class="headerlink" href="#example-4-ensemble-scorers-for-hallucination-detection" title="Link to this heading">#</a></h2>
+<section id="ensemble-scorers">
+<span id="id2"></span><h2>4. Ensemble Scorers<a class="headerlink" href="#ensemble-scorers" title="Link to this heading">#</a></h2>
+<img alt="_images/uqensemble_generate_score.png" class="only-light no-scaled-link responsive-img align-center" src="_images/uqensemble_generate_score.png" />
+<img alt="_images/uqensemble_generate_score_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/uqensemble_generate_score_dark.png" />
 <p>These scorers leverage a weighted average of multiple individual scorers to provide a more robust uncertainty/confidence estimate. They offer high flexibility and customizability, allowing you to tailor the ensemble to specific use cases.</p>
-<p>Below is a sample of code illustrating how to use the <cite>UQEnsemble</cite> class to conduct hallucination detection.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>BS Detector (<a class="reference external" href="https://arxiv.org/abs/2308.16175">Chen &amp; Mueller, 2023</a>)</p></li>
+<li><p>Generalized Ensemble (<a class="reference external" href="https://arxiv.org/abs/2504.19254">Bouchard &amp; Chauhan, 2025</a>)</p></li>
+</ul>
+</div></blockquote>
+<p>Below is a minimal example using the <code class="docutils literal notranslate"><span class="pre">UQEnsemble</span></code> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">AzureChatOpenAI</span>
 <span class="n">llm</span> <span class="o">=</span> <span class="n">AzureChatOpenAI</span><span class="p">(</span><span class="n">deployment_name</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="n">openai_api_type</span><span class="o">=</span><span class="s2">&quot;azure&quot;</span><span class="p">,</span> <span class="n">openai_api_version</span><span class="o">=</span><span class="s2">&quot;2024-12-01-preview&quot;</span><span class="p">)</span>
 
@@ -566,12 +693,24 @@
 </div>
 <p align="center">
   <img src="./_static/images/uqensemble_output2.png" />
-</p><p>As with the other examples, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used in place of <cite>AzureChatOpenAI</cite>. For more detailed demos, refer to our <a class="reference internal" href="_notebooks/examples/ensemble_off_the_shelf_demo.html"><span class="doc">Off-the-Shelf Ensemble Demo</span></a> (quick start) or our <a class="reference internal" href="_notebooks/examples/ensemble_tuning_demo.html"><span class="doc">Ensemble Tuning Demo</span></a> (advanced).</p>
+</p><p>Any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used in place of <code class="docutils literal notranslate"><span class="pre">AzureChatOpenAI</span></code>. For more detailed demos refer to our <a class="reference internal" href="_notebooks/examples/ensemble_off_the_shelf_demo.html"><span class="doc">Off-the-Shelf Ensemble Demo</span></a> (quick start) or <a class="reference internal" href="_notebooks/examples/ensemble_tuning_demo.html"><span class="doc">Ensemble Tuning Demo</span></a> (advanced), or see the <a class="reference internal" href="scorer_definitions/ensemble/index.html"><span class="doc">Ensemble Scorer Definitions</span></a> for formal definitions.</p>
 </section>
-<section id="example-5-long-text-scorers-for-hallucination-detection">
-<h2>Example 5: <code class="docutils literal notranslate"><span class="pre">Long-Text</span> <span class="pre">Scorers</span></code> for hallucination detection<a class="headerlink" href="#example-5-long-text-scorers-for-hallucination-detection" title="Link to this heading">#</a></h2>
-<p>These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of black-box scorers, long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses. After scoring claims in the response, the response can be refined by removing claims with confidence scores less than a specified threshold and reconstructing the response from the retained claims. This approach allows for improved factual precision of long-text generations.</p>
-<p>Below is a sample of code illustrating how to use the LongTextUQ class to conduct claim-level hallucination detection and uncertainty-aware response refinement.</p>
+<section id="long-text-scorers-claim-level">
+<span id="long-text-scorers"></span><h2>5. Long-Text Scorers (Claim-Level)<a class="headerlink" href="#long-text-scorers-claim-level" title="Link to this heading">#</a></h2>
+<img alt="_images/luq_example.png" class="only-light no-scaled-link responsive-img align-center" src="_images/luq_example.png" />
+<img alt="_images/luq_example_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/luq_example_dark.png" />
+<p>These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of black-box scorers, long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses.</p>
+<img alt="_images/uad_graphic.png" class="only-light no-scaled-link responsive-img align-center" src="_images/uad_graphic.png" />
+<img alt="_images/uad_graphic_dark.png" class="only-dark no-scaled-link responsive-img align-center" src="_images/uad_graphic_dark.png" />
+<p>After scoring claims in the response, the response can be refined by removing claims with confidence scores less than a specified threshold and reconstructing the response from the retained claims. This approach allows for improved factual precision of long-text generations.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>LUQ scorers (<a class="reference external" href="https://arxiv.org/abs/2403.20279">Zhang et al., 2024</a>; <a class="reference external" href="https://arxiv.org/abs/2410.13246">Zhang et al., 2025</a>)</p></li>
+<li><p>Graph-based scorers (<a class="reference external" href="https://arxiv.org/abs/2410.20783">Jiang et al., 2024</a>)</p></li>
+<li><p>Generalized long-form semantic entropy (<a class="reference external" href="https://www.nature.com/articles/s41586-024-07421-0">Farquhar et al., 2024</a>)</p></li>
+</ul>
+</div></blockquote>
+<p>Below is a minimal example using the <code class="docutils literal notranslate"><span class="pre">LongTextUQ</span></code> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOpenAI</span>
 <span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
 
@@ -594,7 +733,7 @@
 </div>
 <p align="center">
   <img src="./_static/images/long_text_output.png" />
-</p><p>Above <cite>response</cite> and <cite>entailment</cite> reflect the original response and response-level confidence score, while <cite>refined_response</cite> and <cite>refined_entailment</cite> are the corresponding values after response refinement. The <cite>claims_data</cite> column includes granular data for each response, including claims, claim-level confidence scores, and whether each claim is retained in the response refinement process. We use <cite>ChatOpenAI</cite> in this example, any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used. For a more detailed demo, refer to our <a class="reference internal" href="_notebooks/examples/long_text_uq_demo.html"><span class="doc">Long-Text UQ Demo</span></a>.</p>
+</p><p><code class="docutils literal notranslate"><span class="pre">response</span></code> and <code class="docutils literal notranslate"><span class="pre">entailment</span></code> reflect the original response and response-level confidence score, while <code class="docutils literal notranslate"><span class="pre">refined_response</span></code> and <code class="docutils literal notranslate"><span class="pre">refined_entailment</span></code> are the corresponding values after response refinement. The <code class="docutils literal notranslate"><span class="pre">claims_data</span></code> column includes granular data for each response, including claims, claim-level confidence scores, and whether each claim is retained. Any <a class="reference external" href="https://js.langchain.com/docs/integrations/chat/">LangChain Chat Model</a> may be used. For a more detailed demo refer to our <a class="reference internal" href="_notebooks/examples/long_text_uq_demo.html"><span class="doc">Long-Text UQ Demo</span></a>, or see the <a class="reference internal" href="scorer_definitions/long_text/index.html"><span class="doc">Long-Text Scorer Definitions</span></a> for formal definitions.</p>
 <section id="example-notebooks">
 <h3>Example notebooks<a class="headerlink" href="#example-notebooks" title="Link to this heading">#</a></h3>
 <p>Refer to our <a class="reference internal" href="_notebooks/index.html"><span class="doc">example notebooks</span></a> for examples illustrating how to use <cite>uqlm</cite>.</p>
@@ -651,14 +790,14 @@
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-virtual-environment-for-using-uqlm">Create a virtual environment for using uqlm</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scorer-types">Scorer Types</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-1-black-box-scorers-for-hallucination-detection">Example 1: <code class="docutils literal notranslate"><span class="pre">Black-Box</span> <span class="pre">Scorers</span></code> for hallucination detection</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-2-white-box-scorers-for-hallucination-detection">Example 2: <code class="docutils literal notranslate"><span class="pre">White-Box</span> <span class="pre">Scorers</span></code> for hallucination detection</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-3-llm-as-a-judge-scorers-for-hallucination-detection">Example 3: <code class="docutils literal notranslate"><span class="pre">LLM-as-a-Judge</span> <span class="pre">Scorers</span></code> for hallucination detection</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-4-ensemble-scorers-for-hallucination-detection">Example 4: <code class="docutils literal notranslate"><span class="pre">Ensemble</span> <span class="pre">Scorers</span></code> for hallucination detection</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-5-long-text-scorers-for-hallucination-detection">Example 5: <code class="docutils literal notranslate"><span class="pre">Long-Text</span> <span class="pre">Scorers</span></code> for hallucination detection</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#black-box-scorers-consistency-based">1. Black-Box Scorers (Consistency-Based)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#white-box-scorers-token-probability-based">2. White-Box Scorers (Token-Probability-Based)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#llm-as-a-judge-scorers">3. LLM-as-a-Judge Scorers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ensemble-scorers">4. Ensemble Scorers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#long-text-scorers-claim-level">5. Long-Text Scorers (Claim-Level)</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-notebooks">Example notebooks</a></li>
 </ul>
 </li>
