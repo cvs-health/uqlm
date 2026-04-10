@@ -34,7 +34,10 @@ extensions = [
     "sphinx_favicon",  # Add favicon
     "nbsphinx",  # Execute Jupyter notebooks + OSX  brew install pandoc
     "sphinx_design",  # Cards, grids, badges, buttons
+    "sphinx_github_changelog",  # Auto-populate release notes from GitHub releases
 ]
+
+sphinx_github_changelog_token = os.environ.get("SPHINX_GITHUB_CHANGELOG_TOKEN")
 
 # MathJax configuration for LaTeX rendering
 mathjax3_config = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "displayMath": [["$$", "$$"], ["\\[", "\\]"]]}}

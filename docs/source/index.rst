@@ -112,3 +112,4 @@ Contents
    /_notebooks/index
    Contributor Guide <contribute>
    FAQs <faqs>
+   Release Notes <changelog>
