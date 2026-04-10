@@ -128,3 +128,16 @@
     font-size: 1.2em;
     color: #666;
 }
+
+/* FAQs: make question headings smaller */
+#uqlm-faqs h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Release notes: make sub-headings (Highlights, What's Changed) smaller than version headings */
+#release-notes h2:not(:has(a.headerlink)) {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 0.8em;
+}
