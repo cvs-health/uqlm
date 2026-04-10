@@ -14,15 +14,15 @@
 
 import asyncio
 import time
-from typing import List, Optional, Callable
-from uqlm.utils.prompts import get_claim_breakdown_prompt
+from typing import List, Optional, Callable, Union
+from uqlm.utils.prompts import DECOMPOSITION_PROMPT_MAP
 from rich.progress import Progress
 from langchain_core.language_models.chat_models import BaseChatModel
 import re
 
 
 class ResponseDecomposer:
-    def __init__(self, claim_decomposition_llm: Optional[BaseChatModel] = None, response_template: Callable = get_claim_breakdown_prompt) -> None:
+    def __init__(self, claim_decomposition_llm: Optional[BaseChatModel] = None, response_template: Union[str, Callable] = "zhang_2025") -> None:
         """
         Class for decomposing responses into individual claims or sentences. This class is used as an intermediate
         step for longform UQ methods.
@@ -33,11 +33,24 @@ class ResponseDecomposer:
             A langchain llm `BaseChatModel`. User is responsible for specifying temperature and other
             relevant parameters to the constructor of their `llm` object.
 
-        response_template: Callable
-            A function that takes a response and returns a list of claims.
+        response_template: Union[str, Callable], default="zhang_2025"
+            Specifies the claim decomposition prompt template. Can be one of the following strings:
+            ``"zhang_2025"``, ``"farquhar_2024"``, ``"mohri_2024"``, ``"jiang_2024"``,
+            or a custom callable that takes a response string and returns a prompt string.
         """
         self.claim_decomposition_llm = claim_decomposition_llm
-        self.response_template = response_template
+        self.response_template = self._resolve_template(response_template)
+
+    @staticmethod
+    def _resolve_template(response_template: Union[str, Callable]) -> Callable:
+        """Resolve a string key or callable to a prompt callable."""
+        if callable(response_template):
+            return response_template
+        if isinstance(response_template, str):
+            if response_template not in DECOMPOSITION_PROMPT_MAP:
+                raise ValueError(f"Invalid claim_decomposition_prompt: '{response_template}'. Must be one of {list(DECOMPOSITION_PROMPT_MAP.keys())} or a callable.")
+            return DECOMPOSITION_PROMPT_MAP[response_template]
+        raise TypeError(f"claim_decomposition_prompt must be a string key or callable, got {type(response_template).__name__}.")
 
     def decompose_sentences(self, responses: List[str], progress_bar: Optional[Progress] = None) -> List[List[str]]:
         """
@@ -82,21 +95,22 @@ class ResponseDecomposer:
         time.sleep(0.1)
         return sampled_sentences_sets
 
-    async def decompose_claims(self, responses: List[str], response_template: Callable = None, progress_bar: Optional[Progress] = None) -> List[List[str]]:
+    async def decompose_claims(self, responses: List[str], response_template: Union[str, Callable] = None, progress_bar: Optional[Progress] = None) -> List[List[str]]:
         """
         Parameters
         ----------
         responses: List[str]
             LLM response that will be decomposed into independent claims.
 
-        response_template: Callable
-            A function that takes a response and returns a list of claims.
+        response_template: Union[str, Callable], default=None
+            A string key (e.g. ``"zhang_2025"``) or callable that takes a response and returns a prompt.
+            If None, uses the template set at initialization.
 
         progress_bar : rich.progress.Progress, default=None
             If provided, displays a progress bar while scoring responses
         """
         if response_template is not None:
-            self.response_template = response_template
+            self.response_template = self._resolve_template(response_template)
         if not self.claim_decomposition_llm:
             raise ValueError("llm must be provided to decompose responses into claims")
         if progress_bar:

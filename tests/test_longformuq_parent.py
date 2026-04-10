@@ -13,12 +13,10 @@
 # limitations under the License.
 
 import pytest
-import numpy as np
 from unittest.mock import MagicMock, patch, AsyncMock
 from rich.progress import Progress
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from uqlm.scorers.baseclass.uncertainty import UncertaintyQuantifier
 from uqlm.longform.decomposition import ResponseDecomposer
 from uqlm.longform.uad import UncertaintyAwareDecoder
 from uqlm.scorers.longform.baseclass.uncertainty import LongFormUQ
@@ -70,7 +68,7 @@ class TestLongFormUQ:
             uq = LongFormUQ(llm=mock_llm, scorers=["entailment"])
 
             # Check that ResponseDecomposer was initialized with the correct parameters
-            mock_decomposer_class.assert_called_once_with(claim_decomposition_llm=mock_llm)
+            mock_decomposer_class.assert_called_once_with(claim_decomposition_llm=mock_llm, response_template="zhang_2025")
 
             # Check that attributes were set correctly
             assert uq.llm == mock_llm
@@ -90,7 +88,7 @@ class TestLongFormUQ:
             uq = LongFormUQ(llm=mock_llm, scorers=["entailment", "noncontradiction"], granularity="claim", aggregation="min", claim_decomposition_llm=custom_decomposition_llm, response_refinement=True, claim_filtering_scorer="noncontradiction", device="cuda", system_prompt="Custom prompt", max_calls_per_min=10, use_n_param=True)
 
             # Check that ResponseDecomposer was initialized with the correct parameters
-            mock_decomposer_class.assert_called_once_with(claim_decomposition_llm=custom_decomposition_llm)
+            mock_decomposer_class.assert_called_once_with(claim_decomposition_llm=custom_decomposition_llm, response_template="zhang_2025")
 
             # Check that UncertaintyAwareDecoder was initialized with the correct parameters
             mock_reconstructor_class.assert_called_once()

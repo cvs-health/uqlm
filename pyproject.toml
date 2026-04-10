@@ -1,6 +1,6 @@
 [project]
 name = "uqlm"
-version = "0.5.8"
+version = "0.5.9"
 description = "UQLM (Uncertainty Quantification for Language Models) is a Python package for UQ-based LLM hallucination detection."
 readme = "assets/README_PYPI.md"
 license = "Apache-2.0"
@@ -16,6 +16,9 @@ maintainers = [
     { name = "Ho-Kyeong Ra", email = "doyajii1@gmail.com" },
     { name = "Viren Bajaj", email = "virenbajaj4@gmail.com" },
     { name = "Zeya Ahmad", email = "zeyahmd@gmail.com" },
+    { name = "Vipin Gyanchandani", email = "vipingyanchandani@gmail.com" },
+    { name = "Aaron Lohner", email = "aaron.lohner@gmail.com" },
+    { name = "Kaushik Tummalapalli", email = "kaushiktummalapalli55@gmail.com" },
 ]
 keywords = ["LLM", "large language model", "LLM evaluation", "hallucination", "uncertainty quantification"]
 classifiers = [
@@ -65,6 +68,8 @@ docs = [
     "sphinx-gallery==0.20.0",
     "sphinx-favicon==1.0.1",
     "nbsphinx==0.9.8",
+    "sphinx-design==0.6.1",
+    "sphinx-github-changelog==1.4.0",
 ]
 test = [
     "ipykernel>=6.29.5,<7.0.0",
