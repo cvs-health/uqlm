@@ -1,0 +1,72 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "UQLM: A Python Package for Uncertainty Quantification in Large Language Models"
+version: 0.5.8
+license: Apache-2.0
+repository-code: "https://github.com/cvs-health/uqlm"
+url: "https://cvs-health.github.io/uqlm/latest/index.html"
+authors:
+  - family-names: Bouchard
+    given-names: Dylan
+  - family-names: Chauhan
+    given-names: Mohit Singh
+  - family-names: Skarbrevik
+    given-names: David
+  - family-names: Ra
+    given-names: Ho-Kyeong
+  - family-names: Bajaj
+    given-names: Viren
+  - family-names: Ahmad
+    given-names: Zeya
+
+preferred-citation:
+  type: article
+  title: "UQLM: A Python Package for Uncertainty Quantification in Large Language Models"
+  authors:
+    - family-names: Bouchard
+      given-names: Dylan
+    - family-names: Chauhan
+      given-names: Mohit Singh
+    - family-names: Skarbrevik
+      given-names: David
+    - family-names: Ra
+      given-names: Ho-Kyeong
+    - family-names: Bajaj
+      given-names: Viren
+    - family-names: Ahmad
+      given-names: Zeya
+  journal: "Journal of Machine Learning Research"
+  year: 2026
+  volume: 27
+  issue: 13
+  start: 1
+  end: 10
+  url: "http://jmlr.org/papers/v27/25-1557.html"
+
+references:
+  - type: article
+    title: "Uncertainty Quantification for Language Models: A Suite of Black-Box, White-Box, LLM Judge, and Ensemble Scorers"
+    authors:
+      - family-names: Bouchard
+        given-names: Dylan
+      - family-names: Chauhan
+        given-names: Mohit Singh
+    journal: "Transactions on Machine Learning Research"
+    year: 2025
+    issn: "2835-8856"
+    url: "https://openreview.net/forum?id=WOFspd4lq5"
+
+  - type: generic
+    title: "Fine-Grained Uncertainty Quantification for Long-Form Language Model Outputs: A Comparative Study"
+    authors:
+      - family-names: Bouchard
+        given-names: Dylan
+      - family-names: Chauhan
+        given-names: Mohit Singh
+      - family-names: Bajaj
+        given-names: Viren
+      - family-names: Skarbrevik
+        given-names: David
+    year: 2026
+    url: "https://arxiv.org/abs/2602.17431"
+    notes: "arXiv preprint arXiv:2602.17431"

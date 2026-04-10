@@ -1,6 +1,6 @@
 [project]
 name = "uqlm"
-version = "0.5.8"
+version = "0.5.9"
 description = "UQLM (Uncertainty Quantification for Language Models) is a Python package for UQ-based LLM hallucination detection."
 readme = "assets/README_PYPI.md"
 license = "Apache-2.0"
@@ -68,6 +68,8 @@ docs = [
     "sphinx-gallery==0.20.0",
     "sphinx-favicon==1.0.1",
     "nbsphinx==0.9.8",
+    "sphinx-design==0.6.1",
+    "sphinx-github-changelog==1.4.0",
 ]
 test = [
     "ipykernel>=6.29.5,<7.0.0",
