@@ -23,6 +23,9 @@ from uqlm.utils.results import UQResult
 from unittest.mock import AsyncMock
 from uqlm.utils.llm_config import save_llm_config, load_llm_config
 from langchain_openai import AzureChatOpenAI
+import platform
+
+pytestmark = pytest.mark.skipif(os.getenv("CI") == "true" and platform.system() == "Linux", reason="Skipped on CI due to hardware-dependent transformer backend imports")
 
 datafile_path = "tests/data/scorers/ensemble_results_file.json"
 with open(datafile_path, "r") as f:

@@ -12,13 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("uqlm")
+except PackageNotFoundError:
+    __version__ = "unknown"
+
 from uqlm.scorers.shortform.ensemble import UQEnsemble
 from uqlm.scorers.shortform.entropy import SemanticEntropy
 from uqlm.scorers.shortform.panel import LLMPanel
 from uqlm.scorers.shortform.white_box import WhiteBoxUQ
 from uqlm.scorers.shortform.black_box import BlackBoxUQ
+from uqlm.scorers.shortform.codegen import CodeGenUQ
 from uqlm.scorers.longform.longtext import LongTextUQ
 from uqlm.scorers.longform.qa import LongTextQA
 from uqlm.scorers.longform.graph import LongTextGraph
 
-__all__ = ["UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "LongTextUQ", "LongTextQA", "LongTextGraph"]
+__all__ = ["UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "CodeGenUQ", "LongTextUQ", "LongTextQA", "LongTextGraph"]

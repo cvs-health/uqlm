@@ -151,3 +151,4 @@ dmypy.json
 .cursor/
 .cursorindexingignore
 .cursorignore
+CLAUDE.md

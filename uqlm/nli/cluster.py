@@ -1,13 +1,12 @@
 from collections import deque, Counter
 from typing import Any, Dict, List, Tuple
 from uqlm.nli.nli import NLI
-import numpy as np
+from uqlm.nli.entropy_utils import compute_cluster_probabilities, best_response_selection
 
 
 class SemanticClusterer:
-    def __init__(self, nli: NLI = None, length_normalize: bool = False):
+    def __init__(self, nli: NLI = None):
         self.nli = nli
-        self.length_normalize = length_normalize
         self.nli_scores = {"noncontradiction": dict(), "entailment": dict()}
 
     def evaluate(self, responses: List[str], prompt: str = None, response_probabilities: List[float] = None) -> Tuple[str, List[List[str]], List[float], Dict[Tuple[str, str], float]]:
@@ -17,8 +16,8 @@ class SemanticClusterer:
         clustered_responses, cluster_indices, noncontradiction_scores, entailment_scores = self.cluster_responses(responses=responses, prompt=prompt)
         self.nli_scores["noncontradiction"].update(noncontradiction_scores)
         self.nli_scores["entailment"].update(entailment_scores)
-        cluster_probabilities = self.compute_cluster_probabilities(response_probabilities=response_probabilities, cluster_indices=cluster_indices)
-        best_response = self.best_response_selection(clustered_responses=clustered_responses, cluster_probabilities=cluster_probabilities)
+        cluster_probabilities = compute_cluster_probabilities(response_probabilities=response_probabilities, cluster_indices=cluster_indices)
+        best_response = best_response_selection(clustered_responses=clustered_responses, cluster_probabilities=cluster_probabilities)
         return best_response, clustered_responses, cluster_probabilities, cluster_indices
 
     def cluster_responses(self, responses: List[str], prompt: str = None) -> Any:
@@ -70,36 +69,6 @@ class SemanticClusterer:
         clusters = [self._sort_responses(list(cluster)) for cluster in clusters]
 
         return clusters, cluster_indices, noncontradiction_scores, entailment_scores
-
-    def compute_response_probabilities(self, logprobs_results: List[List[Dict[str, Any]]], num_responses: int = None) -> List[float]:
-        """Compute response probabilities"""
-        uniform_response_probabilities = [1 / num_responses] * num_responses
-        tokenprob_response_probabilities = [self.length_norm_sequence_prob(logprobs_i, self.length_normalize) if logprobs_i else np.nan for logprobs_i in logprobs_results] if logprobs_results else None
-        return tokenprob_response_probabilities, uniform_response_probabilities
-
-    def compute_cluster_probabilities(self, response_probabilities: List[float], cluster_indices: List[List[int]]) -> List[float]:
-        """Compute cluster probabilities"""
-        cluster_probabilities = [0] * len(cluster_indices)
-        for i, cluster_index in enumerate(cluster_indices):
-            cluster_probabilities[i] = sum([response_probabilities[j] for j in cluster_index])
-        return self._normalize_cluster_probabilities(cluster_probabilities=cluster_probabilities)
-
-    @staticmethod
-    def length_norm_sequence_prob(logprobs: List[Dict[str, Any]], length_normalize: bool = True) -> float:
-        "Compute length normalized sequence logprob"
-        factor = 1 / len(logprobs) if length_normalize else 1
-        return np.exp(np.sum([d["logprob"] for d in logprobs]) * factor)
-
-    @staticmethod
-    def best_response_selection(clustered_responses: List[List[str]], cluster_probabilities: List[float]) -> str:
-        """Select the best response from the clustered responses based on the cluster probabilities"""
-        return clustered_responses[cluster_probabilities.index(max(cluster_probabilities))][0]
-
-    @staticmethod
-    def _normalize_cluster_probabilities(cluster_probabilities: List[float]) -> float:
-        """Normalize cluster probabilities"""
-        total_probability = sum(cluster_probabilities)
-        return [cp_i / total_probability for cp_i in cluster_probabilities]
 
     @staticmethod
     def _sort_responses(responses: List[str]) -> List[str]:
