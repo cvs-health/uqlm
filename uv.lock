@@ -5208,6 +5208,20 @@ wheels = [
 ]
 
 [[package]]
+name = "sphinx-github-changelog"
+version = "1.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "docutils" },
+    { name = "requests" },
+    { name = "sphinx" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8f/21/90bc47a6cdfff2e37bc233754f6662808975528a73dab0bf6a5215eeb2a5/sphinx_github_changelog-1.4.0.tar.gz", hash = "sha256:204745e93a1f280e4664977b5fee526b0a011c92ca19c304bd01fd641ddb6393", size = 7583, upload-time = "2024-08-09T16:08:36.116Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/03/07/a669a23f47803ad12e620b68b761bf7bf32fd9f293c5846fda8f3893d706/sphinx_github_changelog-1.4.0-py3-none-any.whl", hash = "sha256:cdf2099ea3e4587ae8637be7ba609738bfdeca4bd80c5df6fc45046735ae5c2f", size = 8513, upload-time = "2024-08-09T16:08:34.374Z" },
+]
+
+[[package]]
 name = "sphinxcontrib-applehelp"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -5763,6 +5777,7 @@ docs = [
     { name = "sphinx-design" },
     { name = "sphinx-favicon" },
     { name = "sphinx-gallery" },
+    { name = "sphinx-github-changelog" },
     { name = "sphinxcontrib-bibtex" },
 ]
 test = [
@@ -5812,6 +5827,7 @@ docs = [
     { name = "sphinx-design", specifier = "==0.6.1" },
     { name = "sphinx-favicon", specifier = "==1.0.1" },
     { name = "sphinx-gallery", specifier = "==0.20.0" },
+    { name = "sphinx-github-changelog", specifier = "==1.4.0" },
     { name = "sphinxcontrib-bibtex", specifier = "==2.6.3" },
 ]
 test = [
