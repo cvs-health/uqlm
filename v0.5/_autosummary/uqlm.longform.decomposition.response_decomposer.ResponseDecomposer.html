@@ -33,7 +33,8 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=662d8ef6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=65412f6b" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -44,6 +45,7 @@
     <script src="../_static/documentation_options.js?v=db78e746"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/uqlm.longform.decomposition.response_decomposer.ResponseDecomposer';</script>
     <script>
@@ -187,6 +189,13 @@
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../faqs.html">
     FAQs
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Release Notes
   </a>
 </li>
 
@@ -340,6 +349,13 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../faqs.html">
     FAQs
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Release Notes
   </a>
 </li>
 
@@ -692,6 +708,9 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.decomposition.html">uqlm.utils.prompts.decomposition</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.decomposition.get_claim_breakdown_prompt.html">uqlm.utils.prompts.decomposition.get_claim_breakdown_prompt</a></li>
 <li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.decomposition.get_factoid_breakdown_template.html">uqlm.utils.prompts.decomposition.get_factoid_breakdown_template</a></li>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.decomposition.get_farquhar_2024_breakdown_prompt.html">uqlm.utils.prompts.decomposition.get_farquhar_2024_breakdown_prompt</a></li>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.decomposition.get_jiang_2024_breakdown_prompt.html">uqlm.utils.prompts.decomposition.get_jiang_2024_breakdown_prompt</a></li>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.decomposition.get_mohri_2024_breakdown_prompt.html">uqlm.utils.prompts.decomposition.get_mohri_2024_breakdown_prompt</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.entailment_prompts.html">uqlm.utils.prompts.entailment_prompts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -804,11 +823,11 @@
 <h1>uqlm.longform.decomposition.response_decomposer.ResponseDecomposer<a class="headerlink" href="#uqlm-longform-decomposition-response-decomposer-responsedecomposer" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="uqlm.longform.decomposition.response_decomposer.ResponseDecomposer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uqlm.longform.decomposition.response_decomposer.</span></span><span class="sig-name descname"><span class="pre">ResponseDecomposer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">claim_decomposition_llm=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_template=&lt;function</span> <span class="pre">get_claim_breakdown_prompt&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.longform.decomposition.response_decomposer.ResponseDecomposer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uqlm.longform.decomposition.response_decomposer.</span></span><span class="sig-name descname"><span class="pre">ResponseDecomposer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">claim_decomposition_llm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_template</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zhang_2025'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.longform.decomposition.response_decomposer.ResponseDecomposer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="uqlm.longform.decomposition.response_decomposer.ResponseDecomposer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">claim_decomposition_llm=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_template=&lt;function</span> <span class="pre">get_claim_breakdown_prompt&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.longform.decomposition.response_decomposer.ResponseDecomposer.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">claim_decomposition_llm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_template</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'zhang_2025'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.longform.decomposition.response_decomposer.ResponseDecomposer.__init__" title="Link to this definition">#</a></dt>
 <dd><p>Class for decomposing responses into individual claims or sentences. This class is used as an intermediate
 step for longform UQ methods.</p>
 <dl class="field-list simple">
@@ -816,7 +835,9 @@ step for longform UQ methods.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>claim_decomposition_llm</strong> (langchain <cite>BaseChatModel</cite>, default=None) – A langchain llm <cite>BaseChatModel</cite>. User is responsible for specifying temperature and other
 relevant parameters to the constructor of their <cite>llm</cite> object.</p></li>
-<li><p><strong>response_template</strong> (<em>Callable</em>) – A function that takes a response and returns a list of claims.</p></li>
+<li><p><strong>response_template</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Callable</em><em>]</em><em>, </em><em>default=&quot;zhang_2025&quot;</em>) – Specifies the claim decomposition prompt template. Can be one of the following strings:
+<code class="docutils literal notranslate"><span class="pre">&quot;zhang_2025&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;farquhar_2024&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;mohri_2024&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;jiang_2024&quot;</span></code>,
+or a custom callable that takes a response string and returns a prompt string.</p></li>
 </ul>
 </dd>
 </dl>
@@ -885,7 +906,8 @@ relevant parameters to the constructor of their <cite>llm</cite> object.</p></li
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>responses</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – LLM response that will be decomposed into independent claims.</p></li>
-<li><p><strong>response_template</strong> (<em>Callable</em>) – A function that takes a response and returns a list of claims.</p></li>
+<li><p><strong>response_template</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Callable</em><em>]</em><em>, </em><em>default=None</em>) – A string key (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;zhang_2025&quot;</span></code>) or callable that takes a response and returns a prompt.
+If None, uses the template set at initialization.</p></li>
 <li><p><strong>progress_bar</strong> (<em>rich.progress.Progress</em><em>, </em><em>default=None</em>) – If provided, displays a progress bar while scoring responses</p></li>
 </ul>
 </dd>

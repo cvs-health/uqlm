@@ -16,18 +16,79 @@ Install using pip directly from the GitHub repository.
 
    pip install uqlm
 
-Usage
------
+Scorer Types
+------------
 
-Below are minimal examples for hallucination detection.
+UQLM provides a suite of response-level scorers for quantifying LLM output uncertainty.
+Each scorer returns a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.
+The five scorer categories differ in latency, cost, and compatibility:
+
+.. list-table:: Comparison of Scorer Types
+   :header-rows: 1
+   :widths: 20 20 20 20 20
+
+   * - Scorer Type
+     - Added Latency
+     - Added Cost
+     - Compatibility
+     - Off-the-Shelf / Effort
+   * - :ref:`Black-Box Scorers <black-box-scorers>`
+     - ⏱️ Medium-High (multiple generations & comparisons)
+     - 💸 High (multiple LLM calls)
+     - 🌍 Universal (works with any LLM)
+     - ✅ Off-the-shelf
+   * - :ref:`White-Box Scorers <white-box-scorers>`
+     - ⚡ Minimal (token probabilities already returned)
+     - ✔️ None (no extra LLM calls)
+     - 🔒 Limited (requires access to token probabilities)
+     - ✅ Off-the-shelf
+   * - :ref:`LLM-as-a-Judge Scorers <llm-as-a-judge-scorers>`
+     - ⏳ Low-Medium (additional judge calls add latency)
+     - 💵 Low-High (depends on number of judges)
+     - 🌍 Universal (any LLM can serve as judge)
+     - ✅ Off-the-shelf; Can be customized
+   * - :ref:`Ensemble Scorers <ensemble-scorers>`
+     - 🔀 Flexible (combines various scorers)
+     - 🔀 Flexible (combines various scorers)
+     - 🔀 Flexible (combines various scorers)
+     - ✅ Off-the-shelf (beginner-friendly); 🛠️ Can be tuned (best for advanced users)
+   * - :ref:`Long-Text Scorers <long-text-scorers>`
+     - ⏱️ High-Very high (multiple generations & claim-level comparisons)
+     - 🔀 💸 High (multiple LLM calls)
+     - 🔀 🌍 Universal
+     - ✅ Off-the-shelf
 
 
-Example 1: ``Black-Box Scorers`` for hallucination detection
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _black-box-scorers:
+
+1. Black-Box Scorers (Consistency-Based)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: ./_static/images/black_box_graphic.png
+   :class: only-light no-scaled-link responsive-img
+   :align: center
+
+.. image:: ./_static/images/black_box_graphic_dark.png
+   :class: only-dark no-scaled-link responsive-img
+   :align: center
 
 These scorers assess uncertainty by measuring the consistency of multiple responses generated from the same prompt. They are compatible with any LLM, intuitive to use, and don't require access to internal model states or token probabilities.
 
-Below is a sample of code illustrating how to use the `BlackBoxUQ` class to conduct hallucination detection.
+  * Discrete Semantic Entropy (`Farquhar et al., 2024 <https://www.nature.com/articles/s41586-024-07421-0>`__; `Kuhn et al., 2023 <https://arxiv.org/pdf/2302.09664>`__)
+
+  * Number of Semantic Sets (`Lin et al., 2024 <https://arxiv.org/abs/2305.19187>`__; `Vashurin et al., 2025 <https://arxiv.org/abs/2406.15627>`__; `Kuhn et al., 2023 <https://arxiv.org/pdf/2302.09664>`__)
+
+  * Non-Contradiction Probability (`Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`__; `Lin et al., 2024 <https://arxiv.org/abs/2305.19187>`__; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`__)
+
+  * Entailment Probability (`Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`__; `Lin et al., 2024 <https://arxiv.org/abs/2305.19187>`__; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`__)
+
+  * Exact Match (`Cole et al., 2023 <https://arxiv.org/abs/2305.14613>`__; `Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`__)
+
+  * BERT-score (`Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`__; `Zhang et al., 2020 <https://arxiv.org/abs/1904.09675>`__)
+
+  * Cosine Similarity (`Shorinwa et al., 2024 <https://arxiv.org/pdf/2412.05563>`__; `HuggingFace <https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2>`__)
+
+Below is a minimal example using the ``BlackBoxUQ`` class:
 
 .. code-block:: python
 
@@ -46,15 +107,51 @@ Below is a sample of code illustrating how to use the `BlackBoxUQ` class to cond
      <img src="./_static/images/black_box_output4.png" />
    </p>
 
-Above, `use_best=True` implements mitigation so that the uncertainty-minimized responses is selected. Note that although we use `ChatOpenAI` in this example, any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`_  may be used. For a more detailed demo, refer to our `Black-Box UQ Demo <_notebooks/examples/black_box_demo.ipynb>`_.
+``use_best=True`` implements mitigation so that the uncertainty-minimized response is selected. Any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`__ may be used. For a more detailed demo refer to our `Black-Box UQ Demo <_notebooks/examples/black_box_demo.ipynb>`_, or see the :doc:`Black-Box Scorer Definitions <scorer_definitions/black_box/index>` for formal definitions.
 
 
-Example 2: ``White-Box Scorers`` for hallucination detection
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _white-box-scorers:
 
-These scorers leverage token probabilities to estimate uncertainty.  They offer single-generation scoring, which is significantly faster and cheaper than black-box methods, but require access to the LLM's internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs.
+2. White-Box Scorers (Token-Probability-Based)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Below is a sample of code illustrating how to use the WhiteBoxUQ class to conduct hallucination detection.
+.. image:: ./_static/images/white_box_graphic.png
+   :class: only-light no-scaled-link responsive-img
+   :align: center
+
+.. image:: ./_static/images/white_box_graphic_dark.png
+   :class: only-dark no-scaled-link responsive-img
+   :align: center
+
+These scorers leverage token probabilities to estimate uncertainty. They offer single-generation scoring, which is significantly faster and cheaper than black-box methods, but require access to the LLM's internal probabilities. The following single-generation scorers are available:
+
+  * Minimum token probability (`Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`__)
+
+  * Length-Normalized Joint Token Probability (`Malinin & Gales, 2021 <https://arxiv.org/pdf/2002.07650>`__)
+
+  * Sequence Probability (`Vashurin et al., 2024 <https://arxiv.org/abs/2406.15627>`__)
+
+  * Mean Top-K Token Negentropy (`Scalena et al., 2025 <https://arxiv.org/abs/2510.11170>`__; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`__)
+
+  * Min Top-K Token Negentropy (`Scalena et al., 2025 <https://arxiv.org/abs/2510.11170>`__; `Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`__)
+
+  * Probability Margin (`Farr et al., 2024 <https://arxiv.org/abs/2408.08217>`__)
+
+UQLM also offers sampling-based white-box methods with superior detection performance:
+
+  * Monte Carlo Sequence Probability (`Kuhn et al., 2023 <https://arxiv.org/abs/2302.09664>`__)
+
+  * Consistency and Confidence (CoCoA) (`Vashurin et al., 2025 <https://arxiv.org/abs/2502.04964>`__)
+
+  * Semantic Entropy (`Farquhar et al., 2024 <https://www.nature.com/articles/s41586-024-07421-0>`__)
+
+  * Semantic Density (`Qiu et al., 2024 <https://arxiv.org/abs/2405.13845>`__)
+
+Lastly, the P(True) scorer is a self-reflection method requiring one additional generation per response:
+
+  * P(True) (`Kadavath et al., 2022 <https://arxiv.org/abs/2207.05221>`__)
+
+Below is a minimal example using the ``WhiteBoxUQ`` class:
 
 .. code-block:: python
 
@@ -73,15 +170,33 @@ Below is a sample of code illustrating how to use the WhiteBoxUQ class to conduc
      <img src="./_static/images/white_box_output2.png" />
    </p>
 
-Again, any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`_ may be used in place of `ChatVertexAI`. For a more detailed demo, refer to our `White-Box UQ Demo <_notebooks/examples/white_box_demo.ipynb>`_.
+Any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`__ may be used in place of ``ChatVertexAI``. For a more detailed demo refer to our `White-Box UQ Demo <_notebooks/examples/white_box_demo.ipynb>`_, or see the :doc:`White-Box Scorer Definitions <scorer_definitions/white_box/index>` for formal definitions.
 
 
-Example 3: ``LLM-as-a-Judge Scorers`` for hallucination detection
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _llm-as-a-judge-scorers:
+
+3. LLM-as-a-Judge Scorers
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: ./_static/images/judges_graphic.png
+   :class: only-light no-scaled-link responsive-img
+   :align: center
+
+.. image:: ./_static/images/judges_graphic_dark.png
+   :class: only-dark no-scaled-link responsive-img
+   :align: center
 
 These scorers use one or more LLMs to evaluate the reliability of the original LLM's response. They offer high customizability through prompt engineering and the choice of judge LLM(s).
 
-Below is a sample of code illustrating how to use the LLMPanel class to conduct hallucination detection using a panel of LLM judges.
+  * Categorical LLM-as-a-Judge (`Manakul et al., 2023 <https://arxiv.org/abs/2303.08896>`__; `Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`__; `Luo et al., 2023 <https://arxiv.org/pdf/2303.15621>`__)
+
+  * Continuous LLM-as-a-Judge (`Xiong et al., 2024 <https://arxiv.org/pdf/2306.13063>`__)
+
+  * Likert Scale Scoring (`Bai et al., 2023 <https://arxiv.org/pdf/2306.04181>`__)
+
+  * Panel of LLM Judges (`Verga et al., 2024 <https://arxiv.org/abs/2404.18796>`__)
+
+Below is a minimal example using the ``LLMPanel`` class:
 
 .. code-block:: python
 
@@ -102,15 +217,29 @@ Below is a sample of code illustrating how to use the LLMPanel class to conduct 
      <img src="./_static/images/panel_output2.png" />
    </p>
 
-Note that although we use `ChatOllama` in this example, we can use any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`_ as judges. For a more detailed demo, refer to our `LLM-as-a-Judge Demo <_notebooks/examples/judges_demo.ipynb>`_.
+Any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`__ may be used as judges. For a more detailed demo refer to our `LLM-as-a-Judge Demo <_notebooks/examples/judges_demo.ipynb>`_, or see the :doc:`LLM-as-a-Judge Scorer Definitions <scorer_definitions/llm_judges/index>` for formal definitions.
 
 
-Example 4: ``Ensemble Scorers`` for hallucination detection
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _ensemble-scorers:
+
+4. Ensemble Scorers
+^^^^^^^^^^^^^^^^^^^
+
+.. image:: ./_static/images/uqensemble_generate_score.png
+   :class: only-light no-scaled-link responsive-img
+   :align: center
+
+.. image:: ./_static/images/uqensemble_generate_score_dark.png
+   :class: only-dark no-scaled-link responsive-img
+   :align: center
 
 These scorers leverage a weighted average of multiple individual scorers to provide a more robust uncertainty/confidence estimate. They offer high flexibility and customizability, allowing you to tailor the ensemble to specific use cases.
 
-Below is a sample of code illustrating how to use the `UQEnsemble` class to conduct hallucination detection.
+  * BS Detector (`Chen & Mueller, 2023 <https://arxiv.org/abs/2308.16175>`__)
+
+  * Generalized Ensemble (`Bouchard & Chauhan, 2025 <https://arxiv.org/abs/2504.19254>`__)
+
+Below is a minimal example using the ``UQEnsemble`` class:
 
 .. code-block:: python
 
@@ -144,15 +273,41 @@ Below is a sample of code illustrating how to use the `UQEnsemble` class to cond
      <img src="./_static/images/uqensemble_output2.png" />
    </p>
 
-As with the other examples, any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`_ may be used in place of `AzureChatOpenAI`. For more detailed demos, refer to our `Off-the-Shelf Ensemble Demo <_notebooks/examples/ensemble_off_the_shelf_demo.ipynb>`_ (quick start) or our `Ensemble Tuning Demo <_notebooks/examples/ensemble_tuning_demo.ipynb>`_ (advanced).
+Any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`__ may be used in place of ``AzureChatOpenAI``. For more detailed demos refer to our `Off-the-Shelf Ensemble Demo <_notebooks/examples/ensemble_off_the_shelf_demo.ipynb>`_ (quick start) or `Ensemble Tuning Demo <_notebooks/examples/ensemble_tuning_demo.ipynb>`_ (advanced), or see the :doc:`Ensemble Scorer Definitions <scorer_definitions/ensemble/index>` for formal definitions.
 
 
-Example 5: ``Long-Text Scorers`` for hallucination detection
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. _long-text-scorers:
 
-These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of black-box scorers, long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses. After scoring claims in the response, the response can be refined by removing claims with confidence scores less than a specified threshold and reconstructing the response from the retained claims. This approach allows for improved factual precision of long-text generations. 
+5. Long-Text Scorers (Claim-Level)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Below is a sample of code illustrating how to use the LongTextUQ class to conduct claim-level hallucination detection and uncertainty-aware response refinement.
+.. image:: ./_static/images/luq_example.png
+   :class: only-light no-scaled-link responsive-img
+   :align: center
+
+.. image:: ./_static/images/luq_example_dark.png
+   :class: only-dark no-scaled-link responsive-img
+   :align: center
+
+These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of black-box scorers, long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses.
+
+.. image:: ./_static/images/uad_graphic.png
+   :class: only-light no-scaled-link responsive-img
+   :align: center
+
+.. image:: ./_static/images/uad_graphic_dark.png
+   :class: only-dark no-scaled-link responsive-img
+   :align: center
+
+After scoring claims in the response, the response can be refined by removing claims with confidence scores less than a specified threshold and reconstructing the response from the retained claims. This approach allows for improved factual precision of long-text generations.
+
+  * LUQ scorers (`Zhang et al., 2024 <https://arxiv.org/abs/2403.20279>`__; `Zhang et al., 2025 <https://arxiv.org/abs/2410.13246>`__)
+
+  * Graph-based scorers (`Jiang et al., 2024 <https://arxiv.org/abs/2410.20783>`__)
+
+  * Generalized long-form semantic entropy (`Farquhar et al., 2024 <https://www.nature.com/articles/s41586-024-07421-0>`__)
+
+Below is a minimal example using the ``LongTextUQ`` class:
 
 .. code-block:: python
 
@@ -181,7 +336,7 @@ Below is a sample of code illustrating how to use the LongTextUQ class to conduc
      <img src="./_static/images/long_text_output.png" />
    </p>
 
-Above `response` and `entailment` reflect the original response and response-level confidence score, while `refined_response` and `refined_entailment` are the corresponding values after response refinement. The `claims_data` column includes granular data for each response, including claims, claim-level confidence scores, and whether each claim is retained in the response refinement process. We use `ChatOpenAI` in this example, any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`_ may be used. For a more detailed demo, refer to our `Long-Text UQ Demo <_notebooks/examples/long_text_uq_demo.ipynb>`_.
+``response`` and ``entailment`` reflect the original response and response-level confidence score, while ``refined_response`` and ``refined_entailment`` are the corresponding values after response refinement. The ``claims_data`` column includes granular data for each response, including claims, claim-level confidence scores, and whether each claim is retained. Any `LangChain Chat Model <https://js.langchain.com/docs/integrations/chat/>`__ may be used. For a more detailed demo refer to our `Long-Text UQ Demo <_notebooks/examples/long_text_uq_demo.ipynb>`_, or see the :doc:`Long-Text Scorer Definitions <scorer_definitions/long_text/index>` for formal definitions.
 
 
 Example notebooks
