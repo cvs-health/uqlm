@@ -1,6 +1,6 @@
 [project]
 name = "uqlm"
-version = "0.5.9"
+version = "0.5.10"
 description = "UQLM (Uncertainty Quantification for Language Models) is a Python package for UQ-based LLM hallucination detection."
 readme = "assets/README_PYPI.md"
 license = "Apache-2.0"
