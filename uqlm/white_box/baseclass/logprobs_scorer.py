@@ -15,6 +15,7 @@
 
 from abc import ABC
 import numpy as np
+from scipy.stats import entropy
 from typing import List, Dict, Any, Optional, Callable
 
 
@@ -55,8 +56,7 @@ class LogprobsScorer(ABC):
 
         if texts is None:
             # Case 1: If no responses are provided, treat all probabilities as distinct events
-            logprobs = np.log(normalized_probs)
-            return -np.sum(normalized_probs * logprobs)
+            return entropy(normalized_probs)
         else:
             # Case 2: If responses, account for duplicates
             aggregated_probs = {}
@@ -66,8 +66,7 @@ class LogprobsScorer(ABC):
                 else:
                     aggregated_probs[text] = prob
             unique_probs = np.array(list(aggregated_probs.values()))
-            logprobs = np.log(unique_probs)
-            return -np.sum(unique_probs * logprobs)
+            return entropy(unique_probs)
 
     @staticmethod
     def extract_top_logprobs(single_response_logprobs: List[Dict[str, Any]]) -> List[np.ndarray]:
