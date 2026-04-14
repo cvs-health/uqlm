@@ -22,10 +22,11 @@ TOP_LOGPROBS_SCORER_NAMES = ["min_token_negentropy", "mean_token_negentropy", "p
 
 
 class TopLogprobsScorer(LogprobsScorer):
-    def __init__(self, scorers: List[str] = TOP_LOGPROBS_SCORER_NAMES):
+    def __init__(self, scorers: List[str] = TOP_LOGPROBS_SCORER_NAMES, top_k_logprobs: int = 15):
         """Class for computing WhiteBox UQ scores with a single generation"""
         super().__init__()
         self.scorers = scorers
+        self.top_k_logprobs = top_k_logprobs
 
     def evaluate(self, logprobs_results: List[List[Dict[str, Any]]]) -> Dict[str, List[float]]:
         """Compute scores from top logprobs results"""
@@ -43,30 +44,32 @@ class TopLogprobsScorer(LogprobsScorer):
         top_logprobs_list = self.extract_top_logprobs(single_response_logprobs)
         k_values = np.array([len(top_logprobs) for top_logprobs in top_logprobs_list])
         max_entropies = np.log(k_values)
-        negentropies = 1 - entropies / max_entropies
+        negentropies = np.where(k_values == self.top_k_logprobs, 1 - entropies / max_entropies, np.nan)
         return negentropies
 
     def _mean_token_negentropy(self, single_response_logprobs: List[Dict[str, Any]]) -> float:
         """Compute mean token negentropy across the sequence"""
         negentropies = self._compute_token_negentropies(single_response_logprobs)
-        return np.mean(negentropies)
+        return np.nanmean(negentropies)
 
     def _min_token_negentropy(self, single_response_logprobs: List[Dict[str, Any]]) -> float:
         """Compute minimum token negentropy across the sequence"""
         negentropies = self._compute_token_negentropies(single_response_logprobs)
-        return np.min(negentropies)
+        return np.nanmin(negentropies)
 
     def _probability_margin(self, single_response_logprobs: List[Dict[str, Any]]) -> float:
         """Compute mean probability margin (difference between top two probabilities)"""
         top_logprobs_list = self.extract_top_logprobs(single_response_logprobs)
         margins = []
-        try:
-            for top_logprobs in top_logprobs_list:
-                probs = np.exp(top_logprobs)
-                probs = np.sort(probs)[::-1]
+        for top_logprobs in top_logprobs_list:
+            probs = np.exp(top_logprobs)
+            probs = np.sort(probs)[::-1]
+            try:
                 margin = probs[0] - probs[1]
-                margins.append(margin)
+            except IndexError:
+                continue
+            margins.append(margin)
+        if margins:
             return np.mean(margins)
-        except IndexError:
-            print("top_logprobs were not available. Unable to compute associated scores.")
-            return np.nan
+        print("top_logprobs were not available. Unable to compute associated scores.")
+        return np.nan
