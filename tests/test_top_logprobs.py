@@ -26,7 +26,7 @@ def mock_logprobs_results():
 @pytest.fixture
 def scorer():
     """Fixture to create a TopLogprobsScorer instance."""
-    return TopLogprobsScorer()
+    return TopLogprobsScorer(top_k_logprobs=3)
 
 
 def test_evaluate(mock_logprobs_results, scorer, monkeypatch):
@@ -54,7 +54,7 @@ def test_mean_token_negentropy(mock_logprobs_results, scorer, monkeypatch):
 
     # Mock the _entropy_from_logprobs method
     monkeypatch.setattr(scorer, "_entropy_from_logprobs", lambda logprobs: 0.5)
-
+    # scorer.top_k_logprobs = 3
     result = scorer._mean_token_negentropy(mock_logprobs_results[0])
     assert isinstance(result, float)
     assert result >= 0.0 and result <= 1.0
@@ -67,7 +67,7 @@ def test_min_token_negentropy(mock_logprobs_results, scorer, monkeypatch):
 
     # Mock the _entropy_from_logprobs method
     monkeypatch.setattr(scorer, "_entropy_from_logprobs", lambda logprobs: 0.5)
-
+    # scorer.top_k_logprobs = 3
     result = scorer._min_token_negentropy(mock_logprobs_results[0])
     assert isinstance(result, float)
     assert result >= 0.0 and result <= 1.0
