@@ -209,7 +209,7 @@ Note that although we use `ChatOllama` in this example, we can use any [LangChai
 
 ### Ensemble Scorers
 
-These scorers leverage a weighted average of multiple individual scorers to provide a more robust uncertainty/confidence estimate. They offer high flexibility and customizability, allowing you to tailor the ensemble to specific use cases.
+These combine multiple individual scorers via weighted averaging to produce more robust uncertainty estimates. They are highly customizable for specific use cases and can be used off-the-shelf with fixed weights (unsupervised) or trained for optimal performance (supervised). The following workflow demonstrates the supervised training process. 
 
 <p align="center">
   <picture>
@@ -257,7 +257,7 @@ As with the other examples, any [LangChain Chat Model](https://js.langchain.com/
 **Available Scorers:**
 
 *   BS Detector ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175))
-*   Generalized UQ Ensemble ([Bouchard & Chauhan, 2025](https://arxiv.org/abs/2504.19254))
+*   Supervised UQ Ensemble ([Bouchard & Chauhan, 2025](https://arxiv.org/abs/2504.19254))
 
 
 ### Long-Text Scorers (Claim-Level)
