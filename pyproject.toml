@@ -54,7 +54,7 @@ documentation = "https://cvs-health.github.io/uqlm/latest/index.html"
 [dependency-groups]
 dev = [
     "python-dotenv>=1.2.0,<2.0.0",
-    "ruff==0.9.7",
+    "ruff==0.15.5",
     "pre-commit>=4.1.0,<5.0.0",
     "ipykernel>=6.29.5,<7.0.0",
     "langchain-openai>=0.2.6",
