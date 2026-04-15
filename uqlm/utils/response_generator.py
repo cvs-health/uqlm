@@ -240,8 +240,15 @@ class ResponseGenerator:
             if "logprobs_result" in result.response_metadata:
                 logprobs[i] = result.response_metadata["logprobs_result"]
             elif "logprobs" in result.response_metadata:
-                if "content" in result.response_metadata["logprobs"]:
-                    logprobs[i] = result.response_metadata["logprobs"]["content"]
+                raw = result.response_metadata["logprobs"]
+                if "token_logprobs" in raw:
+                    top_lp_list = raw.get("top_logprobs", [])
+                    if len(top_lp_list) != len(raw["token_logprobs"]):
+                        top_lp_list = [None] * len(raw["token_logprobs"])
+                    logprobs[i] = [{"token": t, "logprob": lp, "top_logprobs": [] if tlp is None else [{"token": t_, "logprob": lp_} for t_, lp_ in tlp.items()]} for t, lp, tlp in zip(raw["tokens"], raw["token_logprobs"], top_lp_list)]
+
+                elif "content" in raw:
+                    logprobs[i] = raw["content"]
             else:
                 warnings.warn("Model did not provide logprobs in API response. White-box scores for this response may be set to np.nan.")
                 logprobs[i] = [{"token": "UNABLE TO GET LOGPROBS", "logprob": np.nan, "top_logprobs": []}]
