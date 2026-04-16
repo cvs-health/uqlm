@@ -1,31 +1,28 @@
 import os
 import json
+from typing import List, Dict, Any
 import re
 import html
-import pandas as pd
 import subprocess
 
 
-def evaluate_python_code(df: pd.DataFrame) -> pd.DataFrame:
+def evaluate_python_code(responses: List[str], public_test_cases: List[Any], metadata: List[Any]) -> Dict[str, Any]:
     """
-    Evaluates all the Python code in the dataframe against the list of test cases and returns a dataframe with the evaluation results.
+    Evaluates all the Python responses against public test cases.
     """
-    unit_test_passed, stderr_col, stdout_col = [], [], []
+    results = {"unit_test_passed": [], "stderr": []}
     utils_directory = os.path.join("/".join(os.getcwd().split("/")[:-1]), "uqlm/code")
+    for i in range(len(responses)):
+        row = {"public_test_cases": public_test_cases[i], "metadata": metadata[i], "response": responses[i]}
 
-    df["public_test_cases"] = df["public_test_cases"].apply(lambda x: json.loads(x))
-    df["metadata"] = df["metadata"].apply(json.loads)
-
-    for _, row in df.iterrows():
+        if isinstance(row.get("public_test_cases"), str):
+            row["public_test_cases"] = json.loads(row["public_test_cases"])
+        if isinstance(row.get("metadata"), str):
+            row["metadata"] = json.loads(row["metadata"])
         out = evaluate_row_unified(row, timeout=6, runner_path=os.path.join(utils_directory, "lcb_grader.py"))
-        unit_test_passed.append(out["unit_test_passed"])
-        stderr_col.append(out.get("stderr", ""))
-        stdout_col.append(out.get("stdout", ""))
-
-    df["unit_test_passed"] = unit_test_passed
-    df["stderr"] = stderr_col
-    df["stdout"] = stdout_col
-    return df
+        results["unit_test_passed"].append(out.get("unit_test_passed", 0))
+        results["stderr"].append(out.get("stderr", ""))
+    return results
 
 
 def evaluate_row_unified(row, timeout=6, runner_path="lcb_grader.py"):
