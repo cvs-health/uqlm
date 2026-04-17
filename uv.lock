@@ -5171,6 +5171,18 @@ wheels = [
 ]
 
 [[package]]
+name = "sphinx-design"
+version = "0.6.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "sphinx" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2b/69/b34e0cb5336f09c6866d53b4a19d76c227cdec1bbc7ac4de63ca7d58c9c7/sphinx_design-0.6.1.tar.gz", hash = "sha256:b44eea3719386d04d765c1a8257caca2b3e6f8421d7b3a5e742c0fd45f84e632", size = 2193689, upload-time = "2024-08-02T13:48:44.277Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c6/43/65c0acbd8cc6f50195a3a1fc195c404988b15c67090e73c7a41a9f57d6bd/sphinx_design-0.6.1-py3-none-any.whl", hash = "sha256:b11f37db1a802a183d61b159d9a202314d4d2fe29c163437001324fe2f19549c", size = 2215338, upload-time = "2024-08-02T13:48:42.106Z" },
+]
+
+[[package]]
 name = "sphinx-favicon"
 version = "1.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -5193,6 +5205,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/5f/14/9238ac61932299b38c20c7c37dbfe60348c0348ea4d400f9ef25875b3bf7/sphinx_gallery-0.20.0.tar.gz", hash = "sha256:70281510c6183d812d3595957005ccf555c5a793f207410f6cd16a25bf08d735", size = 473502, upload-time = "2025-12-02T15:51:37.277Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/27/fd/818a53d4da56ef2da7b08f77bb3a825635941d1fcc6b6a490995dec1a81c/sphinx_gallery-0.20.0-py3-none-any.whl", hash = "sha256:188b7456e269649945825661b76cdbfbf0b70c2cfd5b75c9a11fe52519879e4d", size = 458655, upload-time = "2025-12-02T15:51:35.311Z" },
+]
+
+[[package]]
+name = "sphinx-github-changelog"
+version = "1.4.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "docutils" },
+    { name = "requests" },
+    { name = "sphinx" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8f/21/90bc47a6cdfff2e37bc233754f6662808975528a73dab0bf6a5215eeb2a5/sphinx_github_changelog-1.4.0.tar.gz", hash = "sha256:204745e93a1f280e4664977b5fee526b0a011c92ca19c304bd01fd641ddb6393", size = 7583, upload-time = "2024-08-09T16:08:36.116Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/03/07/a669a23f47803ad12e620b68b761bf7bf32fd9f293c5846fda8f3893d706/sphinx_github_changelog-1.4.0-py3-none-any.whl", hash = "sha256:cdf2099ea3e4587ae8637be7ba609738bfdeca4bd80c5df6fc45046735ae5c2f", size = 8513, upload-time = "2024-08-09T16:08:34.374Z" },
 ]
 
 [[package]]
@@ -5713,7 +5739,7 @@ wheels = [
 
 [[package]]
 name = "uqlm"
-version = "0.5.5"
+version = "0.5.8"
 source = { editable = "." }
 dependencies = [
     { name = "bert-score" },
@@ -5748,8 +5774,10 @@ docs = [
     { name = "pydata-sphinx-theme" },
     { name = "sphinx" },
     { name = "sphinx-autodoc-typehints" },
+    { name = "sphinx-design" },
     { name = "sphinx-favicon" },
     { name = "sphinx-gallery" },
+    { name = "sphinx-github-changelog" },
     { name = "sphinxcontrib-bibtex" },
 ]
 test = [
@@ -5796,8 +5824,10 @@ docs = [
     { name = "pydata-sphinx-theme", specifier = "==0.16.1" },
     { name = "sphinx", specifier = "==7.4.7" },
     { name = "sphinx-autodoc-typehints", specifier = "==2.3.0" },
+    { name = "sphinx-design", specifier = "==0.6.1" },
     { name = "sphinx-favicon", specifier = "==1.0.1" },
     { name = "sphinx-gallery", specifier = "==0.20.0" },
+    { name = "sphinx-github-changelog", specifier = "==1.4.0" },
     { name = "sphinxcontrib-bibtex", specifier = "==2.6.3" },
 ]
 test = [

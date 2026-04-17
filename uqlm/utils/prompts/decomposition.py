@@ -95,6 +95,166 @@ def get_claim_breakdown_prompt(response: str) -> str:
     return claim_breakdown_prompt
 
 
+# The farquhar_2024_breakdown_template is a modified version of the prompt from "Detecting Hallucinations in Large Language Models Using Semantic Entropy"
+# @article{farquhar2024detecting,
+#       title={Detecting hallucinations in large language models using semantic entropy},
+#       author={Farquhar, Sebastian and Kossen, Jannik and Kuhn, Lorenz and Gal, Yarin},
+#       journal={Nature},
+#       volume={630},
+#       pages={625--630},
+#       year={2024},
+#       url={https://www.nature.com/articles/s41586-024-07421-0},
+# }
+def get_farquhar_2024_breakdown_prompt(response: str) -> str:
+    """
+    Claim decomposition prompt from Farquhar et al. (2024).
+
+    Uses zero-shot instruction to list specific factual propositions. The original
+    paper does not include few-shot examples in the decomposition prompt, resulting
+    in coarser-grained claims that may retain pronouns from the original text.
+
+    Parameters
+    ----------
+    response: str
+        The response to be broken down into factual propositions.
+
+    Returns
+    -------
+    str
+        The prompt template for breaking down the response into factual propositions.
+    """
+
+    prompt = f"""Please list the specific factual propositions included in the paragraph below. Be complete and do not leave any factual claims out. Provide each claim as a separate sentence in a separate bullet point. Output each piece of fact in one single line starting with ###. Do not include other formatting.
+
+{response}"""
+
+    return prompt
+
+
+# The mohri_2024_breakdown_template is a modified version of the prompt from "Language Models with Conformal Factuality Guarantees"
+# @inproceedings{mohri2024language,
+#       title={Language Models with Conformal Factuality Guarantees},
+#       author={Mohri, Christopher and Hashimoto, Tatsunori},
+#       booktitle={International Conference on Machine Learning},
+#       year={2024},
+#       url={https://arxiv.org/abs/2402.10978},
+# }
+def get_mohri_2024_breakdown_prompt(response: str) -> str:
+    """
+    Claim decomposition prompt adapted from Mohri & Hashimoto (2024).
+
+    Instructs the LLM to break input into small, independent, non-overlapping claims.
+    The original paper used JSONL output with confidence scores; this version is adapted
+    to use the ### prefix format for compatibility with uqlm's claim parser.
+
+    Parameters
+    ----------
+    response: str
+        The response to be broken down into independent claims.
+
+    Returns
+    -------
+    str
+        The prompt template for breaking down the response into non-overlapping claims.
+    """
+
+    prompt = f"""Please breakdown the following input into a set of small, independent, non-overlapping claims. \
+Make sure that each claim is small and non-overlapping. \
+Output each claim on a single line starting with ###. Do not include any other formatting.
+
+    Here are some examples:
+
+    Example 1:
+    Percy Bysshe Shelley was one of the major English Romantic poets, who is regarded by critics as among the finest lyric and philosophical poets in the English language. A radical in his poetry as well as his political and social views, Shelley did not see fame during his lifetime, but recognition of his achievements in poetry grew steadily following his death.
+    ### Percy Bysshe Shelley was one of the major English Romantic poets.
+    ### Percy Bysshe Shelley is regarded by critics as among the finest lyric poets in the English language.
+    ### Percy Bysshe Shelley is regarded by critics as among the finest philosophical poets in the English language.
+    ### Percy Bysshe Shelley was a radical in his poetry.
+    ### Percy Bysshe Shelley was a radical in his political views.
+    ### Percy Bysshe Shelley was a radical in his social views.
+    ### Percy Bysshe Shelley did not see fame during his lifetime.
+    ### Recognition of Percy Bysshe Shelley's achievements in poetry grew steadily following his death.
+
+    Example 2:
+    The Eiffel Tower is a wrought-iron lattice tower on the Champ de Mars in Paris, France. It is named after the engineer Gustave Eiffel, whose company designed and built the tower from 1887 to 1889.
+    ### The Eiffel Tower is a wrought-iron lattice tower.
+    ### The Eiffel Tower is located on the Champ de Mars in Paris, France.
+    ### The Eiffel Tower is named after the engineer Gustave Eiffel.
+    ### Gustave Eiffel's company designed the Eiffel Tower.
+    ### Gustave Eiffel's company built the Eiffel Tower from 1887 to 1889.
+
+    Here is the input:
+
+    {response}
+
+    You should only return the final answer. Now your answer is:
+    """
+
+    return prompt
+
+
+# The jiang_2024_breakdown_template is a modified version of the prompt from "Graph-based Uncertainty Metrics for Long-form Language Model Outputs"
+# @misc{jiang2024graphbaseduncertaintymetricslongform,
+#       title={Graph-based Uncertainty Metrics for Long-form Language Model Outputs},
+#       author={Mingjian Jiang and Yangjun Ruan and Prasanna Sattigeri and Salim Roukos and Tatsunori Hashimoto},
+#       year={2024},
+#       eprint={2410.20783},
+#       archivePrefix={arXiv},
+#       primaryClass={cs.CL},
+#       url={https://arxiv.org/abs/2410.20783},
+# }
+def get_jiang_2024_breakdown_prompt(response: str) -> str:
+    """
+    Claim decomposition prompt from Jiang et al. (2024).
+
+    Instructs the LLM to deconstruct a paragraph into the smallest possible
+    standalone, self-contained facts without semantic repetition. Designed for
+    graph-based UQ pipelines where redundant claims would distort graph edges.
+
+    Parameters
+    ----------
+    response: str
+        The response to be broken down into non-redundant atomic facts.
+
+    Returns
+    -------
+    str
+        The prompt template for breaking down the response into minimal, non-redundant facts.
+    """
+
+    prompt = f"""Please deconstruct the following paragraph into the smallest possible standalone self-contained facts \
+without semantic repetition. Output each fact on a single line starting with ###. Do not include any other formatting.
+
+    Here are some examples:
+
+    Example 1:
+    Albert Einstein was a German-born theoretical physicist who developed the theory of relativity, one of the two pillars of modern physics. His work is also known for its influence on the philosophy of science.
+    ### Albert Einstein was born in Germany.
+    ### Albert Einstein was a theoretical physicist.
+    ### Albert Einstein developed the theory of relativity.
+    ### The theory of relativity is one of the two pillars of modern physics.
+    ### Albert Einstein's work influenced the philosophy of science.
+
+    Example 2:
+    The Great Wall of China is a series of fortifications built across the historical northern borders of ancient Chinese states and Imperial China as protection against various nomadic groups.
+    ### The Great Wall of China is a series of fortifications.
+    ### The Great Wall of China was built across the historical northern borders of China.
+    ### The Great Wall of China was built by ancient Chinese states and Imperial China.
+    ### The Great Wall of China was built as protection against nomadic groups.
+
+    Here is the paragraph:
+
+    {response}
+
+    You should only return the final answer. Now your answer is:
+    """
+
+    return prompt
+
+
+DECOMPOSITION_PROMPT_MAP = {"zhang_2025": get_claim_breakdown_prompt, "farquhar_2024": get_farquhar_2024_breakdown_prompt, "mohri_2024": get_mohri_2024_breakdown_prompt, "jiang_2024": get_jiang_2024_breakdown_prompt}
+
+
 def get_factoid_breakdown_template(response: str) -> str:
     """
     Parameters

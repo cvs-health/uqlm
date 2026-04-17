@@ -222,7 +222,7 @@ class WhiteBoxUQ(ShortFormUQ):
         if self.single_logprobs_scorer_names:
             self.single_logprobs_scorer = SingleLogprobsScorer(scorers=self.single_logprobs_scorer_names, length_normalize=self.length_normalize)
         if self.top_logprobs_scorer_names:
-            self.top_logprobs_scorer = TopLogprobsScorer(scorers=self.top_logprobs_scorer_names)
+            self.top_logprobs_scorer = TopLogprobsScorer(scorers=self.top_logprobs_scorer_names, top_k_logprobs=top_k_logprobs)
             self.top_k_logprobs = top_k_logprobs
             beta_warning("Scorers based on top_logprobs ('mean_token_negentropy','min_token_negentropy','probability_margin') is in beta. Please use with caution as it may change in future releases.")
         if self.sampled_logprobs_scorer_names:
