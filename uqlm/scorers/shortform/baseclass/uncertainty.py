@@ -41,7 +41,7 @@ ALL_WHITE_BOX_SCORERS = [
 
 
 class ShortFormUQ(UncertaintyQuantifier):
-    def __init__(self, llm: Any = None, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, postprocessor: Optional[Any] = None) -> None:
+    def __init__(self, llm: Any = None, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, postprocessor: Optional[Any] = None, structured_response: Optional[Any] = None, output_extractor: Optional[Any] = None) -> None:
         """
         Parent class for uncertainty quantification of LLM responses
 
@@ -70,8 +70,14 @@ class ShortFormUQ(UncertaintyQuantifier):
         postprocessor : callable, default=None
             A user-defined function that takes a string input and returns a string. Used for postprocessing
             outputs.
+
+        structured_response : Any, default=None
+            If specified, should be a structure such as a pydantic BaseModel class or dict that will be applied to the llm in the as `llm.with_structured_output(structured_response)`. Only used if `output_extractor` is also specified.
+
+        output_extractor : callable, default=None
+            A user-defined function that takes the output of `structured_llm` and extracts the response. Only used if `structured_response` is not None.
         """
-        super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor)
+        super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor, structured_response=structured_response, output_extractor=output_extractor)
         self.black_box_names = BLACK_BOX_SCORERS
         self.white_box_names = ALL_WHITE_BOX_SCORERS
         self.default_black_box_names = DEFAULT_BLACK_BOX_SCORERS
