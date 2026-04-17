@@ -21,6 +21,10 @@ from uqlm.utils.prompts.decomposition import get_claim_breakdown_prompt, get_fac
 from uqlm.utils.prompts.reconstruction import get_response_reconstruction_prompt
 from uqlm.utils.prompts.entailment_prompts import get_entailment_prompt
 from uqlm.utils.prompts.factscore_prompts import FACTSCORE_SYSTEM_PROMPT, SUBJECTIVE_SYSTEM_PROMPT
+from uqlm.utils.prompts.groundedness_prompts import (
+    UNIFIED_GROUNDEDNESS_SYSTEM_PROMPT,
+    get_unified_groundedness_prompt,
+)
 
 __all__ = [
     "TEMPLATE_TO_INSTRUCTION",
@@ -38,4 +42,6 @@ __all__ = [
     "get_entailment_prompt",
     "FACTSCORE_SYSTEM_PROMPT",
     "SUBJECTIVE_SYSTEM_PROMPT",
+    "UNIFIED_GROUNDEDNESS_SYSTEM_PROMPT",
+    "get_unified_groundedness_prompt",
 ]

@@ -13,9 +13,14 @@ from uqlm.utils.prompts.entailment_prompts import get_entailment_prompt
 SYSTEM_PROMPT = "You are a helpful assistant that evaluates natural language inference relationships."
 STR_SCORE_MAP = {"yes": 1.0, "no": 0.0}
 
+# Mapping for nli_classification style: entailment/contradiction/neutral → numeric scores
+NLI_LABEL_SCORE_MAP = {"entailment": 1.0, "contradiction": 0.0, "neutral": 0.5}
+# Mapping for nli_classification style: entailment/contradiction/neutral → semantic labels
+NLI_LABEL_MAP = {"entailment": "supported", "contradiction": "contradiction", "neutral": "baseless"}
+
 
 class EntailmentClassifier:
-    def __init__(self, nli_llm: Optional[BaseChatModel] = None) -> None:
+    def __init__(self, nli_llm: Optional[BaseChatModel] = None, style: str = "binary") -> None:
         """
         A class to compute NLI predictions.
 
@@ -23,12 +28,17 @@ class EntailmentClassifier:
         ----------
         nli_llm : BaseChatModel, default=None
             A LangChain chat model for LLM-based NLI inference. If provided, takes precedence over nli_model_name.
+
+        style : str, default="binary"
+            The entailment prompt style. Supported values: "binary", "nli_classification",
+            "p_true", "p_false", "p_neutral". Controls both prompt construction and score extraction.
         """
         self.nli_llm = nli_llm
+        self.style = style
         self.completed = 0
         self.num_responses = None
 
-    async def judge_entailment(self, premises: List[str], hypotheses: List[str], retries: int = 5, progress_bar: Optional[Progress] = None) -> Dict[str, Any]:
+    async def judge_entailment(self, premises: List[str], hypotheses: List[str], retries: int = 5, progress_bar: Optional[Progress] = None, return_labels: bool = False) -> Dict[str, Any]:
         """
         Async version of predict() for single NLI prediction.
 
@@ -64,7 +74,11 @@ class EntailmentClassifier:
         tasks = [self._evaluate_claim_response_pair(prompt, progress_bar=progress_bar) for prompt in prompts]
         responses = await asyncio.gather(*tasks)
         scores = self._extract_scores(responses)
-        df = pd.DataFrame({"judge_prompts": prompts, "judge_responses": responses, "scores": scores})
+        if return_labels:
+            labels = self._extract_labels(responses)
+            df = pd.DataFrame({"judge_prompts": prompts, "judge_responses": responses, "scores": scores, "labels": labels})
+        else:
+            df = pd.DataFrame({"judge_prompts": prompts, "judge_responses": responses, "scores": scores})
 
         # Retry logic for failed extractions
         retry = 0
@@ -122,7 +136,11 @@ class EntailmentClassifier:
 
     def _extract_scores(self, judge_responses: List[str]) -> List[float]:
         """Map entailment judge responses to numerical scores"""
-        return [self._extract_single_score(text) for text in judge_responses]
+        return [self._extract_single_score(text, style=self.style) for text in judge_responses]
+
+    def _extract_labels(self, judge_responses: List[str]) -> List[str]:
+        """Map entailment judge responses to semantic labels"""
+        return [self._extract_single_label(text, style=self.style) for text in judge_responses]
 
     async def _evaluate_claim_response_pair(self, prompt: str, progress_bar: Optional[Progress] = None) -> str:
         """Decompose single response into claims using LLM and extract claims from the result"""
@@ -139,27 +157,62 @@ class EntailmentClassifier:
         return response
 
     @staticmethod
-    def _extract_single_score(response_text: str) -> float:
+    def _extract_single_score(response_text: str, style: str = "binary") -> float:
         """
-        Map response text to score
+        Map response text to numeric score.
+
+        For binary styles (binary, p_true, p_false, p_neutral): yes→1.0, no→0.0
+        For nli_classification: entailment→1.0, neutral→0.5, contradiction→0.0
         """
         clean_text = response_text.strip().lower()
-        for word, score in STR_SCORE_MAP.items():
+
+        if style == "nli_classification":
+            score_map = NLI_LABEL_SCORE_MAP
+        else:
+            score_map = STR_SCORE_MAP
+
+        for word, score in score_map.items():
             # Best: response starts with the value
             if clean_text.startswith(word):
                 return score
 
-        for word, score in STR_SCORE_MAP.items():
+        for word, score in score_map.items():
             # fallback: substring search
-            if word in response_text:
+            if word in clean_text:
                 return score
 
         return np.nan
 
     @staticmethod
-    def _construct_prompts(premises: List[str], hypotheses: List[str]) -> List[str]:
-        """Construct prompt for entailment evaluation"""
-        return [get_entailment_prompt(claim=hypotheses[i], source_text=premises[i], style="binary") for i in range(len(premises))]
+    def _extract_single_label(response_text: str, style: str = "binary") -> str:
+        """
+        Map response text to a semantic label string.
+
+        For binary styles: "supported" or "not_supported"
+        For nli_classification: "supported", "contradiction", or "baseless"
+        """
+        clean_text = response_text.strip().lower()
+
+        if style == "nli_classification":
+            for word, label in NLI_LABEL_MAP.items():
+                if clean_text.startswith(word):
+                    return label
+            for word, label in NLI_LABEL_MAP.items():
+                if word in clean_text:
+                    return label
+            return "unknown"
+        else:
+            for word in ("yes",):
+                if clean_text.startswith(word) or word in clean_text:
+                    return "supported"
+            for word in ("no",):
+                if clean_text.startswith(word) or word in clean_text:
+                    return "not_supported"
+            return "unknown"
+
+    def _construct_prompts(self, premises: List[str], hypotheses: List[str]) -> List[str]:
+        """Construct prompt for entailment evaluation using the configured style"""
+        return [get_entailment_prompt(claim=hypotheses[i], source_text=premises[i], style=self.style) for i in range(len(premises))]
 
     @staticmethod
     def _flatten_inputs(response_sets: List[List[str]], claim_sets: List[List[str]]) -> Tuple[List[str], List[str], List[int], List[np.ndarray]]:
