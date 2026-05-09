@@ -20,5 +20,9 @@ from uqlm.scorers.shortform.black_box import BlackBoxUQ
 from uqlm.scorers.longform.longtext import LongTextUQ
 from uqlm.scorers.longform.qa import LongTextQA
 from uqlm.scorers.longform.graph import LongTextGraph
+from uqlm.scorers.longform.context_groundedness import ContextGroundednessScorer
 
-__all__ = ["UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "LongTextUQ", "LongTextQA", "LongTextGraph"]
+__all__ = [
+    "UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ",
+    "LongTextUQ", "LongTextQA", "LongTextGraph", "ContextGroundednessScorer"
+]
