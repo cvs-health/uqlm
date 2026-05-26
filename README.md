@@ -26,25 +26,26 @@
   <a href="https://opensource.org/licenses/Apache-2.0">
     <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
   </a>
+  </a>
+  <a href="https://discord.gg/RjcrAPw43H">
+    <img src="https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=lightgrey" alt="Discord">
+  </a>
   <a href="https://github.com/astral-sh/uv">
     <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json" alt="uv">
   </a>
   <a href="https://github.com/astral-sh/ruff">
     <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff">
-  </a>
-  <a href="https://discord.gg/RjcrAPw43H">
-    <img src="https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white" alt="Discord">
-  </a>
 </p>
 <p align="center">
   <a href="https://www.jmlr.org/papers/v27/25-1557.html">
-    <img src="https://img.shields.io/badge/JMLR-Published-112467?style=flat&style=for-the-badge&logo=semantic-scholar&logoColor=white" alt="JMLR Publication">
+    <img src="https://img.shields.io/badge/JMLR-UQLM-112467?style=flat&style=for-the-badge&logo=semantic-scholar&logoColor=white" alt="JMLR Publication">
   </a>
   <a href="https://openreview.net/pdf?id=WOFspd4lq5">
-    <img src="https://img.shields.io/badge/TMLR-Published-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication">
+    <img src="https://img.shields.io/badge/TMLR-EnsembleUQ-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication">
   </a>
-  <a href="https://arxiv.org/abs/2602.17431">
-    <img src="https://img.shields.io/badge/arXiv-LongTextUQ-B31B1B?logo=arXiv&logoColor=white" alt="arXiv">
+  </a>
+  <a href="https://openreview.net/pdf?id=gngp4Zz9Sj">
+    <img src="https://img.shields.io/badge/TMLR-LongTextUQ-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication">
   </a>
 </p>
 
