@@ -32,6 +32,7 @@
    longform
    shortform
    black_box
+   codegen
    density
    ensemble
    entropy

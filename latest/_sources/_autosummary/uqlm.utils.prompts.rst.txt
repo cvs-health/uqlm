@@ -30,6 +30,7 @@ uqlm.utils.prompts
 
    claim_qa
    claims_prompts
+   codegen
    decomposition
    entailment_prompts
    factscore_prompts

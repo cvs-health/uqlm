@@ -30,6 +30,7 @@ uqlm.scorers.shortform
 
    baseclass
    black_box
+   codegen
    density
    ensemble
    entropy

@@ -1,0 +1,6 @@
+uqlm.nli.entropy\_utils.compute\_response\_probabilities
+========================================================
+
+.. currentmodule:: uqlm.nli.entropy_utils
+
+.. autofunction:: compute_response_probabilities

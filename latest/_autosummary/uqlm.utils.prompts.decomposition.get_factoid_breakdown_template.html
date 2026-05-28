@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="../_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="../_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="../_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>uqlm.utils.prompts.decomposition.get_factoid_breakdown_template &#8212; uqlm 0.5 documentation</title>
+    <title>uqlm.utils.prompts.decomposition.get_factoid_breakdown_template &#8212; uqlm 0.6 documentation</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=db78e746"></script>
+    <script src="../_static/documentation_options.js?v=ec806d2c"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -51,7 +51,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -128,8 +128,8 @@
       
     
     
-    <img src="../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.5 documentation - Home"/>
-    <img src="../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.5 documentation - Home"/>
+    <img src="../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.6 documentation - Home"/>
+    <img src="../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.6 documentation - Home"/>
   
   
 </a></div>
@@ -459,6 +459,10 @@
 <li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.black_box.BlackBoxUQ.html">uqlm.scorers.shortform.black_box.BlackBoxUQ</a></li>
 </ul>
 </details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.shortform.codegen.html">uqlm.scorers.shortform.codegen</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.codegen.CodeGenUQ.html">uqlm.scorers.shortform.codegen.CodeGenUQ</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.shortform.density.html">uqlm.scorers.shortform.density</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.density.SemanticDensity.html">uqlm.scorers.shortform.density.SemanticDensity</a></li>
 </ul>
@@ -483,6 +487,10 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.black_box.html">uqlm.scorers.black_box</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.scorers.black_box.BlackBoxUQ.html">uqlm.scorers.black_box.BlackBoxUQ</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.codegen.html">uqlm.scorers.codegen</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.scorers.codegen.CodeGenUQ.html">uqlm.scorers.codegen.CodeGenUQ</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.density.html">uqlm.scorers.density</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -637,6 +645,16 @@
 <li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entailment.EntailmentClassifier.html">uqlm.nli.entailment.EntailmentClassifier</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.nli.entropy_utils.html">uqlm.nli.entropy_utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.best_response_selection.html">uqlm.nli.entropy_utils.best_response_selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.compute_cluster_probabilities.html">uqlm.nli.entropy_utils.compute_cluster_probabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.compute_response_probabilities.html">uqlm.nli.entropy_utils.compute_response_probabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.compute_semantic_entropy.html">uqlm.nli.entropy_utils.compute_semantic_entropy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.length_norm_sequence_prob.html">uqlm.nli.entropy_utils.length_norm_sequence_prob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.normalize_cluster_probabilities.html">uqlm.nli.entropy_utils.normalize_cluster_probabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.normalize_entropy.html">uqlm.nli.entropy_utils.normalize_entropy</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.nli.nli.html">uqlm.nli.nli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.nli.nli.NLI.html">uqlm.nli.nli.NLI</a></li>
 </ul>
@@ -703,6 +721,11 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.claims_prompts.html">uqlm.utils.prompts.claims_prompts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.claims_prompts.get_claim_breakdown_prompt.html">uqlm.utils.prompts.claims_prompts.get_claim_breakdown_prompt</a></li>
 <li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.claims_prompts.get_claim_dedup_prompt.html">uqlm.utils.prompts.claims_prompts.get_claim_dedup_prompt</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.codegen.html">uqlm.utils.prompts.codegen</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.codegen.python_prompt_template.html">uqlm.utils.prompts.codegen.python_prompt_template</a></li>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.codegen.python_prompt_template_stdio.html">uqlm.utils.prompts.codegen.python_prompt_template_stdio</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="uqlm.utils.prompts.decomposition.html">uqlm.utils.prompts.decomposition</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">

@@ -1,0 +1,31 @@
+uqlm.utils.prompts.codegen
+==========================
+
+.. automodule:: uqlm.utils.prompts.codegen
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      python_prompt_template
+      python_prompt_template_stdio
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

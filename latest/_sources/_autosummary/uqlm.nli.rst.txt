@@ -30,5 +30,6 @@
 
    cluster
    entailment
+   entropy_utils
    nli
 

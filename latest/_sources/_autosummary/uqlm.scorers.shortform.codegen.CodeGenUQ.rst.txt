@@ -1,0 +1,35 @@
+uqlm.scorers.shortform.codegen.CodeGenUQ
+========================================
+
+.. currentmodule:: uqlm.scorers.shortform.codegen
+
+.. autoclass:: CodeGenUQ
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CodeGenUQ.__init__
+      ~CodeGenUQ.generate_and_score
+      ~CodeGenUQ.generate_candidate_responses
+      ~CodeGenUQ.generate_original_responses
+      ~CodeGenUQ.score
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

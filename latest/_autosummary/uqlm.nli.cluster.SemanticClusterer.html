@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="../_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="../_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="../_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>uqlm.nli.cluster.SemanticClusterer &#8212; uqlm 0.5 documentation</title>
+    <title>uqlm.nli.cluster.SemanticClusterer &#8212; uqlm 0.6 documentation</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=db78e746"></script>
+    <script src="../_static/documentation_options.js?v=ec806d2c"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -51,7 +51,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.5';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.6';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -128,8 +128,8 @@
       
     
     
-    <img src="../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.5 documentation - Home"/>
-    <img src="../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.5 documentation - Home"/>
+    <img src="../_static/horizontal_logo.png" class="logo__image only-light" alt="uqlm 0.6 documentation - Home"/>
+    <img src="../_static/horizontal_logo_no_bg.png" class="logo__image only-dark pst-js-only" alt="uqlm 0.6 documentation - Home"/>
   
   
 </a></div>
@@ -459,6 +459,10 @@
 <li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.black_box.BlackBoxUQ.html">uqlm.scorers.shortform.black_box.BlackBoxUQ</a></li>
 </ul>
 </details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.shortform.codegen.html">uqlm.scorers.shortform.codegen</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.codegen.CodeGenUQ.html">uqlm.scorers.shortform.codegen.CodeGenUQ</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.scorers.shortform.density.html">uqlm.scorers.shortform.density</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="uqlm.scorers.shortform.density.SemanticDensity.html">uqlm.scorers.shortform.density.SemanticDensity</a></li>
 </ul>
@@ -483,6 +487,10 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.black_box.html">uqlm.scorers.black_box</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.scorers.black_box.BlackBoxUQ.html">uqlm.scorers.black_box.BlackBoxUQ</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.codegen.html">uqlm.scorers.codegen</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.scorers.codegen.CodeGenUQ.html">uqlm.scorers.codegen.CodeGenUQ</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.scorers.density.html">uqlm.scorers.density</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -637,6 +645,16 @@
 <li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entailment.EntailmentClassifier.html">uqlm.nli.entailment.EntailmentClassifier</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.nli.entropy_utils.html">uqlm.nli.entropy_utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.best_response_selection.html">uqlm.nli.entropy_utils.best_response_selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.compute_cluster_probabilities.html">uqlm.nli.entropy_utils.compute_cluster_probabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.compute_response_probabilities.html">uqlm.nli.entropy_utils.compute_response_probabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.compute_semantic_entropy.html">uqlm.nli.entropy_utils.compute_semantic_entropy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.length_norm_sequence_prob.html">uqlm.nli.entropy_utils.length_norm_sequence_prob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.normalize_cluster_probabilities.html">uqlm.nli.entropy_utils.normalize_cluster_probabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.nli.entropy_utils.normalize_entropy.html">uqlm.nli.entropy_utils.normalize_entropy</a></li>
+</ul>
+</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.nli.nli.html">uqlm.nli.nli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.nli.nli.NLI.html">uqlm.nli.nli.NLI</a></li>
 </ul>
@@ -703,6 +721,11 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.claims_prompts.html">uqlm.utils.prompts.claims_prompts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.claims_prompts.get_claim_breakdown_prompt.html">uqlm.utils.prompts.claims_prompts.get_claim_breakdown_prompt</a></li>
 <li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.claims_prompts.get_claim_dedup_prompt.html">uqlm.utils.prompts.claims_prompts.get_claim_dedup_prompt</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.codegen.html">uqlm.utils.prompts.codegen</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.codegen.python_prompt_template.html">uqlm.utils.prompts.codegen.python_prompt_template</a></li>
+<li class="toctree-l4"><a class="reference internal" href="uqlm.utils.prompts.codegen.python_prompt_template_stdio.html">uqlm.utils.prompts.codegen.python_prompt_template_stdio</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="uqlm.utils.prompts.decomposition.html">uqlm.utils.prompts.decomposition</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -820,51 +843,28 @@
 <h1>uqlm.nli.cluster.SemanticClusterer<a class="headerlink" href="#uqlm-nli-cluster-semanticclusterer" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="uqlm.nli.cluster.SemanticClusterer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uqlm.nli.cluster.</span></span><span class="sig-name descname"><span class="pre">SemanticClusterer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nli</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.nli.cluster.SemanticClusterer" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">uqlm.nli.cluster.</span></span><span class="sig-name descname"><span class="pre">SemanticClusterer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nli</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.nli.cluster.SemanticClusterer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="uqlm.nli.cluster.SemanticClusterer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nli</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.nli.cluster.SemanticClusterer.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nli</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.nli.cluster.SemanticClusterer.__init__" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#uqlm.nli.cluster.SemanticClusterer.__init__" title="uqlm.nli.cluster.SemanticClusterer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([nli, length_normalize])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#uqlm.nli.cluster.SemanticClusterer.__init__" title="uqlm.nli.cluster.SemanticClusterer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>([nli])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#uqlm.nli.cluster.SemanticClusterer.best_response_selection" title="uqlm.nli.cluster.SemanticClusterer.best_response_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">best_response_selection</span></code></a>(clustered_responses, ...)</p></td>
-<td><p>Select the best response from the clustered responses based on the cluster probabilities</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#uqlm.nli.cluster.SemanticClusterer.cluster_responses" title="uqlm.nli.cluster.SemanticClusterer.cluster_responses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster_responses</span></code></a>(responses[, prompt])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#uqlm.nli.cluster.SemanticClusterer.cluster_responses" title="uqlm.nli.cluster.SemanticClusterer.cluster_responses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cluster_responses</span></code></a>(responses[, prompt])</p></td>
 <td><p>This method create clusters from a list of responses based on the semantic meaning of each response.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#uqlm.nli.cluster.SemanticClusterer.compute_cluster_probabilities" title="uqlm.nli.cluster.SemanticClusterer.compute_cluster_probabilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_cluster_probabilities</span></code></a>(...)</p></td>
-<td><p>Compute cluster probabilities</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#uqlm.nli.cluster.SemanticClusterer.compute_response_probabilities" title="uqlm.nli.cluster.SemanticClusterer.compute_response_probabilities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_response_probabilities</span></code></a>(logprobs_results)</p></td>
-<td><p>Compute response probabilities</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#uqlm.nli.cluster.SemanticClusterer.evaluate" title="uqlm.nli.cluster.SemanticClusterer.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a>(responses[, prompt, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#uqlm.nli.cluster.SemanticClusterer.evaluate" title="uqlm.nli.cluster.SemanticClusterer.evaluate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate</span></code></a>(responses[, prompt, ...])</p></td>
 <td><p>Evaluate the cluster of responses.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#uqlm.nli.cluster.SemanticClusterer.length_norm_sequence_prob" title="uqlm.nli.cluster.SemanticClusterer.length_norm_sequence_prob"><code class="xref py py-obj docutils literal notranslate"><span class="pre">length_norm_sequence_prob</span></code></a>(logprobs[, ...])</p></td>
-<td><p>Compute length normalized sequence logprob</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<dl class="py method">
-<dt class="sig sig-object py" id="uqlm.nli.cluster.SemanticClusterer.best_response_selection">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">best_response_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">clustered_responses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_probabilities</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.nli.cluster.SemanticClusterer.best_response_selection" title="Link to this definition">#</a></dt>
-<dd><p>Select the best response from the clustered responses based on the cluster probabilities</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="uqlm.nli.cluster.SemanticClusterer.cluster_responses">
 <span class="sig-name descname"><span class="pre">cluster_responses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.nli.cluster.SemanticClusterer.cluster_responses" title="Link to this definition">#</a></dt>
@@ -886,45 +886,12 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="uqlm.nli.cluster.SemanticClusterer.compute_cluster_probabilities">
-<span class="sig-name descname"><span class="pre">compute_cluster_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.nli.cluster.SemanticClusterer.compute_cluster_probabilities" title="Link to this definition">#</a></dt>
-<dd><p>Compute cluster probabilities</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="uqlm.nli.cluster.SemanticClusterer.compute_response_probabilities">
-<span class="sig-name descname"><span class="pre">compute_response_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logprobs_results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_responses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.nli.cluster.SemanticClusterer.compute_response_probabilities" title="Link to this definition">#</a></dt>
-<dd><p>Compute response probabilities</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="uqlm.nli.cluster.SemanticClusterer.evaluate">
 <span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">responses</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prompt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response_probabilities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.nli.cluster.SemanticClusterer.evaluate" title="Link to this definition">#</a></dt>
 <dd><p>Evaluate the cluster of responses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]</span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="uqlm.nli.cluster.SemanticClusterer.length_norm_sequence_prob">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">length_norm_sequence_prob</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">logprobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.nli.cluster.SemanticClusterer.length_norm_sequence_prob" title="Link to this definition">#</a></dt>
-<dd><p>Compute length normalized sequence logprob</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -983,12 +950,8 @@
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.nli.cluster.SemanticClusterer"><code class="docutils literal notranslate"><span class="pre">SemanticClusterer</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.nli.cluster.SemanticClusterer.__init__"><code class="docutils literal notranslate"><span class="pre">SemanticClusterer.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.nli.cluster.SemanticClusterer.best_response_selection"><code class="docutils literal notranslate"><span class="pre">SemanticClusterer.best_response_selection()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.nli.cluster.SemanticClusterer.cluster_responses"><code class="docutils literal notranslate"><span class="pre">SemanticClusterer.cluster_responses()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.nli.cluster.SemanticClusterer.compute_cluster_probabilities"><code class="docutils literal notranslate"><span class="pre">SemanticClusterer.compute_cluster_probabilities()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.nli.cluster.SemanticClusterer.compute_response_probabilities"><code class="docutils literal notranslate"><span class="pre">SemanticClusterer.compute_response_probabilities()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.nli.cluster.SemanticClusterer.evaluate"><code class="docutils literal notranslate"><span class="pre">SemanticClusterer.evaluate()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.nli.cluster.SemanticClusterer.length_norm_sequence_prob"><code class="docutils literal notranslate"><span class="pre">SemanticClusterer.length_norm_sequence_prob()</span></code></a></li>
 </ul>
 </li>
 </ul>
