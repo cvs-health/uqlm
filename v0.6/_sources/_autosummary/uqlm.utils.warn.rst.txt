@@ -1,0 +1,39 @@
+uqlm.utils.warn
+===============
+
+.. automodule:: uqlm.utils.warn
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      beta_warning
+      deprecation_warning
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+   
+      UQLMBetaWarning
+      UQLMDeprecationWarning
+   
+   
+
+
+

@@ -1,0 +1,36 @@
+uqlm.scorers.longform.graph.LongTextGraph
+=========================================
+
+.. currentmodule:: uqlm.scorers.longform.graph
+
+.. autoclass:: LongTextGraph
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LongTextGraph.__init__
+      ~LongTextGraph.generate_and_score
+      ~LongTextGraph.generate_candidate_responses
+      ~LongTextGraph.generate_original_responses
+      ~LongTextGraph.score
+      ~LongTextGraph.uncertainty_aware_decode
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

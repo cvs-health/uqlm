@@ -1,0 +1,31 @@
+uqlm.longform.graph.claim\_merger
+=================================
+
+.. automodule:: uqlm.longform.graph.claim_merger
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: class.rst
+   
+      ClaimMerger
+   
+   
+
+   
+   
+   
+
+
+

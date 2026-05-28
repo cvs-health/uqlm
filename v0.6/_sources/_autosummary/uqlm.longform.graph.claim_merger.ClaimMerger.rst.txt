@@ -1,0 +1,32 @@
+uqlm.longform.graph.claim\_merger.ClaimMerger
+=============================================
+
+.. currentmodule:: uqlm.longform.graph.claim_merger
+
+.. autoclass:: ClaimMerger
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ClaimMerger.__init__
+      ~ClaimMerger.merge_claims
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

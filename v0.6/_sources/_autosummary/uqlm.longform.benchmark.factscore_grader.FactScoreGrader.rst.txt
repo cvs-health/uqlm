@@ -1,0 +1,35 @@
+uqlm.longform.benchmark.factscore\_grader.FactScoreGrader
+=========================================================
+
+.. currentmodule:: uqlm.longform.benchmark.factscore_grader
+
+.. autoclass:: FactScoreGrader
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FactScoreGrader.__init__
+      ~FactScoreGrader.construct_entailment_prompt
+      ~FactScoreGrader.construct_subjective_prompt
+      ~FactScoreGrader.evaluate_claim_objectivity
+      ~FactScoreGrader.grade_claims
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

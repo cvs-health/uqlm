@@ -1,0 +1,6 @@
+uqlm.utils.prompts.claims\_prompts.get\_claim\_breakdown\_prompt
+================================================================
+
+.. currentmodule:: uqlm.utils.prompts.claims_prompts
+
+.. autofunction:: get_claim_breakdown_prompt

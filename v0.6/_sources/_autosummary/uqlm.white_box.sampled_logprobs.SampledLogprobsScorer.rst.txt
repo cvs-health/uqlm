@@ -1,0 +1,39 @@
+uqlm.white\_box.sampled\_logprobs.SampledLogprobsScorer
+=======================================================
+
+.. currentmodule:: uqlm.white_box.sampled_logprobs
+
+.. autoclass:: SampledLogprobsScorer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SampledLogprobsScorer.__init__
+      ~SampledLogprobsScorer.compute_consistency_confidence
+      ~SampledLogprobsScorer.compute_semantic_density
+      ~SampledLogprobsScorer.compute_semantic_negentropy
+      ~SampledLogprobsScorer.evaluate
+      ~SampledLogprobsScorer.extract_logprobs
+      ~SampledLogprobsScorer.extract_probs
+      ~SampledLogprobsScorer.extract_top_logprobs
+      ~SampledLogprobsScorer.monte_carlo_probability
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

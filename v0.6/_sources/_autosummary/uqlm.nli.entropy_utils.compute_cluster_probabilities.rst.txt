@@ -1,0 +1,6 @@
+uqlm.nli.entropy\_utils.compute\_cluster\_probabilities
+=======================================================
+
+.. currentmodule:: uqlm.nli.entropy_utils
+
+.. autofunction:: compute_cluster_probabilities

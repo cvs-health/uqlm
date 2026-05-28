@@ -1,0 +1,6 @@
+uqlm.nli.entropy\_utils.compute\_semantic\_entropy
+==================================================
+
+.. currentmodule:: uqlm.nli.entropy_utils
+
+.. autofunction:: compute_semantic_entropy

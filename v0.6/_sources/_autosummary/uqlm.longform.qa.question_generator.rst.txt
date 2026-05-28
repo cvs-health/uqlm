@@ -1,0 +1,31 @@
+uqlm.longform.qa.question\_generator
+====================================
+
+.. automodule:: uqlm.longform.qa.question_generator
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: class.rst
+   
+      QuestionGenerator
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,30 @@
+uqlm.utils.device
+=================
+
+.. automodule:: uqlm.utils.device
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      get_best_device
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

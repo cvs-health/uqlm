@@ -1,0 +1,6 @@
+uqlm.nli.entropy\_utils.normalize\_entropy
+==========================================
+
+.. currentmodule:: uqlm.nli.entropy_utils
+
+.. autofunction:: normalize_entropy

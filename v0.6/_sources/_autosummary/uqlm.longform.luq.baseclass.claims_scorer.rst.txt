@@ -1,0 +1,33 @@
+uqlm.longform.luq.baseclass.claims\_scorer
+==========================================
+
+.. automodule:: uqlm.longform.luq.baseclass.claims_scorer
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: class.rst
+   
+      ClaimScore
+      ClaimScorer
+      ClaimScores
+   
+   
+
+   
+   
+   
+
+
+

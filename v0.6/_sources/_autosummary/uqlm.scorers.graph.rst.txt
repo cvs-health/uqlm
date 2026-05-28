@@ -1,0 +1,31 @@
+uqlm.scorers.graph
+==================
+
+.. automodule:: uqlm.scorers.graph
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: class.rst
+   
+      LongTextGraph
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+uqlm.utils.prompts.decomposition.get\_farquhar\_2024\_breakdown\_prompt
+=======================================================================
+
+.. currentmodule:: uqlm.utils.prompts.decomposition
+
+.. autofunction:: get_farquhar_2024_breakdown_prompt

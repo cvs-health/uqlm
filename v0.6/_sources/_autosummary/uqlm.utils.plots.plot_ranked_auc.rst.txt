@@ -1,0 +1,6 @@
+uqlm.utils.plots.plot\_ranked\_auc
+==================================
+
+.. currentmodule:: uqlm.utils.plots
+
+.. autofunction:: plot_ranked_auc

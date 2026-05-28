@@ -1,0 +1,31 @@
+uqlm.nli.entailment
+===================
+
+.. automodule:: uqlm.nli.entailment
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: class.rst
+   
+      EntailmentClassifier
+   
+   
+
+   
+   
+   
+
+
+

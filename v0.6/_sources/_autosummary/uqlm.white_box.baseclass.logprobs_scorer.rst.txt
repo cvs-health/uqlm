@@ -1,0 +1,31 @@
+uqlm.white\_box.baseclass.logprobs\_scorer
+==========================================
+
+.. automodule:: uqlm.white_box.baseclass.logprobs_scorer
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: class.rst
+   
+      LogprobsScorer
+   
+   
+
+   
+   
+   
+
+
+

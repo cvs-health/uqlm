@@ -1,0 +1,33 @@
+uqlm.longform.luq.unit\_response.UnitResponseScorer
+===================================================
+
+.. currentmodule:: uqlm.longform.luq.unit_response
+
+.. autoclass:: UnitResponseScorer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UnitResponseScorer.__init__
+      ~UnitResponseScorer.evaluate
+      ~UnitResponseScorer.evaluate_with_llm
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

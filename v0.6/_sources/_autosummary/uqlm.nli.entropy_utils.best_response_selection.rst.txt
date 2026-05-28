@@ -1,0 +1,6 @@
+uqlm.nli.entropy\_utils.best\_response\_selection
+=================================================
+
+.. currentmodule:: uqlm.nli.entropy_utils
+
+.. autofunction:: best_response_selection

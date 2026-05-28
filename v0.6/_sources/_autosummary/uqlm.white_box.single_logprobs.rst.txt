@@ -1,0 +1,31 @@
+uqlm.white\_box.single\_logprobs
+================================
+
+.. automodule:: uqlm.white_box.single_logprobs
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: class.rst
+   
+      SingleLogprobsScorer
+   
+   
+
+   
+   
+   
+
+
+

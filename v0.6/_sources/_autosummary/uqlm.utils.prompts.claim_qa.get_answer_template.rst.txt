@@ -1,0 +1,6 @@
+uqlm.utils.prompts.claim\_qa.get\_answer\_template
+==================================================
+
+.. currentmodule:: uqlm.utils.prompts.claim_qa
+
+.. autofunction:: get_answer_template

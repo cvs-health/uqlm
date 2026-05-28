@@ -1,0 +1,6 @@
+uqlm.utils.device.get\_best\_device
+===================================
+
+.. currentmodule:: uqlm.utils.device
+
+.. autofunction:: get_best_device

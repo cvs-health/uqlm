@@ -1,0 +1,36 @@
+uqlm.nli.entropy\_utils
+=======================
+
+.. automodule:: uqlm.nli.entropy_utils
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      best_response_selection
+      compute_cluster_probabilities
+      compute_response_probabilities
+      compute_semantic_entropy
+      length_norm_sequence_prob
+      normalize_cluster_probabilities
+      normalize_entropy
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

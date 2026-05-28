@@ -1,0 +1,35 @@
+uqlm.scorers.density.SemanticDensity
+====================================
+
+.. currentmodule:: uqlm.scorers.density
+
+.. autoclass:: SemanticDensity
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SemanticDensity.__init__
+      ~SemanticDensity.generate_and_score
+      ~SemanticDensity.generate_candidate_responses
+      ~SemanticDensity.generate_original_responses
+      ~SemanticDensity.score
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

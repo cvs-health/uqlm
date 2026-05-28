@@ -1,0 +1,6 @@
+uqlm.nli.entropy\_utils.length\_norm\_sequence\_prob
+====================================================
+
+.. currentmodule:: uqlm.nli.entropy_utils
+
+.. autofunction:: length_norm_sequence_prob

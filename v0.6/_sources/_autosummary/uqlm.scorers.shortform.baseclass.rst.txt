@@ -1,0 +1,32 @@
+uqlm.scorers.shortform.baseclass
+================================
+
+.. automodule:: uqlm.scorers.shortform.baseclass
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: module.rst
+   :recursive:
+
+   uncertainty
+

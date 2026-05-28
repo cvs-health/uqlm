@@ -1,0 +1,35 @@
+uqlm.white\_box.single\_logprobs.SingleLogprobsScorer
+=====================================================
+
+.. currentmodule:: uqlm.white_box.single_logprobs
+
+.. autoclass:: SingleLogprobsScorer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SingleLogprobsScorer.__init__
+      ~SingleLogprobsScorer.evaluate
+      ~SingleLogprobsScorer.extract_logprobs
+      ~SingleLogprobsScorer.extract_probs
+      ~SingleLogprobsScorer.extract_top_logprobs
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

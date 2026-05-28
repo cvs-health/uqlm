@@ -1,0 +1,6 @@
+uqlm.utils.prompts.entailment\_prompts.get\_entailment\_prompt
+==============================================================
+
+.. currentmodule:: uqlm.utils.prompts.entailment_prompts
+
+.. autofunction:: get_entailment_prompt

@@ -1,0 +1,6 @@
+uqlm.utils.plots.plot\_filtered\_accuracy
+=========================================
+
+.. currentmodule:: uqlm.utils.plots
+
+.. autofunction:: plot_filtered_accuracy

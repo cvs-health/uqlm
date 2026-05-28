@@ -1,0 +1,6 @@
+uqlm.utils.prompts.codegen.python\_prompt\_template
+===================================================
+
+.. currentmodule:: uqlm.utils.prompts.codegen
+
+.. autofunction:: python_prompt_template

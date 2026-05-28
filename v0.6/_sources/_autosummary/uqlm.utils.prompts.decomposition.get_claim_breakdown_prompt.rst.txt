@@ -1,0 +1,6 @@
+uqlm.utils.prompts.decomposition.get\_claim\_breakdown\_prompt
+==============================================================
+
+.. currentmodule:: uqlm.utils.prompts.decomposition
+
+.. autofunction:: get_claim_breakdown_prompt

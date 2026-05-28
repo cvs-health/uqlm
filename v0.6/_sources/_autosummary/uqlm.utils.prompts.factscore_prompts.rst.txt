@@ -1,0 +1,23 @@
+uqlm.utils.prompts.factscore\_prompts
+=====================================
+
+.. automodule:: uqlm.utils.prompts.factscore_prompts
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

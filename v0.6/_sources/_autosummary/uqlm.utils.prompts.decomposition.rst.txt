@@ -1,0 +1,34 @@
+uqlm.utils.prompts.decomposition
+================================
+
+.. automodule:: uqlm.utils.prompts.decomposition
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      get_claim_breakdown_prompt
+      get_factoid_breakdown_template
+      get_farquhar_2024_breakdown_prompt
+      get_jiang_2024_breakdown_prompt
+      get_mohri_2024_breakdown_prompt
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

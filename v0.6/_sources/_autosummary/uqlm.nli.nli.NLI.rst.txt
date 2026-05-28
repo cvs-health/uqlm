@@ -1,0 +1,33 @@
+uqlm.nli.nli.NLI
+================
+
+.. currentmodule:: uqlm.nli.nli
+
+.. autoclass:: NLI
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NLI.__init__
+      ~NLI.get_nli_results
+      ~NLI.predict
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

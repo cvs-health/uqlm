@@ -1,0 +1,32 @@
+uqlm.longform.luq.baseclass
+===========================
+
+.. automodule:: uqlm.longform.luq.baseclass
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: module.rst
+   :recursive:
+
+   claims_scorer
+
