@@ -1,4 +1,4 @@
-# Copyright 2025 CVS Health and/or one of its affiliates
+# Copyright 2026 CVS Health and/or one of its affiliates
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,8 +40,11 @@ def _extract_longform_payload(result) -> dict:
 class LongTextUQAdapter:
     scorer_type = LongTextUQ
 
-    async def run(self, scorer, *, prompt, response, mode, num_responses, **kwargs):
-        result = await scorer.generate_and_score(prompts=[prompt], num_responses=num_responses, show_progress_bars=False)
+    async def run(self, scorer, *, prompt, response, mode, num_responses, sampled_responses=None, **kwargs):
+        if mode == "score" and response is not None and sampled_responses is not None:
+            result = await scorer.score(responses=[response], sampled_responses=[sampled_responses], show_progress_bars=False)
+        else:
+            result = await scorer.generate_and_score(prompts=[prompt], num_responses=num_responses, show_progress_bars=False)
         return _extract_longform_payload(result)
 
 
@@ -49,15 +52,21 @@ class LongTextQAAdapter:
     scorer_type = LongTextQA
 
     async def run(self, scorer, *, prompt, response, mode, num_responses, **kwargs):
-        result = await scorer.generate_and_score(prompts=[prompt], show_progress_bars=False)
+        if mode == "score" and response is not None:
+            result = await scorer.score(prompts=[prompt], responses=[response], show_progress_bars=False)
+        else:
+            result = await scorer.generate_and_score(prompts=[prompt], show_progress_bars=False)
         return _extract_longform_payload(result)
 
 
 class LongTextGraphAdapter:
     scorer_type = LongTextGraph
 
-    async def run(self, scorer, *, prompt, response, mode, num_responses, **kwargs):
-        result = await scorer.generate_and_score(prompts=[prompt], num_responses=num_responses, show_progress_bars=False)
+    async def run(self, scorer, *, prompt, response, mode, num_responses, sampled_responses=None, **kwargs):
+        if mode == "score" and response is not None and sampled_responses is not None:
+            result = await scorer.score(responses=[response], sampled_responses=[sampled_responses], show_progress_bars=False)
+        else:
+            result = await scorer.generate_and_score(prompts=[prompt], num_responses=num_responses, show_progress_bars=False)
         return _extract_longform_payload(result)
 
 

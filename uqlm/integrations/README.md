@@ -37,10 +37,10 @@ uqlm/integrations/
 | File | Responsibility |
 |---|---|
 | `base.py` | Defines the `ScorerAdapter` protocol and the global `_REGISTRY`. Any integration reads from here; none write directly to scorer classes. |
-| `langgraph/node.py` | `UQLMNode` — reads `state[prompt_field]`, calls the right adapter, writes `{output_key: payload}` back. Also contains `make_uqlm_node`, a factory that returns a bare coroutine function. |
+| `langgraph/node.py` | `UQLMNode` — reads `state[prompt]`, calls the right adapter, writes `{output_key: payload}` back. Also contains `make_uqlm_node`, a factory that returns a bare coroutine function. |
 | `langgraph/adapters/shortform.py` | One adapter class per short-form scorer. Each knows whether the scorer is sync or async, whether it needs sampled responses, and how to call `generate_and_score` vs `score`. |
 | `langgraph/adapters/longform.py` | Same pattern for long-form scorers. Extracts `claims_data` and `refined_response` into the `extra` dict. |
-| `langgraph/adapters/codegen.py` | Adapter for `CodeGenUQ`. Forwards an optional `reference_solution` kwarg through the `extra` dict. |
+| `langgraph/adapters/codegen.py` | Adapter for `CodeGenUQ`. |
 
 ---
 
@@ -84,8 +84,9 @@ uqlm/integrations/
 ### Data flow
 
 1. The framework calls `UQLMNode.__acall__(state)`.
-2. `UQLMNode` reads `state[prompt_field]` (and optionally `state[response_field]`,
-   `state["sampled_responses"]`, `state["reference_solution"]`).
+2. `UQLMNode` reads `state[prompt]` (and optionally `state[response]`,
+   `state["sampled_responses"]`, `state["logprobs_results"]`,
+   `state["sampled_logprobs_results"]`).
 3. It calls `resolve_adapter(scorer)` which walks `_REGISTRY` and returns the first
    adapter whose `scorer_type` matches `type(scorer)` (via `isinstance`).
 4. The adapter calls the scorer's native method (`generate_and_score` or `score`) and
@@ -99,7 +100,7 @@ uqlm/integrations/
 {
     "scores":    {"cosine_sim": 0.87, "noncontradiction": 0.92, ...},
     "responses": ["The capital of France is Paris."],
-    "extra":     {},   # adapter-specific extras (e.g. claims_data, reference_solution)
+    "extra":     {},   # adapter-specific extras (e.g. claims_data, refined_response)
 }
 ```
 
@@ -170,27 +171,27 @@ class MyFrameworkUQLMNode:
         scorer,
         *,
         output_key: str = "uq",
-        prompt_field: str = "prompt",
-        response_field: str = "response",
-        mode: str = "score_response",
+        prompt: str = "prompt",
+        response: str = "response",
+        mode: str = "score",
         num_responses: int = 5,
         adapter_kwargs: dict | None = None,
     ):
         self.scorer = scorer
         self.output_key = output_key
-        self.prompt_field = prompt_field
-        self.response_field = response_field
+        self.prompt = prompt
+        self.response = response
         self.mode = mode
         self.num_responses = num_responses
         self.adapter_kwargs = adapter_kwargs
 
     async def __call__(self, state: dict) -> dict:
         adapter = resolve_adapter(self.scorer)
-        prompt = state[self.prompt_field]
-        response = state.get(self.response_field)
+        prompt = state[self.prompt]
+        response = state.get(self.response)
 
         extra_kwargs = dict(self.adapter_kwargs or {})
-        for key in ("sampled_responses", "reference_solution"):
+        for key in ("sampled_responses", "logprobs_results", "sampled_logprobs_results"):
             if key in state and key not in extra_kwargs:
                 extra_kwargs[key] = state[key]
 
@@ -328,7 +329,7 @@ class MyScorerAdapter:
         *,
         prompt: str,                # the user prompt
         response: str | None,       # existing LLM response (may be None)
-        mode: str,                  # "score_response" | "generate_and_score"
+        mode: str,                  # "score" | "generate_and_score"
         num_responses: int,         # how many samples to draw if needed
         **kwargs,                   # extra state pass-throughs (sampled_responses, etc.)
     ) -> dict:                      # must return {"scores": ..., "responses": ..., "extra": ...}
@@ -340,7 +341,7 @@ class MyScorerAdapter:
 | `mode` | What the adapter should do |
 |---|---|
 | `"generate_and_score"` | Always call `scorer.generate_and_score(...)`. Ignore any pre-existing `response`. |
-| `"score_response"` | If `response` and (where needed) `sampled_responses` are available, call the scorer's lighter-weight `score(...)` method. Fall back to `generate_and_score` if the required inputs are missing. |
+| `"score"` | If `response` and (where needed) `sampled_responses` / `logprobs_results` are available, call the scorer's lighter-weight `score(...)` method. Fall back to `generate_and_score` if the required inputs are missing. |
 
 ### `_SKIP_KEYS` convention
 
