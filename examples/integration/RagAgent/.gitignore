@@ -1,4 +1,0 @@
-# Generated caches — rebuilt by corpus.py / retriever.py on first run.
-wikipedia_corpus.json
-embeddings_*.npy
-faiss_*.index
