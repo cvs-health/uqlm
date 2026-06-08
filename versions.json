@@ -5,6 +5,11 @@
         "url": "https://cvs-health.github.io/uqlm/latest/"
     },
     {
+        "name": "v0.6",
+        "version": "0.6",
+        "url": "https://cvs-health.github.io/uqlm/v0.6/"
+    },
+    {
         "name": "v0.5",
         "version": "0.5",
         "url": "https://cvs-health.github.io/uqlm/v0.5/"
