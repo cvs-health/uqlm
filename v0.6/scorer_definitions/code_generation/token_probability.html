@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="../../_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="../../_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="../../_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>Long-Text Scorers &#8212; uqlm 0.6 documentation</title>
+    <title>Token-Probability Code Scorers &#8212; uqlm 0.6 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "displayMath": [["$$", "$$"], ["\\[", "\\]"]]}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'scorer_definitions/long_text/index';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'scorer_definitions/code_generation/token_probability';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
@@ -60,8 +60,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Long-Text Uncertainty Quantification (LUQ)" href="luq.html" />
-    <link rel="prev" title="Generalized Ensemble" href="../ensemble/generalized_ensemble.html" />
+    <link rel="next" title="Code Similarity Scorers" href="code_similarity.html" />
+    <link rel="prev" title="Code-Generation Scorers" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -463,16 +463,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../ensemble/generalized_ensemble.html">Generalized Ensemble</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Long-Text Scorers</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="luq.html">Long-Text Uncertainty Quantification (LUQ)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="graph.html">Graph-Based Uncertainty Quantification (LUQ)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qa.html">QA-Based Uncertainty Quantification (LUQ)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../long_text/index.html">Long-Text Scorers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../long_text/luq.html">Long-Text Uncertainty Quantification (LUQ)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../long_text/graph.html">Graph-Based Uncertainty Quantification (LUQ)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../long_text/qa.html">QA-Based Uncertainty Quantification (LUQ)</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../code_generation/index.html">Code-Generation Scorers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../code_generation/token_probability.html">Token-Probability Code Scorers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../code_generation/code_similarity.html">Code Similarity Scorers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../code_generation/functional_equivalence.html">Functional Equivalence Scorers</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Code-Generation Scorers</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Token-Probability Code Scorers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_similarity.html">Code Similarity Scorers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functional_equivalence.html">Functional Equivalence Scorers</a></li>
 </ul>
 </details></li>
 </ul>
@@ -518,7 +518,10 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Scorer Definitions</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Long-Text Scorers</span></li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Code-Generation Scorers</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Token-Probability Code Scorers</span></li>
   </ul>
 </nav>
 </div>
@@ -535,35 +538,52 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="long-text-scorers">
-<h1>Long-Text Scorers<a class="headerlink" href="#long-text-scorers" title="Link to this heading">#</a></h1>
-<p>Long-form uncertainty quantification implements a three-stage pipeline after response generation:</p>
-<ol class="arabic simple">
-<li><p>Response Decomposition: The response <span class="math notranslate nohighlight">\(y\)</span> is decomposed into units (claims or sentences), where a unit as denoted as <span class="math notranslate nohighlight">\(s\)</span>.</p></li>
-<li><p>Unit-Level Confidence Scoring: Confidence scores are computed using a unit-level scoring function with values in <span class="math notranslate nohighlight">\([0, 1]\)</span>. Higher scores indicate greater likelihood of factual correctness. Units with scores below threshold <span class="math notranslate nohighlight">\(\tau\)</span> are flagged as potential hallucinations.</p></li>
-<li><p>Response-Level Aggregation: Unit scores are combined to provide an overall response confidence.</p></li>
-</ol>
-<p><strong>Key Characteristics:</strong></p>
+  <section id="token-probability-code-scorers">
+<h1>Token-Probability Code Scorers<a class="headerlink" href="#token-probability-code-scorers" title="Link to this heading">#</a></h1>
+<section id="definition">
+<h2>Definition<a class="headerlink" href="#definition" title="Link to this heading">#</a></h2>
+<p>Token-probability code scorers are the same methods used by <code class="xref py py-class docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code>, applied to generated code responses through <code class="xref py py-class docutils literal notranslate"><span class="pre">CodeGenUQ</span></code>.</p>
+<p>Available scorers:</p>
 <ul class="simple">
-<li><p><strong>Universal Compatibility:</strong> Works with any LLM without requiring token probability access</p></li>
-<li><p><strong>Fine-Grained Scoring:</strong> Score at sentence or claim-level to localize likely hallucinations</p></li>
-<li><p><strong>Uncertainty-aware decoding:</strong> Improve factual precision by dropping high-uncertainty claims</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sequence_probability</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_probability</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mean_token_negentropy</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">min_token_negentropy</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">probability_margin</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">monte_carlo_probability</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">p_true</span></code></p></li>
 </ul>
-<p><strong>Trade-offs:</strong></p>
+<p><strong>Key Properties:</strong></p>
 <ul class="simple">
-<li><p><strong>Higher Cost:</strong> Requires multiple generations per prompt</p></li>
-<li><p><strong>Limited Compatibility:</strong> Multiple generations and comparison calculations increase latency</p></li>
+<li><p>Requires token probabilities from the LLM/API</p></li>
+<li><p>Uses the same definitions as the corresponding white-box short-form scorers</p></li>
+<li><p>Score range: <span class="math notranslate nohighlight">\([0, 1]\)</span></p></li>
 </ul>
-<section id="long-text-scoring-methods">
-<h2>Long-Text Scoring Methods<a class="headerlink" href="#long-text-scoring-methods" title="Link to this heading">#</a></h2>
-<p>There are three main categories of long-text scoring methods offered by UQLM:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="luq.html">Long-Text Uncertainty Quantification (LUQ)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="graph.html">Graph-Based Uncertainty Quantification (LUQ)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="qa.html">QA-Based Uncertainty Quantification (LUQ)</a></li>
-</ul>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading">#</a></h2>
+<p>When using <code class="xref py py-class docutils literal notranslate"><span class="pre">CodeGenUQ</span></code>, specify one or more token-probability scorer names in the <code class="docutils literal notranslate"><span class="pre">scorers</span></code> list.</p>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">CodeGenUQ</span>
+
+<span class="n">code_uq</span> <span class="o">=</span> <span class="n">CodeGenUQ</span><span class="p">(</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sequence_probability&quot;</span><span class="p">,</span> <span class="s2">&quot;min_probability&quot;</span><span class="p">],</span>
+    <span class="n">language</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">code_uq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">)</span>
+</pre></div>
 </div>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">CodeGenUQ</span></code> - Class for code-generation uncertainty quantification</p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code> - Class for white-box uncertainty quantification</p></li>
+</ul>
 </section>
 </section>
 
@@ -578,20 +598,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../ensemble/generalized_ensemble.html"
+       href="index.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Generalized Ensemble</p>
+        <p class="prev-next-title">Code-Generation Scorers</p>
       </div>
     </a>
     <a class="right-next"
-       href="luq.html"
+       href="code_similarity.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Long-Text Uncertainty Quantification (LUQ)</p>
+        <p class="prev-next-title">Code Similarity Scorers</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -614,7 +634,10 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#long-text-scoring-methods">Long-Text Scoring Methods</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition">Definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters">Parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
 </ul>
   </nav></div>
 
@@ -622,7 +645,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../_sources/scorer_definitions/long_text/index.rst.txt"
+      <li><a href="../../_sources/scorer_definitions/code_generation/token_probability.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

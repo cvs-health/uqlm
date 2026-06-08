@@ -852,8 +852,10 @@
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – The name of the dataset to load. Must be one of “svamp”, “gsm8k”, “ai2_arc”,
-“csqa”, “nq_open”, “popqa”</p></li>
-<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of rows to load from the dataset.</p></li>
+“csqa”, “nq_open”, “popqa”, “factscore”, “hotpotqa”, “simpleqa”,
+“livecodebench”, “factscore-stem-geo”</p></li>
+<li><p><strong>n</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of rows to load from the dataset. Ignored for “factscore-stem-geo”,
+which always returns the longest 100 articles for each of four categories.”</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
