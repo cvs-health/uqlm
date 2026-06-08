@@ -15,4 +15,4 @@ For detailed API documentation and usage examples, see the :doc:`API Reference <
    llm_judges/index
    ensemble/index
    long_text/index
-
+   code_generation/index
