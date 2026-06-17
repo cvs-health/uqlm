@@ -33,12 +33,7 @@ def _fingerprint(docs: List[dict], model_name: str) -> str:
 class Retriever:
     """Encodes a corpus with a sentence-transformer and searches via FAISS."""
 
-    def __init__(
-        self,
-        docs: List[dict],
-        model_name: str = DEFAULT_MODEL,
-        cache_dir: Path = CACHE_DIR,
-    ):
+    def __init__(self, docs: List[dict], model_name: str = DEFAULT_MODEL, cache_dir: Path = CACHE_DIR):
         self.docs = docs
         self.model_name = model_name
         self.model = SentenceTransformer(model_name)
@@ -71,11 +66,7 @@ class Retriever:
 
     def search(self, query: str, k: int = 3) -> List[dict]:
         """Return the top-k passages by cosine similarity to ``query``."""
-        q = self.model.encode(
-            [query],
-            normalize_embeddings=True,
-            convert_to_numpy=True,
-        ).astype("float32")
+        q = self.model.encode([query], normalize_embeddings=True, convert_to_numpy=True).astype("float32")
         scores, idx = self.index.search(q, k)
         out = []
         for score, i in zip(scores[0], idx[0]):
@@ -97,12 +88,7 @@ if __name__ == "__main__":
     retriever = Retriever(docs)
     print(f"Index built with {retriever.index.ntotal} vectors")
 
-    queries = [
-        "When did Voyager 1 enter interstellar space?",
-        "Who first mapped the Atlantic Ocean floor?",
-        "What is the smallest living relative of the giraffe?",
-        "How do tardigrades survive in space?",
-    ]
+    queries = ["When did Voyager 1 enter interstellar space?", "Who first mapped the Atlantic Ocean floor?", "What is the smallest living relative of the giraffe?", "How do tardigrades survive in space?"]
     for q in queries:
         print(f"\n>>> {q}")
         for hit in retriever.search(q, k=2):

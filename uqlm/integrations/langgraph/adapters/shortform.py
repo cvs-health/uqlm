@@ -46,14 +46,7 @@ class WhiteBoxUQAdapter:
 
     async def run(self, scorer, *, prompt, response, mode, num_responses, logprobs_results=None, sampled_responses=None, sampled_logprobs_results=None, **kwargs):
         if mode == "score" and logprobs_results is not None:
-            result = await scorer.score(
-                logprobs_results=[logprobs_results],
-                prompts=[prompt],
-                responses=[response] if response is not None else None,
-                sampled_responses=[sampled_responses] if sampled_responses is not None else None,
-                sampled_logprobs_results=[sampled_logprobs_results] if sampled_logprobs_results is not None else None,
-                show_progress_bars=False,
-            )
+            result = await scorer.score(logprobs_results=[logprobs_results], prompts=[prompt], responses=[response] if response is not None else None, sampled_responses=[sampled_responses] if sampled_responses is not None else None, sampled_logprobs_results=[sampled_logprobs_results] if sampled_logprobs_results is not None else None, show_progress_bars=False)
         else:
             result = await scorer.generate_and_score(prompts=[prompt], num_responses=num_responses, show_progress_bars=False)
         return _extract_shortform_payload(result)
@@ -75,14 +68,7 @@ class UQEnsembleAdapter:
 
     async def run(self, scorer, *, prompt, response, mode, num_responses, sampled_responses=None, logprobs_results=None, **kwargs):
         if mode == "score" and response is not None:
-            result = await scorer.score(
-                prompts=[prompt],
-                responses=[response],
-                sampled_responses=[sampled_responses] if sampled_responses is not None else None,
-                logprobs_results=[logprobs_results] if logprobs_results is not None else None,
-                num_responses=num_responses,
-                show_progress_bars=False,
-            )
+            result = await scorer.score(prompts=[prompt], responses=[response], sampled_responses=[sampled_responses] if sampled_responses is not None else None, logprobs_results=[logprobs_results] if logprobs_results is not None else None, num_responses=num_responses, show_progress_bars=False)
         else:
             result = await scorer.generate_and_score(prompts=[prompt], num_responses=num_responses, show_progress_bars=False)
         return _extract_shortform_payload(result)
@@ -93,14 +79,7 @@ class SemanticEntropyAdapter:
 
     async def run(self, scorer, *, prompt, response, mode, num_responses, sampled_responses=None, logprobs_results=None, sampled_logprobs_results=None, **kwargs):
         if mode == "score" and response is not None and sampled_responses is not None:
-            result = scorer.score(
-                prompts=[prompt],
-                responses=[response],
-                sampled_responses=[sampled_responses],
-                logprobs_results=[logprobs_results] if logprobs_results is not None else None,
-                sampled_logprobs_results=[sampled_logprobs_results] if sampled_logprobs_results is not None else None,
-                show_progress_bars=False,
-            )
+            result = scorer.score(prompts=[prompt], responses=[response], sampled_responses=[sampled_responses], logprobs_results=[logprobs_results] if logprobs_results is not None else None, sampled_logprobs_results=[sampled_logprobs_results] if sampled_logprobs_results is not None else None, show_progress_bars=False)
         else:
             result = await scorer.generate_and_score(prompts=[prompt], num_responses=num_responses, show_progress_bars=False)
         return _extract_shortform_payload(result)

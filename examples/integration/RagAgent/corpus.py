@@ -99,15 +99,7 @@ def _chunk(paragraphs: List[str]) -> List[str]:
 
 def _fetch_extract(title: str, session: requests.Session) -> Optional[str]:
     """Fetch the plain-text extract of a Wikipedia article."""
-    params = {
-        "action": "query",
-        "format": "json",
-        "titles": title,
-        "prop": "extracts",
-        "explaintext": 1,
-        "redirects": 1,
-        "formatversion": 2,
-    }
+    params = {"action": "query", "format": "json", "titles": title, "prop": "extracts", "explaintext": 1, "redirects": 1, "formatversion": 2}
     r = session.get(WIKI_API, params=params, timeout=30)
     r.raise_for_status()
     pages = r.json().get("query", {}).get("pages", [])
@@ -140,9 +132,7 @@ def fetch_corpus(refresh: bool = False, polite_delay: float = 0.2) -> List[dict]
             continue
         chunks = _chunk(_split_into_paragraphs(extract))
         for i, text in enumerate(chunks):
-            passages.append(
-                Passage(id=f"{title}#{i}", title=title, text=text)
-            )
+            passages.append(Passage(id=f"{title}#{i}", title=title, text=text))
         print(f"  {title}: {len(chunks)} passages")
         time.sleep(polite_delay)  # be a good API citizen
 

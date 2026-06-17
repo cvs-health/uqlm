@@ -23,14 +23,7 @@ class CodeGenUQAdapter:
 
     async def run(self, scorer, *, prompt, response, mode, num_responses, sampled_responses=None, logprobs_results=None, sampled_logprobs_results=None, **kwargs):
         if mode == "score" and response is not None and sampled_responses is not None and logprobs_results is not None and sampled_logprobs_results is not None:
-            result = await scorer.score(
-                prompts=[prompt],
-                responses=[response],
-                sampled_responses=[sampled_responses],
-                logprobs_results=[logprobs_results],
-                sampled_logprobs_results=[sampled_logprobs_results],
-                show_progress_bars=False,
-            )
+            result = await scorer.score(prompts=[prompt], responses=[response], sampled_responses=[sampled_responses], logprobs_results=[logprobs_results], sampled_logprobs_results=[sampled_logprobs_results], show_progress_bars=False)
         else:
             result = await scorer.generate_and_score(prompts=[prompt], num_responses=num_responses, show_progress_bars=False)
         data = result.data

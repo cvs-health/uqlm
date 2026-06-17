@@ -73,17 +73,7 @@ class UQLMNode:
         adapter_kwargs: Extra keyword arguments forwarded to the adapter.
     """
 
-    def __init__(
-        self,
-        scorer,
-        *,
-        output_key: str = "uq",
-        mode: str = "score",
-        prompt: str = "prompt",
-        response: str = "response",
-        num_responses: int = 5,
-        adapter_kwargs: dict | None = None,
-    ):
+    def __init__(self, scorer, *, output_key: str = "uq", mode: str = "score", prompt: str = "prompt", response: str = "response", num_responses: int = 5, adapter_kwargs: dict | None = None):
         if mode not in _VALID_MODES:
             raise ValueError(f"mode must be one of {_VALID_MODES}, got {mode!r}")
         self.scorer = scorer
