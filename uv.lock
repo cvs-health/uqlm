@@ -5824,11 +5824,17 @@ dependencies = [
     { name = "transformers" },
 ]
 
+[package.optional-dependencies]
+langgraph = [
+    { name = "langgraph" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "ipykernel" },
     { name = "langchain-google-vertexai" },
     { name = "langchain-openai" },
+    { name = "nbconvert" },
     { name = "pre-commit" },
     { name = "python-dotenv" },
     { name = "ruff" },
@@ -5861,6 +5867,7 @@ requires-dist = [
     { name = "ipywidgets", specifier = ">=8.1.7,<9.0.0" },
     { name = "langchain", specifier = ">=0.3.7" },
     { name = "langchain-model-profiles", specifier = ">=0.0.3" },
+    { name = "langgraph", marker = "extra == 'langgraph'", specifier = ">=0.2" },
     { name = "matplotlib", specifier = ">=3.10.0,<4.0.0" },
     { name = "numpy", marker = "python_full_version < '3.13'", specifier = ">=1.26.4,<2.0.0" },
     { name = "numpy", marker = "python_full_version >= '3.13'", specifier = ">=2.3.1" },
@@ -5873,12 +5880,14 @@ requires-dist = [
     { name = "sentence-transformers", specifier = ">=3.4,<6.0" },
     { name = "transformers", specifier = ">=4.45.2,<5.0.0" },
 ]
+provides-extras = ["langgraph"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "ipykernel", specifier = ">=6.29.5,<7.0.0" },
     { name = "langchain-google-vertexai", specifier = ">=2.0.8" },
     { name = "langchain-openai", specifier = ">=0.2.6" },
+    { name = "nbconvert", specifier = ">=7.17.1" },
     { name = "pre-commit", specifier = ">=4.1.0,<5.0.0" },
     { name = "python-dotenv", specifier = ">=1.2.0,<2.0.0" },
     { name = "ruff", specifier = "==0.9.7" },

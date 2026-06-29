@@ -19,8 +19,7 @@ from typing import Protocol, runtime_checkable
 class ScorerAdapter(Protocol):
     scorer_type: type
 
-    async def run(self, scorer, *, prompt: str, response: str | None, mode: str, num_responses: int, **kwargs) -> dict:
-        ...
+    async def run(self, scorer, *, prompt: str, response: str | None, mode: str, num_responses: int, **kwargs) -> dict: ...
 
 
 _REGISTRY: list = []
