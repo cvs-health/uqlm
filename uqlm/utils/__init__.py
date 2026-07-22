@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+from uqlm.utils.async_utils import run_sync
 from uqlm.utils.plots import plot_model_accuracies, plot_filtered_accuracy, plot_ranked_auc
 from uqlm.utils.dataloader import load_dataset, load_example_dataset
 from uqlm.utils.postprocessors import math_postprocessor, claims_dicts_to_lists
@@ -27,6 +28,7 @@ from uqlm.utils.device import get_best_device
 from uqlm.utils.prompts import TEMPLATE_TO_INSTRUCTION, TEMPLATE_TO_INSTRUCTION_WITH_EXPLANATIONS, SCORING_CONFIG, COMMON_INSTRUCTIONS, PROMPT_TEMPLATES, create_instruction, get_claim_breakdown_prompt, get_entailment_prompt
 
 __all__ = [
+    "run_sync",
     "plot_model_accuracies",
     "plot_filtered_accuracy",
     "plot_ranked_auc",

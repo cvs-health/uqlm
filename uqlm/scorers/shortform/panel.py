@@ -20,6 +20,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from uqlm.judges.judge import LLMJudge
 from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ
 from uqlm.utils.results import UQResult
+from uqlm.utils.async_utils import run_sync
 
 
 class LLMPanel(ShortFormUQ):
@@ -98,6 +99,31 @@ class LLMPanel(ShortFormUQ):
         responses = await self.generate_original_responses(prompts, progress_bar=self.progress_bar)
         return await self.score(prompts=prompts, responses=responses, show_progress_bars=show_progress_bars)
 
+    def generate_and_score_sync(self, prompts: List[str], show_progress_bars: Optional[bool] = True) -> UQResult:
+        """
+        Blocking, non-async counterpart to `generate_and_score`. Generate LLM responses to provided prompts and
+        use panel of judges to score responses for correctness.
+
+        This method allows `LLMPanel` to be used from purely synchronous code (e.g. a regular script or a
+        Jupyter cell that is not itself `async`) without requiring the caller to manage an event loop. It is
+        equivalent to `asyncio.run(self.generate_and_score(...))`, except it also works when called from a
+        thread that already has a running event loop (e.g. Jupyter/IPython kernels).
+
+        Parameters
+        ----------
+        prompts : list of str
+            A list of input prompts for the model.
+
+        show_progress_bars : bool, default=True
+            If True, displays a progress bar while generating and scoring responses
+
+        Returns
+        -------
+        UQResult
+            UQResult containing prompts, responses, Q/A concatenations, judge responses, and judge scores
+        """
+        return run_sync(self.generate_and_score(prompts=prompts, show_progress_bars=show_progress_bars))
+
     async def score(self, prompts: List[str], responses: Optional[List[str]] = None, show_progress_bars: bool = True, _display_header: bool = True) -> UQResult:
         """
         Use panel to of judges to score provided responses for correctness. Use if responses are already generated. Otherwise,
@@ -146,3 +172,31 @@ class LLMPanel(ShortFormUQ):
         self._stop_progress_bar()
         self.progress_bar = None  # if re-run ensure the same progress object is not used
         return UQResult(result)
+
+    def score_sync(self, prompts: List[str], responses: Optional[List[str]] = None, show_progress_bars: bool = True, _display_header: bool = True) -> UQResult:
+        """
+        Blocking, non-async counterpart to `score`. Use panel of judges to score provided responses for
+        correctness. Use if responses are already generated. Otherwise, use `generate_and_score_sync`.
+
+        This method allows `LLMPanel` to be used from purely synchronous code (e.g. a regular script or a
+        Jupyter cell that is not itself `async`) without requiring the caller to manage an event loop. It is
+        equivalent to `asyncio.run(self.score(...))`, except it also works when called from a thread that
+        already has a running event loop (e.g. Jupyter/IPython kernels).
+
+        Parameters
+        ----------
+        prompts : list of str
+            A list of input prompts for the model.
+
+        responses: list of str, default = None
+            A list of LLM responses for the corresponding to the provided prompts.
+
+        show_progress_bars : bool, default=True
+            If True, displays a progress bar while scoring responses
+
+        Returns
+        -------
+        UQResult
+            UQResult containing prompts, responses, Q/A concatenations, judge responses, and judge scores
+        """
+        return run_sync(self.score(prompts=prompts, responses=responses, show_progress_bars=show_progress_bars, _display_header=_display_header))
