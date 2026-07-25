@@ -82,7 +82,8 @@ class ConsistencyScorer(SimilarityScorer):
             _, response_probabilities = self.clusterer.compute_response_probabilities(logprobs_results=None, num_responses=len(all_responses))
             best_response, _, _, _ = self.clusterer.evaluate(responses=all_responses, response_probabilities=response_probabilities)
 
-            candidates = all_responses.remove(best_response)
+            all_responses.remove(best_response)
+            candidates = all_responses
             self.available_nli_scores = self.clusterer.nli_scores
 
         nli_scores = {}
