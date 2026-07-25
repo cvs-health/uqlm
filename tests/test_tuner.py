@@ -173,3 +173,17 @@ def test_grid_search_weights_progress_k3(mock_progress):
     assert len(result) == 3
     mock_progress.add_task.assert_called_once()
     assert mock_progress.update.call_count > 0
+
+
+def test_obj_multiplier_minimize_keys_in_objective_dict():
+    """The 'minimize' objectives in the multiplier condition must exist in objective_to_func.
+
+    Regression: a typo ("logloss" instead of "log_loss") made the condition never match,
+    so log_loss was incorrectly maximized by Optuna instead of minimized.
+    """
+    tuner = Tuner()
+    minimize_objectives = ["log_loss", "brier_score"]
+    for obj in minimize_objectives:
+        assert obj in tuner.objective_to_func, (
+            f"'{obj}' used in obj_multiplier condition but missing from objective_to_func"
+        )

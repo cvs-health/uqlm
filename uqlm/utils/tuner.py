@@ -135,7 +135,7 @@ class Tuner:
         self.step_size = step_size
         self.fscore_beta = fscore_beta
         self.optimize_jointly = weights_objective == thresh_objective
-        self.obj_multiplier = 1 if weights_objective in ["logloss", "brier_score"] else -1
+        self.obj_multiplier = 1 if weights_objective in ["log_loss", "brier_score"] else -1
         self.progress_bar = progress_bar
 
         self._validate_tuning_inputs()
