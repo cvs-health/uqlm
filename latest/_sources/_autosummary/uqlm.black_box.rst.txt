@@ -28,6 +28,7 @@
    :template: module.rst
    :recursive:
 
+   baseclass
    bert
    consistency
    cosine
