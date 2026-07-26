@@ -1,0 +1,32 @@
+uqlm.black\_box.baseclass.similarity\_scorer.SimilarityScorer
+=============================================================
+
+.. currentmodule:: uqlm.black_box.baseclass.similarity_scorer
+
+.. autoclass:: SimilarityScorer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SimilarityScorer.__init__
+      ~SimilarityScorer.evaluate
+   
+   
+
+   
+   
+   
+
+
+.. rubric:: References
+
+.. footbibliography::
+   

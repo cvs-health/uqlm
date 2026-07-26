@@ -1,0 +1,32 @@
+uqlm.black\_box.baseclass
+=========================
+
+.. automodule:: uqlm.black_box.baseclass
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :template: module.rst
+   :recursive:
+
+   similarity_scorer
+
