@@ -90,15 +90,16 @@ class EntailmentClassifier:
 
             # If ANY failures exist, retry
             if len(score_failures) > 0:
-                # Get all failure indices
-                failure_indices = set(score_failures.index)
+                # Re-query the LLM with the original prompts of the failed pairs
+                failure_indices = list(score_failures.index)
 
-                tasks_tmp = [self._evaluate_claim_response_pair(prompt) for prompt in list(df.loc[list(failure_indices)])]
+                tasks_tmp = [self._evaluate_claim_response_pair(prompt) for prompt in df.loc[failure_indices, "judge_prompts"]]
                 response_tmp = await asyncio.gather(*tasks_tmp)
 
-                retry_data = self._extract_scores(response_tmp["data"]["response"])
+                retry_data = self._extract_scores(response_tmp)
 
-                df.loc[list(failure_indices), "scores"] = retry_data
+                df.loc[failure_indices, "judge_responses"] = response_tmp
+                df.loc[failure_indices, "scores"] = retry_data
 
             # Exit if no more failures
             if len(score_failures) == 0:
@@ -165,7 +166,7 @@ class EntailmentClassifier:
 
         for word, score in STR_SCORE_MAP.items():
             # fallback: substring search
-            if word in response_text:
+            if word in clean_text:
                 return score
 
         return np.nan
@@ -206,7 +207,8 @@ class EntailmentClassifier:
         """
         entailment_matrices = []
         for i, shape in enumerate(shapes):
-            entail_matrix = np.zeros(shape, dtype=int)
+            # float dtype: residual extraction failures are NaN, which an int matrix cannot hold
+            entail_matrix = np.zeros(shape, dtype=float)
             for pred, (idx, j, k) in zip(flat_predictions, indices):
                 if idx == i:
                     entail_matrix[j, k] = pred

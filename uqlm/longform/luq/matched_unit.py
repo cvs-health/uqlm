@@ -52,7 +52,7 @@ class MatchedUnitScorer(ClaimScorer):
         self.consistency_functions = consistency_functions
         self.matched_claim = True
         if not set(consistency_functions).issubset(set(ALL_AGREEMENT_SCORER_NAMES)):
-            raise ValueError("""consistency_functions must be subset of ["nli", "bertscore", "cosine_sim"]""")
+            raise ValueError("""consistency_functions must be subset of ["nli", "bert_score", "cosine_sim"]""")
         self.nli = NLI(device=device, nli_model_name=nli_model_name, max_length=max_length) if "nli" in consistency_functions else None
         self.cosine_scorer = CosineScorer(transformer=transformer) if "cosine_sim" in consistency_functions else None
         self.bert_scorer = BertScorer(device=device) if "bert_score" in consistency_functions else None
@@ -123,7 +123,7 @@ class MatchedUnitScorer(ClaimScorer):
     def _compute_response_level_bert_score_lists(self, claim_sets: List[List[str]], sampled_claim_sets: List[List[List[str]]]) -> List[List[float]]:
         """Compute list of claim-level scores for each response"""
         if self.progress_bar:
-            progress_task = self.progress_bar.add_task("  - Scoring claims/sentences with cosine similarity...", total=len(claim_sets))
+            progress_task = self.progress_bar.add_task("  - Scoring claims/sentences with BERTScore...", total=len(claim_sets))
         n = len(claim_sets)
         bert_score_lists = [[]] * n
         for i, claim_set in enumerate(claim_sets):
@@ -143,7 +143,7 @@ class MatchedUnitScorer(ClaimScorer):
         return bert_scores
 
     def _compute_matched_bert_scores(self, claim: str, candidate_claims: List[str]) -> float:
-        """Compute maximum matched-unit cosine similarity score"""
+        """Compute maximum matched-unit BERTScore"""
         max_bert_score = 0
         for candidate in candidate_claims:
             bert_score = self.bert_scorer._compute_score(claim, [candidate])

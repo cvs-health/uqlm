@@ -133,14 +133,11 @@ class TestLongFormUQ:
             # Check that uad_scorer was set to the first scorer
             assert uq.uad_scorer == "entailment"
 
-    def test_initialization_invalid_claim_filtering_scorer(self, mock_llm, capfd):
+    def test_initialization_invalid_claim_filtering_scorer(self, mock_llm):
         """Test initialization with response_refinement=True and invalid claim_filtering_scorer."""
         with patch("uqlm.scorers.longform.baseclass.uncertainty.ResponseDecomposer"), patch("uqlm.scorers.longform.baseclass.uncertainty.UncertaintyAwareDecoder"):
-            uq = LongFormUQ(llm=mock_llm, scorers=["entailment", "noncontradiction"], response_refinement=True, claim_filtering_scorer="invalid_scorer")
-
-            # Check that a warning was printed
-            out, _ = capfd.readouterr()
-            assert "claim_filtering_scorer is contained in list of scorers" in out
+            with pytest.warns(UserWarning, match="claim_filtering_scorer 'invalid_scorer' is not contained in list of scorers"):
+                uq = LongFormUQ(llm=mock_llm, scorers=["entailment", "noncontradiction"], response_refinement=True, claim_filtering_scorer="invalid_scorer")
 
             # Check that uad_scorer was set to the first scorer
             assert uq.uad_scorer == "entailment"

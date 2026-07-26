@@ -1,4 +1,5 @@
 import asyncio
+import re
 import pandas as pd
 from typing import Any, List, Tuple, Optional
 import numpy as np
@@ -270,7 +271,7 @@ class CodeClusterer:
         return f"Code A:\n{code_a}\n\nCode B:\n{code_b}\n"
 
     @staticmethod
-    def normalize_verdict(text: str) -> int:
+    def normalize_verdict(text: str) -> float:
         """
         Normalize the verdict for the equivalence score.
 
@@ -281,15 +282,16 @@ class CodeClusterer:
 
         Returns
         -------
-        int
-            The normalized verdict for the equivalence score.
+        float
+            The normalized verdict for the equivalence score: 1.0 if equivalent,
+            0.0 if not equivalent, np.nan if the verdict cannot be parsed.
         """
         if not isinstance(text, str):
             return np.nan
         t = text.strip().lower().replace("-", " ")
-        if "not equivalent" in t:
+        if any(neg in t for neg in ("not equivalent", "non equivalent", "inequivalent")):
             return 0.0
-        elif "equivalent" in t:
+        if re.search(r"\bequivalent\b", t):
             return 1.0
         if any(phrase in t for phrase in ["are the same", "behave the same", "identical", "same output"]):
             return 1.0

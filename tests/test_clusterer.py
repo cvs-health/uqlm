@@ -32,7 +32,21 @@ def test_build_user_prompt():
     assert "x=2" in prompt
 
 
-@pytest.mark.parametrize("text,expected", [("Equivalent", 1.0), ("NOT EQUIVALENT", 0.0), ("These behave the same", 1.0), ("they behave differently", 0.0), ("random unrelated text", np.nan), (123, np.nan)])
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("Equivalent", 1.0),
+        ("The two snippets are equivalent.", 1.0),
+        ("NOT EQUIVALENT", 0.0),
+        ("non-equivalent", 0.0),
+        ("Non-Equivalent.", 0.0),
+        ("inequivalent", 0.0),
+        ("These behave the same", 1.0),
+        ("they behave differently", 0.0),
+        ("random unrelated text", np.nan),
+        (123, np.nan),
+    ],
+)
 def test_normalize_verdict(text, expected):
     out = CodeClusterer.normalize_verdict(text)
     if np.isnan(expected):

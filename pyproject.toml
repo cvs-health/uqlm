@@ -1,6 +1,6 @@
 [project]
 name = "uqlm"
-version = "0.6.3"
+version = "0.6.4"
 description = "UQLM (Uncertainty Quantification for Language Models) is a Python package for UQ-based LLM hallucination detection."
 readme = "assets/README_PYPI.md"
 license = "Apache-2.0"
@@ -90,10 +90,13 @@ packages = ["uqlm"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-reruns = 3
-reruns_delay = 2.0
 markers = [
-    "asyncio"
+    "asyncio",
+    "integration: tests exercising subprocesses or external services; retried on failure in CI"
+]
+filterwarnings = [
+    "error:coroutine .* was never awaited:RuntimeWarning",
+    "error::pytest.PytestUnraisableExceptionWarning"
 ]
 
 [tool.ruff]
