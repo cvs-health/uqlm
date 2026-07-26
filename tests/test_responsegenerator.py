@@ -330,7 +330,12 @@ async def test_ainvoke_with_top_logprobs_else_branch():
 
 @pytest.mark.asyncio
 async def test_ainvoke_with_top_logprobs_exception_handling():
-    """Test ainvoke_with_top_logprobs exception handling."""
+    """Test that ainvoke_with_top_logprobs raises the provider error when all attempts fail.
+
+    Regression guard for issue #416: the previous behavior swallowed the exception and
+    returned an empty (shorter-than-count) response list, which silently misaligned all
+    subsequent prompt/response pairs in the batch.
+    """
     mock_llm = MagicMock()
     generator = ResponseGenerator(llm=mock_llm, top_k_logprobs=5)
 
@@ -338,10 +343,146 @@ async def test_ainvoke_with_top_logprobs_exception_handling():
     mock_llm.ainvoke = AsyncMock(side_effect=Exception("Mocked exception"))
 
     messages = [HumanMessage(content="Hello")]
-    result = await generator.ainvoke_with_top_logprobs(messages=messages, count=1)
+    with pytest.raises(Exception, match="Mocked exception"):
+        await generator.ainvoke_with_top_logprobs(messages=messages, count=1)
 
-    # Assert that the result structure is still returned even after exceptions
-    assert "logprobs" in result
-    assert "responses" in result
-    assert result["logprobs"] == [None]
-    assert result["responses"] == []
+
+# ---------------------------------------------------------------------------
+# Regression tests for issue #416
+# ---------------------------------------------------------------------------
+
+
+def create_flaky_llm(failing_substring="Prompt 2", error=None):
+    """Mock BaseChatModel whose ainvoke always fails for prompts containing `failing_substring`."""
+    mock_llm = MagicMock(spec=BaseChatModel)
+    mock_llm.__str__ = lambda self: "other-provider"
+    mock_llm.temperature = 1
+
+    class FakeResult:
+        def __init__(self, content):
+            self.content = content
+            self.response_metadata = {"logprobs": {"content": [{"token": "x", "logprob": -0.1}]}}
+
+    async def flaky_ainvoke(messages, **kwargs):
+        text = messages[-1].content
+        if failing_substring in text:
+            raise error or RuntimeError("429 rate limited")
+        return FakeResult(f"Answer to: {text}")
+
+    mock_llm.ainvoke = flaky_ainvoke
+    return mock_llm
+
+
+@pytest.mark.asyncio
+async def test_all_logprob_attempts_fail_keeps_alignment():
+    """Regression test for issue #416: a prompt whose generation fails after all retries
+    must yield a correctly-sized placeholder instead of silently shortening the batch."""
+    generator = ResponseGenerator(llm=create_flaky_llm(), top_k_logprobs=15, max_retries=1)
+    generator._retry_base_delay = 0.001
+    prompts = ["Prompt 1", "Prompt 2", "Prompt 3"]
+    with pytest.warns(UserWarning, match="alignment is preserved"):
+        results = await generator.generate_responses(prompts=prompts, count=1)
+    data = results["data"]
+    assert len(data["response"]) == len(prompts)
+    assert data["response"][0] == "Answer to: Prompt 1"
+    assert data["response"][1] == "Unable to get response"
+    assert data["response"][2] == "Answer to: Prompt 3"
+
+
+@pytest.mark.asyncio
+async def test_failed_generation_reported_in_metadata():
+    """Failures exhausted of retries must appear in metadata['failures'] with index/prompt/error."""
+    generator = ResponseGenerator(llm=create_flaky_llm(), top_k_logprobs=15, max_retries=0)
+    with pytest.warns(UserWarning):
+        results = await generator.generate_responses(prompts=["Prompt 1", "Prompt 2"], count=1)
+    failures = results["metadata"]["failures"]
+    assert len(failures) == 1
+    assert failures[0]["prompt_index"] == 1
+    assert failures[0]["prompt"] == "Prompt 2"
+    assert "429 rate limited" in failures[0]["error"]
+
+
+@pytest.mark.asyncio
+async def test_retry_succeeds_after_transient_failure():
+    """A transiently failing call must be retried and succeed without placeholders."""
+    mock_llm = MagicMock(spec=BaseChatModel)
+    mock_llm.temperature = 1
+    attempts = {"n": 0}
+
+    async def transient_ainvoke(messages, **kwargs):
+        attempts["n"] += 1
+        if attempts["n"] == 1:
+            raise RuntimeError("transient 500")
+        return MagicMock(content="Recovered", response_metadata={})
+
+    mock_llm.ainvoke = transient_ainvoke
+    generator = ResponseGenerator(llm=mock_llm, max_retries=2)
+    generator._retry_base_delay = 0.001
+    results = await generator.generate_responses(prompts=["Prompt 1"], count=1)
+    assert results["data"]["response"] == ["Recovered"]
+    assert results["metadata"]["failures"] == []
+    assert attempts["n"] == 2
+
+
+@pytest.mark.asyncio
+async def test_concurrency_bounded_by_semaphore():
+    """No more than max_concurrency requests may be in flight simultaneously."""
+    mock_llm = MagicMock(spec=BaseChatModel)
+    mock_llm.temperature = 1
+    in_flight = {"now": 0, "peak": 0}
+
+    async def tracking_ainvoke(messages, **kwargs):
+        in_flight["now"] += 1
+        in_flight["peak"] = max(in_flight["peak"], in_flight["now"])
+        await asyncio.sleep(0.01)
+        in_flight["now"] -= 1
+        return MagicMock(content="ok", response_metadata={})
+
+    mock_llm.ainvoke = tracking_ainvoke
+    generator = ResponseGenerator(llm=mock_llm, max_concurrency=2)
+    prompts = [f"Prompt {i}" for i in range(8)]
+    await generator.generate_responses(prompts=prompts, count=1)
+    assert in_flight["peak"] <= 2
+
+
+@pytest.mark.asyncio
+async def test_no_blocking_sleep_in_async_paths(monkeypatch):
+    """time.sleep must not be called inside the async generation paths (issue #416)."""
+    import uqlm.utils.response_generator as rg_module
+
+    def fail_on_blocking_sleep(*args, **kwargs):
+        raise AssertionError("blocking time.sleep called inside async generation path")
+
+    monkeypatch.setattr(rg_module.time, "sleep", fail_on_blocking_sleep)
+    mock_async_api_call = create_mock_async_api_call()
+    generator = ResponseGenerator(llm=create_mock_llm(), max_calls_per_min=1000)
+    monkeypatch.setattr(generator, "_async_api_call", mock_async_api_call)
+    result = await generator.generate_responses(prompts=MOCKED_PROMPTS, count=1)
+    assert len(result["data"]["response"]) == len(MOCKED_PROMPTS)
+
+
+def test_empty_prompts_raises_value_error():
+    """An empty prompt list must raise a clear ValueError instead of a confusing range() error."""
+    generator = ResponseGenerator(llm=create_mock_llm())
+    with pytest.raises(ValueError, match="non-empty"):
+        asyncio.run(generator.generate_responses(prompts=[], count=1))
+
+
+def test_mixed_message_list_raises_value_error():
+    """A message list containing a non-BaseMessage item must raise ValueError, not UnboundLocalError."""
+    generator = ResponseGenerator(llm=create_mock_llm())
+    with pytest.raises(ValueError, match="BaseMessage"):
+        asyncio.run(generator.generate_responses(prompts=[[HumanMessage(content="hi"), "not a message"]], count=1))
+
+
+@pytest.mark.asyncio
+async def test_temperature_missing_attribute_ok(monkeypatch):
+    """Custom models without a `temperature` attribute must not crash generate_responses."""
+    mock_llm = MagicMock(spec=BaseChatModel)
+    # spec=BaseChatModel does not define `temperature`; ensure attribute access is guarded
+    del mock_llm.temperature
+    mock_llm.ainvoke = AsyncMock(return_value=MagicMock(content="ok", response_metadata={}))
+    generator = ResponseGenerator(llm=mock_llm)
+    result = await generator.generate_responses(prompts=["Prompt 1"], count=1)
+    assert result["data"]["response"] == ["ok"]
+    assert result["metadata"]["temperature"] is None

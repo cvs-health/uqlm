@@ -14,6 +14,7 @@
 
 import asyncio
 import itertools
+import random
 import time
 import warnings
 from typing import Any, Dict, Iterator, List, Optional, Tuple, Union
@@ -24,6 +25,8 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from uqlm.utils.warn import beta_warning, deprecation_warning
 
+
+FAILED_RESPONSE = "Unable to get response"
 
 generator_type_to_progress_msg = {
     "judge": "Scoring responses with LLM-as-a-Judge",
@@ -37,7 +40,7 @@ generator_type_to_progress_msg = {
 
 
 class ResponseGenerator:
-    def __init__(self, llm: BaseChatModel = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, top_k_logprobs: Optional[int] = None, structured_response: Optional[Any] = None, output_extractor: Optional[Any] = None) -> None:
+    def __init__(self, llm: BaseChatModel = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, top_k_logprobs: Optional[int] = None, structured_response: Optional[Any] = None, output_extractor: Optional[Any] = None, max_concurrency: Optional[int] = 16, max_retries: int = 3) -> None:
         """
         Class for generating data from a provided set of prompts
 
@@ -59,6 +62,14 @@ class ResponseGenerator:
 
         output_extractor : callable, default=None
             A user-defined function that is called on the output of an llm with structured output to extract the response. Only used if `structured_response` is not None.
+
+        max_concurrency : int, default=16
+            Maximum number of generation requests that may be in flight simultaneously. Set to None
+            to fire all requests at once (not recommended for large prompt sets).
+
+        max_retries : int, default=3
+            Number of times a failed generation request is retried with exponential backoff before
+            a placeholder response is recorded for that prompt. Set to 0 to disable retries.
         """
         self.llm = llm
         self.use_n_param = use_n_param
@@ -70,6 +81,11 @@ class ResponseGenerator:
         self.top_k_logprobs = top_k_logprobs
         self.structured_response = structured_response
         self.output_extractor = output_extractor
+        self.max_concurrency = max_concurrency
+        self.max_retries = max_retries
+        self._retry_base_delay = 1.0
+        self._semaphore = None
+        self._failures: List[Dict[str, Any]] = []
 
         self._validate_structured_output_parameters()
 
@@ -118,23 +134,45 @@ class ResponseGenerator:
                     The count of prompts used in the generation process.
                 'system_prompt' : str
                     The system prompt used for generating responses
+                'failures' : list
+                    A list of dictionaries describing prompts whose generation failed after all
+                    retries. Each entry contains 'prompt_index', 'prompt', and 'error'. Failed
+                    prompts receive a placeholder response so that prompt/response alignment is
+                    always preserved.
         """
         assert isinstance(self.llm, BaseChatModel), """
             llm must be an instance of langchain_core.language_models.chat_models.BaseChatModel
         """
+        if not prompts:
+            raise ValueError("prompts must be a non-empty list")
+        self._validate_prompts(prompts)
         if any(isinstance(prompt, list) and all(isinstance(item, BaseMessage) for item in prompt) for prompt in prompts):
             beta_warning("Use of BaseMessage in prompts argument is in beta. Please use it with caution as it may change in future releases.")
 
-        if self.llm.temperature == 0:
+        temperature = getattr(self.llm, "temperature", None)
+        if temperature == 0:
             assert count == 1, "temperature must be greater than 0 if count > 1"
         self._update_count(count)
         self.system_message = None if not system_prompt else SystemMessage(system_prompt)
+        self._semaphore = asyncio.Semaphore(self.max_concurrency) if self.max_concurrency else None
+        self._failures = []
 
         generations, duplicated_prompts = await self._generate_in_batches(prompts=prompts, progress_bar=progress_bar)
 
         responses = generations["responses"]
         logprobs = generations["logprobs"]
-        return {"data": {"prompt": self._enforce_strings(duplicated_prompts), "response": self._enforce_strings(responses)}, "metadata": {"system_prompt": system_prompt, "temperature": self.llm.temperature, "count": self.count, "logprobs": logprobs}}
+        expected = len(prompts) * self.count
+        if len(responses) != expected:
+            raise RuntimeError(f"Response alignment invariant violated: expected {expected} responses ({len(prompts)} prompts x count={self.count}), got {len(responses)}. Please report this at https://github.com/cvs-health/uqlm/issues")
+        return {"data": {"prompt": self._enforce_strings(duplicated_prompts), "response": self._enforce_strings(responses)}, "metadata": {"system_prompt": system_prompt, "temperature": temperature, "count": self.count, "logprobs": logprobs, "failures": list(self._failures)}}
+
+    @staticmethod
+    def _validate_prompts(prompts: List[Union[str, List[BaseMessage]]]) -> None:
+        """Raise a clear ValueError if any prompt is neither a string nor a list of BaseMessage."""
+        for prompt in prompts:
+            valid = isinstance(prompt, str) or (isinstance(prompt, list) and len(prompt) > 0 and all(isinstance(item, BaseMessage) for item in prompt))
+            if not valid:
+                raise ValueError("prompts must be list of strings or list of lists of BaseMessage instances. For support with LangChain BaseMessage usage, refer here: https://python.langchain.com/docs/concepts/messages")
 
     def _validate_structured_output_parameters(self) -> None:
         if self.structured_response and not self.output_extractor:
@@ -142,14 +180,41 @@ class ResponseGenerator:
         if self.output_extractor and not self.structured_response:
             raise ValueError("If `output_extractor` is specified, `structured_response` must also be specified.")
 
-    def _create_tasks(self, prompts: List[Union[str, List[BaseMessage]]]) -> Tuple[List[Any], List[str]]:
+    def _create_tasks(self, prompts: List[Union[str, List[BaseMessage]]], start_index: int = 0) -> Tuple[List[Any], List[str]]:
         """
         Creates a list of async tasks and returns duplicated prompt list
         with each prompt duplicated `count` times
         """
         duplicated_prompts = [prompt for prompt, i in itertools.product(prompts, range(self.count))]
-        tasks = [self._async_api_call(prompt=prompt, count=1) for prompt in duplicated_prompts]
+        tasks = [self._call_with_retry(prompt=prompt, count=1, task_index=start_index + i) for i, prompt in enumerate(duplicated_prompts)]
         return tasks, duplicated_prompts
+
+    async def _call_with_retry(self, prompt: Union[str, List[BaseMessage]], count: int = 1, task_index: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Wraps `_async_api_call` with bounded concurrency and exponential-backoff retries.
+
+        If every attempt fails, a correctly-sized placeholder result is returned and the
+        failure is recorded in `self._failures`, so the batch is never silently shortened
+        and prompt/response alignment is preserved.
+        """
+        last_error = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                if self._semaphore:
+                    async with self._semaphore:
+                        return await self._async_api_call(prompt=prompt, count=count)
+                return await self._async_api_call(prompt=prompt, count=count)
+            except Exception as e:  # noqa: BLE001 - provider errors are arbitrary
+                last_error = e
+                if attempt < self.max_retries:
+                    delay = self._retry_base_delay * (2**attempt) * random.uniform(0.5, 1.0)
+                    await asyncio.sleep(delay)
+        warnings.warn(f"Generation failed after {self.max_retries + 1} attempts for prompt index {task_index} ({type(last_error).__name__}: {last_error}). A placeholder response is used so prompt/response alignment is preserved; see metadata['failures'].")
+        self._failures.append({"prompt_index": task_index, "prompt": str(prompt), "error": f"{type(last_error).__name__}: {last_error}"})
+        if self.progress_bar:
+            for _ in range(count):
+                self.progress_bar.update(self.progress_task, advance=1)
+        return {"logprobs": [None] * count, "responses": [FAILED_RESPONSE] * count}
 
     def _update_count(self, count: int) -> None:
         """Updates self.count parameter and self.llm as necessary"""
@@ -178,19 +243,24 @@ class ResponseGenerator:
             if batch_idx == len(prompts_partition) - 1:
                 check_batch_time = False
             await self._process_batch(prompt_batch, duplicated_prompts, generations, check_batch_time)
-        time.sleep(0.1)
+        if self.progress_bar:
+            await asyncio.sleep(0.1)  # cosmetic pause so the progress bar finishes rendering
         return generations, duplicated_prompts
 
     async def _process_batch(self, prompt_batch: List[Union[str, List[BaseMessage]]], duplicated_prompts: List[str], generations: Dict[str, List[Any]], check_batch_time: bool) -> None:
         """Process a single batch of prompts"""
         start = time.time()
         # generate responses for current batch
-        tasks, duplicated_batch_prompts = self._create_tasks(prompt_batch)
+        tasks, duplicated_batch_prompts = self._create_tasks(prompt_batch, start_index=len(duplicated_prompts))
         generations_batch = await asyncio.gather(*tasks)
         responses_batch, logprobs_batch = [], []
         for g in generations_batch:
             responses_batch.extend(g["responses"])
             logprobs_batch.extend(g["logprobs"])
+
+        # invariant: a failed generation must never silently shorten the batch
+        if len(responses_batch) != len(duplicated_batch_prompts):
+            raise RuntimeError(f"Response alignment invariant violated in batch: expected {len(duplicated_batch_prompts)} responses, got {len(responses_batch)}. Please report this at https://github.com/cvs-health/uqlm/issues")
 
         # extend lists to include current batch
         duplicated_prompts.extend(duplicated_batch_prompts)
@@ -198,18 +268,17 @@ class ResponseGenerator:
         generations["logprobs"].extend(logprobs_batch)
         stop = time.time()
 
-        # pause if needed
+        # pause if needed (non-blocking so other event-loop work can proceed)
         if (stop - start < 60) and check_batch_time:
-            time.sleep(61 - stop + start)
+            await asyncio.sleep(61 - stop + start)
 
     async def _async_api_call(self, prompt: Union[str, List[BaseMessage]], count: int = 1) -> Dict[str, Any]:
         """Generates responses asynchronously using an RunnableSequence object"""
         if isinstance(prompt, str):
             system_message = SystemMessage("You are a helpful assistant.") if not self.system_message else self.system_message
             messages = [system_message, HumanMessage(prompt)]
-        elif isinstance(prompt, list):
-            if all(isinstance(item, BaseMessage) for item in prompt):
-                messages = prompt if not self.system_message else [self.system_message] + prompt
+        elif isinstance(prompt, list) and all(isinstance(item, BaseMessage) for item in prompt):
+            messages = prompt if not self.system_message else [self.system_message] + prompt
         else:
             raise ValueError("prompts must be list of strings or list of lists of BaseMessage instances. For support with LangChain BaseMessage usage, refer here: https://python.langchain.com/docs/concepts/messages")
 
@@ -234,7 +303,12 @@ class ResponseGenerator:
         return result_dict
 
     async def ainvoke_with_top_logprobs(self, messages: List[BaseMessage], count: int) -> Any:
-        """Use ainvoke method with top_logprobs configured"""
+        """Use ainvoke method with top_logprobs configured
+
+        Raises the underlying provider error if every attempt to fetch logprobs fails, so that
+        callers (e.g. the retry wrapper) can react instead of silently receiving a shortened
+        response list that would misalign prompts and responses (issue #416).
+        """
         logprobs = [None] * count
         result = None
         if "openai" in self.llm.__str__().lower():
@@ -246,13 +320,8 @@ class ResponseGenerator:
             try:
                 result = await self.llm.ainvoke(messages, logprobs=True, top_logprobs=self.top_k_logprobs)
             except Exception:
-                try:
-                    self.llm.logprobs = self.top_k_logprobs
-                    result = await self.llm.ainvoke(messages)
-                except Exception:
-                    pass
-        if result is None:  # if all attempts fail
-            return {"logprobs": [None] * count, "responses": []}
+                self.llm.logprobs = self.top_k_logprobs
+                result = await self.llm.ainvoke(messages)
         logprobs = self._extract_logprobs(logprobs=logprobs, result=result, count=count)
         return {"logprobs": logprobs, "responses": [result.content]}
 
