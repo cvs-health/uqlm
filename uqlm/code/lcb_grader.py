@@ -36,6 +36,38 @@ from decimal import Decimal
 import time
 
 
+# Default resource limits applied to the evaluation process before candidate
+# code runs. Enforced via POSIX rlimits; on platforms without the `resource`
+# module (e.g. Windows) they are not applied, and macOS does not enforce
+# memory (address-space) rlimits. The hard wall-clock timeout in
+# code_evaluation.evaluate_row_unified applies on all platforms.
+DEFAULT_MEMORY_LIMIT_BYTES = 4 * 1024**3  # 4 GiB
+DEFAULT_CPU_TIME_LIMIT_SECONDS = 10
+DEFAULT_MAX_FILE_SIZE_BYTES = 1024**2  # 1 MiB
+DEFAULT_MAX_OPEN_FILES = 64
+
+
+def apply_resource_limits(cpu_time_limit_seconds: int = DEFAULT_CPU_TIME_LIMIT_SECONDS, max_file_size_bytes: int = DEFAULT_MAX_FILE_SIZE_BYTES, max_open_files: int = DEFAULT_MAX_OPEN_FILES) -> None:
+    """
+    Apply process-wide POSIX rlimits (CPU time, file size, open files) before
+    candidate code executes. Memory limits are applied separately via
+    reliability_guard(maximum_memory_bytes=...).
+
+    No-op on platforms without the `resource` module (e.g. Windows); each
+    limit is best-effort, so an rlimit the OS refuses to set does not abort
+    evaluation.
+    """
+    try:
+        import resource
+    except ImportError:
+        return
+    for rlimit, value in [(resource.RLIMIT_CPU, cpu_time_limit_seconds), (resource.RLIMIT_FSIZE, max_file_size_bytes), (resource.RLIMIT_NOFILE, max_open_files)]:
+        try:
+            resource.setrlimit(rlimit, (value, value))
+        except (ValueError, OSError):
+            pass
+
+
 # A large prelude of imports the evaluator prepends before executing candidate code.
 # This prevents "missing import" errors for common stdlib modules and sets recursionlimit.
 import_string = (
@@ -112,8 +144,15 @@ def main():
 
     sample, code, timeout = _build_sample_from_payload(data)
 
+    # Apply resource limits before any candidate code executes (POSIX only;
+    # no-op on Windows). Values are configurable via the payload.
+    memory_limit_bytes = int(data.get("memory_limit_bytes") or DEFAULT_MEMORY_LIMIT_BYTES)
+    cpu_time_limit_seconds = int(data.get("cpu_time_limit_seconds") or DEFAULT_CPU_TIME_LIMIT_SECONDS)
+    max_file_size_bytes = int(data.get("max_file_size_bytes") or DEFAULT_MAX_FILE_SIZE_BYTES)
+    apply_resource_limits(cpu_time_limit_seconds=cpu_time_limit_seconds, max_file_size_bytes=max_file_size_bytes)
+
     try:
-        results, meta = run_test(sample=sample, test=code, debug=False, timeout=timeout)
+        results, meta = run_test(sample=sample, test=code, debug=False, timeout=timeout, maximum_memory_bytes=memory_limit_bytes)
     except Exception as e:
         out = {"unit_test_passed": 0, "results": [], "meta": {"error_code": -4, "error_message": f"run_test exception: {e}"}, "stderr": f"run_test exception: {e}", "stdout": ""}
         print(json.dumps(out))
@@ -494,16 +533,19 @@ def grade_stdio(code: str, all_inputs: list, all_outputs: list, timeout: int):
     return all_results, {"execution time": total_execution_time}
 
 
-def run_test(sample, test=None, debug=False, timeout=6):
+def run_test(sample, test=None, debug=False, timeout=6, maximum_memory_bytes=DEFAULT_MEMORY_LIMIT_BYTES):
     """
     Orchestrator that decides whether to run call-based or stdio testing
     based on the presence of 'fn_name' inside sample["input_output"] JSON.
+
+    maximum_memory_bytes bounds the memory available to candidate code via
+    POSIX rlimits (not applied on platforms without the `resource` module).
     """
     # Set up SIGALRM timeout handler
     signal.signal(signal.SIGALRM, timeout_handler)
 
     # Disable destructive functions in this (sub)process
-    reliability_guard()
+    reliability_guard(maximum_memory_bytes=maximum_memory_bytes)
 
     if debug:
         print(f"start = {datetime.now().time()}", file=sys.stderr)
@@ -565,12 +607,19 @@ def reliability_guard(maximum_memory_bytes=None):
     """
 
     if maximum_memory_bytes is not None:
-        import resource
-
-        resource.setrlimit(resource.RLIMIT_AS, (maximum_memory_bytes, maximum_memory_bytes))
-        resource.setrlimit(resource.RLIMIT_DATA, (maximum_memory_bytes, maximum_memory_bytes))
-        if platform.uname().system != "Darwin":
-            resource.setrlimit(resource.RLIMIT_STACK, (maximum_memory_bytes, maximum_memory_bytes))
+        try:
+            import resource
+        except ImportError:
+            resource = None  # platform without POSIX rlimits (e.g. Windows)
+        if resource is not None:
+            limits = [resource.RLIMIT_AS, resource.RLIMIT_DATA]
+            if platform.uname().system != "Darwin":
+                limits.append(resource.RLIMIT_STACK)
+            for rlimit in limits:
+                try:
+                    resource.setrlimit(rlimit, (maximum_memory_bytes, maximum_memory_bytes))
+                except (ValueError, OSError):
+                    pass
 
     faulthandler.disable()
 
