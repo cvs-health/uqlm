@@ -182,14 +182,22 @@ class LongFormUQ(UncertaintyQuantifier):
 
     def _display_decomposition_header(self, show_progress_bars: bool) -> None:
         """Displays decomposition header"""
-        if show_progress_bars:
-            self.progress_bar.start()
-            self.progress_bar.add_task("")
-            self.progress_bar.add_task("✂️ Decomposition")
+        if show_progress_bars and self.progress_bar:
+            try:
+                self.progress_bar.start()
+                self.progress_bar.add_task("")
+                self.progress_bar.add_task("✂️ Decomposition")
+            except (AttributeError, RuntimeError, OSError):
+                # If progress bar fails, just continue without it
+                pass
 
     def _display_reconstruction_header(self, show_progress_bars: bool) -> None:
         """Displays decomposition header"""
-        if show_progress_bars:
-            self.progress_bar.start()
-            self.progress_bar.add_task("")
-            self.progress_bar.add_task("✅️ Refinement")
+        if show_progress_bars and self.progress_bar:
+            try:
+                self.progress_bar.start()
+                self.progress_bar.add_task("")
+                self.progress_bar.add_task("✅️ Refinement")
+            except (AttributeError, RuntimeError, OSError):
+                # If progress bar fails, just continue without it
+                pass

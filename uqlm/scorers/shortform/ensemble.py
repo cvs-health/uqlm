@@ -174,34 +174,38 @@ class UQEnsemble(ShortFormUQ):
             assert hasattr(self.llm, "logprobs"), """
             In order to use white-box components, BaseChatModel must have logprobs attribute
             """
-            self.llm.logprobs = True
 
         if self.judges:
             if not all(isinstance(item, str) for item in prompts):
                 raise ValueError("prompts must be list of strings when using LLM judges with UQEnsemble")
-        self._construct_progress_bar(show_progress_bars, _existing_progress_bar=_existing_progress_bar)
-        self._display_generation_header(show_progress_bars)
 
-        # Determine if we need top_k_logprobs for top-logprobs scorers
-        top_k_logprobs = None
-        if self.white_box_components:
-            if any(scorer in TOP_LOGPROBS_SCORER_NAMES for scorer in self.white_box_components):
-                top_k_logprobs = 15
+        with self._preserve_llm_logprobs():
+            if self.white_box_components:
+                self.llm.logprobs = True
 
-        responses = await self.generate_original_responses(prompts, top_k_logprobs=top_k_logprobs, progress_bar=self.progress_bar)
+            self._construct_progress_bar(show_progress_bars, _existing_progress_bar=_existing_progress_bar)
+            self._display_generation_header(show_progress_bars)
 
-        # Generate sampled responses if needed by black-box or sampled-logprobs white-box scorers
-        needs_sampled_responses = self.black_box_components or (self.white_box_components and any(scorer in SAMPLED_LOGPROBS_SCORER_NAMES for scorer in self.white_box_components))
-        if needs_sampled_responses:
-            sampled_responses = await self.generate_candidate_responses(prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
-        else:
-            sampled_responses = None
-            self.multiple_logprobs = [[None] * self.num_responses for _ in prompts]
+            # Determine if we need top_k_logprobs for top-logprobs scorers
+            top_k_logprobs = None
+            if self.white_box_components:
+                if any(scorer in TOP_LOGPROBS_SCORER_NAMES for scorer in self.white_box_components):
+                    top_k_logprobs = 15
 
-        result = await self.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=self.logprobs, sampled_logprobs_results=self.multiple_logprobs, show_progress_bars=show_progress_bars, _existing_progress_bar=_existing_progress_bar)
+            responses = await self.generate_original_responses(prompts, top_k_logprobs=top_k_logprobs, progress_bar=self.progress_bar)
 
-        self._stop_progress_bar(_existing_progress_bar)  # if re-run ensure the same progress object is not used
-        return result
+            # Generate sampled responses if needed by black-box or sampled-logprobs white-box scorers
+            needs_sampled_responses = self.black_box_components or (self.white_box_components and any(scorer in SAMPLED_LOGPROBS_SCORER_NAMES for scorer in self.white_box_components))
+            if needs_sampled_responses:
+                sampled_responses = await self.generate_candidate_responses(prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
+            else:
+                sampled_responses = None
+                self.multiple_logprobs = [[None] * self.num_responses for _ in prompts]
+
+            result = await self.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=self.logprobs, sampled_logprobs_results=self.multiple_logprobs, show_progress_bars=show_progress_bars, _existing_progress_bar=_existing_progress_bar)
+
+            self._stop_progress_bar(_existing_progress_bar)  # if re-run ensure the same progress object is not used
+            return result
 
     async def score(
         self, prompts: List[str], responses: List[str], sampled_responses: Optional[List[List[str]]] = None, logprobs_results: Optional[List[List[Dict[str, Any]]]] = None, sampled_logprobs_results: Optional[List[List[List[Dict[str, Any]]]]] = None, num_responses: int = 5, show_progress_bars: Optional[bool] = True, _existing_progress_bar: Optional[rich.progress.Progress] = None

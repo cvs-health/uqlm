@@ -98,15 +98,15 @@ class CodeGenUQ(ShortFormUQ):
         self._validate_scorers()
 
     async def generate_and_score(self, prompts: List[str], num_responses: Optional[int] = 5, show_progress_bars: Optional[bool] = True) -> UQResult:
-        # self._construct_progress_bar(True)
-        self._construct_progress_bar(show_progress_bars)
-        self._display_generation_header(show_progress_bars, generation_type=self.generation_type)
-        if self.wbuq_scorers:
-            self.llm.logprobs = True
-        self.responses = await self.generate_original_responses(prompts, top_k_logprobs=self.top_k_logprobs, progress_bar=self.progress_bar)
-        self.sampled_responses = await self.generate_candidate_responses(prompts=prompts, num_responses=num_responses, progress_bar=self.progress_bar)
-        results = await self.score(prompts=prompts, responses=self.responses, sampled_responses=self.sampled_responses, logprobs_results=self.logprobs, sampled_logprobs_results=self.multiple_logprobs, show_progress_bars=show_progress_bars)
-        return results
+        with self._preserve_llm_logprobs():
+            self._construct_progress_bar(show_progress_bars)
+            self._display_generation_header(show_progress_bars, generation_type=self.generation_type)
+            if self.wbuq_scorers:
+                self.llm.logprobs = True
+            self.responses = await self.generate_original_responses(prompts, top_k_logprobs=self.top_k_logprobs, progress_bar=self.progress_bar)
+            self.sampled_responses = await self.generate_candidate_responses(prompts=prompts, num_responses=num_responses, progress_bar=self.progress_bar)
+            results = await self.score(prompts=prompts, responses=self.responses, sampled_responses=self.sampled_responses, logprobs_results=self.logprobs, sampled_logprobs_results=self.multiple_logprobs, show_progress_bars=show_progress_bars)
+            return results
 
     async def score(self, prompts: List[str], responses: List[str], sampled_responses: List[List[str]], logprobs_results: List[List[float]], sampled_logprobs_results: List[List[float]], show_progress_bars: Optional[bool] = True, _display_header: bool = True) -> UQResult:
         data = {"prompts": prompts, "responses": responses, "sampled_responses": sampled_responses}
@@ -135,7 +135,7 @@ class CodeGenUQ(ShortFormUQ):
         # Compute White-box UQ scores
         if len(self.wbuq_scorers) > 0:
             self.wbuq.progress_bar = self.progress_bar
-            self.wb_results = await self.wbuq.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results, _display_header=False)
+            self.wb_results = await self.wbuq.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results, _display_header=False, _existing_progress_bar=self.progress_bar)
             for key in self.wb_results.data:
                 if key in self.scorers:
                     data[key] = self.wb_results.data[key]

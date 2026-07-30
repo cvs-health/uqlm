@@ -108,6 +108,48 @@ def test_whiteboxuq_invalid_scorer():
 
 
 @pytest.mark.asyncio
+async def test_whiteboxuq_generate_and_score_exception_restores_llm(monkeypatch):
+    """Regression test for M5: mid-generation exception must restore temperature and logprobs."""
+    llm = AzureChatOpenAI(deployment_name="D", temperature=0.3, api_key="k", api_version="2024-05-01-preview", azure_endpoint="https://mocked.endpoint.com")
+    llm.logprobs = False
+    original_temp = llm.temperature
+    original_logprobs = llm.logprobs
+
+    wbuq = WhiteBoxUQ(llm=llm, scorers=["monte_carlo_probability"], sampling_temperature=2.0)
+
+    call_state = {"n": 0}
+
+    async def flaky_generate(*args, **kwargs):
+        call_state["n"] += 1
+        if call_state["n"] == 1:
+            responses = ["r"] * len(PROMPTS)
+            return {"data": {"response": responses}, "metadata": {"logprobs": MOCKED_LOGPROBS}}
+        raise RuntimeError("boom during candidate gen")
+
+    monkeypatch.setattr("uqlm.utils.response_generator.ResponseGenerator.generate_responses", flaky_generate)
+
+    with pytest.raises(RuntimeError, match="boom during candidate gen"):
+        await wbuq.generate_and_score(prompts=PROMPTS, show_progress_bars=False)
+
+    assert llm.temperature == original_temp
+    assert llm.logprobs == original_logprobs
+
+
+@pytest.mark.asyncio
+async def test_whiteboxuq_score_twice_no_liveerror():
+    """Regression test for M7: WhiteBoxUQ.score() must not leave a live progress bar."""
+    wbuq_a = WhiteBoxUQ(llm=mock_object, scorers=["sequence_probability", "min_probability"])
+    r1 = await wbuq_a.score(logprobs_results=MOCKED_LOGPROBS, show_progress_bars=True)
+    r2 = await wbuq_a.score(logprobs_results=MOCKED_LOGPROBS, show_progress_bars=True)
+
+    wbuq_b = WhiteBoxUQ(llm=mock_object, scorers=["sequence_probability"])
+    r3 = await wbuq_b.score(logprobs_results=MOCKED_LOGPROBS, show_progress_bars=True)
+
+    for r in (r1, r2, r3):
+        assert "sequence_probability" in r.data
+
+
+@pytest.mark.asyncio
 async def test_whiteboxuq_top_logprobs_full(monkeypatch):
     wbuq = WhiteBoxUQ(llm=mock_object, scorers=["mean_token_negentropy"], top_k_logprobs=10)
 

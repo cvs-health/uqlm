@@ -56,7 +56,6 @@ class LLMGrader:
             limit is specified.
 
         """
-        llm.logprobs = True
         self.response_generator = ResponseGenerator(llm, max_calls_per_min=max_calls_per_min)
         self.response_generator.response_generator_type = "grader"
 
