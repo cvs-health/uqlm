@@ -64,6 +64,11 @@ class PTrueScorer:
             else:
                 return np.nan
 
+        # First-token logprob unavailable -> undeterminable; return NaN to match
+        # the sentinel used above instead of implicitly returning None (which
+        # violates the -> float contract and breaks downstream numeric handling).
+        return np.nan
+
     @staticmethod
     def _construct_ptrue_prompt(original_prompt: str, original_response: str, sampled_responses: Optional[List[str]] = None) -> str:
         proposed_answers_text = ""

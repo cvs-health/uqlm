@@ -548,3 +548,46 @@ class TestUQEnsembleConfig:
 
         finally:
             os.unlink(config_path)
+
+
+@pytest.mark.asyncio
+async def test_score_uses_provided_logprobs_results(mock_llm):
+    """Regression: score() must use the logprobs_results argument, not instance state.
+
+    Previously a provided logprobs_results was never assigned to self.logprobs, so a fresh
+    instance raised AttributeError and a reused instance silently scored stale logprobs.
+    """
+    import math
+
+    def make_logprobs(probabilities):
+        return [[{"token": "t", "logprob": math.log(p)}] for p in probabilities]
+
+    uqe = UQEnsemble(llm=mock_llm, scorers=["min_probability"], device="cpu")
+
+    # Fresh instance: previously raised AttributeError because self.logprobs was never set
+    first_probs = [0.9, 0.8, 0.7, 0.6, 0.5]
+    result = await uqe.score(prompts=PROMPTS, responses=MOCKED_RESPONSES, logprobs_results=make_logprobs(first_probs))
+    assert result.data["min_probability"] == pytest.approx(first_probs)
+
+    # Reused instance: previously scored the stale logprobs from the first call
+    second_probs = [0.1, 0.2, 0.3, 0.4, 0.5]
+    result = await uqe.score(prompts=PROMPTS, responses=MOCKED_RESPONSES, logprobs_results=make_logprobs(second_probs))
+    assert result.data["min_probability"] == pytest.approx(second_probs)
+
+
+@pytest.mark.asyncio
+async def test_score_accepts_sampled_logprobs_results(mock_llm):
+    """score() must accept sampled logprobs and thread them to sampled-logprobs scorers."""
+    import math
+
+    def single(p):
+        return [{"token": "t", "logprob": math.log(p)}]
+
+    uqe = UQEnsemble(llm=mock_llm, scorers=["monte_carlo_probability"], device="cpu")
+    logprobs_results = [single(0.8) for _ in PROMPTS]
+    sampled_logprobs_results = [[single(0.4), single(0.6)] for _ in PROMPTS]
+
+    result = await uqe.score(prompts=PROMPTS, responses=MOCKED_RESPONSES, sampled_responses=[["s1", "s2"]] * len(PROMPTS), logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results)
+
+    # monte carlo probability = mean over original + sampled sequence probabilities
+    assert result.data["monte_carlo_probability"] == pytest.approx([(0.8 + 0.4 + 0.6) / 3] * len(PROMPTS))

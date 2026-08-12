@@ -196,14 +196,16 @@ class UQEnsemble(ShortFormUQ):
             sampled_responses = await self.generate_candidate_responses(prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
         else:
             sampled_responses = None
-            self.multiple_logprobs = [[None] * self.num_responses] * len(prompts)
+            self.multiple_logprobs = [[None] * self.num_responses for _ in prompts]
 
-        result = await self.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=self.logprobs, show_progress_bars=show_progress_bars, _existing_progress_bar=_existing_progress_bar)
+        result = await self.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=self.logprobs, sampled_logprobs_results=self.multiple_logprobs, show_progress_bars=show_progress_bars, _existing_progress_bar=_existing_progress_bar)
 
         self._stop_progress_bar(_existing_progress_bar)  # if re-run ensure the same progress object is not used
         return result
 
-    async def score(self, prompts: List[str], responses: List[str], sampled_responses: Optional[List[List[str]]] = None, logprobs_results: Optional[List[List[Dict[str, Any]]]] = None, num_responses: int = 5, show_progress_bars: Optional[bool] = True, _existing_progress_bar: Optional[rich.progress.Progress] = None) -> UQResult:
+    async def score(
+        self, prompts: List[str], responses: List[str], sampled_responses: Optional[List[List[str]]] = None, logprobs_results: Optional[List[List[Dict[str, Any]]]] = None, sampled_logprobs_results: Optional[List[List[List[Dict[str, Any]]]]] = None, num_responses: int = 5, show_progress_bars: Optional[bool] = True, _existing_progress_bar: Optional[rich.progress.Progress] = None
+    ) -> UQResult:
         """
         Generate LLM responses from provided prompts and compute confidence scores.
 
@@ -221,6 +223,10 @@ class UQEnsemble(ShortFormUQ):
 
         logprobs_results : list of logprobs_result, default=None
             List of lists of dictionaries, each returned by BaseChatModel.ainvoke. Must be provided if using white box scorers.
+
+        sampled_logprobs_results : list of list of logprobs_result, default=None
+            List of lists of lists of dictionaries, corresponding to `sampled_responses`. Used by sampled-logprobs
+            white-box scorers such as 'monte_carlo_probability', 'semantic_negentropy', and 'semantic_density'.
 
         num_responses : int, default=5
             The number of sampled responses used to compute consistency. Not value will not be used if sampled_responses is provided
@@ -246,9 +252,8 @@ class UQEnsemble(ShortFormUQ):
         self.responses = responses
         self.sampled_responses = sampled_responses
         self.num_responses = num_responses if not sampled_responses else len(sampled_responses[0])
-        if not logprobs_results:
-            self.logprobs = [None] * len(prompts)
-            self.multiple_logprobs = [[None] * self.num_responses] * len(prompts)
+        self.logprobs = logprobs_results if logprobs_results else [None] * len(prompts)
+        self.multiple_logprobs = sampled_logprobs_results if sampled_logprobs_results else [[None] * self.num_responses for _ in prompts]
 
         if self.black_box_components:
             self.black_box_object.progress_bar = self.progress_bar

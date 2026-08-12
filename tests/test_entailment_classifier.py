@@ -15,17 +15,17 @@
 import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
 import numpy as np
-import pandas as pd
-import asyncio
 from rich.progress import Progress
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
+from langchain_core.messages import AIMessage
 
-from uqlm.nli.entailment import EntailmentClassifier, SYSTEM_PROMPT, STR_SCORE_MAP
+from uqlm.nli.entailment import EntailmentClassifier, SYSTEM_PROMPT
 
 
-class TestEntailmentClassifier(unittest.TestCase):
+class TestEntailmentClassifier(unittest.IsolatedAsyncioTestCase):
+    # IsolatedAsyncioTestCase is required: async test methods on a plain TestCase are
+    # never awaited and pass vacuously.
     def setUp(self):
         # Create a mock LLM for testing
         self.mock_llm = MagicMock(spec=BaseChatModel)
@@ -55,6 +55,12 @@ class TestEntailmentClassifier(unittest.TestCase):
         # Test no match
         self.assertTrue(np.isnan(self.classifier._extract_single_score("Maybe, it's unclear")))
         self.assertTrue(np.isnan(self.classifier._extract_single_score("I'm unsure")))
+
+    def test_extract_single_score_case_insensitive_fallback(self):
+        """Regression: the substring fallback compared lowercase keywords against raw text,
+        so capitalized mid-sentence answers like 'The answer is Yes.' returned NaN."""
+        self.assertEqual(self.classifier._extract_single_score("The answer is Yes."), 1.0)
+        self.assertEqual(self.classifier._extract_single_score("I believe the answer is No."), 0.0)
 
     def test_extract_scores(self):
         """Test the _extract_scores method"""
@@ -195,11 +201,9 @@ class TestEntailmentClassifier(unittest.TestCase):
     @patch.object(EntailmentClassifier, "_evaluate_claim_response_pair")
     async def test_judge_entailment(self, mock_evaluate, mock_extract, mock_construct):
         """Test the judge_entailment method"""
-        # Setup mocks
+        # Setup mocks (patching an async method yields an AsyncMock, so plain values suffice)
         mock_construct.return_value = ["Prompt 1", "Prompt 2"]
-        mock_evaluate.side_effect = [asyncio.Future(), asyncio.Future()]
-        mock_evaluate.side_effect[0].set_result("Yes")
-        mock_evaluate.side_effect[1].set_result("No")
+        mock_evaluate.side_effect = ["Yes", "No"]
         mock_extract.return_value = [1.0, 0.0]
 
         # Call the method
@@ -217,25 +221,44 @@ class TestEntailmentClassifier(unittest.TestCase):
         # Test with retry logic
         mock_extract.side_effect = [[1.0, np.nan], [0.0]]  # First call has a NaN, second call succeeds
         mock_evaluate.reset_mock()
-        mock_evaluate.side_effect = [asyncio.Future(), asyncio.Future(), asyncio.Future()]
-        mock_evaluate.side_effect[0].set_result("Yes")
-        mock_evaluate.side_effect[1].set_result("Unclear")
-        mock_evaluate.side_effect[2].set_result("No")
+        mock_evaluate.side_effect = ["Yes", "Unclear", "No"]
 
         result = await self.classifier.judge_entailment(premises=["Premise 1", "Premise 2"], hypotheses=["Hypothesis 1", "Hypothesis 2"], retries=1)
 
         # Check that retry was attempted
         self.assertEqual(mock_evaluate.call_count, 3)  # Initial 2 calls + 1 retry
 
+    async def test_retry_requeries_original_prompt(self):
+        """Regression: the retry path sent DataFrame column names to the LLM as prompts, then
+        crashed indexing the gathered list. It must re-query the ORIGINAL prompt of each
+        failed pair and merge the recovered score."""
+        self.mock_llm.ainvoke.side_effect = [AIMessage(content="I think so"), AIMessage(content="Yes")]
+
+        result = await self.classifier.judge_entailment(premises=["The dog is barking."], hypotheses=["The animal makes noise."], retries=2)
+
+        self.assertEqual(self.mock_llm.ainvoke.call_count, 2)
+        original_prompt = self.mock_llm.ainvoke.call_args_list[0][0][0][1].content
+        retried_prompt = self.mock_llm.ainvoke.call_args_list[1][0][0][1].content
+        self.assertEqual(retried_prompt, original_prompt)
+        self.assertEqual(result["scores"], [1.0])
+        self.assertEqual(result["judge_responses"], ["Yes"])
+
+    def test_format_result_arrays_accepts_nan(self):
+        """Regression: the entailment matrix used dtype=int, which cannot hold the NaN left by
+        pairs whose extraction failed after all retries."""
+        result_matrices = self.classifier._format_result_arrays(flat_predictions=[1.0, np.nan], indices=[(0, 0, 0), (0, 1, 0)], shapes=[(2, 1)])
+        self.assertEqual(result_matrices[0].shape, (2, 1))
+        self.assertEqual(result_matrices[0][0, 0], 1.0)
+        self.assertTrue(np.isnan(result_matrices[0][1, 0]))
+
     @patch.object(EntailmentClassifier, "_flatten_inputs")
     @patch.object(EntailmentClassifier, "judge_entailment")
     @patch.object(EntailmentClassifier, "_format_result_arrays")
     async def test_evaluate_claim_entailment(self, mock_format, mock_judge, mock_flatten):
         """Test the evaluate_claim_entailment method"""
-        # Setup mocks
+        # Setup mocks (patching an async method yields an AsyncMock, so plain values suffice)
         mock_flatten.return_value = (["Flat Response 1", "Flat Response 2"], ["Flat Claim 1", "Flat Claim 2"], [(0, 0, 0), (0, 1, 0)], [(2, 1)])
-        mock_judge.return_value = asyncio.Future()
-        mock_judge.return_value.set_result({"judge_prompts": ["Prompt 1", "Prompt 2"], "judge_responses": ["Yes", "No"], "scores": [1.0, 0.0]})
+        mock_judge.return_value = {"judge_prompts": ["Prompt 1", "Prompt 2"], "judge_responses": ["Yes", "No"], "scores": [1.0, 0.0]}
         mock_format.return_value = [np.array([[1.0], [0.0]])]
 
         # Call the method

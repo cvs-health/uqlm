@@ -173,3 +173,42 @@ def test_grid_search_weights_progress_k3(mock_progress):
     assert len(result) == 3
     mock_progress.add_task.assert_called_once()
     assert mock_progress.update.call_count > 0
+
+
+LOSS_OBJECTIVES = {"log_loss", "brier_score"}
+THRESHOLD_OBJECTIVES = {"fbeta_score", "accuracy_score", "balanced_accuracy_score"}
+ALL_OBJECTIVES = ["fbeta_score", "accuracy_score", "balanced_accuracy_score", "log_loss", "roc_auc", "average_precision", "brier_score"]
+
+
+@pytest.mark.parametrize("objective", ALL_OBJECTIVES)
+def test_tuned_weights_not_worse_than_uniform(objective):
+    """Regression test: the optimizer must improve (not worsen) every supported objective.
+
+    A "logloss" vs "log_loss" key mismatch previously flipped the sign for log loss, making the
+    tuner MAXIMIZE it. With one informative and one anti-informative scorer, tuned weights must
+    score at least as well as uniform weights under the tuned objective.
+    """
+    correct_indicators = [True, False, True, False, True, False, True, False]
+    informative = [0.9, 0.1, 0.8, 0.2, 0.95, 0.05, 0.85, 0.15]
+    anti_informative = [1 - s for s in informative]
+    score_lists = [informative, anti_informative]
+
+    tuner = Tuner()
+    kwargs = {"weights_objective": objective}
+    if objective in THRESHOLD_OBJECTIVES:
+        kwargs["thresh_objective"] = objective
+    result = tuner.tune_params(score_lists=score_lists, correct_indicators=correct_indicators, **kwargs)
+
+    metric = tuner.objective_to_func[objective]
+
+    def evaluate(weights):
+        ensemble_scores = tuner._compute_ensemble_scores(weights=np.array(weights), score_lists=tuner.score_lists)
+        y_pred = ensemble_scores > result["thresh"] if objective in THRESHOLD_OBJECTIVES else ensemble_scores
+        return metric(np.array(correct_indicators), y_pred)
+
+    tuned_value = evaluate(result["weights"])
+    uniform_value = evaluate([0.5, 0.5])
+    if objective in LOSS_OBJECTIVES:
+        assert tuned_value <= uniform_value + 1e-9, f"{objective}: tuned weights scored worse ({tuned_value}) than uniform ({uniform_value})"
+    else:
+        assert tuned_value >= uniform_value - 1e-9, f"{objective}: tuned weights scored worse ({tuned_value}) than uniform ({uniform_value})"

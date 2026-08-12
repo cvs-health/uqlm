@@ -54,7 +54,12 @@ def best_response_selection(clustered_responses: List[List[str]], cluster_probab
     return clustered_responses[cluster_probabilities.index(max(cluster_probabilities))][0]
 
 
-def normalize_cluster_probabilities(cluster_probabilities: List[float]) -> float:
-    """Normalize cluster probabilities"""
+def normalize_cluster_probabilities(cluster_probabilities: List[float]) -> List[float]:
+    """Normalize cluster probabilities."""
     total_probability = sum(cluster_probabilities)
+    if total_probability == 0:
+        # All probabilities underflowed to 0 (e.g. very long sequences); fall
+        # back to a uniform distribution so downstream code doesn't crash.
+        n = len(cluster_probabilities)
+        return [1.0 / n] * n if n > 0 else []
     return [cp_i / total_probability for cp_i in cluster_probabilities]

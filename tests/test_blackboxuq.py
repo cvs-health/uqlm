@@ -127,3 +127,18 @@ async def test_bbuq_generate_and_score_sync_inside_running_loop(monkeypatch, moc
     assert all([results.data["noncontradiction"][i] == pytest.approx(data["noncontradiction"][i]) for i in range(len(PROMPTS))])
     assert all([results.data["semantic_negentropy"][i] == pytest.approx(data["semantic_negentropy"][i]) for i in range(len(PROMPTS))])
     assert results.metadata == metadata
+def test_single_nli_model_instance():
+    """Regression test: default BlackBoxUQ loaded the NLI model once per scorer (2x, ~1.4 GB each)."""
+    from unittest.mock import MagicMock, patch
+
+    mock_tokenizer = MagicMock()
+    mock_tokenizer.model_max_length = 512
+    mock_model = MagicMock()
+    mock_model.to.return_value = mock_model
+    mock_model.eval.return_value = mock_model
+
+    with patch("uqlm.nli.nli.AutoModelForSequenceClassification.from_pretrained", return_value=mock_model) as mock_model_loader, patch("uqlm.nli.nli.AutoTokenizer.from_pretrained", return_value=mock_tokenizer), patch("sentence_transformers.SentenceTransformer", return_value=MagicMock()):
+        uqe = BlackBoxUQ(device="cpu")
+
+    assert mock_model_loader.call_count == 1
+    assert uqe.scorer_objects["consistency"].nli is uqe.scorer_objects["semantic_negentropy"].nli

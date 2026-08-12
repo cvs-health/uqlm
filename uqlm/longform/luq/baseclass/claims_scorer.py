@@ -101,15 +101,28 @@ class ClaimScorer(ABC):
         return claim_entail_score_lists, claim_noncontradict_score_lists, claim_constrast_entail_score_lists
 
     def _compute_claim_level_nli_scores(self, claims: List[str], candidates: Union[List[List[str]], List[str]]) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Evaluate the agreement scores for the provided claim with the provided set of candidate responses."""
+        """Evaluate the agreement scores for the provided claim with the provided set of candidate responses.
+
+        All claim-candidate pairs are scored with batched NLI inference. When `matched_claim` is True,
+        candidates are claim sets and each cell reduces to the maximum score over the candidate claims.
+        """
         shape = (len(claims), len(candidates))
         entail_scores, noncontradict_scores, contrast_entail_scores = np.zeros(shape=shape), np.zeros(shape=shape), np.zeros(shape=shape)
+        pairs, cells = [], []
         for i, claim in enumerate(claims):
             for j, candidate in enumerate(candidates):
-                if self.matched_claim:
-                    entail_scores[i, j], noncontradict_scores[i, j], contrast_entail_scores[i, j] = self._compute_matched_nli_scores(claim=claim, candidate_claims=candidate)
-                else:
-                    entail_scores[i, j], noncontradict_scores[i, j], contrast_entail_scores[i, j] = self._get_nli_agreement_scores(claim=claim, candidate=candidate)
+                candidate_claims = candidate if self.matched_claim else [candidate]
+                for candidate_claim in candidate_claims:
+                    pairs.append((candidate_claim, claim))
+                    cells.append((i, j))
+        if pairs:
+            probabilities = self.nli.predict_batch(pairs)
+            entail_probs, contradict_probs = probabilities[:, -1], probabilities[:, 0]
+            contrast_entail_probs = entail_probs / (entail_probs + contradict_probs)
+            for k, (i, j) in enumerate(cells):
+                entail_scores[i, j] = max(entail_scores[i, j], entail_probs[k])
+                noncontradict_scores[i, j] = max(noncontradict_scores[i, j], 1 - contradict_probs[k])
+                contrast_entail_scores[i, j] = max(contrast_entail_scores[i, j], contrast_entail_probs[k])
         return entail_scores, noncontradict_scores, contrast_entail_scores
 
     def _compute_matched_nli_scores(self, claim: str, candidate_claims: List[str]) -> float:

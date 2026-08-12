@@ -83,7 +83,7 @@ class CosineScorer(SimilarityScorer):
         embeddings2 = self.model.encode(texts2)
         return embeddings1, embeddings2
 
-    def _compute_score(self, response: str, candidates: List[str]) -> float:
+    def _compute_score(self, response: str, candidates: List[str]) -> List[float]:
         """
         Helper function to get cosine distance between a response and candidate responses
         """

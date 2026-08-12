@@ -271,14 +271,12 @@ class TestMatchedUnitScorer:
         claim = "Claim 1"
         candidate_claims = ["Response 1", "Response 2"]
 
-        # Set up the mock to return different values for different inputs
-        mock_cosine_scorer._compute_score.side_effect = [0.7, 0.8]
+        # _compute_score returns one similarity per candidate; all candidates are embedded in one call
+        mock_cosine_scorer._compute_score.return_value = [0.7, 0.8]
 
         result = scorer_cosine_only._compute_matched_cosine_scores(claim, candidate_claims)
 
-        # Check that _compute_score was called for each candidate
-        assert mock_cosine_scorer._compute_score.call_count == 2
-        mock_cosine_scorer._compute_score.assert_has_calls([call(claim, [candidate_claims[0]]), call(claim, [candidate_claims[1]])])
+        mock_cosine_scorer._compute_score.assert_called_once_with(claim, candidate_claims)
 
         # Check that the maximum score was returned
         assert result == 0.8
@@ -369,3 +367,31 @@ class TestMatchedUnitScorer:
             mock_nli_compute.assert_called_once()
             mock_cosine_compute.assert_called_once()
             mock_bert_compute.assert_called_once()
+
+
+class TestMatchedUnitScorerUnmocked:
+    """Integration tests with the real CosineScorer (no mocking of _compute_score).
+
+    Regression: _compute_matched_cosine_scores applied float() to the list returned by
+    CosineScorer._compute_score, so every un-mocked matched-unit cosine run raised TypeError.
+    Mock-based tests could not catch this.
+    """
+
+    def test_cosine_matched_unit_smoke(self):
+        scorer = MatchedUnitScorer(consistency_functions=["cosine_sim"])
+        claim_sets = [["The sky is blue.", "Water is wet."], ["Paris is in France."]]
+        sampled_claim_sets = [[["The sky is blue.", "Grass is green."], ["Water is a liquid."]], [["Paris is the capital of France."]]]
+
+        result = scorer.evaluate(claim_sets=claim_sets, sampled_claim_sets=sampled_claim_sets)
+
+        cosine_lists = result.cosine_similarity_lists
+        assert len(cosine_lists) == 2
+        assert cosine_lists[0].shape == (2, 2)
+        assert cosine_lists[1].shape == (1, 1)
+        for array in cosine_lists:
+            assert np.all(np.isfinite(array))
+            # Allow float32 rounding headroom: dot(v, v)/||v||^2 can exceed 1 by ~1e-7
+            # depending on the platform's BLAS (observed on Windows CI)
+            assert np.all((array >= -1e-6) & (array <= 1 + 1e-6))
+        # An exact claim match should produce (near-)maximal similarity
+        assert cosine_lists[0][0, 0] == pytest.approx(1.0, abs=1e-4)

@@ -20,6 +20,7 @@ from typing import Any, List, Optional, Union
 from uqlm.utils.results import UQResult
 from uqlm.utils.async_utils import run_sync
 from uqlm.black_box import BertScorer, CosineScorer, MatchScorer, ConsistencyScorer
+from uqlm.nli.nli import NLI
 from uqlm.nli.entropy_utils import normalize_entropy
 from uqlm.scorers.shortform.entropy import SemanticEntropy
 from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ
@@ -44,6 +45,7 @@ class BlackBoxUQ(ShortFormUQ):
         use_n_param: bool = False,
         max_length: int = 2000,
         verbose: bool = False,
+        nli_batch_size: int = 32,
     ) -> None:
         """
         Class for black box uncertainty quantification. Leverages multiple responses to the same prompt to evaluate
@@ -112,11 +114,16 @@ class BlackBoxUQ(ShortFormUQ):
 
         verbose : bool, default=False
             Specifies whether to print the index of response currently being scored.
+
+        nli_batch_size : int, default=32
+            Number of premise-hypothesis pairs scored per forward pass by the NLI model. Only applies to
+            'semantic_negentropy', 'noncontradiction', 'entailment', 'semantic_sets_confidence' scorers.
         """
         super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor, structured_response=structured_response, output_extractor=output_extractor)
         self.prompts = None
         self.max_length = max_length
         self.verbose = verbose
+        self.nli_batch_size = nli_batch_size
         self.use_best = use_best
         self.sampling_temperature = sampling_temperature
         self.nli_model_name = nli_model_name
@@ -280,8 +287,11 @@ class BlackBoxUQ(ShortFormUQ):
                     scorers must be one of ['semantic_negentropy', 'noncontradiction', 'exact_match', 'bert_score', 'cosine_sim', 'semantic_sets_confidence', 'entailment']
                     """
                 )
+        if self.consistency_scorer_names or self.entropy_scorer_names:
+            # Load the NLI model once and share it across scorers
+            shared_nli = NLI(nli_model_name=self.nli_model_name, device=self.device, max_length=self.max_length, verbose=self.verbose, batch_size=self.nli_batch_size)
         if self.consistency_scorer_names:
-            self.scorer_objects["consistency"] = ConsistencyScorer(nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=self.use_best, scorers=self.consistency_scorer_names)
+            self.scorer_objects["consistency"] = ConsistencyScorer(nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=self.use_best, scorers=self.consistency_scorer_names, nli=shared_nli)
         if self.entropy_scorer_names:
-            self.scorer_objects["semantic_negentropy"] = SemanticEntropy(llm=self.llm, nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=self.use_best)
+            self.scorer_objects["semantic_negentropy"] = SemanticEntropy(llm=self.llm, nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=self.use_best, nli=shared_nli)
         self.scorers = scorers

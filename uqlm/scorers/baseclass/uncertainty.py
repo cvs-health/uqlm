@@ -171,9 +171,12 @@ class UncertaintyQuantifier:
         if self.structured_response and self.output_extractor:
             beta_warning("Use of structured_response and output_extractor is in beta. Please use with caution as implementation may change in future releases.")
 
-    def _setup_nli(self, nli_model_name: Any) -> None:
-        """Set up NLI model"""
-        self.nli = NLI(nli_model_name=nli_model_name, device=self.device, max_length=self.max_length, verbose=self.verbose)
+    def _setup_nli(self, nli_model_name: Any, nli: Optional[NLI] = None) -> None:
+        """Set up NLI model, reusing an injected instance if provided"""
+        if nli is not None:
+            self.nli = nli
+        else:
+            self.nli = NLI(nli_model_name=nli_model_name, device=self.device, max_length=self.max_length, verbose=self.verbose, batch_size=getattr(self, "nli_batch_size", 32))
 
     def _construct_progress_bar(self, show_progress_bars: bool, _existing_progress_bar: Any = None) -> None:
         """Constructs and starts progress bar"""

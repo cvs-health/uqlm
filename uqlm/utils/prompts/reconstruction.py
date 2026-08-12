@@ -37,6 +37,7 @@ def get_response_reconstruction_prompt(claim_set: List[str]) -> str:
         The prompt template for breaking down the response into fact pieces.
     """
 
+    facts = "\n".join(claim_set)
     response_reconstruction_prompt = f"""
     Task: You are provided with a list of facts about prompt. Your
     goal is to synthesize these facts into a coherent paragraph. Use
@@ -47,6 +48,6 @@ def get_response_reconstruction_prompt(claim_set: List[str]) -> str:
     fewer facts and longer for more. Avoid unnecessary filler and focus
     on presenting the information clearly and concisely.
     The facts:
-    {claim_set}
+    {facts}
     """
     return response_reconstruction_prompt

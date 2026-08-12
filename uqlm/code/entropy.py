@@ -17,7 +17,7 @@ from typing import Any, List, Optional, Dict
 from uqlm.utils.results import UQResult
 from uqlm.code.clusterer import CodeClusterer
 from rich.progress import Progress
-from uqlm.nli.entropy_utils import compute_response_probabilities, compute_semantic_entropy, normalize_cluster_probabilities, normalize_entropy
+from uqlm.nli.entropy_utils import compute_response_probabilities, compute_semantic_entropy, compute_cluster_probabilities, normalize_entropy
 
 
 class FunctionalEntropy:
@@ -122,11 +122,12 @@ class FunctionalEntropy:
         Executes complete process for functional entropy and returns response, SE score, and dictionary
         of Equivalence scores for response pairs.
         """
-        # Compute response probabilities
-        tokenprob_response_probabilities, response_probabilities = compute_response_probabilities(logprobs_results=logprobs_results, num_responses=self.num_responses, length_normalize=self.length_normalize)
+        # Compute response probabilities over all candidates (anchor + samples), matching the
+        # 0-based cluster indices where 0 is the anchor
+        tokenprob_response_probabilities, response_probabilities = compute_response_probabilities(logprobs_results=logprobs_results, num_responses=self.num_responses + 1, length_normalize=self.length_normalize)
 
         # Compute Clusters and Equivalence scores
-        cluster_probabilities = self._compute_cluster_probabilities(response_probabilities=response_probabilities, single_prompt_cluster_indices=single_prompt_cluster_indices)
+        cluster_probabilities = compute_cluster_probabilities(response_probabilities=response_probabilities, cluster_indices=single_prompt_cluster_indices)
         num_functional_sets = len(cluster_probabilities)
 
         # Compute discrete functional entropy
@@ -135,15 +136,7 @@ class FunctionalEntropy:
         # Compute token-level functional entropy
         tokenprob_functional_entropy = None
         if tokenprob_response_probabilities:
-            tokenprob_cluster_probabilities = self._compute_cluster_probabilities(response_probabilities=tokenprob_response_probabilities, single_prompt_cluster_indices=single_prompt_cluster_indices)
+            tokenprob_cluster_probabilities = compute_cluster_probabilities(response_probabilities=tokenprob_response_probabilities, cluster_indices=single_prompt_cluster_indices)
             tokenprob_functional_entropy = compute_semantic_entropy(cluster_probabilities=tokenprob_cluster_probabilities)
 
         return (discrete_functional_entropy, tokenprob_functional_entropy, num_functional_sets)
-
-    @staticmethod
-    def _compute_cluster_probabilities(single_prompt_cluster_indices: List[List[int]], response_probabilities: List[float]) -> List[float]:
-        """Compute cluster probabilities"""
-        cluster_probabilities = [0] * len(single_prompt_cluster_indices)
-        for i, cluster_index in enumerate(single_prompt_cluster_indices):
-            cluster_probabilities[i] = sum([response_probabilities[j - 1] for j in cluster_index])
-        return normalize_cluster_probabilities(cluster_probabilities=cluster_probabilities)
