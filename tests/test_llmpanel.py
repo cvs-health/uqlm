@@ -82,6 +82,89 @@ async def test_llmpanel(monkeypatch, quantifier):
         assert result.metadata == expected_result["metadata"]
 
 
+def test_llmpanel_generate_and_score_sync(monkeypatch, quantifier):
+    """generate_and_score_sync should be usable with no `await`/event loop management from the
+    caller, and must produce the same result as the async `generate_and_score` method it wraps."""
+    PROMPTS = data["prompts"]
+    MOCKED_RESPONSES = data["responses"]
+    SCORES = data["scores"]
+    METADATA = data["metadata"]
+
+    async def mock_generate_original_responses(*args, **kwargs):
+        return MOCKED_RESPONSES
+
+    monkeypatch.setattr(quantifier, "generate_original_responses", mock_generate_original_responses)
+
+    async def mock_judge_responses(*args, **kwargs):
+        return {"scores": [0.8, 0.9]}
+
+    for judge in quantifier.judges:
+        monkeypatch.setattr(judge, "judge_responses", mock_judge_responses)
+
+    # Note: this test function is intentionally NOT `async def`. There is no event loop running in
+    # this thread, exercising the `asyncio.run` code path in `run_sync`.
+    result = quantifier.generate_and_score_sync(prompts=PROMPTS, show_progress_bars=False)
+
+    expected_data = {"prompts": PROMPTS, "responses": MOCKED_RESPONSES, "judge_1": SCORES["judge_1"], "judge_2": SCORES["judge_2"], "avg": SCORES["avg"], "max": SCORES["max"], "min": SCORES["min"], "median": SCORES["median"]}
+
+    assert result.data == expected_data
+    assert result.metadata == METADATA
+
+
+def test_llmpanel_score_sync(monkeypatch, quantifier):
+    """score_sync should be usable with no `await`/event loop management from the caller, and must
+    produce the same result as the async `score` method it wraps, given pre-generated responses."""
+    PROMPTS = data["prompts"]
+    MOCKED_RESPONSES = data["responses"]
+    SCORES = data["scores"]
+    METADATA = data["metadata"]
+
+    async def mock_judge_responses(*args, **kwargs):
+        return {"scores": [0.8, 0.9]}
+
+    for judge in quantifier.judges:
+        monkeypatch.setattr(judge, "judge_responses", mock_judge_responses)
+
+    result = quantifier.score_sync(prompts=PROMPTS, responses=MOCKED_RESPONSES, show_progress_bars=False)
+
+    expected_data = {"prompts": PROMPTS, "responses": MOCKED_RESPONSES, "judge_1": SCORES["judge_1"], "judge_2": SCORES["judge_2"], "avg": SCORES["avg"], "max": SCORES["max"], "min": SCORES["min"], "median": SCORES["median"]}
+
+    assert result.data == expected_data
+    assert result.metadata == METADATA
+
+
+@pytest.mark.asyncio
+async def test_llmpanel_generate_and_score_sync_inside_running_loop(monkeypatch, quantifier):
+    """generate_and_score_sync must also work when called from a thread that already has a running
+    event loop (e.g. a Jupyter/IPython kernel), where a naive `asyncio.run(...)` wrapper would raise
+    `RuntimeError: asyncio.run() cannot be called from a running event loop`."""
+    PROMPTS = data["prompts"]
+    MOCKED_RESPONSES = data["responses"]
+    SCORES = data["scores"]
+    METADATA = data["metadata"]
+
+    async def mock_generate_original_responses(*args, **kwargs):
+        return MOCKED_RESPONSES
+
+    monkeypatch.setattr(quantifier, "generate_original_responses", mock_generate_original_responses)
+
+    async def mock_judge_responses(*args, **kwargs):
+        return {"scores": [0.8, 0.9]}
+
+    for judge in quantifier.judges:
+        monkeypatch.setattr(judge, "judge_responses", mock_judge_responses)
+
+    # This test itself is `async def`, so pytest-asyncio drives it with a running event loop. Calling
+    # the *synchronous* generate_and_score_sync from here (with no `await`) is exactly the scenario
+    # that requires the thread-offload fallback inside `run_sync`.
+    result = quantifier.generate_and_score_sync(prompts=PROMPTS, show_progress_bars=False)
+
+    expected_data = {"prompts": PROMPTS, "responses": MOCKED_RESPONSES, "judge_1": SCORES["judge_1"], "judge_2": SCORES["judge_2"], "avg": SCORES["avg"], "max": SCORES["max"], "min": SCORES["min"], "median": SCORES["median"]}
+
+    assert result.data == expected_data
+    assert result.metadata == METADATA
+
+
 def test_scoring_templates_length_validation(mock_judges, mock_llm):
     """Test ValueError when scoring_templates length != judges length"""
     with pytest.raises(ValueError) as value_error:

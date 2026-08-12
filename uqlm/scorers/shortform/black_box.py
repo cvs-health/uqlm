@@ -18,6 +18,7 @@ from langchain_core.messages import BaseMessage
 from typing import Any, List, Optional, Union
 
 from uqlm.utils.results import UQResult
+from uqlm.utils.async_utils import run_sync
 from uqlm.black_box import BertScorer, CosineScorer, MatchScorer, ConsistencyScorer
 from uqlm.nli.nli import NLI
 from uqlm.nli.entropy_utils import normalize_entropy
@@ -163,6 +164,35 @@ class BlackBoxUQ(ShortFormUQ):
         sampled_responses = await self.generate_candidate_responses(prompts=prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
         result = self.score(responses=responses, sampled_responses=sampled_responses, show_progress_bars=show_progress_bars)
         return result
+
+    def generate_and_score_sync(self, prompts: List[Union[str, List[BaseMessage]]], num_responses: int = 5, show_progress_bars: Optional[bool] = True) -> UQResult:
+        """
+        Blocking, non-async counterpart to `generate_and_score`. Generate LLM responses, sampled LLM (candidate)
+        responses, and compute confidence scores with specified scorers for the provided prompts.
+
+        This method allows `BlackBoxUQ` to be used from purely synchronous code (e.g. a regular script or a
+        Jupyter cell that is not itself `async`) without requiring the caller to manage an event loop. It is
+        equivalent to `asyncio.run(self.generate_and_score(...))`, except it also works when called from a
+        thread that already has a running event loop (e.g. Jupyter/IPython kernels).
+
+        Parameters
+        ----------
+        prompts : List[Union[str, List[BaseMessage]]]
+            List of prompts from which LLM responses will be generated. Prompts in list may be strings or lists of BaseMessage. If providing
+            input type List[List[BaseMessage]], refer to https://python.langchain.com/docs/concepts/messages/#langchain-messages for support.
+
+        num_responses : int, default=5
+            The number of sampled responses used to compute consistency.
+
+        show_progress_bars : bool, default=True
+            If True, displays progress bars while generating and scoring responses
+
+        Returns
+        -------
+        UQResult
+            UQResult containing data (prompts, responses, and scores) and metadata
+        """
+        return run_sync(self.generate_and_score(prompts=prompts, num_responses=num_responses, show_progress_bars=show_progress_bars))
 
     def score(self, responses: List[str], sampled_responses: List[List[str]], show_progress_bars: Optional[bool] = True, _display_header: bool = True) -> UQResult:
         """
