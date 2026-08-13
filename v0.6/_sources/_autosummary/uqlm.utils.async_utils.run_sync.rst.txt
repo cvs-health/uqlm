@@ -1,0 +1,6 @@
+uqlm.utils.async\_utils.run\_sync
+=================================
+
+.. currentmodule:: uqlm.utils.async_utils
+
+.. autofunction:: run_sync

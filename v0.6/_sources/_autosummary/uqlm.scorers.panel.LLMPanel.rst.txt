@@ -18,9 +18,11 @@ uqlm.scorers.panel.LLMPanel
    
       ~LLMPanel.__init__
       ~LLMPanel.generate_and_score
+      ~LLMPanel.generate_and_score_sync
       ~LLMPanel.generate_candidate_responses
       ~LLMPanel.generate_original_responses
       ~LLMPanel.score
+      ~LLMPanel.score_sync
    
    
 

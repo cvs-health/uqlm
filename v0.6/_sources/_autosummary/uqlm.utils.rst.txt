@@ -28,6 +28,7 @@
    :template: module.rst
    :recursive:
 
+   async_utils
    dataloader
    device
    display
