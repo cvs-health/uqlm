@@ -18,7 +18,9 @@ uqlm.nli.nli.NLI
    
       ~NLI.__init__
       ~NLI.get_nli_results
+      ~NLI.get_nli_results_batch
       ~NLI.predict
+      ~NLI.predict_batch
    
    
 

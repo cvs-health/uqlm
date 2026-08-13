@@ -18,6 +18,7 @@ uqlm.scorers.shortform.black\_box.BlackBoxUQ
    
       ~BlackBoxUQ.__init__
       ~BlackBoxUQ.generate_and_score
+      ~BlackBoxUQ.generate_and_score_sync
       ~BlackBoxUQ.generate_candidate_responses
       ~BlackBoxUQ.generate_original_responses
       ~BlackBoxUQ.score
