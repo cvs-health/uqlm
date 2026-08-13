@@ -23,7 +23,23 @@ import numpy as np
 
 
 class SemanticDensity(ShortFormUQ):
-    def __init__(self, llm=None, postprocessor: Any = None, device: Any = None, system_prompt: str = "You are a helpful assistant.", max_calls_per_min: Optional[int] = None, use_n_param: bool = False, sampling_temperature: float = 1.0, verbose: bool = False, nli_model_name: str = "microsoft/deberta-large-mnli", max_length: int = 2000, return_responses: str = "all", length_normalize: bool = True):
+    def __init__(
+        self,
+        llm=None,
+        postprocessor: Any = None,
+        device: Any = None,
+        system_prompt: str = "You are a helpful assistant.",
+        max_calls_per_min: Optional[int] = None,
+        use_n_param: bool = False,
+        sampling_temperature: float = 1.0,
+        verbose: bool = False,
+        nli_model_name: str = "microsoft/deberta-large-mnli",
+        max_length: int = 2000,
+        return_responses: str = "all",
+        length_normalize: bool = True,
+        nli: Any = None,
+        nli_batch_size: int = 32,
+    ):
         """
         Class for computing semantic density and associated confidence scores. For more on semantic density, refer to Qiu et al.(2024) :footcite:`qiu2024semanticdensityuncertaintyquantification`.
 
@@ -72,6 +88,13 @@ class SemanticDensity(ShortFormUQ):
 
         length_normalize : bool, default=True
             Determines whether response probabilities are length-normalized. Recommended to set as True when longer responses are expected.
+
+        nli : NLI, default=None
+            An existing NLI instance to reuse. If provided, no new NLI model is loaded and `nli_model_name`,
+            `max_length`, `device`, and `nli_batch_size` are ignored for NLI construction.
+
+        nli_batch_size : int, default=32
+            Number of premise-hypothesis pairs scored per forward pass by the NLI model. Ignored if `nli` is provided.
         """
         super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor)
         self.nli_model_name = nli_model_name
@@ -79,7 +102,8 @@ class SemanticDensity(ShortFormUQ):
         self.verbose = verbose
         self.sampling_temperature = sampling_temperature
         self.return_responses = return_responses
-        self._setup_nli(nli_model_name)
+        self.nli_batch_size = nli_batch_size
+        self._setup_nli(nli_model_name, nli=nli)
         self.prompts = None
         self.length_normalize = length_normalize
         self.clusterer = SemanticClusterer(nli=self.nli)
@@ -177,6 +201,20 @@ class SemanticDensity(ShortFormUQ):
         if self.progress_bar:
             progress_task = self.progress_bar.add_task("  - Scoring responses with semantic clustering...", total=n_prompts)
 
+        # Prompts are scored independently, so all uncached pairs across all prompts can be
+        # evaluated in one batched pass; _semantic_density_process then reads from the NLI cache
+        prefill_pairs, seen = [], set()
+        for i in range(n_prompts):
+            for candidate in self.sampled_responses[i]:
+                pair = (f"{self.prompts[i]}\n{self.responses[i]}", f"{self.prompts[i]}\n{candidate}")
+                if pair not in self.nli.probabilities and pair not in seen:
+                    prefill_pairs.append(pair)
+                    seen.add(pair)
+        if prefill_pairs:
+            probabilities = self.nli.predict_batch(prefill_pairs)
+            for k, pair in enumerate(prefill_pairs):
+                self.nli.probabilities[pair] = probabilities[k : k + 1]
+
         for i in range(n_prompts):
             _process_i(i)
             if self.progress_bar:
@@ -205,14 +243,17 @@ class SemanticDensity(ShortFormUQ):
         tokenprob_response_probabilities, _ = compute_response_probabilities(logprobs_results=logprobs_results, num_responses=len(candidates), length_normalize=self.length_normalize)
 
         # Compute entailment of each candidate response by the original response,
-        # conditioned on prompt
-        nli_scores = []
-        for candidate in candidates:
-            inputs = (f"{prompt}\n{original_response}", f"{prompt}\n{candidate}")
-            if inputs[0] + "_" + inputs[1] not in self.nli.probabilities:
-                nli_scores.append(self.nli.predict(inputs[0], inputs[1]))
-            else:
-                nli_scores.append(self.nli.probabilities[inputs[0] + "_" + inputs[1]])
+        # conditioned on prompt. Uncached pairs are evaluated in one batched forward pass.
+        pairs = [(f"{prompt}\n{original_response}", f"{prompt}\n{candidate}") for candidate in candidates]
+        uncached_pairs = []
+        for pair in pairs:
+            if pair not in self.nli.probabilities and pair not in uncached_pairs:
+                uncached_pairs.append(pair)
+        if uncached_pairs:
+            probabilities = self.nli.predict_batch(uncached_pairs)
+            for k, pair in enumerate(uncached_pairs):
+                self.nli.probabilities[pair] = probabilities[k : k + 1]
+        nli_scores = [self.nli.probabilities[pair] for pair in pairs]
 
         # Use NLI model to estimate semantic distance between each candidate response
         # and the original response

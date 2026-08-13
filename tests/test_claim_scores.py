@@ -163,9 +163,10 @@ class ConcreteClaimScorer(ClaimScorer):
         self.matched_claim = matched_claim
         self.progress_bar = progress_bar
 
-        # Mock the NLI predict method to return a numpy array
+        # Mock the NLI predict methods to return numpy arrays
         # Format: [contradiction, neutral, entailment]
         self.nli.predict.return_value = np.array([[0.1, 0.1, 0.8]])
+        self.nli.predict_batch.side_effect = lambda pairs: np.tile(np.array([[0.1, 0.1, 0.8]]), (len(pairs), 1))
 
     def evaluate(self, claim_sets: List[List[str]], sampled_responses: List[List[str]]) -> ClaimScores:
         """Implement the abstract method for testing."""
@@ -198,19 +199,22 @@ class TestClaimScorer:
         claims = ["Claim 1", "Claim 2"]
         candidates = ["Response 1", "Response 2"]
 
-        # Patch the _get_nli_agreement_scores method to return fixed values
-        with patch.object(ConcreteClaimScorer, "_get_nli_agreement_scores", return_value=(0.8, 0.9, 0.89)):
-            entail_scores, noncontradict_scores, contrast_entail_scores = scorer._compute_claim_level_nli_scores(claims, candidates)
+        # The mocked NLI returns [0.1, 0.1, 0.8] for every pair in the batch
+        entail_scores, noncontradict_scores, contrast_entail_scores = scorer._compute_claim_level_nli_scores(claims, candidates)
 
-            # Check the shape of the output arrays
-            assert entail_scores.shape == (2, 2)
-            assert noncontradict_scores.shape == (2, 2)
-            assert contrast_entail_scores.shape == (2, 2)
+        # All claim-candidate pairs must be scored in a single batched call
+        scorer.nli.predict_batch.assert_called_once()
+        assert len(scorer.nli.predict_batch.call_args.args[0]) == 4
 
-            # Check that all values are filled with our fixed values
-            assert np.all(entail_scores == 0.8)
-            assert np.all(noncontradict_scores == 0.9)
-            assert np.all(contrast_entail_scores == 0.89)
+        # Check the shape of the output arrays
+        assert entail_scores.shape == (2, 2)
+        assert noncontradict_scores.shape == (2, 2)
+        assert contrast_entail_scores.shape == (2, 2)
+
+        # Check that all values are derived from the mocked probabilities
+        assert np.all(entail_scores == 0.8)
+        assert np.all(noncontradict_scores == pytest.approx(0.9))
+        assert np.all(contrast_entail_scores == pytest.approx(0.8 / (0.8 + 0.1)))
 
     def test_compute_matched_nli_scores(self, scorer):
         """Test _compute_matched_nli_scores method."""

@@ -4,7 +4,7 @@ import math
 from unittest.mock import MagicMock, AsyncMock
 
 from uqlm.code.entropy import FunctionalEntropy
-from uqlm.nli.entropy_utils import compute_response_probabilities, compute_semantic_entropy, length_norm_sequence_prob, normalize_cluster_probabilities
+from uqlm.nli.entropy_utils import compute_response_probabilities, compute_semantic_entropy, compute_cluster_probabilities, length_norm_sequence_prob, normalize_cluster_probabilities
 
 
 # Fixtures
@@ -103,13 +103,42 @@ def test_compute_response_probabilities():
 
 
 def test_compute_cluster_probabilities():
-    fe = FunctionalEntropy(equivalence_llm=MagicMock())
-
     response_probs = [0.5, 0.5]
     cluster_indices = [[0, 1]]
 
-    result = fe._compute_cluster_probabilities(cluster_indices, response_probs)
+    result = compute_cluster_probabilities(response_probabilities=response_probs, cluster_indices=cluster_indices)
     assert result == [1.0]
+
+    # Non-uniform probabilities must map to clusters by index, not rotated
+    result = compute_cluster_probabilities(response_probabilities=[0.7, 0.2, 0.1], cluster_indices=[[0, 1], [2]])
+    assert np.allclose(result, [0.9, 0.1])
+
+
+# Regression: cluster probabilities must not be rotated ([j-1] wraparound bug)
+
+
+def test_functional_entropy_process_nonuniform_probabilities():
+    """Hand-computed case with non-uniform response probabilities.
+
+    Anchor probability 0.7, samples 0.2/0.1, clusters {anchor, sample1} and {sample2}.
+    The old [j - 1] indexing rotated the probabilities (cluster 1 received 0.1 + 0.7
+    instead of 0.7 + 0.2), which only the uniform discrete path could survive.
+    """
+    fe = FunctionalEntropy(equivalence_llm=MagicMock())
+    fe.num_responses = 2  # two samples; candidates = anchor + samples = 3
+
+    cluster_indices = [[0, 1], [2]]  # 0 = anchor
+    logprobs = [[{"logprob": math.log(0.7)}], [{"logprob": math.log(0.2)}], [{"logprob": math.log(0.1)}]]
+
+    discrete, tokenprob, num_sets = fe._functional_entropy_process(single_prompt_cluster_indices=cluster_indices, logprobs_results=logprobs)
+
+    assert num_sets == 2
+    # tokenprob cluster probabilities: [0.7 + 0.2, 0.1] = [0.9, 0.1]
+    expected_tokenprob_entropy = -(0.9 * math.log(0.9) + 0.1 * math.log(0.1))
+    assert np.isclose(tokenprob, expected_tokenprob_entropy)
+    # discrete (uniform 1/3 each): [2/3, 1/3] — identical under the old bug, which is why it went unnoticed
+    expected_discrete_entropy = -((2 / 3) * math.log(2 / 3) + (1 / 3) * math.log(1 / 3))
+    assert np.isclose(discrete, expected_discrete_entropy)
 
 
 # Test _compute_semantic_entropy()

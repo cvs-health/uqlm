@@ -113,3 +113,29 @@ def test_compute_semantic_density(scorer):
         assert isinstance(result, list)
         assert len(result) == len(responses)
         assert result == [1.1, 1.2]
+
+
+def test_heavyweight_members_reused_across_evaluate_calls(scorer):
+    """Regression test: SemanticEntropy/SemanticDensity/CosineScorer were re-instantiated on every call."""
+    mock_uq_result = MagicMock()
+    mock_uq_result.to_dict.return_value = {"data": {"tokenprob_confidence_scores": [0.5], "semantic_density_values": [0.5]}}
+
+    with patch("uqlm.white_box.sampled_logprobs.NLI") as mock_nli_class, patch("uqlm.white_box.sampled_logprobs.SemanticEntropy") as mock_se_class, patch("uqlm.white_box.sampled_logprobs.SemanticDensity") as mock_sd_class, patch("uqlm.white_box.sampled_logprobs.CosineScorer") as mock_cs_class:
+        mock_se_class.return_value.score.return_value = mock_uq_result
+        mock_sd_class.return_value.score.return_value = mock_uq_result
+        mock_cs_class.return_value.evaluate.return_value = [0.5]
+
+        kwargs = dict(responses=["r"], sampled_responses=[["s"]], logprobs_results=[[{"logprob": -0.1}]], sampled_logprobs_results=[[[{"logprob": -0.2}]]], prompts=["p"])
+        for _ in range(2):
+            scorer.compute_semantic_negentropy(**kwargs)
+            scorer.compute_semantic_density(**kwargs)
+        with patch.object(scorer, "_compute_single_generation_scores", return_value=[0.5]):
+            for _ in range(2):
+                scorer.compute_consistency_confidence(responses=["r"], sampled_responses=[["s"]], logprobs_results=[[{"logprob": -0.1}]])
+
+    assert mock_nli_class.call_count == 1  # one shared NLI model
+    assert mock_se_class.call_count == 1
+    assert mock_sd_class.call_count == 1
+    assert mock_cs_class.call_count == 1
+    # SemanticEntropy and SemanticDensity must share the same NLI instance
+    assert mock_se_class.call_args.kwargs["nli"] is mock_sd_class.call_args.kwargs["nli"]

@@ -20,6 +20,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from uqlm.scorers.shortform.entropy import SemanticEntropy
 from uqlm.scorers.shortform.density import SemanticDensity
 from uqlm.black_box.cosine import CosineScorer
+from uqlm.nli.nli import NLI
 from uqlm.white_box.baseclass.logprobs_scorer import LogprobsScorer
 
 
@@ -27,7 +28,7 @@ SAMPLED_LOGPROBS_SCORER_NAMES = ["semantic_negentropy", "semantic_density", "mon
 
 
 class SampledLogprobsScorer(LogprobsScorer):
-    def __init__(self, scorers: List[str] = SAMPLED_LOGPROBS_SCORER_NAMES, llm: BaseChatModel = None, nli_model_name: str = "microsoft/deberta-large-mnli", max_length: int = 2000, prompts_in_nli: bool = True, length_normalize: bool = True, device: Any = None, sentence_transformer: str = "sentence-transformers/all-MiniLM-L6-v2") -> None:
+    def __init__(self, scorers: List[str] = SAMPLED_LOGPROBS_SCORER_NAMES, llm: BaseChatModel = None, nli_model_name: str = "microsoft/deberta-large-mnli", max_length: int = 2000, prompts_in_nli: bool = True, length_normalize: bool = True, device: Any = None, sentence_transformer: str = "sentence-transformers/all-MiniLM-L6-v2", nli_batch_size: int = 32) -> None:
         """
         Initialize the SampledLogprobsScorer.
 
@@ -61,6 +62,10 @@ class SampledLogprobsScorer(LogprobsScorer):
             Specifies which huggingface sentence transformer to use when computing cosine similarity. See
             https://huggingface.co/sentence-transformers?sort_models=likes#models
             for more information. The recommended sentence transformer is 'sentence-transformers/all-MiniLM-L6-v2'.
+
+        nli_batch_size : int, default=32
+            Number of premise-hypothesis pairs scored per forward pass by the NLI model. Only applies to
+            'semantic_negentropy' and 'semantic_density' scorers.
         """
         super().__init__()
         self.scorers = scorers
@@ -72,6 +77,11 @@ class SampledLogprobsScorer(LogprobsScorer):
         self.semantic_negentropy_scorer = None
         self.device = device
         self.sentence_transformer = sentence_transformer
+        self.nli_batch_size = nli_batch_size
+        # Heavyweight members are constructed lazily on first use and reused across evaluate() calls
+        self._nli = None
+        self._cosine_scorer = None
+        self._semantic_density_scorer = None
 
     def evaluate(self, responses: List[str], sampled_responses: List[List[str]], logprobs_results: List[List[Dict[str, Any]]], sampled_logprobs_results: Optional[List[List[List[Dict[str, Any]]]]] = None, prompts: List[str] = None, progress_bar: Optional[Progress] = None):
         scores_dict = {}
@@ -85,8 +95,16 @@ class SampledLogprobsScorer(LogprobsScorer):
             scores_dict["semantic_density"] = self.compute_semantic_density(responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results, prompts=prompts, progress_bar=progress_bar)
         return {k: scores_dict[k] for k in self.scorers}
 
+    def _get_nli(self) -> NLI:
+        """Load the NLI model once and share it across scorers and evaluate() calls"""
+        if self._nli is None:
+            self._nli = NLI(nli_model_name=self.nli_model_name, device=self.device, max_length=self.max_length, batch_size=self.nli_batch_size)
+        return self._nli
+
     def compute_consistency_confidence(self, responses: List[str], sampled_responses: List[List[str]], logprobs_results: List[List[Dict[str, Any]]], progress_bar: Optional[Progress] = None) -> List[float]:
-        cosine_scores = CosineScorer(transformer=self.sentence_transformer).evaluate(responses=responses, sampled_responses=sampled_responses, progress_bar=progress_bar)
+        if self._cosine_scorer is None:
+            self._cosine_scorer = CosineScorer(transformer=self.sentence_transformer)
+        cosine_scores = self._cosine_scorer.evaluate(responses=responses, sampled_responses=sampled_responses, progress_bar=progress_bar)
         score_fn = self._norm_prob if self.length_normalize else self._seq_prob
         response_probs = self._compute_single_generation_scores(logprobs_results, score_fn)
         cocoa_scores = [cs * rp for cs, rp in zip(cosine_scores, response_probs)]
@@ -103,19 +121,22 @@ class SampledLogprobsScorer(LogprobsScorer):
         return monte_carlo_scores
 
     def compute_semantic_negentropy(self, responses: List[str], prompts: List[str], sampled_responses: List[List[str]], logprobs_results: List[List[Dict[str, Any]]], sampled_logprobs_results: List[List[List[Dict[str, Any]]]], progress_bar: Optional[Progress] = None) -> List[float]:
-        self.semantic_negentropy_scorer = SemanticEntropy(llm=self.llm, nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=False, prompts_in_nli=self.prompts_in_nli, length_normalize=self.length_normalize, device=self.device)
+        if self.semantic_negentropy_scorer is None:
+            self.semantic_negentropy_scorer = SemanticEntropy(llm=self.llm, nli_model_name=self.nli_model_name, max_length=self.max_length, use_best=False, prompts_in_nli=self.prompts_in_nli, length_normalize=self.length_normalize, device=self.device, nli=self._get_nli())
+        self.semantic_negentropy_scorer.prompts_in_nli = self.prompts_in_nli
         self.semantic_negentropy_scorer.progress_bar = progress_bar
         show_progress_bars = True if progress_bar else False
         se_result = self.semantic_negentropy_scorer.score(responses=responses, prompts=prompts, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results, show_progress_bars=show_progress_bars, _display_header=False)
         return se_result.to_dict()["data"]["tokenprob_confidence_scores"]
 
     def compute_semantic_density(self, responses: List[str], sampled_responses: List[List[str]], logprobs_results: List[List[Dict[str, Any]]], sampled_logprobs_results: List[List[List[Dict[str, Any]]]], prompts: List[str] = None, progress_bar: Optional[Progress] = None) -> List[float]:
-        semantic_density_scorer = SemanticDensity(llm=self.llm, nli_model_name=self.nli_model_name, max_length=self.max_length, length_normalize=self.length_normalize, device=self.device)
+        if self._semantic_density_scorer is None:
+            # Shares the NLI instance (and its pair-probability cache) with the semantic entropy scorer
+            self._semantic_density_scorer = SemanticDensity(llm=self.llm, nli_model_name=self.nli_model_name, max_length=self.max_length, length_normalize=self.length_normalize, device=self.device, nli=self._get_nli())
+        semantic_density_scorer = self._semantic_density_scorer
         if self.semantic_negentropy_scorer:
-            semantic_density_scorer.nli.probabilities = self.semantic_negentropy_scorer.clusterer.nli.probabilities
             show_progress_bars = False
         else:
-            semantic_density_scorer.nli.probabilities = dict()
             semantic_density_scorer.progress_bar = progress_bar
             show_progress_bars = True
         sd_result = semantic_density_scorer.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results, show_progress_bars=show_progress_bars, _display_header=False)

@@ -114,11 +114,8 @@ class MatchedUnitScorer(ClaimScorer):
 
     def _compute_matched_cosine_scores(self, claim: str, candidate_claims: List[str]) -> float:
         """Compute maximum matched-unit cosine similarity score"""
-        max_cosine_sim = 0
-        for candidate in candidate_claims:
-            cosine_sim = self.cosine_scorer._compute_score(claim, [candidate])
-            max_cosine_sim = max(max_cosine_sim, float(cosine_sim))
-        return max_cosine_sim
+        cosine_sims = self.cosine_scorer._compute_score(claim, candidate_claims)
+        return max((float(cosine_sim) for cosine_sim in cosine_sims), default=0)
 
     def _compute_response_level_bert_score_lists(self, claim_sets: List[List[str]], sampled_claim_sets: List[List[List[str]]]) -> List[List[float]]:
         """Compute list of claim-level scores for each response"""

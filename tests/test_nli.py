@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import gc
+import numpy as np
 import pytest
 from uqlm.nli.nli import NLI
 
@@ -27,7 +28,7 @@ def text2():
     return "Question: What is captial of France, Answer: Capital of France is Paris city."
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def nli_model():
     return NLI(device="cpu")
 
@@ -40,9 +41,7 @@ def nli_model_cpu():
 @pytest.mark.flaky(reruns=3)
 def test_nli(text1, text2, nli_model):
     probabilities = nli_model.predict(text1, text2)
-    del nli_model
-    gc.collect()
-    assert abs(float(probabilities[0][0]) - 0.00159405) < 1e-5
+    assert abs(float(probabilities[0][0]) - 0.0012184) < 1e-5
 
 
 # @pytest.mark.flaky(reruns=3)
@@ -81,3 +80,103 @@ def test_nli3(text1, text2, nli_model_cpu):
 #     assert pytest.approx(tokenprob_semantic_entropy, abs=1e-5) == 0.6918935849478249
 #     del nli_model_cpu
 #     gc.collect()
+
+
+@pytest.mark.flaky(reruns=3)
+def test_pair_encoding_is_canonical(nli_model, text1, text2):
+    """Inputs must use the tokenizer's canonical pair encoding for the default model."""
+    tokenizer = nli_model.tokenizer
+    expected = tokenizer.build_inputs_with_special_tokens(tokenizer(text1, add_special_tokens=False).input_ids, tokenizer(text2, add_special_tokens=False).input_ids)
+    assert tokenizer(text1, text2).input_ids == expected
+
+
+@pytest.mark.flaky(reruns=3)
+def test_predict_batch_matches_sequential(nli_model, text1, text2):
+    """Batched inference must produce the same probabilities as one-pair-at-a-time inference."""
+    pairs = [(text1, text2), (text2, text1), ("Today is a beautiful day", "It is quite rainy and unpleasant outside"), ("The sky is blue", "The sky is blue today"), (text1, text1)]
+    batched = nli_model.predict_batch(pairs)
+    sequential = np.concatenate([nli_model.predict(premise, hypothesis) for premise, hypothesis in pairs])
+    assert batched.shape == (len(pairs), 3)
+    assert np.allclose(batched, sequential, atol=1e-5)
+    assert np.allclose(batched.sum(axis=1), 1.0, atol=1e-5)
+
+
+@pytest.mark.flaky(reruns=3)
+def test_predict_batch_chunking(nli_model, text1, text2):
+    """Results must not depend on how pairs are split into forward-pass chunks."""
+    pairs = [(text1, text2), (text2, text1), ("The sky is blue", "The ocean is deep"), ("Water is wet", "Fire is hot"), ("Cats are mammals", "Cats are animals")]
+    original_batch_size = nli_model.batch_size
+    try:
+        nli_model.batch_size = 2
+        chunked = nli_model.predict_batch(pairs)
+    finally:
+        nli_model.batch_size = original_batch_size
+    unchunked = nli_model.predict_batch(pairs)
+    assert np.allclose(chunked, unchunked, atol=1e-5)
+
+
+@pytest.mark.flaky(reruns=3)
+def test_predict_batch_empty(nli_model):
+    result = nli_model.predict_batch([])
+    assert result.shape == (0, 3)
+
+
+@pytest.mark.flaky(reruns=3)
+def test_cache_uses_tuple_keys_without_collision(nli_model):
+    """Regression test: string cache keys f"{r1}_{r2}" collided for ("a_b", "c") vs ("a", "b_c")."""
+    nli_model.probabilities = dict()
+    result1 = nli_model.get_nli_results("a_b", "c")
+    result2 = nli_model.get_nli_results("a", "b_c")
+    assert set(nli_model.probabilities.keys()) == {("a_b", "c"), ("c", "a_b"), ("a", "b_c"), ("b_c", "a")}
+    # Under the old underscore-joined keys, both pairs mapped to "a_b_c" and shared one entry
+    assert not np.allclose(nli_model.probabilities[("a_b", "c")], nli_model.probabilities[("a", "b_c")])
+    assert result1["noncontradiction_score"] != result2["noncontradiction_score"]
+
+
+@pytest.mark.flaky(reruns=3)
+def test_cache_hit_returns_stored_result(nli_model, text1, text2):
+    """A cached pair must be reused without another forward pass."""
+    nli_model.probabilities = dict()
+    first = nli_model.get_nli_results(text1, text2)
+    forward_calls = []
+    original_predict_batch = nli_model.predict_batch
+
+    def counting_predict_batch(pairs):
+        forward_calls.append(pairs)
+        return original_predict_batch(pairs)
+
+    nli_model.predict_batch = counting_predict_batch
+    try:
+        second = nli_model.get_nli_results(text1, text2)
+    finally:
+        nli_model.predict_batch = original_predict_batch
+    assert forward_calls == []
+    assert first["noncontradiction_score"] == second["noncontradiction_score"]
+    assert first["entailment"] == second["entailment"]
+
+
+@pytest.mark.flaky(reruns=3)
+def test_get_nli_results_batch_matches_single(nli_model, text1, text2):
+    """Batch results must match single-pair results, including the identical-response shortcut."""
+    nli_model.probabilities = dict()
+    batch = nli_model.get_nli_results_batch([(text1, text2), (text1, text1), (text2, text1)])
+    nli_model.probabilities = dict()
+    singles = [nli_model.get_nli_results(text1, text2), nli_model.get_nli_results(text1, text1), nli_model.get_nli_results(text2, text1)]
+    for batch_result, single_result in zip(batch, singles):
+        assert batch_result["entailment"] == single_result["entailment"]
+        assert abs(batch_result["noncontradiction_score"] - single_result["noncontradiction_score"]) < 1e-5
+        assert abs(batch_result["entailment_score"] - single_result["entailment_score"]) < 1e-5
+    assert batch[1] == {"noncontradiction_score": 1, "entailment": True, "entailment_score": 1}
+
+
+@pytest.mark.flaky(reruns=3)
+def test_token_level_truncation(nli_model):
+    """Inputs beyond the model's token limit must be truncated instead of overflowing the model."""
+    assert nli_model.max_tokens == 512
+    long_text = "The quick brown fox jumps over the lazy dog and keeps running through the forest. " * 60
+    with pytest.warns(UserWarning, match="Truncation will occur"):
+        probabilities = nli_model.predict(long_text, long_text[:150])
+    assert probabilities.shape == (1, 3)
+    assert np.allclose(probabilities.sum(axis=1), 1.0, atol=1e-5)
+    encoded = nli_model.tokenizer(long_text[0 : nli_model.max_length], long_text[:150], truncation="longest_first", max_length=nli_model.max_tokens)
+    assert len(encoded.input_ids) <= nli_model.max_tokens

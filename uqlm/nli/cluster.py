@@ -41,22 +41,27 @@ class SemanticClusterer:
         entailments = {}
         entailment_scores = {}
         for i in range(1, len(responses)):
+            # Batch-evaluate all not-yet-assessed (cluster representative, response) pairs in one forward pass
+            pending_keys = []
+            for cluster in clusters:
+                text1 = f"{prompt}\n{cluster[0]}" if prompt else cluster[0]
+                text2 = f"{prompt}\n{responses[i]}" if prompt else responses[i]
+                key = (text1, text2)
+                if key not in noncontradiction_scores and key not in pending_keys:
+                    pending_keys.append(key)
+            if pending_keys:
+                nli_results = self.nli.get_nli_results_batch(pending_keys)
+                for key, nli_result in zip(pending_keys, nli_results):
+                    rev_key = (key[1], key[0])
+                    noncontradiction_scores[key] = noncontradiction_scores[rev_key] = nli_result["noncontradiction_score"]
+                    entailments[key] = entailments[rev_key] = nli_result["entailment"]
+                    entailment_scores[key] = entailment_scores[rev_key] = nli_result["entailment_score"]
+
             new_cluster_indicator = True
             for j, cluster in enumerate(clusters):
                 text1 = f"{prompt}\n{cluster[0]}" if prompt else cluster[0]
                 text2 = f"{prompt}\n{responses[i]}" if prompt else responses[i]
-                key, rev_key = (text1, text2), (text2, text1)
-                if key in noncontradiction_scores:
-                    # Do not recompute if pair already assessed
-                    entailment = entailments[key]
-                else:
-                    # Compute nli score and entailment if pair not yet assessed
-                    nli_result = self.nli.get_nli_results(response1=text1, response2=text2)
-                    noncontradiction_score, entailment, entailment_score = nli_result["noncontradiction_score"], nli_result["entailment"], nli_result["entailment_score"]
-                    noncontradiction_scores[key], noncontradiction_scores[rev_key] = noncontradiction_score, noncontradiction_score
-                    entailments[key], entailments[rev_key] = entailment, entailment
-                    entailment_scores[key], entailment_scores[rev_key] = entailment_score, entailment_score
-                if entailment:
+                if entailments[(text1, text2)]:
                     new_cluster_indicator = False
                     cluster.append(responses[i])
                     cluster_indices[j].append(i)
