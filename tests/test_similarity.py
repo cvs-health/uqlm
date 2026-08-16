@@ -13,7 +13,6 @@
 # limitations under the License.
 import json
 import numpy as np
-import pytest
 from uqlm.black_box import BertScorer, CosineScorer, MatchScorer
 from uqlm.black_box.baseclass.similarity_scorer import SimilarityScorer
 
@@ -52,6 +51,14 @@ def test_exact_match():
     match = MatchScorer()
     match_result = match.evaluate(responses=responses, sampled_responses=sampled_responses)
     assert all([abs(match_result[i] - data["match_result"][i]) < 1e-5 for i in range(len(match_result))])
+
+
+def test_exact_match_empty_candidates():
+    """Empty sampled responses yield 0.0 match rate, not NaN."""
+    match = MatchScorer()
+    result = match.evaluate(responses=["hello"], sampled_responses=[[]])
+    assert result == [0.0]
+    assert not np.isnan(result[0])
 
 
 def test_abstract_base_class():

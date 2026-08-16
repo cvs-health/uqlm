@@ -64,4 +64,8 @@ class MatchScorer(SimilarityScorer):
     @staticmethod
     def _compute_score(response: str, candidates: List[str]) -> float:
         """Get mean exact match rate between response and set of candidates"""
+        if not candidates:
+            # No sampled responses for this prompt: no evidence of a match,
+            # and np.mean([]) would leak NaN into the aggregated scores.
+            return 0.0
         return np.mean([1 if response == c else 0 for c in candidates])
