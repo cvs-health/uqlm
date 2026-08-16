@@ -15,6 +15,7 @@
 import itertools
 import pytest
 import asyncio
+import time
 from langchain_openai import AzureChatOpenAI
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -398,3 +399,29 @@ async def test_ainvoke_with_top_logprobs_all_fail_placeholder_scales_with_count(
     assert len(result["responses"]) == 3
     assert all(r == FAILED_RESPONSE for r in result["responses"])
     assert len(result["logprobs"]) == 3
+
+
+@pytest.mark.asyncio
+async def test_rate_limit_pauses_do_not_block_event_loop(monkeypatch):
+    """Regression for #416: the rate-limit pause must await asyncio.sleep,
+    not call time.sleep, so the event loop is not frozen for ~61 seconds."""
+    mock_object = create_mock_llm()
+    generator = ResponseGenerator(llm=mock_object, max_calls_per_min=1)
+    monkeypatch.setattr(generator, "_async_api_call", create_mock_async_api_call())
+
+    sleeper_calls = []
+
+    async def spy_sleep(seconds):
+        sleeper_calls.append(seconds)
+
+    monkeypatch.setattr(asyncio, "sleep", spy_sleep)
+
+    def fail_if_blocking_sleep(seconds):
+        raise AssertionError("time.sleep must not be used in async generation paths")
+
+    monkeypatch.setattr(time, "sleep", fail_if_blocking_sleep)
+
+    data = await generator.generate_responses(prompts=MOCKED_PROMPTS, count=1)
+
+    assert len(data["data"]["prompt"]) == len(MOCKED_PROMPTS)
+    assert any(seconds > 60 for seconds in sleeper_calls), "rate-limit pause should await asyncio.sleep with ~61s"
