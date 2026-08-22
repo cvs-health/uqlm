@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import asyncio
-
 from uqlm.integrations.base import resolve_adapter
+from uqlm.utils.async_utils import run_sync
 import uqlm.integrations.langgraph.adapters  # noqa: F401 — triggers adapter registration
 
 # Allowed values for the ``mode`` argument. ``"score"`` scores precomputed
@@ -99,7 +98,13 @@ class UQLMNode:
         return {self.output_key: payload}
 
     def __call__(self, state: dict) -> dict:
-        return asyncio.run(self.__acall__(state))
+        """Synchronous entry point, for graphs invoked with ``invoke``/``stream``.
+
+        Delegates to ``run_sync`` rather than ``asyncio.run`` so the node also
+        works when LangGraph calls it from inside an already-running event loop
+        (async graphs, Jupyter kernels), where ``asyncio.run`` raises.
+        """
+        return run_sync(self.__acall__(state))
 
 
 def make_uqlm_node(scorer, **kwargs):
