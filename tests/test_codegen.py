@@ -120,3 +120,37 @@ async def test_score_produces_expected_data(mock_wb, mock_find_spec, mock_llm, a
         assert "cosine_sim" in data
         assert "sequence_probability" in data
         assert "functional_negentropy" in data
+
+
+# Regression tests for fixed bugs
+
+
+@patch("uqlm.scorers.shortform.white_box.WhiteBoxUQ")
+def test_validate_scorers_c_and_c_unions_prereqs(mock_wb, mock_llm):
+    """Regression: requesting consistency_and_confidence must add cosine_sim + sequence_probability, not replace the set."""
+    cg = CodeGenUQ(llm=mock_llm, scorers=["consistency_and_confidence"])
+    assert "consistency_and_confidence" in cg.scorers
+    assert "cosine_sim" in cg.scorers
+    assert "sequence_probability" in cg.scorers
+
+
+@patch("importlib.util.find_spec", side_effect=_find_spec_codebleu_only)
+def test_validate_scorers_accepts_code_bleu_spelling(mock_find_spec, mock_llm):
+    """Regression: 'code_bleu' is the documented name; validator must accept it and init self.cb."""
+    with patch.dict(sys.modules, {"codebleu": MagicMock(calc_codebleu=MagicMock(return_value={"codebleu": 0.75}))}):
+        cg = CodeGenUQ(llm=mock_llm, scorers=["code_bleu"])
+        assert "code_bleu" in cg.scorers
+        assert hasattr(cg, "cb")
+
+
+def test_validate_scorers_rejects_unknown(mock_llm):
+    """Unknown scorer name must raise ValueError."""
+    with pytest.raises(ValueError):
+        CodeGenUQ(llm=mock_llm, scorers=["not_a_real_scorer"])
+
+
+@patch("uqlm.code.entropy.FunctionalEntropy")
+def test_validate_scorers_defaults_when_none(mock_fe, mock_llm):
+    """scorers=None must fall back to DEFAULT_SCORERS."""
+    cg = CodeGenUQ(llm=mock_llm, scorers=None)
+    assert set(cg.scorers) == {"functional_equivalence_rate", "cosine_sim"}

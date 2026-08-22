@@ -28,6 +28,7 @@ The notebooks are organized into core methods, long-form techniques, and advance
 
 | Tutorial | Great fit for... | LLM Compatibility | Added Cost/Latency |
 |----------|-------------|-------------------|--------------|
+| [UQ for Code Generation](https://github.com/cvs-health/uqlm/blob/main/examples/codegen_demo.ipynb) | Uncertainty quantification for code generation | Varies by method | Varies by method |
 | [Multimodal UQ](https://github.com/cvs-health/uqlm/blob/main/examples/multimodal_demo.ipynb) | Uncertainty quantification with image+text inputs | Requires image-to-text model | Varies by method |
 | [Score Calibration](https://github.com/cvs-health/uqlm/blob/main/examples/score_calibration_demo.ipynb) | Converting raw scores to calibrated probabilities as a postprocessing step | Works with any UQ method | Negligible |
 | [Semantic Entropy](https://github.com/cvs-health/uqlm/blob/main/examples/semantic_entropy_demo.ipynb) | State-of-the-art UQ when token probabilities are available | Requires token probability access | Medium-High (multiple generations and comparisons) |

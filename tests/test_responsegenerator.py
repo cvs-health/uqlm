@@ -16,6 +16,7 @@ import itertools
 import pytest
 import asyncio
 from langchain_openai import AzureChatOpenAI
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import SystemMessage, HumanMessage
 from unittest.mock import MagicMock, AsyncMock
 from rich.progress import Progress
@@ -163,6 +164,28 @@ async def test_generate_in_batches_progress_bar():
     generator.count = 3
     await generator._generate_in_batches(prompts=prompts, progress_bar=mock_progress)
     mock_progress.add_task.assert_called_with(f"  - Generating candidate responses ({generator.count} per prompt)...", total=len(prompts) * generator.count)
+
+
+@pytest.mark.asyncio
+async def test_structured_outputs():
+    """Test that structured_response and output_extractor parameters are validated and work together."""
+
+    mock_llm = MagicMock(spec=BaseChatModel)
+    mock_llm.temperature = 1
+    generator = ResponseGenerator(llm=mock_llm, structured_response={"field": "value"}, output_extractor=lambda x: x["field"])
+    # Mock the LLM's ainvoke method to return a structured response
+    structured_llm = MagicMock()
+    structured_llm.ainvoke = AsyncMock(return_value={"field": "extracted_value"})
+    mock_llm.with_structured_output = MagicMock(return_value=structured_llm)
+    result = await generator.generate_responses(prompts=MOCKED_PROMPTS[:1], count=1)
+
+    # Assert that the output_extractor was called on the structured response
+    assert result["data"]["response"] == ["extracted_value"]
+
+    with pytest.raises(ValueError):
+        ResponseGenerator(llm=mock_llm, structured_response={"field": "value"})
+    with pytest.raises(ValueError):
+        ResponseGenerator(llm=mock_llm, output_extractor=lambda x: x["field"])
 
 
 @pytest.mark.asyncio

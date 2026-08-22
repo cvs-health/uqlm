@@ -9,10 +9,11 @@ from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ
 
 
 DEFAULT_SCORERS = ["functional_equivalence_rate", "cosine_sim"]
-WHITE_BOX_SCORERS = ["sequence_probability", "min_probability", "mean_token_negentropy", "min_token_negentropy", "probability_margin", "p_true", "consistency_and_confidence", "monte_carlo_probability"]
+WHITE_BOX_SCORERS = ["sequence_probability", "min_probability", "mean_token_negentropy", "min_token_negentropy", "probability_margin", "p_true", "monte_carlo_probability"]
+LOCAL_SCORERS = ["consistency_and_confidence"]  # computed locally in CodeGenUQ.score()
 FUNCTIONAL_EQUIVALENCE_SCORERS = ["functional_negentropy", "functional_sets_confidence", "functional_equivalence_rate"]
 OTHER_SCORERS = ["cosine_sim", "code_bleu", "verbalized_confidence"]
-ALL_SCORERS = WHITE_BOX_SCORERS + OTHER_SCORERS + FUNCTIONAL_EQUIVALENCE_SCORERS
+ALL_SCORERS = WHITE_BOX_SCORERS + OTHER_SCORERS + FUNCTIONAL_EQUIVALENCE_SCORERS + LOCAL_SCORERS
 
 
 class CodeGenUQ(ShortFormUQ):
@@ -139,12 +140,12 @@ class CodeGenUQ(ShortFormUQ):
                 if key in self.scorers:
                     data[key] = self.wb_results.data[key]
 
-        if "consistency_and_confidence" in self.scorers and "consistency_and_confidence" not in self.wbuq_scorers:
+        if "consistency_and_confidence" in self.scorers:
             data["consistency_and_confidence"] = [data["cosine_sim"][i] * data["sequence_probability"][i] for i in range(len(prompts))]
 
         # Compute Code BLEU confidence scores
-        if "codebleu" in self.scorers:
-            data["codebleu"] = self.cb.evaluate(responses=responses, sampled_responses=sampled_responses, progress_bar=self.progress_bar)
+        if "code_bleu" in self.scorers:
+            data["code_bleu"] = self.cb.evaluate(responses=responses, sampled_responses=sampled_responses, progress_bar=self.progress_bar)
 
         # Compute Functional Entropy scores
         if self.functional_equivalence_scorers == ["functional_equivalence_rate"]:
@@ -171,8 +172,8 @@ class CodeGenUQ(ShortFormUQ):
             raise ValueError(f"Invalid scorers: {list(set(self.scorers) - set(ALL_SCORERS))}")
 
         if "consistency_and_confidence" in self.scorers:
-            self.scorers = list(set(self.scorers) & set(["cosine_sim", "sequence_probability"]))
-        if "codebleu" in self.scorers:
+            self.scorers = list(set(self.scorers) | {"cosine_sim", "sequence_probability"})
+        if "code_bleu" in self.scorers:
             self.cb = CodeBLEU(language=self.language)
         if "verbalized_confidence" in self.scorers:
             self.vc = VerbalizedConfidence(llm=self.llm, max_calls_per_min=self.max_calls_per_min)

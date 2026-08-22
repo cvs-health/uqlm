@@ -23,11 +23,11 @@ from rich.errors import LiveError
 from uqlm.utils.response_generator import ResponseGenerator
 from uqlm.nli.nli import NLI
 from uqlm.utils.display import ConditionalBarColumn, ConditionalTimeElapsedColumn, ConditionalTextColumn, ConditionalSpinnerColumn
-from uqlm.utils.warn import deprecation_warning
+from uqlm.utils.warn import beta_warning, deprecation_warning
 
 
 class UncertaintyQuantifier:
-    def __init__(self, llm: Any = None, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, postprocessor: Optional[Any] = None) -> None:
+    def __init__(self, llm: Any = None, device: Any = None, system_prompt: Optional[str] = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, postprocessor: Optional[Any] = None, structured_response: Optional[Any] = None, output_extractor: Optional[Any] = None) -> None:
         """
         Parent class for uncertainty quantification of LLM responses
 
@@ -56,6 +56,12 @@ class UncertaintyQuantifier:
         postprocessor : callable, default=None
             A user-defined function that takes a string input and returns a string. Used for postprocessing
             outputs.
+
+        structured_response : Any, default=None
+            Specifies a structure such as a pydantic BaseModel class or a dict that is applied to the llm as `llm.with_structured_output(structured_response)`. Only used if `output_extractor` is not None.
+
+        output_extractor : callable, default=None
+            A user-defined function that is called on the output of an llm with structured output to extract the response. Only used if `structured_response` is not None.
         """
         self.llm = llm
         self.device = device
@@ -63,9 +69,13 @@ class UncertaintyQuantifier:
         self.system_prompt = system_prompt
         self.max_calls_per_min = max_calls_per_min
         self.use_n_param = use_n_param
+        self.structured_response = structured_response
+        self.output_extractor = output_extractor
         self.progress_bar = None
         self.raw_responses = None
         self.raw_sampled_responses = None
+
+        self._validate_structured_output_parameters()
 
         if self.use_n_param:
             deprecation_warning("The `use_n_param` option is deprecated and will not be used to generate responses.")
@@ -143,7 +153,7 @@ class UncertaintyQuantifier:
             llm_temperature = self.llm.temperature
             if temperature:
                 self.llm.temperature = temperature
-            generator_object = ResponseGenerator(llm=self.llm, max_calls_per_min=self.max_calls_per_min, use_n_param=self.use_n_param, top_k_logprobs=top_k_logprobs)
+            generator_object = ResponseGenerator(llm=self.llm, max_calls_per_min=self.max_calls_per_min, use_n_param=self.use_n_param, top_k_logprobs=top_k_logprobs, structured_response=self.structured_response, output_extractor=self.output_extractor)
             with contextlib.redirect_stdout(io.StringIO()):
                 generations = await generator_object.generate_responses(prompts=prompts, count=count, system_prompt=self.system_prompt, progress_bar=progress_bar)
             self.llm.temperature = llm_temperature
@@ -153,9 +163,20 @@ class UncertaintyQuantifier:
             raise
         return {"responses": generations["data"]["response"], "logprobs": generations["metadata"]["logprobs"]}
 
-    def _setup_nli(self, nli_model_name: Any) -> None:
-        """Set up NLI model"""
-        self.nli = NLI(nli_model_name=nli_model_name, device=self.device, max_length=self.max_length, verbose=self.verbose)
+    def _validate_structured_output_parameters(self) -> None:
+        if self.structured_response and not self.output_extractor:
+            raise ValueError("If `structured_response` is specified, `output_extractor` must also be specified.")
+        if self.output_extractor and not self.structured_response:
+            raise ValueError("If `output_extractor` is specified, `structured_response` must also be specified.")
+        if self.structured_response and self.output_extractor:
+            beta_warning("Use of structured_response and output_extractor is in beta. Please use with caution as implementation may change in future releases.")
+
+    def _setup_nli(self, nli_model_name: Any, nli: Optional[NLI] = None) -> None:
+        """Set up NLI model, reusing an injected instance if provided"""
+        if nli is not None:
+            self.nli = nli
+        else:
+            self.nli = NLI(nli_model_name=nli_model_name, device=self.device, max_length=self.max_length, verbose=self.verbose, batch_size=getattr(self, "nli_batch_size", 32))
 
     def _construct_progress_bar(self, show_progress_bars: bool, _existing_progress_bar: Any = None) -> None:
         """Constructs and starts progress bar"""

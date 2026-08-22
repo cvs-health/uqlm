@@ -14,6 +14,8 @@
 
 import os
 import platform
+import sys
+import types
 import pytest
 import pandas as pd
 from uqlm.utils.dataloader import load_example_dataset, list_dataset_names, _combine_question_and_choices
@@ -24,11 +26,47 @@ def test_list_dataset_names():
     datasets = list_dataset_names()
     assert isinstance(datasets, list)
     assert "gsm8k" in datasets
+    assert "factscore-stem-geo" in datasets
 
 
 def test_load_nonexistent_dataset():
     with pytest.raises(FileNotFoundError):
         load_example_dataset("nonexistent_dataset")
+
+
+def test_load_factscore_stem_geo(monkeypatch):
+    import uqlm.utils.dataloader as dataloader
+
+    class FakePage:
+        text = "Hydrogen is a chemical element."
+
+    class FakeWikipedia:
+        def __init__(self, user_agent, language):
+            self.user_agent = user_agent
+            self.language = language
+
+        def page(self, entity):
+            return FakePage()
+
+    fake_wikipediaapi = types.SimpleNamespace(Wikipedia=FakeWikipedia)
+    monkeypatch.setitem(sys.modules, "wikipediaapi", fake_wikipediaapi)
+    monkeypatch.setattr(dataloader.importlib.util, "find_spec", lambda name: object() if name == "wikipediaapi" else None)
+    monkeypatch.setattr(dataloader, "FACTSCORE_STEM_GEO_ENTITIES", {"chemical element": ["Hydrogen"]})
+
+    df = load_example_dataset("factscore-stem-geo")
+
+    assert list(df.columns) == ["entity_type", "entity", "question", "wikipedia_text"]
+    assert df["question"].iloc[0] == "Write a paragraph with some facts about the chemical element Hydrogen."
+    assert df["wikipedia_text"].iloc[0] == "Hydrogen is a chemical element."
+
+
+def test_load_factscore_stem_geo_warns_without_wikipediaapi(monkeypatch):
+    import uqlm.utils.dataloader as dataloader
+
+    monkeypatch.setattr(dataloader.importlib.util, "find_spec", lambda name: None if name == "wikipediaapi" else object())
+    with pytest.warns(UserWarning, match="wikipedia-api"):
+        with pytest.raises(ImportError, match="wikipedia-api"):
+            load_example_dataset("factscore-stem-geo")
 
 
 # @unittest.skipIf(((os.getenv("CI") == "true") & (platform.system() == "Darwin")), "Skipping test in macOS CI due to connection issues.")

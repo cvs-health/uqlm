@@ -183,12 +183,12 @@ class GraphScorer(ClaimScorer):
             num_claims = len(master_claim_set)
             num_responses = len(responses)
 
-            biadjacency_matrix = np.zeros((num_claims, num_responses))
-
-            for claim_idx, claim in enumerate(master_claim_set):
-                for response_idx, response in enumerate(responses):
-                    entailment_probability = self.nli.predict(hypothesis=claim, premise=response)[:, -1][0]
-                    biadjacency_matrix[claim_idx, response_idx] = entailment_probability
+            # Score all claim-response pairs for this response set in batched forward passes
+            pairs = [(response, claim) for claim in master_claim_set for response in responses]
+            if pairs:
+                biadjacency_matrix = self.nli.predict_batch(pairs)[:, -1].reshape(num_claims, num_responses)
+            else:
+                biadjacency_matrix = np.zeros((num_claims, num_responses))
 
             biadjacency_matrices.append(biadjacency_matrix)
             if progress_bar and progress_task is not None:

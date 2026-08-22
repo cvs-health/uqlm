@@ -83,7 +83,7 @@ class VerbalizedConfidence(ResponseGenerator):
                 failure_indices = set(score_failures.index)
 
                 with contextlib.redirect_stdout(io.StringIO()):
-                    tmp = await self.generate_responses(prompts=list(df.loc[list(failure_indices), "judge_prompts"]), count=1, system_prompt=self.system_prompt, progress_bar=False)
+                    tmp = await self.generate_responses(prompts=list(df.loc[list(failure_indices), "judge_prompts"]), count=1, system_prompt=self.system_prompt, progress_bar=None)
 
                 retry_data = self._extract_answers(responses=tmp["data"]["response"])
 
@@ -136,8 +136,17 @@ class VerbalizedConfidence(ResponseGenerator):
         """
         Extract score from text using the standard extraction logic.
         Used for both structured responses and backward compatibility.
+
+        Matches phrases longest-first to avoid e.g. "no chance" inside
+        "no chance of being wrong" out-shouting "almost certain".
         """
-        for score, keywords in LIKERT_TO_SCORES_DICT.items():
-            if keywords in response.strip().lower():
+        text = response.strip().lower().rstrip(".")
+        # Exact match wins (prompt asks for phrase only).
+        for score, keyword in LIKERT_TO_SCORES_DICT.items():
+            if text == keyword:
+                return score
+        # Fallback: substring, longest phrase first.
+        for score, keyword in sorted(LIKERT_TO_SCORES_DICT.items(), key=lambda kv: -len(kv[1])):
+            if keyword in text:
                 return score
         return np.nan

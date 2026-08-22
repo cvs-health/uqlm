@@ -90,6 +90,20 @@ def test_extract_ptrue_from_logprobs_result():
     assert score != score  # NaN check
 
 
+def test_extract_ptrue_from_logprobs_result_missing_logprob():
+    """Missing first-token logprob must yield NaN, not None.
+
+    A first token without a "logprob" key is undeterminable; the method should
+    return NaN (the same sentinel used for unknown tokens) rather than falling
+    through to an implicit None, which violates its -> float contract and breaks
+    downstream numeric handling (e.g. np.isnan / DataFrame ops).
+    """
+    logprobs_result = [{"token": "true"}]
+    score = PTrueScorer._extract_ptrue_from_logprobs_result(logprobs_result)
+    assert score is not None
+    assert score != score  # NaN check
+
+
 def test_construct_ptrue_prompt():
     """Test the _construct_ptrue_prompt method."""
     prompt = "What is 2+2?"

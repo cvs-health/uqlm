@@ -77,13 +77,13 @@ def test_codebleu_confidence_average(mock_codebleu_module):
 
 
 def test_codebleu_confidence_empty_samples(mock_codebleu_module):
-    """Empty samples → CodeBLEU returns ONLY float(nan)."""
+    """Empty samples → returns (nan, []) — same shape as non-empty case (regression for bug #9)."""
     with patch("importlib.util.find_spec", return_value=True), patch.dict("sys.modules", {"codebleu": mock_codebleu_module}):
         cb = CodeBLEU()
 
-        result = cb.codebleu_confidence("a", [])
-        assert isinstance(result, float)
-        assert math.isnan(result)
+        score, pairs = cb.codebleu_confidence("a", [])
+        assert math.isnan(score)
+        assert pairs == []
 
 
 def test_codebleu_confidence_all_nan(mock_codebleu_module):

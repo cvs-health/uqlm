@@ -70,3 +70,75 @@ async def test_bbuq(monkeypatch, mock_llm):
     assert len(uqe_default.scorers) == len(DEFAULT_BLACK_BOX_SCORERS)
 
     BlackBoxUQ(llm=mock_llm, scorers=["bert_score"], device="cpu")
+
+
+@pytest.mark.flaky(reruns=3)
+def test_bbuq_generate_and_score_sync(monkeypatch, mock_llm):
+    """generate_and_score_sync should be usable with no `await`/event loop management from the
+    caller, and must produce the same scores as the async `generate_and_score` method it wraps."""
+    uqe = BlackBoxUQ(llm=mock_llm, scorers=["noncontradiction", "exact_match", "semantic_negentropy"], device="cpu")
+
+    async def mock_generate_original_responses(*args, **kwargs):
+        uqe.logprobs = [None] * 5
+        return MOCKED_RESPONSES
+
+    async def mock_generate_candidate_responses(*args, **kwargs):
+        uqe.multiple_logprobs = [[None] * 5] * 5
+        return MOCKED_SAMPLED_RESPONSES
+
+    monkeypatch.setattr(uqe, "generate_original_responses", mock_generate_original_responses)
+    monkeypatch.setattr(uqe, "generate_candidate_responses", mock_generate_candidate_responses)
+
+    # Note: this test function is intentionally NOT `async def` and is NOT awaited by pytest-asyncio.
+    # There is no event loop running in this thread, exercising the `asyncio.run` code path in `run_sync`.
+    results = uqe.generate_and_score_sync(prompts=PROMPTS, num_responses=5, show_progress_bars=False)
+
+    assert all([results.data["exact_match"][i] == pytest.approx(data["exact_match"][i]) for i in range(len(PROMPTS))])
+    assert all([results.data["noncontradiction"][i] == pytest.approx(data["noncontradiction"][i]) for i in range(len(PROMPTS))])
+    assert all([results.data["semantic_negentropy"][i] == pytest.approx(data["semantic_negentropy"][i]) for i in range(len(PROMPTS))])
+    assert results.metadata == metadata
+
+
+@pytest.mark.flaky(reruns=3)
+@pytest.mark.asyncio
+async def test_bbuq_generate_and_score_sync_inside_running_loop(monkeypatch, mock_llm):
+    """generate_and_score_sync must also work when called from a thread that already has a running
+    event loop (e.g. a Jupyter/IPython kernel), where a naive `asyncio.run(...)` wrapper would raise
+    `RuntimeError: asyncio.run() cannot be called from a running event loop`."""
+    uqe = BlackBoxUQ(llm=mock_llm, scorers=["noncontradiction", "exact_match", "semantic_negentropy"], device="cpu")
+
+    async def mock_generate_original_responses(*args, **kwargs):
+        uqe.logprobs = [None] * 5
+        return MOCKED_RESPONSES
+
+    async def mock_generate_candidate_responses(*args, **kwargs):
+        uqe.multiple_logprobs = [[None] * 5] * 5
+        return MOCKED_SAMPLED_RESPONSES
+
+    monkeypatch.setattr(uqe, "generate_original_responses", mock_generate_original_responses)
+    monkeypatch.setattr(uqe, "generate_candidate_responses", mock_generate_candidate_responses)
+
+    # This test itself is `async def`, so pytest-asyncio drives it with a running event loop. Calling
+    # the *synchronous* generate_and_score_sync from here (with no `await`) is exactly the scenario
+    # that requires the thread-offload fallback inside `run_sync`.
+    results = uqe.generate_and_score_sync(prompts=PROMPTS, num_responses=5, show_progress_bars=False)
+
+    assert all([results.data["exact_match"][i] == pytest.approx(data["exact_match"][i]) for i in range(len(PROMPTS))])
+    assert all([results.data["noncontradiction"][i] == pytest.approx(data["noncontradiction"][i]) for i in range(len(PROMPTS))])
+    assert all([results.data["semantic_negentropy"][i] == pytest.approx(data["semantic_negentropy"][i]) for i in range(len(PROMPTS))])
+    assert results.metadata == metadata
+def test_single_nli_model_instance():
+    """Regression test: default BlackBoxUQ loaded the NLI model once per scorer (2x, ~1.4 GB each)."""
+    from unittest.mock import MagicMock, patch
+
+    mock_tokenizer = MagicMock()
+    mock_tokenizer.model_max_length = 512
+    mock_model = MagicMock()
+    mock_model.to.return_value = mock_model
+    mock_model.eval.return_value = mock_model
+
+    with patch("uqlm.nli.nli.AutoModelForSequenceClassification.from_pretrained", return_value=mock_model) as mock_model_loader, patch("uqlm.nli.nli.AutoTokenizer.from_pretrained", return_value=mock_tokenizer), patch("sentence_transformers.SentenceTransformer", return_value=MagicMock()):
+        uqe = BlackBoxUQ(device="cpu")
+
+    assert mock_model_loader.call_count == 1
+    assert uqe.scorer_objects["consistency"].nli is uqe.scorer_objects["semantic_negentropy"].nli

@@ -1,5 +1,5 @@
 import asyncio
-import time
+import re
 import pandas as pd
 from typing import Any, List, Tuple, Optional
 import numpy as np
@@ -83,7 +83,7 @@ class CodeClusterer:
         round1_scores = await self.get_equivalence_scores(responses=responses, sampled_responses=sampled_responses)
         for i in range(n_prompts):
             for j in range(n_samples):
-                if round1_scores[i][j]:
+                if round1_scores[i][j] == 1.0:
                     cluster_indices[i][0].append(j + 1)  # +1 because anchor is index 0
                     not_yet_clustered_indices[i].remove(j + 1)
                     mark_clustered(i)
@@ -131,12 +131,12 @@ class CodeClusterer:
             # Assign matches to clusters
             for tmp_idx, (prompt_idx, cluster_idx, remaining_indices) in enumerate(prompt_mapping):
                 for j, orig_idx in enumerate(remaining_indices):
-                    if round_scores[tmp_idx][j]:
+                    if round_scores[tmp_idx][j] == 1.0:
                         cluster_indices[prompt_idx][cluster_idx].append(orig_idx)
                         not_yet_clustered_indices[prompt_idx].remove(orig_idx)
                         mark_clustered(prompt_idx)
 
-        time.sleep(0.2)
+        await asyncio.sleep(0.2)
 
         return {"cluster_indices": cluster_indices, "original_equivalence_scores": round1_scores}
 
@@ -271,7 +271,7 @@ class CodeClusterer:
         return f"Code A:\n{code_a}\n\nCode B:\n{code_b}\n"
 
     @staticmethod
-    def normalize_verdict(text: str) -> int:
+    def normalize_verdict(text: str) -> float:
         """
         Normalize the verdict for the equivalence score.
 
@@ -282,15 +282,16 @@ class CodeClusterer:
 
         Returns
         -------
-        int
-            The normalized verdict for the equivalence score.
+        float
+            The normalized verdict for the equivalence score: 1.0 if equivalent,
+            0.0 if not equivalent, np.nan if the verdict cannot be parsed.
         """
         if not isinstance(text, str):
             return np.nan
         t = text.strip().lower().replace("-", " ")
-        if "not equivalent" in t:
+        if any(neg in t for neg in ("not equivalent", "non equivalent", "inequivalent")):
             return 0.0
-        elif "equivalent" in t:
+        if re.search(r"\bequivalent\b", t):
             return 1.0
         if any(phrase in t for phrase in ["are the same", "behave the same", "identical", "same output"]):
             return 1.0

@@ -29,6 +29,7 @@ class TestGraphScorer:
         mock = MagicMock()
         # Returns entailment probability in the last column
         mock.predict.return_value = np.array([[0.1, 0.2, 0.7]])  # [contradict, neutral, entail]
+        mock.predict_batch.side_effect = lambda pairs: np.tile(np.array([[0.1, 0.2, 0.7]]), (len(pairs), 1))
         return mock
 
     @pytest.fixture

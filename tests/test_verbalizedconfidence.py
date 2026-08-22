@@ -144,3 +144,17 @@ async def test_judge_responses_calls_generate_responses(vc):
     await vc.judge_responses(prompts, responses)
 
     vc.generate_responses.assert_awaited_once()
+
+
+# Regression tests for substring-matching fix (bug #16)
+
+
+def test_extract_score_longest_match_wins(vc):
+    """When response contains multiple phrases, the longest one must win (avoids 'no chance' beating 'almost certain')."""
+    text = "There is no chance this is wrong; almost certain it is correct"
+    assert vc._extract_score_from_text(text) == 1.0
+
+
+def test_extract_score_trailing_period(vc):
+    """Trailing punctuation must not block exact match."""
+    assert vc._extract_score_from_text("Almost certain.") == 1.0

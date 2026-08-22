@@ -37,7 +37,7 @@ generator_type_to_progress_msg = {
 
 
 class ResponseGenerator:
-    def __init__(self, llm: BaseChatModel = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, top_k_logprobs: Optional[int] = None) -> None:
+    def __init__(self, llm: BaseChatModel = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, top_k_logprobs: Optional[int] = None, structured_response: Optional[Any] = None, output_extractor: Optional[Any] = None) -> None:
         """
         Class for generating data from a provided set of prompts
 
@@ -53,6 +53,12 @@ class ResponseGenerator:
         use_n_param : bool, default=False
             Specifies whether to use `n` parameter for `BaseChatModel`. Not compatible with all
             `BaseChatModel` classes. If used, it speeds up the generation process substantially when count > 1.
+
+        structured_response : Any, default=None
+            Specifies a structure such as a pydantic BaseModel class or a dict that is applied to the llm as `llm.with_structured_output(structured_response)`. Only used if `output_extractor` is not None.
+
+        output_extractor : callable, default=None
+            A user-defined function that is called on the output of an llm with structured output to extract the response. Only used if `structured_response` is not None.
         """
         self.llm = llm
         self.use_n_param = use_n_param
@@ -62,6 +68,10 @@ class ResponseGenerator:
         self.generator_type_to_progress_msg = generator_type_to_progress_msg
         self.response_generator_type = "original"
         self.top_k_logprobs = top_k_logprobs
+        self.structured_response = structured_response
+        self.output_extractor = output_extractor
+
+        self._validate_structured_output_parameters()
 
         if self.use_n_param:
             deprecation_warning("The `use_n_param` option is deprecated and will not be used to generate responses.")
@@ -125,6 +135,12 @@ class ResponseGenerator:
         responses = generations["responses"]
         logprobs = generations["logprobs"]
         return {"data": {"prompt": self._enforce_strings(duplicated_prompts), "response": self._enforce_strings(responses)}, "metadata": {"system_prompt": system_prompt, "temperature": self.llm.temperature, "count": self.count, "logprobs": logprobs}}
+
+    def _validate_structured_output_parameters(self) -> None:
+        if self.structured_response and not self.output_extractor:
+            raise ValueError("If `structured_response` is specified, `output_extractor` must also be specified.")
+        if self.output_extractor and not self.structured_response:
+            raise ValueError("If `output_extractor` is specified, `structured_response` must also be specified.")
 
     def _create_tasks(self, prompts: List[Union[str, List[BaseMessage]]]) -> Tuple[List[Any], List[str]]:
         """
@@ -198,12 +214,18 @@ class ResponseGenerator:
             raise ValueError("prompts must be list of strings or list of lists of BaseMessage instances. For support with LangChain BaseMessage usage, refer here: https://python.langchain.com/docs/concepts/messages")
 
         if not self.top_k_logprobs:
-            result = await self.llm.ainvoke(messages)
             logprobs = [None] * count
-            if hasattr(self.llm, "logprobs"):
-                if self.llm.logprobs:
-                    logprobs = self._extract_logprobs(logprobs=logprobs, result=result, count=count)
-            result_dict = {"logprobs": logprobs, "responses": [result.content]}
+            if self.structured_response and self.output_extractor:
+                structured_llm = self.llm.with_structured_output(self.structured_response)
+                result = await structured_llm.ainvoke(messages)
+                responses = [self.output_extractor(result)]
+            else:
+                result = await self.llm.ainvoke(messages)
+                if hasattr(self.llm, "logprobs"):
+                    if self.llm.logprobs:
+                        logprobs = self._extract_logprobs(logprobs=logprobs, result=result, count=count)
+                responses = [result.content]
+            result_dict = {"logprobs": logprobs, "responses": responses}
         else:
             result_dict = await self.ainvoke_with_top_logprobs(messages, count=count)
         if self.progress_bar:

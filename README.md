@@ -26,6 +26,9 @@
   <a href="https://opensource.org/licenses/Apache-2.0">
     <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
   </a>
+  <a href="https://discord.gg/RjcrAPw43H">
+    <img src="https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=lightgrey" alt="Discord">
+  </a>
   <a href="https://github.com/astral-sh/uv">
     <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json" alt="uv">
   </a>
@@ -35,13 +38,14 @@
 </p>
 <p align="center">
   <a href="https://www.jmlr.org/papers/v27/25-1557.html">
-    <img src="https://img.shields.io/badge/JMLR-Published-112467?style=flat&style=for-the-badge&logo=semantic-scholar&logoColor=white" alt="JMLR Publication">
+    <img src="https://img.shields.io/badge/JMLR-UQLM-112467?style=flat&style=for-the-badge&logo=semantic-scholar&logoColor=white" alt="JMLR Publication">
   </a>
   <a href="https://openreview.net/pdf?id=WOFspd4lq5">
-    <img src="https://img.shields.io/badge/TMLR-Published-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication">
+    <img src="https://img.shields.io/badge/TMLR-EnsembleUQ-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication">
   </a>
-  <a href="https://arxiv.org/abs/2602.17431">
-    <img src="https://img.shields.io/badge/arXiv-LongTextUQ-B31B1B?logo=arXiv&logoColor=white" alt="arXiv">
+  </a>
+  <a href="https://openreview.net/pdf?id=gngp4Zz9Sj">
+    <img src="https://img.shields.io/badge/TMLR-LongTextUQ-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication">
   </a>
 </p>
 
@@ -112,7 +116,8 @@ Above, `use_best=True` implements mitigation so that the uncertainty-minimized r
 *   Entailment Probability ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175); [Lin et al., 2024](https://arxiv.org/abs/2305.19187); [Manakul et al., 2023](https://arxiv.org/abs/2303.08896))
 *   Exact Match ([Cole et al., 2023](https://arxiv.org/abs/2305.14613); [Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175))
 *   BERTScore ([Manakul et al., 2023](https://arxiv.org/abs/2303.08896); [Zheng et al., 2020](https://arxiv.org/abs/1904.09675))
-*   Cosine Similarity ([Shorinwa et al., 2024](https://arxiv.org/abs/2412.05563); [HuggingFace](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2))
+*   Cosine Similarity ([Shorinwa et al., 2024](https://arxiv.org/abs/2412.05563))
+*   Code-adapted scorers via [`CodeGenUQ`](#code-generation-uq).
 
 ### White-Box Scorers (Token-Probability-Based)
 
@@ -318,6 +323,29 @@ Above `response` and `entailment` reflect the original response and response-lev
 *   Graph-based scorers ([Jiang et al., 2024](https://arxiv.org/abs/2410.20783))
 *   Generalized long-form semantic entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0))
 
+
+### Code Generation UQ
+
+For code-generation tasks, UQLM provides `CodeGenUQ`, a specialized interface for predicting whether LLM-generated code is functionally correct without requiring execution. `CodeGenUQ` includes white-box scorers, code-adapted black-box scorers based on functional equivalence, and reflexive self-evaluation scorers. The white-box methods are the same token-probability-based scorers available through `WhiteBoxUQ`. 
+
+**Example Usage:**
+
+```python
+from langchain_openai import ChatOpenAI
+llm = ChatOpenAI(model="gpt-4o-mini")
+
+from uqlm import CodeGenUQ
+cguq = CodeGenUQ(
+    llm=llm,
+    scorers=["functional_equivalence_rate"]
+)
+
+results = await cguq.generate_and_score(prompts=prompts, num_responses=5)
+results.to_df()
+```
+
+For a more detailed demo, refer to our [`CodeGenUQ` Demo](./examples/codegen_demo.ipynb). More details on code generation scorers are available in [Bouchard et al., 2026](https://arxiv.org/abs/2605.28500).
+
 ## Documentation
 Check out our [documentation site](https://cvs-health.github.io/uqlm/latest/index.html) for detailed instructions on using this package, including API reference and more.
 
@@ -370,15 +398,29 @@ The `uqlm` software package is described in this **[this paper](https://arxiv.or
 }
 ```
 
-The long-text methods and experiment results are described in **this paper**, available as a preprint on arXiv. To cite:
+The long-text methods and experiment results are described in **[this paper](https://openreview.net/pdf?id=gngp4Zz9Sj)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our long-form UQ methods, please cite:
 ```bibtex
-@misc{bouchard2026finegraineduncertaintyquantificationlongform,
-      title={Fine-Grained Uncertainty Quantification for Long-Form Language Model Outputs: A Comparative Study}, 
-      author={Dylan Bouchard and Mohit Singh Chauhan and Viren Bajaj and David Skarbrevik},
+@article{
+bouchard2026finegrained,
+title={Fine-Grained Uncertainty Quantification for Long-Form Language Model Outputs: A Comparative Study},
+author={Dylan Bouchard and Mohit Singh Chauhan and Viren Bajaj and David Skarbrevik},
+journal={Transactions on Machine Learning Research},
+issn={2835-8856},
+year={2026},
+url={https://openreview.net/forum?id=gngp4Zz9Sj},
+note={}
+}
+```
+
+The code-specific methods and experiment results are described in [**this paper**](https://arxiv.org/abs/2605.28500), available as a preprint on arXiv. To cite:
+```bibtex
+@misc{bouchard2026functionalentropypredictingfunctional,
+      title={Functional Entropy: Predicting Functional Correctness in LLM-Generated Code with Uncertainty Quantification}, 
+      author={Dylan Bouchard and Mohit Singh Chauhan and Zeya Ahmad and Ho-Kyeong Ra},
       year={2026},
-      eprint={2602.17431},
+      eprint={2605.28500},
       archivePrefix={arXiv},
       primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2602.17431}, 
+      url={https://arxiv.org/abs/2605.28500}, 
 }
 ```

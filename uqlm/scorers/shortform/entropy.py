@@ -41,6 +41,8 @@ class SemanticEntropy(ShortFormUQ):
         return_responses: str = "all",
         length_normalize: bool = True,
         prompts_in_nli: bool = True,
+        nli: Any = None,
+        nli_batch_size: int = 32,
     ) -> None:
         """
         Class for computing discrete and token-probability-based semantic entropy and associated confidence scores. For more on semantic entropy, refer to Farquhar et al.(2024) :footcite:`farquhar2024detectinghallucinations`.
@@ -101,6 +103,13 @@ class SemanticEntropy(ShortFormUQ):
 
         prompts_in_nli : bool, default=True
             Specifies whether to use the prompts in the NLI inputs for semantic entropy and semantic density scorers.
+
+        nli : NLI, default=None
+            An existing NLI instance to reuse. If provided, no new NLI model is loaded and `nli_model_name`,
+            `max_length`, `device`, and `nli_batch_size` are ignored for NLI construction.
+
+        nli_batch_size : int, default=32
+            Number of premise-hypothesis pairs scored per forward pass by the NLI model. Ignored if `nli` is provided.
         """
         super().__init__(llm=llm, device=device, system_prompt=system_prompt, max_calls_per_min=max_calls_per_min, use_n_param=use_n_param, postprocessor=postprocessor)
         self.nli_model_name = nli_model_name
@@ -111,7 +120,8 @@ class SemanticEntropy(ShortFormUQ):
         self.best_response_selection = best_response_selection
         self.return_responses = return_responses
         self.length_normalize = length_normalize
-        self._setup_nli(nli_model_name)
+        self.nli_batch_size = nli_batch_size
+        self._setup_nli(nli_model_name, nli=nli)
         self.prompts = None
         self.logprobs = None
         self.multiple_logprobs = None

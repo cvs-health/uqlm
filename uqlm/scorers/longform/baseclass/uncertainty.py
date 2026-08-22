@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+import warnings
 from typing import Any, Callable, List, Optional, Union
 import numpy as np
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -115,7 +116,7 @@ class LongFormUQ(UncertaintyQuantifier):
                 print(f"claim_filtering_scorer is not specified for response_refinement. Defaulting to {self.scorers[0]}.")
                 self.uad_scorer = self.scorers[0]
             elif self.claim_filtering_scorer not in self.scorers:
-                print(f"claim_filtering_scorer is contained in list of scorers. Defaulting to {self.scorers[0]}.")
+                warnings.warn(f"claim_filtering_scorer '{self.claim_filtering_scorer}' is not contained in list of scorers. Defaulting to {self.scorers[0]}.")
                 self.uad_scorer = self.scorers[0]
             else:
                 self.uad_scorer = self.claim_filtering_scorer

@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 from typing import List, Dict, Any
 import re
@@ -11,7 +12,7 @@ def evaluate_python_code(responses: List[str], public_test_cases: List[Any], met
     Evaluates all the Python responses against public test cases.
     """
     results = {"unit_test_passed": [], "stderr": []}
-    utils_directory = os.path.join("/".join(os.getcwd().split("/")[:-1]), "uqlm/code")
+    utils_directory = os.path.dirname(os.path.abspath(__file__))
     for i in range(len(responses)):
         row = {"public_test_cases": public_test_cases[i], "metadata": metadata[i], "response": responses[i]}
 
@@ -53,8 +54,13 @@ def evaluate_row_unified(row, timeout=6, runner_path="lcb_grader.py"):
     if func_name and isinstance(func_name, str) and len(func_name.strip()) > 0:
         payload["fn_name"] = func_name.strip()
 
-    # Call lcb_grader
-    res = subprocess.run(["python3", runner_path], input=json.dumps(payload), text=True, capture_output=True)
+    # Hard subprocess timeout: lcb_grader's per-test SIGALRM can be defeated by
+    # blocking C code, reset handlers, or non-POSIX platforms. sys.executable
+    # keeps the venv consistent; error_code -5 distinguishes a hang from a test failure.
+    try:
+        res = subprocess.run([sys.executable, runner_path], input=json.dumps(payload), text=True, capture_output=True, timeout=timeout + 5)
+    except subprocess.TimeoutExpired as e:
+        return {"unit_test_passed": 0, "results": [], "meta": {"error_code": -5, "error_message": "Subprocess hard timeout"}, "stderr": (e.stderr or ""), "stdout": (e.stdout or "")}
 
     # Try to decode LCB output
     try:
@@ -109,10 +115,17 @@ def ensure_list_of_dicts(x: str | list) -> list:
     Additionally, each row may optionally specify a `func_name`:
     - If provided → the problem is evaluated in call‑based mode.
     - If absent → the problem is evaluated in standard input mode.
+
+    Raises
+    ------
+    ValueError
+        If `x` is a malformed JSON string or not a list/str.
     """
     if isinstance(x, str):
         try:
             return json.loads(x)
-        except Exception:
-            return []
-    return x if isinstance(x, list) else []
+        except json.JSONDecodeError as e:
+            raise ValueError(f"public_test_cases is not valid JSON: {e}") from e
+    if not isinstance(x, list):
+        raise ValueError(f"public_test_cases must be str or list, got {type(x).__name__}")
+    return x

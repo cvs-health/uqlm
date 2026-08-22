@@ -15,6 +15,12 @@ from datetime import datetime
 # to run the solution files we're using a timing based approach
 import signal
 
+# SIGALRM is POSIX-only; on Windows fall back to no-ops so import succeeds.
+# The hard subprocess timeout in code_evaluation.evaluate_row_unified still guards against hangs.
+if not hasattr(signal, "alarm"):
+    signal.alarm = lambda *_: None
+    signal.SIGALRM = 0
+
 import numpy as np  # noqa: F401 (kept for parity with upstream file)
 
 from io import StringIO

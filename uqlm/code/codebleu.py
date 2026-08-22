@@ -1,5 +1,5 @@
 import math
-import importlib
+import importlib.util
 from typing import List, Optional
 from rich.progress import Progress
 
@@ -44,7 +44,7 @@ class CodeBLEU:
         if len(responses) == 0 or len(sampled_responses) == 0:
             raise ValueError("Either responses or sampled responses is empty")
         n_prompts = len(responses)
-        self.scores, self.pair_scores = [0] * n_prompts, [[]] * n_prompts
+        self.scores, self.pair_scores = [0] * n_prompts, [[] for _ in range(n_prompts)]
 
         # Progress bar
         progress_task = None
@@ -59,7 +59,7 @@ class CodeBLEU:
 
         return self.scores
 
-    def codebleu_confidence(self, response: str, sampled_responses: List[str]) -> float:
+    def codebleu_confidence(self, response: str, sampled_responses: List[str]) -> "tuple[float, List[float]]":
         """
         Calculate CodeBLEU confidence for a list of code strings.
 
@@ -72,11 +72,11 @@ class CodeBLEU:
 
         Returns
         -------
-        float
-            The CodeBLEU confidence score.
+        tuple[float, List[float]]
+            The aggregate CodeBLEU confidence score and the per-pair scores.
         """
         if not sampled_responses:
-            return float("nan")
+            return float("nan"), []
 
         tmp_scores = [self.codebleu_pair(response, candidate) for candidate in sampled_responses]
         tmp_scores_no_nan = [score for score in tmp_scores if not math.isnan(score)]
