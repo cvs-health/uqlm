@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+import warnings
+
 import numpy as np
 from typing import List, Optional, Union
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -165,7 +167,15 @@ class LLMPanel(ShortFormUQ):
 
             judge_count += 1
 
-        scores_dict = {"avg": [np.mean(scores) for scores in zip(*scores_lists)], "max": [np.max(scores) for scores in zip(*scores_lists)], "min": [np.min(scores) for scores in zip(*scores_lists)], "median": [np.median(scores) for scores in zip(*scores_lists)]}
+        # After a judge exhausts its retries, unparseable responses remain NaN.
+        # Aggregate with NaN-aware reductions so one failed judge doesn't poison
+        # every panel statistic, and surface which prompts were affected
+        # instead of silently emitting NaN confidences.
+        per_prompt_scores = list(zip(*scores_lists)) if scores_lists else []
+        unscorable_prompts = [i for i, scores in enumerate(per_prompt_scores) if any(score is None or (isinstance(score, float) and np.isnan(score)) for score in scores)]
+        if unscorable_prompts:
+            warnings.warn(f"Judge scores could not be parsed for {len(unscorable_prompts)} prompt(s) (indices: {unscorable_prompts[:10]}); panel aggregates exclude those judge scores. Inspect the per-judge score columns to identify the failing judge.")
+        scores_dict = {"avg": [np.nanmean(scores) for scores in per_prompt_scores], "max": [np.nanmax(scores) for scores in per_prompt_scores], "min": [np.nanmin(scores) for scores in per_prompt_scores], "median": [np.nanmedian(scores) for scores in per_prompt_scores]}
         data.update(scores_dict)
         result = {"data": data, "metadata": {"num_judges": len(self.judges), "temperature": None if not self.llm else self.llm.temperature}}
 
