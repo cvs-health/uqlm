@@ -197,8 +197,11 @@ class SemanticEntropy(ShortFormUQ):
         UQResult
             UQResult, containing data (responses, sampled responses, and semantic entropy scores) and metadata
         """
-        if self.prompts_in_nli and not prompts:
-            self.prompts_in_nli = False
+        # Whether NLI inputs include the prompt for *this* call. Deliberately
+        # computed locally instead of written back to ``self.prompts_in_nli``:
+        # a single call without prompts must not permanently disable
+        # prompt-conditioned clustering for later calls that do provide them.
+        prompts_in_nli = self.prompts_in_nli and bool(prompts)
         self.prompts = prompts if prompts else self.prompts
         self.responses = responses
         self.sampled_responses = sampled_responses
@@ -219,7 +222,7 @@ class SemanticEntropy(ShortFormUQ):
         def _process_i(i):
             candidates = [str(self.responses[i])] + [str(x) for x in self.sampled_responses[i]]
             candidate_logprobs = [self.logprobs[i]] + self.multiple_logprobs[i] if (self.logprobs and self.multiple_logprobs) else None
-            tmp = self._semantic_entropy_process(candidates=candidates, i=i, logprobs_results=candidate_logprobs, best_response_selection=self.best_response_selection)
+            tmp = self._semantic_entropy_process(candidates=candidates, i=i, logprobs_results=candidate_logprobs, best_response_selection=self.best_response_selection, prompts_in_nli=prompts_in_nli)
             best_responses[i], discrete_semantic_entropy[i], tokenprob_semantic_entropy[i], num_semantic_sets[i] = tmp
 
         if self.progress_bar:
@@ -249,7 +252,7 @@ class SemanticEntropy(ShortFormUQ):
         self.progress_bar = None  # if re-run ensure the same progress object is not used
         return UQResult(result)
 
-    def _semantic_entropy_process(self, candidates: List[str], i: int = None, logprobs_results: List[List[Dict[str, Any]]] = None, best_response_selection: str = "discrete") -> Any:
+    def _semantic_entropy_process(self, candidates: List[str], i: int = None, logprobs_results: List[List[Dict[str, Any]]] = None, best_response_selection: str = "discrete", prompts_in_nli: bool = True) -> Any:
         """
         Executes complete process for semantic entropy and returns best response, SE score, and dictionary
         of NLI scores for response pairs
@@ -261,7 +264,7 @@ class SemanticEntropy(ShortFormUQ):
         tokenprob_response_probabilities, response_probabilities = compute_response_probabilities(logprobs_results=logprobs_results, num_responses=len(candidates), length_normalize=self.length_normalize)
 
         # Compute Clusters and NLI scores``
-        tmp = self.prompts[i] if self.prompts_in_nli else None
+        tmp = self.prompts[i] if prompts_in_nli else None
         best_response, clustered_responses, cluster_probabilities, cluster_indices = self.clusterer.evaluate(responses=candidates, prompt=tmp, response_probabilities=response_probabilities)
         num_semantic_sets = len(cluster_probabilities)
 
