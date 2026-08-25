@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+import asyncio
 import time
 from typing import Any, Dict, List, Optional
 import numpy as np
@@ -44,7 +45,7 @@ class PTrueScorer:
 
         ptrue_prompts = [self._construct_ptrue_prompt(original_prompt=original_prompt_i, original_response=original_response_i, sampled_responses=sampled_responses_i) for original_prompt_i, original_response_i, sampled_responses_i in zip(prompts, responses, sampled_responses)]
         ptrue_responses = await self.response_generator.generate_responses(prompts=ptrue_prompts, system_prompt=PTRUE_SYSTEM_PROMPT, progress_bar=progress_bar)
-        time.sleep(0.1)
+        await asyncio.sleep(0.1)
         logprob_results = ptrue_responses["metadata"]["logprobs"]
         ptrue_scores = [self._extract_ptrue_from_logprobs_result(logprob_result) for logprob_result in logprob_results]
         return {"p_true": ptrue_scores}

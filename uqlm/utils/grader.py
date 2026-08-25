@@ -13,6 +13,7 @@
 # limitations under the License.
 
 
+import asyncio
 import time
 from typing import List, Optional
 from rich.progress import Progress
@@ -78,7 +79,7 @@ class LLMGrader:
         """
         grader_prompts = [self._construct_grader_prompt(prompt, response, answer) for prompt, response, answer in zip(prompts, responses, answers)]
         grader_responses = await self.response_generator.generate_responses(prompts=grader_prompts, system_prompt=GRADER_SYSTEM_PROMPT, progress_bar=progress_bar)
-        time.sleep(0.1)
+        await asyncio.sleep(0.1)
         bool_grades = [self._extract_grades(grader_response) for grader_response in grader_responses["data"]["response"]]
         return bool_grades
 

@@ -72,7 +72,7 @@ class UncertaintyAwareDecoder:
             self.progress_task = progress_bar.add_task(" - Reconstructing responses with high-confidence claims...", total=len(claim_sets))
         tasks = [self._reconstruct_single_response(claim_set=filtered_claim_sets[i], response=responses[i], progress_bar=progress_bar) for i in range(len(claim_sets))]
         reconstructed_responses = await asyncio.gather(*tasks)
-        time.sleep(0.1)
+        await asyncio.sleep(0.1)
         return {"refined_responses": reconstructed_responses, "removed": remove_indicators}
 
     async def _reconstruct_single_response(self, claim_set: List[str], response: Optional[str] = None, progress_bar: Optional[Progress] = None) -> str:
