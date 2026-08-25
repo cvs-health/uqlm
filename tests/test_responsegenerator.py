@@ -375,3 +375,26 @@ async def test_all_fail_keeps_prompt_response_alignment(monkeypatch):
     assert responses[0] == MOCKED_RESPONSE_DICT[MOCKED_PROMPTS[0]]
     assert responses[1] == FAILED_RESPONSE
     assert responses[2] == MOCKED_RESPONSE_DICT[MOCKED_PROMPTS[2]]
+
+
+@pytest.mark.asyncio
+async def test_ainvoke_with_top_logprobs_all_fail_placeholder_scales_with_count(monkeypatch):
+    """The all-attempts-fail fallback must return exactly ``count`` placeholder responses.
+
+    A single-element list breaks prompt/response alignment whenever count > 1
+    (review feedback on #450).
+    """
+    from uqlm.utils.response_generator import ResponseGenerator
+
+    generator = ResponseGenerator(llm=MagicMock(), top_k_logprobs=5)
+
+    async def fail(*args, **kwargs):
+        raise RuntimeError("provider down")
+
+    monkeypatch.setattr(generator.llm, "ainvoke", fail)
+
+    result = await generator.ainvoke_with_top_logprobs([HumanMessage("hi")], count=3)
+
+    assert len(result["responses"]) == 3
+    assert all(r == FAILED_RESPONSE for r in result["responses"])
+    assert len(result["logprobs"]) == 3

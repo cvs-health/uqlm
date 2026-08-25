@@ -256,7 +256,7 @@ class ResponseGenerator:
                     pass
         if result is None:  # if all attempts fail
             warnings.warn("All attempts to invoke the LLM with top_logprobs failed. A placeholder response is returned to preserve prompt-response alignment.")
-            return {"logprobs": [None] * count, "responses": [FAILED_RESPONSE]}
+            return {"logprobs": [None] * count, "responses": [FAILED_RESPONSE] * count}
         logprobs = self._extract_logprobs(logprobs=logprobs, result=result, count=count)
         return {"logprobs": logprobs, "responses": [result.content]}
 
