@@ -35,6 +35,9 @@ generator_type_to_progress_msg = {
     "question_generator": "Generating questions for each claim/sentence",
 }
 
+FAILED_RESPONSE = "Unable to get response"
+"""Placeholder returned when all attempts to invoke the LLM fail, so each prompt still maps to exactly one response."""
+
 
 class ResponseGenerator:
     def __init__(self, llm: BaseChatModel = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, top_k_logprobs: Optional[int] = None, structured_response: Optional[Any] = None, output_extractor: Optional[Any] = None) -> None:
@@ -252,7 +255,8 @@ class ResponseGenerator:
                 except Exception:
                     pass
         if result is None:  # if all attempts fail
-            return {"logprobs": [None] * count, "responses": []}
+            warnings.warn("All attempts to invoke the LLM with top_logprobs failed. A placeholder response is returned to preserve prompt-response alignment.")
+            return {"logprobs": [None] * count, "responses": [FAILED_RESPONSE] * count}
         logprobs = self._extract_logprobs(logprobs=logprobs, result=result, count=count)
         return {"logprobs": logprobs, "responses": [result.content]}
 
