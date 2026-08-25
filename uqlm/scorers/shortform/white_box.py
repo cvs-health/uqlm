@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from typing import Any, Dict, List, Optional, Union
+import rich
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage
 
@@ -134,23 +135,34 @@ class WhiteBoxUQ(ShortFormUQ):
         assert hasattr(self.llm, "logprobs"), """
         BaseChatModel must have logprobs attribute and have logprobs=True
         """
-        self.llm.logprobs = True
-        sampled_responses = None
+        with self._preserve_llm_logprobs():
+            self.llm.logprobs = True
+            sampled_responses = None
 
-        self._construct_progress_bar(show_progress_bars)
-        self._display_generation_header(show_progress_bars, generation_type="white_box")
+            self._construct_progress_bar(show_progress_bars)
+            self._display_generation_header(show_progress_bars, generation_type="white_box")
 
-        responses = await self.generate_original_responses(prompts, top_k_logprobs=self.top_k_logprobs, progress_bar=self.progress_bar)
-        if self.sampled_logprobs_scorer_names:
-            self.llm.logprobs = True  # reset attribute to True
-            sampled_responses = await self.generate_candidate_responses(prompts=prompts, num_responses=num_responses, progress_bar=self.progress_bar)
-        result = await self.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=self.logprobs, sampled_logprobs_results=self.multiple_logprobs, show_progress_bars=show_progress_bars)
+            responses = await self.generate_original_responses(prompts, top_k_logprobs=self.top_k_logprobs, progress_bar=self.progress_bar)
+            if self.sampled_logprobs_scorer_names:
+                self.llm.logprobs = True  # response_generator may set this to top_k_logprobs; reset for candidate generation
+                sampled_responses = await self.generate_candidate_responses(prompts=prompts, num_responses=num_responses, progress_bar=self.progress_bar)
+            result = await self.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, logprobs_results=self.logprobs, sampled_logprobs_results=self.multiple_logprobs, show_progress_bars=show_progress_bars, _existing_progress_bar=self.progress_bar)
 
-        self._stop_progress_bar()
-        self.progress_bar = None  # if re-run ensure the same progress object is not used
-        return result
+            self._stop_progress_bar()
+            self.progress_bar = None  # if re-run ensure the same progress object is not used
+            return result
 
-    async def score(self, logprobs_results: List[List[Dict[str, Any]]], prompts: Optional[List[str]] = None, responses: Optional[List[str]] = None, sampled_responses: Optional[List[List[str]]] = None, sampled_logprobs_results: Optional[List[List[List[Dict[str, Any]]]]] = None, show_progress_bars: Optional[bool] = True, _display_header: bool = True) -> UQResult:
+    async def score(
+        self,
+        logprobs_results: List[List[Dict[str, Any]]],
+        prompts: Optional[List[str]] = None,
+        responses: Optional[List[str]] = None,
+        sampled_responses: Optional[List[List[str]]] = None,
+        sampled_logprobs_results: Optional[List[List[List[Dict[str, Any]]]]] = None,
+        show_progress_bars: Optional[bool] = True,
+        _display_header: bool = True,
+        _existing_progress_bar: Optional[rich.progress.Progress] = None,
+    ) -> UQResult:
         """
         Compute white-box confidence scores from provided logprobs.
 
@@ -180,7 +192,7 @@ class WhiteBoxUQ(ShortFormUQ):
         UQResult
             UQResult containing prompts, responses, logprobs, and white-box UQ scores
         """
-        self._construct_progress_bar(show_progress_bars)
+        self._construct_progress_bar(show_progress_bars, _existing_progress_bar=_existing_progress_bar)
         self._display_scoring_header(show_progress_bars and _display_header and self.scorers_with_scoring_header)
 
         data = {"prompts": prompts, "responses": responses, "logprob": logprobs_results, "sampled_responses": sampled_responses, "sampled_logprob": sampled_logprobs_results}
@@ -201,6 +213,9 @@ class WhiteBoxUQ(ShortFormUQ):
             p_true_scores_dict = await self.p_true_scorer.evaluate(prompts=prompts, responses=responses, sampled_responses=sampled_responses, progress_bar=self.progress_bar)
             data.update(p_true_scores_dict)
         result = {"data": data, "metadata": {"temperature": None if not self.llm else self.llm.temperature}}
+        if _existing_progress_bar is None:
+            self._stop_progress_bar()
+            self.progress_bar = None  # if re-run ensure the same progress object is not used
         return UQResult(result)
 
     def _validate_scorers(self, scorers: List[str], top_k_logprobs: int) -> None:

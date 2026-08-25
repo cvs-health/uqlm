@@ -154,18 +154,19 @@ class SemanticEntropy(ShortFormUQ):
         self.num_responses = num_responses
         self.nli.num_responses = num_responses
 
-        if hasattr(self.llm, "logprobs"):
-            self.llm.logprobs = True
-            self.use_logprobs = True
-        else:
-            warnings.warn("The provided LLM does not support logprobs access. Only discrete semantic entropy will be computed.")
+        with self._preserve_llm_logprobs() as has_logprobs:
+            if has_logprobs:
+                self.llm.logprobs = True
+                self.use_logprobs = True
+            else:
+                warnings.warn("The provided LLM does not support logprobs access. Only discrete semantic entropy will be computed.")
 
-        self._construct_progress_bar(show_progress_bars)
-        self._display_generation_header(show_progress_bars)
+            self._construct_progress_bar(show_progress_bars)
+            self._display_generation_header(show_progress_bars)
 
-        responses = await self.generate_original_responses(prompts, progress_bar=self.progress_bar)
-        sampled_responses = await self.generate_candidate_responses(prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
-        return self.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, show_progress_bars=show_progress_bars)
+            responses = await self.generate_original_responses(prompts, progress_bar=self.progress_bar)
+            sampled_responses = await self.generate_candidate_responses(prompts, num_responses=self.num_responses, progress_bar=self.progress_bar)
+            return self.score(prompts=prompts, responses=responses, sampled_responses=sampled_responses, show_progress_bars=show_progress_bars)
 
     def score(self, prompts: List[str] = None, responses: List[str] = None, sampled_responses: List[List[str]] = None, logprobs_results: Optional[List[List[Dict[str, Any]]]] = None, sampled_logprobs_results: Optional[List[List[List[Dict[str, Any]]]]] = None, show_progress_bars: Optional[bool] = True, _display_header: bool = True) -> UQResult:
         """

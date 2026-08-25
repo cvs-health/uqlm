@@ -214,6 +214,48 @@ def test_construct_black_box_return_data_variants():
     assert result["sampled_responses"] == uq.raw_sampled_responses
 
 
+@pytest.mark.asyncio
+async def test_generate_responses_restores_temperature_on_exception(monkeypatch):
+    """Regression test for M5: temperature must be restored even when generation raises."""
+    from langchain_openai import AzureChatOpenAI
+
+    llm = AzureChatOpenAI(deployment_name="D", temperature=0.3, api_key="k", api_version="2024-05-01-preview", azure_endpoint="https://mocked.endpoint.com")
+    uq = ShortFormUQ(llm=llm)
+
+    async def mock_generate(*args, **kwargs):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr("uqlm.utils.response_generator.ResponseGenerator.generate_responses", mock_generate)
+
+    with pytest.raises(RuntimeError, match="boom"):
+        await uq._generate_responses(prompts=["p"], count=5, temperature=2.0)
+    assert llm.temperature == 0.3
+
+
+def test_preserve_llm_logprobs_restores_on_exception():
+    """Regression test for M5: _preserve_llm_logprobs restores logprobs even on exception."""
+    uq = ShortFormUQ(llm=mock_object)
+    uq.llm.logprobs = False
+
+    with pytest.raises(RuntimeError, match="boom"):
+        with uq._preserve_llm_logprobs():
+            uq.llm.logprobs = True
+            raise RuntimeError("boom")
+    assert uq.llm.logprobs is False
+
+
+def test_preserve_llm_logprobs_no_op_without_attribute():
+    """CM is a no-op when the LLM lacks a logprobs attribute (e.g. ChatAnthropic)."""
+
+    class NoLogprobsLLM:
+        temperature = 0.0
+
+    uq = ShortFormUQ(llm=NoLogprobsLLM())
+    with uq._preserve_llm_logprobs() as has_logprobs:
+        assert has_logprobs is False
+    # No AttributeError raised
+
+
 def test_progress_bar_exceptions(monkeypatch):
     uq = ShortFormUQ(llm=mock_object)
 

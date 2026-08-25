@@ -131,7 +131,6 @@ class UncertaintyQuantifier:
         list of list of str
             A list of sampled responses for each prompt.
         """
-        llm_temperature = self.llm.temperature
         generations = await self._generate_responses(prompts=prompts, count=num_responses, temperature=self.sampling_temperature, top_k_logprobs=None, progress_bar=progress_bar)
         tmp_mr, tmp_lp = generations["responses"], generations["logprobs"]
         sampled_responses, self.multiple_logprobs = [], []
@@ -142,26 +141,47 @@ class UncertaintyQuantifier:
         if self.postprocessor:
             self.raw_sampled_responses = sampled_responses
             sampled_responses = [[self.postprocessor(r) for r in m] for m in sampled_responses]
-        self.llm.temperature = llm_temperature
         return sampled_responses
 
     async def _generate_responses(self, prompts: List[Union[str, List[BaseMessage]]], count: int, temperature: float = None, top_k_logprobs: Optional[int] = None, progress_bar: Optional[Progress] = None) -> List[str]:
         """Helper function to generate responses with LLM"""
+        if self.llm is None:
+            raise ValueError("""llm must be provided to generate responses.""")
+        llm_temperature = self.llm.temperature
+        if temperature:
+            self.llm.temperature = temperature
         try:
-            if self.llm is None:
-                raise ValueError("""llm must be provided to generate responses.""")
-            llm_temperature = self.llm.temperature
-            if temperature:
-                self.llm.temperature = temperature
             generator_object = ResponseGenerator(llm=self.llm, max_calls_per_min=self.max_calls_per_min, use_n_param=self.use_n_param, top_k_logprobs=top_k_logprobs, structured_response=self.structured_response, output_extractor=self.output_extractor)
             with contextlib.redirect_stdout(io.StringIO()):
                 generations = await generator_object.generate_responses(prompts=prompts, count=count, system_prompt=self.system_prompt, progress_bar=progress_bar)
-            self.llm.temperature = llm_temperature
         except Exception:
             if progress_bar:
                 progress_bar.stop()
             raise
+        finally:
+            self.llm.temperature = llm_temperature
         return {"responses": generations["data"]["response"], "logprobs": generations["metadata"]["logprobs"]}
+
+    @contextlib.contextmanager
+    def _preserve_llm_logprobs(self):
+        """Snapshot ``self.llm.logprobs`` and restore it on exit.
+
+        No-op when the LLM is None or lacks a ``logprobs`` attribute (e.g. ``ChatAnthropic``).
+        Callers may safely set ``self.llm.logprobs = True`` inside the block; the original
+        value is restored even if an exception propagates out.
+        """
+        has_logprobs = self.llm is not None and hasattr(self.llm, "logprobs")
+        if not has_logprobs:
+            yield False
+            return
+        original_logprobs = self.llm.logprobs
+        try:
+            yield True
+        finally:
+            try:
+                self.llm.logprobs = original_logprobs
+            except Exception:
+                pass
 
     def _validate_structured_output_parameters(self) -> None:
         if self.structured_response and not self.output_extractor:
