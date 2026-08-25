@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import asyncio
-import time
 from typing import List, Optional
 from uqlm.utils.prompts import get_response_reconstruction_prompt
 from rich.progress import Progress
