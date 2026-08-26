@@ -28,5 +28,6 @@ from uqlm.scorers.shortform.codegen import CodeGenUQ
 from uqlm.scorers.longform.longtext import LongTextUQ
 from uqlm.scorers.longform.qa import LongTextQA
 from uqlm.scorers.longform.graph import LongTextGraph
+from uqlm.integrations.langgraph import UQLMNode, make_uqlm_node
 
-__all__ = ["UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "CodeGenUQ", "LongTextUQ", "LongTextQA", "LongTextGraph"]
+__all__ = ["UQEnsemble", "SemanticEntropy", "LLMPanel", "WhiteBoxUQ", "BlackBoxUQ", "CodeGenUQ", "LongTextUQ", "LongTextQA", "LongTextGraph", "UQLMNode", "make_uqlm_node"]

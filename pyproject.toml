@@ -54,6 +54,7 @@ documentation = "https://cvs-health.github.io/uqlm/latest/index.html"
 
 [project.optional-dependencies]
 accelerate = ["accelerate>=0.26.0"]
+langgraph = ["langgraph>=0.2"]
 
 [dependency-groups]
 dev = [
@@ -63,6 +64,7 @@ dev = [
     "ipykernel>=6.29.5,<8.0.0",
     "langchain-openai>=0.2.6",
     "langchain-google-vertexai>=2.0.8",
+    "nbconvert>=7.17.1",
 ]
 docs = [
     "sphinx==8.1.3",
