@@ -83,6 +83,15 @@ class CodeGenUQ(ShortFormUQ):
 
         retries : int, default=5
             Specifies the number of retries to make if the equivalence score is not found.
+
+        Notes
+        -----
+        CodeGenUQ itself does not execute generated code. If you execute
+        model-generated code to benchmark it (e.g., with
+        ``uqlm.code.code_evaluation.evaluate_python_code``), note that the code
+        runs in a subprocess with resource limits and a wall-clock timeout;
+        this is process-level isolation, not a security sandbox. Run untrusted
+        code only in an isolated environment (container/VM).
         """
         super().__init__(llm=llm, max_calls_per_min=max_calls_per_min, system_prompt=system_prompt)
         self.scorers = scorers
