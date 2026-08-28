@@ -175,10 +175,13 @@ class LongFormUQ(UncertaintyQuantifier):
 
     def _aggregate_scores(self, claim_scores: List[List[float]]) -> List[float]:
         """Aggregate claim scores to response level scores"""
+        # When the NLI judge exhausts its retries, unparseable responses remain
+        # NaN in the claim scores. Aggregate with NaN-aware reductions so one
+        # failed judge response doesn't poison the whole response-level score.
         if self.aggregation == "mean":
-            return [np.mean(cs) for cs in claim_scores]
+            return [np.nanmean(cs) for cs in claim_scores]
         elif self.aggregation == "min":
-            return [np.min(cs) for cs in claim_scores]
+            return [np.nanmin(cs) for cs in claim_scores]
 
     def _display_decomposition_header(self, show_progress_bars: bool) -> None:
         """Displays decomposition header"""
