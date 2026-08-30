@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import math
+import warnings
 from typing import Any, Dict, Optional, List, Tuple
 
 import asyncio
@@ -104,6 +105,13 @@ class EntailmentClassifier:
             # Exit if no more failures
             if len(score_failures) == 0:
                 break
+
+        # After retries are exhausted, unparseable judge responses remain NaN.
+        # Surface the residue instead of letting it flow silently into claim
+        # matrices and response-level aggregates.
+        residual_failures = df[pd.isna(df.scores)]
+        if len(residual_failures) > 0:
+            warnings.warn(f"Judge scores could not be parsed for {len(residual_failures)} prompt(s) (indices: {list(residual_failures.index)[:10]}) after {retries} retries; those scores remain NaN and will propagate through downstream aggregation.")
         return {col: list(df[col]) for col in df.columns}
 
     async def evaluate_claim_entailment(self, response_sets: List[List[str]], claim_sets: List[List[str]], retries: int = 5, progress_bar: Optional[Progress] = None) -> List[np.ndarray]:
