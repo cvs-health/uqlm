@@ -116,7 +116,7 @@ class ResponseDecomposer:
         if progress_bar:
             self.progress_task = progress_bar.add_task("  - Decomposing responses into claims...", total=len(responses))
         claim_sets = await self._decompose_claims(responses=responses, progress_bar=progress_bar)
-        time.sleep(0.1)
+        await asyncio.sleep(0.1)
         return claim_sets
 
     async def decompose_candidate_claims(self, sampled_responses: List[List[str]], progress_bar: Optional[Progress] = None) -> List[List[List[str]]]:
@@ -136,7 +136,7 @@ class ResponseDecomposer:
             self.progress_task = progress_bar.add_task("  - Decomposing candidate responses into claims...", total=len(sampled_responses) * num_responses)
         tasks = [self._decompose_claims(responses=candidates, progress_bar=progress_bar, matched_claims=True) for candidates in sampled_responses]
         sampled_claim_sets = await asyncio.gather(*tasks)
-        time.sleep(0.1)
+        await asyncio.sleep(0.1)
         return sampled_claim_sets
 
     async def _decompose_claims(self, responses: List[str], progress_bar: Optional[Progress] = None, matched_claims: bool = True) -> List[str]:

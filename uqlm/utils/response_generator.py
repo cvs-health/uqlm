@@ -181,7 +181,7 @@ class ResponseGenerator:
             if batch_idx == len(prompts_partition) - 1:
                 check_batch_time = False
             await self._process_batch(prompt_batch, duplicated_prompts, generations, check_batch_time)
-        time.sleep(0.1)
+        await asyncio.sleep(0.1)
         return generations, duplicated_prompts
 
     async def _process_batch(self, prompt_batch: List[Union[str, List[BaseMessage]]], duplicated_prompts: List[str], generations: Dict[str, List[Any]], check_batch_time: bool) -> None:
@@ -201,9 +201,10 @@ class ResponseGenerator:
         generations["logprobs"].extend(logprobs_batch)
         stop = time.time()
 
-        # pause if needed
+        # pause if needed (non-blocking so concurrent batches and the
+        # caller's event loop are not frozen by the rate-limit wait)
         if (stop - start < 60) and check_batch_time:
-            time.sleep(61 - stop + start)
+            await asyncio.sleep(61 - stop + start)
 
     async def _async_api_call(self, prompt: Union[str, List[BaseMessage]], count: int = 1) -> Dict[str, Any]:
         """Generates responses asynchronously using an RunnableSequence object"""

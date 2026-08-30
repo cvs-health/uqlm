@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 import json
 import inspect
 from typing import Any, Dict, List, Optional, Union, Tuple
 import numpy as np
 import pandas as pd
-import time
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage
 import rich
@@ -493,7 +493,7 @@ class UQEnsemble(ShortFormUQ):
                 correct_indicators.append(grader_function(r, a))
                 if self.progress_bar:
                     self.progress_bar.update(progress_task, advance=1)
-            time.sleep(0.1)
+            await asyncio.sleep(0.1)
         else:
             llm_grader = LLMGrader(llm=self.grader_llm)
             correct_indicators = await llm_grader.grade_responses(prompts=self.prompts, responses=self.responses, answers=ground_truth_answers, progress_bar=self.progress_bar)
