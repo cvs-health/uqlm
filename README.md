@@ -45,7 +45,10 @@
   </a>
   </a>
   <a href="https://openreview.net/pdf?id=gngp4Zz9Sj">
-    <img src="https://img.shields.io/badge/TMLR-LongTextUQ-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication">
+    <img src="https://img.shields.io/badge/TMLR-LongTextUQ-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication 2">
+  </a>
+  <a href="https://arxiv.org/abs/2605.28500">
+    <img src="https://img.shields.io/badge/ENMLP-CodeGenUQ-0092CA?style=flat&logo=semantic-scholar&logoColor=white" alt="EMNLP Publication">
   </a>
 </p>
 
@@ -412,7 +415,7 @@ note={}
 }
 ```
 
-The code-specific methods and experiment results are described in [**this paper**](https://arxiv.org/abs/2605.28500), available as a preprint on arXiv. To cite:
+The code-specific methods and experiment results are described in [**this paper**](https://arxiv.org/abs/2605.28500), accepted to **EMNLP 2026 (main conference)**. To cite:
 ```bibtex
 @misc{bouchard2026functionalentropypredictingfunctional,
       title={Functional Entropy: Predicting Functional Correctness in LLM-Generated Code with Uncertainty Quantification}, 
