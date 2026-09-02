@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 from unittest.mock import MagicMock, patch
 from uqlm.white_box.sampled_logprobs import SampledLogprobsScorer, SAMPLED_LOGPROBS_SCORER_NAMES
@@ -60,6 +61,37 @@ def test_monte_carlo_probability(scorer):
         result = scorer.monte_carlo_probability(responses=responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results)
         assert isinstance(result, list)
         assert len(result) == len(responses)
+
+
+def test_monte_carlo_probability_excludes_logprob_sets_without_logprobs(scorer):
+    """One logprob set missing its payload must not destroy the estimate from the rest."""
+    responses = ["response1", "response2"]
+    logprobs_results = [[{"logprob": -0.1}], [{"logprob": -0.2}]]
+    sampled_logprobs_results = [[[{"logprob": -0.3}], None, [{"logprob": -0.5}]], [[{"logprob": -0.4}], [{"logprob": -0.6}]]]
+
+    result = scorer.monte_carlo_probability(responses=responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results)
+
+    assert not np.isnan(result[0])
+    assert np.isclose(result[0], np.mean([np.exp(-0.1), np.exp(-0.3), np.exp(-0.5)]))
+    assert np.isclose(result[1], np.mean([np.exp(-0.2), np.exp(-0.4), np.exp(-0.6)]))
+
+
+def test_monte_carlo_probability_warns_when_logprob_sets_are_unusable(scorer):
+    """The reduced effective sample count must be surfaced, not silent."""
+    responses = ["response1", "response2"]
+    logprobs_results = [[{"logprob": -0.1}], [{"logprob": -0.2}]]
+    sampled_logprobs_results = [[[{"logprob": -0.3}], None, [{"logprob": -0.5}]], [[{"logprob": -0.4}], [{"logprob": -0.6}]]]
+
+    with pytest.warns(UserWarning, match=r"Logprobs were unavailable for 1 of 7 logprob sets \(responses: \[0\]\)"):
+        scorer.monte_carlo_probability(responses=responses, logprobs_results=logprobs_results, sampled_logprobs_results=sampled_logprobs_results)
+
+
+def test_monte_carlo_probability_returns_nan_when_all_sets_unusable(scorer):
+    """A response with no usable logprobs stays NaN rather than getting a fabricated value."""
+    with pytest.warns(UserWarning, match=r"Logprobs were unavailable for 2 of 2 logprob sets"):
+        result = scorer.monte_carlo_probability(responses=["response1"], logprobs_results=[None], sampled_logprobs_results=[[None]])
+
+    assert np.isnan(result[0])
 
 
 def test_compute_consistency_confidence(scorer):
