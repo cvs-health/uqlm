@@ -34,7 +34,8 @@ Guidelines for your evaluation:
 
 class PTrueScorer:
     def __init__(self, llm: BaseChatModel, max_calls_per_min: Optional[int] = None) -> None:
-        llm.logprobs = True
+        if hasattr(llm, "logprobs"):
+            llm.logprobs = True
         self.response_generator = ResponseGenerator(llm, max_calls_per_min=max_calls_per_min)
         self.response_generator.response_generator_type = "p_true"
 
@@ -51,6 +52,8 @@ class PTrueScorer:
 
     @staticmethod
     def _extract_ptrue_from_logprobs_result(logprobs_result: List[Dict[str, Any]]) -> float:
+        if not logprobs_result:
+            return np.nan
         first_token_data = logprobs_result[0]
         token = first_token_data.get("token", "").strip().lower()
         logprob = first_token_data.get("logprob", None)

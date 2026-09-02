@@ -18,7 +18,7 @@ from typing import List, Dict, Any
 from uqlm.white_box.baseclass.logprobs_scorer import LogprobsScorer
 
 
-SINGLE_LOGPROBS_SCORER_NAMES = ["normalized_probability", "min_probability", "sequence_probability"]
+SINGLE_LOGPROBS_SCORER_NAMES = ["min_probability", "sequence_probability"]
 
 
 class SingleLogprobsScorer(LogprobsScorer):

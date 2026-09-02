@@ -20,7 +20,7 @@ from uqlm.white_box.single_logprobs import SingleLogprobsScorer, SINGLE_LOGPROBS
 from uqlm.white_box.top_logprobs import TopLogprobsScorer, TOP_LOGPROBS_SCORER_NAMES
 from uqlm.white_box.sampled_logprobs import SampledLogprobsScorer, SAMPLED_LOGPROBS_SCORER_NAMES
 from uqlm.white_box.p_true import PTrueScorer
-from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ
+from uqlm.scorers.shortform.baseclass.uncertainty import ShortFormUQ, DEFAULT_WHITE_BOX_SCORERS
 from uqlm.utils.results import UQResult
 from uqlm.utils.warn import beta_warning
 
@@ -64,7 +64,7 @@ class WhiteBoxUQ(ShortFormUQ):
             defaults to "You are a helpful assistant."
 
         scorers : List[str], default=None
-            Specifies which white-box UQ scorers to include. Must be subset of ["sequence_probability", "min_probability", "max_token_negentropy", "mean_token_negentropy", "probability_margin", "monte_carlo_probability", "consistency_and_confidence", "semantic_negentropy", "semantic_density", "p_true"]. If None, defaults to ["sequence_probability", "min_probability"].
+            Specifies which white-box UQ scorers to include. Must be subset of ["sequence_probability", "min_probability", "min_token_negentropy", "mean_token_negentropy", "probability_margin", "monte_carlo_probability", "consistency_and_confidence", "semantic_negentropy", "semantic_density", "p_true"]. If None, defaults to ["sequence_probability", "min_probability"].
 
         sampling_temperature : float, default=1.0
             The 'temperature' parameter for llm model to generate sampled LLM responses. Must be greater than 0.
@@ -206,7 +206,7 @@ class WhiteBoxUQ(ShortFormUQ):
     def _validate_scorers(self, scorers: List[str], top_k_logprobs: int) -> None:
         """Validate and store scorer list"""
         if not scorers:
-            self.scorers = self.white_box_names
+            self.scorers = list(DEFAULT_WHITE_BOX_SCORERS)
         else:
             if "normalized_probability" in scorers:
                 raise ValueError("normalized_probability is deprecated as of v0.5 in favor of sequence_probability with length_normalize=True")

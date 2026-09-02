@@ -104,6 +104,22 @@ def test_extract_ptrue_from_logprobs_result_missing_logprob():
     assert score != score  # NaN check
 
 
+def test_ptrue_scorer_init_no_logprobs_field():
+    """PTrueScorer must not raise when the llm has no logprobs field."""
+    from unittest.mock import MagicMock
+    llm = MagicMock(spec=[])  # no logprobs attribute
+    with pytest.MonkeyPatch().context() as mp:
+        mp.setattr("uqlm.white_box.p_true.ResponseGenerator.__init__", lambda self, *a, **kw: None)
+        scorer = PTrueScorer(llm=llm)
+    assert scorer is not None
+
+
+def test_extract_ptrue_empty_logprobs():
+    """Empty logprobs list must return NaN instead of raising IndexError."""
+    result = PTrueScorer._extract_ptrue_from_logprobs_result([])
+    assert result != result  # NaN check
+
+
 def test_construct_ptrue_prompt():
     """Test the _construct_ptrue_prompt method."""
     prompt = "What is 2+2?"

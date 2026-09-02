@@ -15,6 +15,7 @@
 import pytest
 import numpy as np
 from uqlm.white_box.baseclass.logprobs_scorer import LogprobsScorer
+from uqlm.white_box.single_logprobs import SingleLogprobsScorer, SINGLE_LOGPROBS_SCORER_NAMES
 
 
 @pytest.fixture
@@ -98,6 +99,16 @@ def test_extract_top_logprobs(mock_single_response_logprobs, scorer):
     for top_logprobs in result:
         assert isinstance(top_logprobs, np.ndarray)
         assert top_logprobs.shape[0] > 0
+
+
+def test_single_logprobs_scorer_default_no_key_error(mock_logprobs_results):
+    """SingleLogprobsScorer default evaluate must not raise KeyError (normalized_probability removed)."""
+    assert "normalized_probability" not in SINGLE_LOGPROBS_SCORER_NAMES
+    scorer = SingleLogprobsScorer()
+    result = scorer.evaluate(mock_logprobs_results)
+    assert "min_probability" in result
+    assert "sequence_probability" in result
+    assert "normalized_probability" not in result
 
 
 def test_compute_single_generation_scores(mock_logprobs_results, scorer):
