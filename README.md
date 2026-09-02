@@ -48,7 +48,7 @@
     <img src="https://img.shields.io/badge/TMLR-LongTextUQ-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication 2">
   </a>
   <a href="https://arxiv.org/abs/2605.28500">
-    <img src="https://img.shields.io/badge/ENMLP-CodeGenUQ-0092CA?style=flat&logo=semantic-scholar&logoColor=white" alt="EMNLP Publication">
+    <img src="https://img.shields.io/badge/EMNLP-CodeGenUQ-0092CA?style=flat&logo=semantic-scholar&logoColor=white" alt="EMNLP Publication">
   </a>
 </p>
 
