@@ -5,6 +5,13 @@ uqlm.utils.response\_generator
 
    
    
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+      :toctree:
+   
+      FAILED_RESPONSE
+   
    
 
    

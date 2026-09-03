@@ -1,0 +1,6 @@
+uqlm.utils.response\_generator.FAILED\_RESPONSE
+===============================================
+
+.. currentmodule:: uqlm.utils.response_generator
+
+.. autodata:: FAILED_RESPONSE
