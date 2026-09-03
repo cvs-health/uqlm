@@ -1,6 +1,6 @@
 [project]
 name = "uqlm"
-version = "0.6.6"
+version = "0.6.5"
 description = "UQLM (Uncertainty Quantification for Language Models) is a Python package for UQ-based LLM hallucination detection."
 readme = "assets/README_PYPI.md"
 license = "Apache-2.0"
@@ -31,7 +31,7 @@ dependencies = [
     "langchain>=0.3.7",
     "langchain-model-profiles>=0.0.3",
     "torch>=2.6.0",
-    "transformers>=4.45.2,<6.0.0",
+    "transformers>=4.45.2,<5.0.0",
     "scikit-learn>=1.5.2,<2.0.0; python_version < '3.13'",
     "scikit-learn>=1.7.0,<2.0.0; python_version >= '3.13'",
     "numpy>=1.26.4,<2.0.0; python_version < '3.13'",
