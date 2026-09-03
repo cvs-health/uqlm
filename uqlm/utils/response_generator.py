@@ -35,6 +35,9 @@ generator_type_to_progress_msg = {
     "question_generator": "Generating questions for each claim/sentence",
 }
 
+FAILED_RESPONSE = "Unable to get response"
+"""Placeholder returned when all attempts to invoke the LLM fail, so each prompt still maps to exactly one response."""
+
 
 class ResponseGenerator:
     def __init__(self, llm: BaseChatModel = None, max_calls_per_min: Optional[int] = None, use_n_param: bool = False, top_k_logprobs: Optional[int] = None, structured_response: Optional[Any] = None, output_extractor: Optional[Any] = None) -> None:
@@ -178,7 +181,7 @@ class ResponseGenerator:
             if batch_idx == len(prompts_partition) - 1:
                 check_batch_time = False
             await self._process_batch(prompt_batch, duplicated_prompts, generations, check_batch_time)
-        time.sleep(0.1)
+        await asyncio.sleep(0.1)
         return generations, duplicated_prompts
 
     async def _process_batch(self, prompt_batch: List[Union[str, List[BaseMessage]]], duplicated_prompts: List[str], generations: Dict[str, List[Any]], check_batch_time: bool) -> None:
@@ -198,9 +201,10 @@ class ResponseGenerator:
         generations["logprobs"].extend(logprobs_batch)
         stop = time.time()
 
-        # pause if needed
+        # pause if needed (non-blocking so concurrent batches and the
+        # caller's event loop are not frozen by the rate-limit wait)
         if (stop - start < 60) and check_batch_time:
-            time.sleep(61 - stop + start)
+            await asyncio.sleep(61 - stop + start)
 
     async def _async_api_call(self, prompt: Union[str, List[BaseMessage]], count: int = 1) -> Dict[str, Any]:
         """Generates responses asynchronously using an RunnableSequence object"""
@@ -252,7 +256,8 @@ class ResponseGenerator:
                 except Exception:
                     pass
         if result is None:  # if all attempts fail
-            return {"logprobs": [None] * count, "responses": []}
+            warnings.warn("All attempts to invoke the LLM with top_logprobs failed. A placeholder response is returned to preserve prompt-response alignment.")
+            return {"logprobs": [None] * count, "responses": [FAILED_RESPONSE] * count}
         logprobs = self._extract_logprobs(logprobs=logprobs, result=result, count=count)
         return {"logprobs": logprobs, "responses": [result.content]}
 

@@ -14,6 +14,7 @@
 
 import pytest
 from unittest.mock import MagicMock, patch, AsyncMock
+import numpy as np
 from rich.progress import Progress
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -228,6 +229,16 @@ class TestLongFormUQ:
 
         # Check the result
         assert result == [0.6, 0.9]
+
+    def test_aggregate_scores_exclude_nan_claims(self, uq_default):
+        """Regression: a claim whose NLI judge response stayed NaN after retries
+        must not poison the whole response-level score."""
+        claim_scores = [[0.8, np.nan], [0.9, 0.5]]
+
+        assert uq_default._aggregate_scores(claim_scores) == [0.8, 0.7]
+
+        uq_default.aggregation = "min"
+        assert uq_default._aggregate_scores(claim_scores) == [0.8, 0.5]
 
     def test_display_decomposition_header(self, uq_default):
         """Test _display_decomposition_header method."""

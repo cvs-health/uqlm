@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-import time
+import asyncio
 from typing import List, Optional, Any
 
 import numpy as np
@@ -89,7 +89,7 @@ class GraphScorer(ClaimScorer):
         claim_score_lists = self._construct_graphs_and_calculate_scores(response_sets, original_claim_sets, master_claim_sets, biadjacency_matrices, binary_edge_threshold, progress_bar)
 
         # Small delay to ensure progress bar UI updates before function completes
-        time.sleep(0.1)
+        await asyncio.sleep(0.1)
 
         return claim_score_lists
 

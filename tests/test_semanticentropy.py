@@ -58,3 +58,20 @@ async def test_semanticentropy(monkeypatch):
         assert all([abs(se_results.data["discrete_entropy_values"][i] - data["entropy_values"][i]) < 1e-5 for i in range(len(PROMPTS))])
         assert all([abs(se_results.data["discrete_confidence_scores"][i] - data["confidence_scores"][i]) < 1e-5 for i in range(len(PROMPTS))])
         assert se_results.metadata == metadata
+
+
+def test_score_without_prompts_keeps_prompts_in_nli_enabled():
+    """A call without prompts must not permanently disable prompt-conditioned NLI."""
+    se_object = SemanticEntropy(llm=mock_object, use_best=False, device="cpu")
+    assert se_object.prompts_in_nli is True
+
+    # No prompts on this call: NLI inputs legitimately omit the prompt...
+    se_object.score(responses=data["responses"], sampled_responses=data["sampled_responses"])
+
+    # ...but the instance-level configuration must survive for later calls.
+    assert se_object.prompts_in_nli is True
+
+    # A subsequent call WITH prompts still conditions NLI inputs on them and
+    # leaves the flag untouched.
+    se_object.score(prompts=data["prompts"], responses=data["responses"], sampled_responses=data["sampled_responses"])
+    assert se_object.prompts_in_nli is True

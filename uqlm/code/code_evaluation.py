@@ -7,9 +7,54 @@ import html
 import subprocess
 
 
-def evaluate_python_code(responses: List[str], public_test_cases: List[Any], metadata: List[Any]) -> Dict[str, Any]:
+# Defaults for the resource limits applied to each evaluation subprocess.
+# Enforced via POSIX rlimits; on Windows the rlimits are unavailable and are
+# not applied (the wall-clock subprocess timeout still applies everywhere).
+DEFAULT_MEMORY_LIMIT_BYTES = 4 * 1024**3  # 4 GiB
+DEFAULT_CPU_TIME_LIMIT_SECONDS = 10
+DEFAULT_MAX_FILE_SIZE_BYTES = 1024**2  # 1 MiB
+
+
+def evaluate_python_code(responses: List[str], public_test_cases: List[Any], metadata: List[Any], timeout: int = 6, memory_limit_bytes: int = DEFAULT_MEMORY_LIMIT_BYTES, cpu_time_limit_seconds: int = DEFAULT_CPU_TIME_LIMIT_SECONDS, max_file_size_bytes: int = DEFAULT_MAX_FILE_SIZE_BYTES) -> Dict[str, Any]:
     """
     Evaluates all the Python responses against public test cases.
+
+    Each response is executed in a subprocess with resource limits (memory,
+    CPU time, and maximum file size) plus a hard wall-clock timeout. The
+    resource limits are enforced via POSIX rlimits: on Windows they are not
+    applied, and on macOS the kernel does not enforce memory (address-space)
+    rlimits, so only the CPU/file-size limits and the wall-clock timeout apply
+    there.
+
+    .. warning::
+        This utility executes model-generated code in a subprocess with
+        resource limits. It is **not** a security sandbox; do not run
+        untrusted code from sources you don't control outside an isolated
+        environment (container/VM).
+
+    Parameters
+    ----------
+    responses : List[str]
+        Model responses containing candidate Python code.
+
+    public_test_cases : List[Any]
+        Test cases (list of dicts or JSON string) for each response.
+
+    metadata : List[Any]
+        Per-response metadata (dict or JSON string); may include "func_name" for call-based grading.
+
+    timeout : int, default=6
+        Per-test wall-clock timeout in seconds; the subprocess is hard-killed at timeout + 5 seconds.
+
+    memory_limit_bytes : int, default=4 GiB
+        Maximum memory available to the evaluation subprocess (POSIX only).
+
+    cpu_time_limit_seconds : int, default=10
+        Maximum CPU time for the evaluation subprocess (POSIX only). Does not
+        bound sleeping/blocked processes; the wall-clock timeout covers those.
+
+    max_file_size_bytes : int, default=1 MiB
+        Maximum size of any file the evaluated code may write (POSIX only).
     """
     results = {"unit_test_passed": [], "stderr": []}
     utils_directory = os.path.dirname(os.path.abspath(__file__))
@@ -20,23 +65,27 @@ def evaluate_python_code(responses: List[str], public_test_cases: List[Any], met
             row["public_test_cases"] = json.loads(row["public_test_cases"])
         if isinstance(row.get("metadata"), str):
             row["metadata"] = json.loads(row["metadata"])
-        out = evaluate_row_unified(row, timeout=6, runner_path=os.path.join(utils_directory, "lcb_grader.py"))
+        out = evaluate_row_unified(row, timeout=timeout, runner_path=os.path.join(utils_directory, "lcb_grader.py"), memory_limit_bytes=memory_limit_bytes, cpu_time_limit_seconds=cpu_time_limit_seconds, max_file_size_bytes=max_file_size_bytes)
         results["unit_test_passed"].append(out.get("unit_test_passed", 0))
         results["stderr"].append(out.get("stderr", ""))
     return results
 
 
-def evaluate_row_unified(row, timeout=6, runner_path="lcb_grader.py"):
+def evaluate_row_unified(row, timeout=6, runner_path="lcb_grader.py", memory_limit_bytes=DEFAULT_MEMORY_LIMIT_BYTES, cpu_time_limit_seconds=DEFAULT_CPU_TIME_LIMIT_SECONDS, max_file_size_bytes=DEFAULT_MAX_FILE_SIZE_BYTES):
     """
     Evaluates a single row of the dataset using the LCB runner.
 
     - Sanitizes the model response to isolate valid code.
     - Parses public test cases and determines the testing mode (call-based or stdio).
-    - Builds the JSON payload expected by the LCB runner.
+    - Builds the JSON payload expected by the LCB runner, including resource limits.
     - Invokes the runner in a subprocess, passing the payload to standard input.
     - Captures stdout and stderr from the runner.
     - Decodes the final JSON report produced by the runner.
     - Returns the evaluation results.
+
+    The runner subprocess applies the memory/CPU/file-size limits via POSIX
+    rlimits before executing candidate code (not applied on Windows). This is
+    process-level isolation, not a security sandbox.
     """
     sanitized = sanitize_llm_output(row["response"])
 
@@ -48,7 +97,7 @@ def evaluate_row_unified(row, timeout=6, runner_path="lcb_grader.py"):
         func_name = row["metadata"].get("func_name")
 
     # Build payload for LCB runner
-    payload = {"code": sanitized, "public_test_cases": public_tests, "timeout": timeout}
+    payload = {"code": sanitized, "public_test_cases": public_tests, "timeout": timeout, "memory_limit_bytes": memory_limit_bytes, "cpu_time_limit_seconds": cpu_time_limit_seconds, "max_file_size_bytes": max_file_size_bytes}
 
     # Only include fn_name if it exists
     if func_name and isinstance(func_name, str) and len(func_name.strip()) > 0:

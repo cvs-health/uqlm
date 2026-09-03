@@ -243,6 +243,16 @@ class TestEntailmentClassifier(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["scores"], [1.0])
         self.assertEqual(result["judge_responses"], ["Yes"])
 
+    async def test_judge_entailment_warns_when_retries_exhausted(self):
+        """Regression: unparseable judge responses that survive every retry stay NaN
+        silently; the exhaustion must be surfaced before it reaches aggregation."""
+        self.mock_llm.ainvoke.return_value = AIMessage(content="Maybe, it's unclear")
+
+        with self.assertWarns(UserWarning):
+            result = await self.classifier.judge_entailment(premises=["The dog is barking."], hypotheses=["The animal makes noise."], retries=1)
+
+        self.assertTrue(np.isnan(result["scores"][0]))
+
     def test_format_result_arrays_accepts_nan(self):
         """Regression: the entailment matrix used dtype=int, which cannot hold the NaN left by
         pairs whose extraction failed after all retries."""

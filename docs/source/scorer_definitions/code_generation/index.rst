@@ -5,6 +5,17 @@ Code-Generation Scorers
 
 Code-generation uncertainty quantification uses :class:`CodeGenUQ` to score generated code. These scorers either reuse existing short-form UQ methods or adapt black-box consistency scoring to code by comparing structural similarity or functional equivalence across sampled generations.
 
+.. warning::
+
+   Benchmarking generated code against test cases (e.g., with
+   ``uqlm.code.code_evaluation.evaluate_python_code``, as in the
+   code-generation demo notebook) executes model-generated code in a
+   subprocess with configurable resource limits (memory, CPU time, and file
+   size, enforced on POSIX systems) and a wall-clock timeout. This is
+   process-level isolation, **not** a security sandbox; do not run untrusted
+   code from sources you don't control outside an isolated environment
+   (container/VM).
+
 **Key Characteristics:**
 
 - **White-box compatibility:** Token-probability scorers are identical to the corresponding :doc:`white-box scorers <../white_box/index>`.

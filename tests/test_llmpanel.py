@@ -273,3 +273,32 @@ async def test_llmpanel_without_explanations(monkeypatch, mock_judges, mock_llm)
     # Ensure no explanation columns are present
     assert "judge_1_explanation" not in result.data
     assert "judge_2_explanation" not in result.data
+
+
+@pytest.mark.asyncio
+async def test_panel_aggregates_exclude_unparseable_judge_scores(monkeypatch, mock_judges, mock_llm, recwarn):
+    """One judge exhausting retries must not poison the whole panel's statistics."""
+    import numpy as np
+
+    PROMPTS = data["prompts"][:2]
+    RESPONSES = data["responses"][:2]
+    quantifier = LLMPanel(judges=mock_judges, llm=mock_llm)
+
+    async def judge_one(*args, **kwargs):
+        return {"scores": [0.8, 0.9]}
+
+    async def judge_two(*args, **kwargs):
+        # Prompt 0: retries exhausted -> NaN stays in the scores list.
+        return {"scores": [float("nan"), 0.7]}
+
+    monkeypatch.setattr(quantifier.judges[0], "judge_responses", judge_one)
+    monkeypatch.setattr(quantifier.judges[1], "judge_responses", judge_two)
+
+    result = await quantifier.score(prompts=PROMPTS, responses=RESPONSES)
+
+    assert result.data["avg"][0] == pytest.approx(0.8)
+    assert result.data["max"][0] == pytest.approx(0.8)
+    assert result.data["min"][0] == pytest.approx(0.8)
+    assert not np.isnan(result.data["median"][0])
+    assert result.data["avg"][1] == pytest.approx((0.9 + 0.7) / 2)
+    assert any("could not be parsed" in str(w.message) for w in recwarn.list if issubclass(w.category, UserWarning))
