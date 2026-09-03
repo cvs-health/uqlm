@@ -15,12 +15,13 @@
 import itertools
 import pytest
 import asyncio
+import time
 from langchain_openai import AzureChatOpenAI
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import SystemMessage, HumanMessage
 from unittest.mock import MagicMock, AsyncMock
 from rich.progress import Progress
-from uqlm.utils.response_generator import ResponseGenerator
+from uqlm.utils.response_generator import FAILED_RESPONSE, ResponseGenerator
 
 # REUSABLE TEST DATA
 count = 3
@@ -338,10 +339,89 @@ async def test_ainvoke_with_top_logprobs_exception_handling():
     mock_llm.ainvoke = AsyncMock(side_effect=Exception("Mocked exception"))
 
     messages = [HumanMessage(content="Hello")]
-    result = await generator.ainvoke_with_top_logprobs(messages=messages, count=1)
+    with pytest.warns(UserWarning, match="placeholder response"):
+        result = await generator.ainvoke_with_top_logprobs(messages=messages, count=1)
 
-    # Assert that the result structure is still returned even after exceptions
+    # Assert that the result structure is still returned even after exceptions,
+    # with a placeholder response so prompt-response alignment is preserved
+    # (regression test for #416: an empty responses list silently shifted all
+    # later prompt/response pairs in _process_batch).
     assert "logprobs" in result
     assert "responses" in result
     assert result["logprobs"] == [None]
-    assert result["responses"] == []
+    assert result["responses"] == [FAILED_RESPONSE]
+
+
+@pytest.mark.asyncio
+async def test_all_fail_keeps_prompt_response_alignment(monkeypatch):
+    """Regression test for #416: when ainvoke_with_top_logprobs fails for one
+    prompt in a batch, later prompts must still map to their own responses
+    instead of shifting into the failed prompt's slot."""
+    mock_object = create_mock_llm()
+    generator = ResponseGenerator(llm=mock_object, top_k_logprobs=5)
+
+    async def mock_api_call(prompt, count, *args, **kwargs):
+        if prompt == MOCKED_PROMPTS[1]:
+            # Simulate the all-attempts-fail branch of ainvoke_with_top_logprobs
+            return {"logprobs": [None] * count, "responses": [FAILED_RESPONSE]}
+        return {"logprobs": [None] * count, "responses": [MOCKED_RESPONSE_DICT[prompt]] * count}
+
+    monkeypatch.setattr(generator, "_async_api_call", mock_api_call)
+    data = await generator.generate_responses(prompts=MOCKED_PROMPTS, count=1)
+
+    responses = data["data"]["response"]
+    prompts = data["data"]["prompt"]
+    assert len(responses) == len(prompts) == len(MOCKED_PROMPTS)
+    # The failed prompt gets the placeholder; its neighbors keep their own responses.
+    assert responses[0] == MOCKED_RESPONSE_DICT[MOCKED_PROMPTS[0]]
+    assert responses[1] == FAILED_RESPONSE
+    assert responses[2] == MOCKED_RESPONSE_DICT[MOCKED_PROMPTS[2]]
+
+
+@pytest.mark.asyncio
+async def test_ainvoke_with_top_logprobs_all_fail_placeholder_scales_with_count(monkeypatch):
+    """The all-attempts-fail fallback must return exactly ``count`` placeholder responses.
+
+    A single-element list breaks prompt/response alignment whenever count > 1
+    (review feedback on #450).
+    """
+    from uqlm.utils.response_generator import ResponseGenerator
+
+    generator = ResponseGenerator(llm=MagicMock(), top_k_logprobs=5)
+
+    async def fail(*args, **kwargs):
+        raise RuntimeError("provider down")
+
+    monkeypatch.setattr(generator.llm, "ainvoke", fail)
+
+    result = await generator.ainvoke_with_top_logprobs([HumanMessage("hi")], count=3)
+
+    assert len(result["responses"]) == 3
+    assert all(r == FAILED_RESPONSE for r in result["responses"])
+    assert len(result["logprobs"]) == 3
+
+
+@pytest.mark.asyncio
+async def test_rate_limit_pauses_do_not_block_event_loop(monkeypatch):
+    """Regression for #416: the rate-limit pause must await asyncio.sleep,
+    not call time.sleep, so the event loop is not frozen for ~61 seconds."""
+    mock_object = create_mock_llm()
+    generator = ResponseGenerator(llm=mock_object, max_calls_per_min=1)
+    monkeypatch.setattr(generator, "_async_api_call", create_mock_async_api_call())
+
+    sleeper_calls = []
+
+    async def spy_sleep(seconds):
+        sleeper_calls.append(seconds)
+
+    monkeypatch.setattr(asyncio, "sleep", spy_sleep)
+
+    def fail_if_blocking_sleep(seconds):
+        raise AssertionError("time.sleep must not be used in async generation paths")
+
+    monkeypatch.setattr(time, "sleep", fail_if_blocking_sleep)
+
+    data = await generator.generate_responses(prompts=MOCKED_PROMPTS, count=1)
+
+    assert len(data["data"]["prompt"]) == len(MOCKED_PROMPTS)
+    assert any(seconds > 60 for seconds in sleeper_calls), "rate-limit pause should await asyncio.sleep with ~61s"

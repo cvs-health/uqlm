@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-import time
+import asyncio
 from typing import Any, Dict, List, Optional
 import numpy as np
 from rich.progress import Progress
@@ -34,7 +34,8 @@ Guidelines for your evaluation:
 
 class PTrueScorer:
     def __init__(self, llm: BaseChatModel, max_calls_per_min: Optional[int] = None) -> None:
-        llm.logprobs = True
+        if hasattr(llm, "logprobs"):
+            llm.logprobs = True
         self.response_generator = ResponseGenerator(llm, max_calls_per_min=max_calls_per_min)
         self.response_generator.response_generator_type = "p_true"
 
@@ -44,13 +45,15 @@ class PTrueScorer:
 
         ptrue_prompts = [self._construct_ptrue_prompt(original_prompt=original_prompt_i, original_response=original_response_i, sampled_responses=sampled_responses_i) for original_prompt_i, original_response_i, sampled_responses_i in zip(prompts, responses, sampled_responses)]
         ptrue_responses = await self.response_generator.generate_responses(prompts=ptrue_prompts, system_prompt=PTRUE_SYSTEM_PROMPT, progress_bar=progress_bar)
-        time.sleep(0.1)
+        await asyncio.sleep(0.1)
         logprob_results = ptrue_responses["metadata"]["logprobs"]
         ptrue_scores = [self._extract_ptrue_from_logprobs_result(logprob_result) for logprob_result in logprob_results]
         return {"p_true": ptrue_scores}
 
     @staticmethod
     def _extract_ptrue_from_logprobs_result(logprobs_result: List[Dict[str, Any]]) -> float:
+        if not logprobs_result:
+            return np.nan
         first_token_data = logprobs_result[0]
         token = first_token_data.get("token", "").strip().lower()
         logprob = first_token_data.get("logprob", None)

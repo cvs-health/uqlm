@@ -102,6 +102,12 @@ async def test_whiteboxuq_p_true(monkeypatch):
     assert "p_true" in results.data
 
 
+def test_whiteboxuq_default_scorers():
+    """WhiteBoxUQ() with no args must use exactly the two documented defaults."""
+    wbuq = WhiteBoxUQ(llm=mock_object)
+    assert set(wbuq.scorers) == {"sequence_probability", "min_probability"}
+
+
 def test_whiteboxuq_invalid_scorer():
     with pytest.raises(ValueError, match="Invalid scorer provided: invalid_scorer"):
         WhiteBoxUQ(llm=mock_object, scorers=["invalid_scorer"])

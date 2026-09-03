@@ -41,3 +41,6 @@ jobs:
 
       - name: Run tests
         run: uv run pytest -v -m "not integration"
+
+      - name: Run integration tests
+        run: uv run pytest -v -m integration --reruns 3 --reruns-delay 2
