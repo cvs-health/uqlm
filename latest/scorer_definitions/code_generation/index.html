@@ -564,6 +564,17 @@
   <section id="code-generation-scorers">
 <h1>Code-Generation Scorers<a class="headerlink" href="#code-generation-scorers" title="Link to this heading">#</a></h1>
 <p>Code-generation uncertainty quantification uses <code class="xref py py-class docutils literal notranslate"><span class="pre">CodeGenUQ</span></code> to score generated code. These scorers either reuse existing short-form UQ methods or adapt black-box consistency scoring to code by comparing structural similarity or functional equivalence across sampled generations.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Benchmarking generated code against test cases (e.g., with
+<code class="docutils literal notranslate"><span class="pre">uqlm.code.code_evaluation.evaluate_python_code</span></code>, as in the
+code-generation demo notebook) executes model-generated code in a
+subprocess with configurable resource limits (memory, CPU time, and file
+size, enforced on POSIX systems) and a wall-clock timeout. This is
+process-level isolation, <strong>not</strong> a security sandbox; do not run untrusted
+code from sources you don’t control outside an isolated environment
+(container/VM).</p>
+</div>
 <p><strong>Key Characteristics:</strong></p>
 <ul class="simple">
 <li><p><strong>White-box compatibility:</strong> Token-probability scorers are identical to the corresponding <a class="reference internal" href="../white_box/index.html"><span class="doc">white-box scorers</span></a>.</p></li>

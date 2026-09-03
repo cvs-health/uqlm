@@ -790,6 +790,7 @@
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.response_generator.html">uqlm.utils.response_generator</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.response_generator.FAILED_RESPONSE.html">uqlm.utils.response_generator.FAILED_RESPONSE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.response_generator.ResponseGenerator.html">uqlm.utils.response_generator.ResponseGenerator</a></li>
 </ul>
 </details></li>
@@ -915,6 +916,13 @@ This might require user to install additional dependencies. Must be one of [“p
 </ul>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>CodeGenUQ itself does not execute generated code. If you execute
+model-generated code to benchmark it (e.g., with
+<code class="docutils literal notranslate"><span class="pre">uqlm.code.code_evaluation.evaluate_python_code</span></code>), note that the code
+runs in a subprocess with resource limits and a wall-clock timeout;
+this is process-level isolation, not a security sandbox. Run untrusted
+code only in an isolated environment (container/VM).</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>

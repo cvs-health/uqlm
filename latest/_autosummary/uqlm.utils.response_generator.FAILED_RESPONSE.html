@@ -10,7 +10,7 @@
     <link rel="icon" sizes="16x16" href="../_static/images/favicon/favicon-16x16.png" type="image/png">
     <link rel="icon" sizes="32x32" href="../_static/images/favicon/favicon-32x32.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="../_static/images/favicon/apple-touch-icon.png" type="image/png">
-    <title>uqlm.utils.llm_config &#8212; uqlm 0.6 documentation</title>
+    <title>uqlm.utils.response_generator.FAILED_RESPONSE &#8212; uqlm 0.6 documentation</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/uqlm.utils.llm_config';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/uqlm.utils.response_generator.FAILED_RESPONSE';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://cvs-health.github.io/uqlm/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="uqlm.utils.llm_config.load_llm_config" href="uqlm.utils.llm_config.load_llm_config.html" />
-    <link rel="prev" title="uqlm.utils.grader.LLMGrader" href="uqlm.utils.grader.LLMGrader.html" />
+    <link rel="next" title="uqlm.utils.response_generator.ResponseGenerator" href="uqlm.utils.response_generator.ResponseGenerator.html" />
+    <link rel="prev" title="uqlm.utils.response_generator" href="uqlm.utils.response_generator.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -732,7 +732,7 @@
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.grader.LLMGrader.html">uqlm.utils.grader.LLMGrader</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">uqlm.utils.llm_config</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.llm_config.html">uqlm.utils.llm_config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.llm_config.load_llm_config.html">uqlm.utils.llm_config.load_llm_config</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.llm_config.save_llm_config.html">uqlm.utils.llm_config.save_llm_config</a></li>
 </ul>
@@ -789,8 +789,8 @@
 </details></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.response_generator.html">uqlm.utils.response_generator</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.response_generator.FAILED_RESPONSE.html">uqlm.utils.response_generator.FAILED_RESPONSE</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="uqlm.utils.response_generator.html">uqlm.utils.response_generator</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">uqlm.utils.response_generator.FAILED_RESPONSE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.response_generator.ResponseGenerator.html">uqlm.utils.response_generator.ResponseGenerator</a></li>
 </ul>
 </details></li>
@@ -857,7 +857,10 @@
     
     <li class="breadcrumb-item"><a href="uqlm.utils.html" class="nav-link">uqlm.utils</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">uqlm.utils.llm_config</span></li>
+    
+    <li class="breadcrumb-item"><a href="uqlm.utils.response_generator.html" class="nav-link">uqlm.utils.response_generator</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">uqlm.utils.response_generator.FAILED_RESPONSE</span></li>
   </ul>
 </nav>
 </div>
@@ -874,20 +877,14 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-uqlm.utils.llm_config">
-<span id="uqlm-utils-llm-config"></span><h1>uqlm.utils.llm_config<a class="headerlink" href="#module-uqlm.utils.llm_config" title="Link to this heading">#</a></h1>
-<p class="rubric">Functions</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="uqlm.utils.llm_config.load_llm_config.html#uqlm.utils.llm_config.load_llm_config" title="uqlm.utils.llm_config.load_llm_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_llm_config</span></code></a>(llm_config)</p></td>
-<td><p>Recreate LLM instance from saved configuration.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="uqlm.utils.llm_config.save_llm_config.html#uqlm.utils.llm_config.save_llm_config" title="uqlm.utils.llm_config.save_llm_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_llm_config</span></code></a>(llm)</p></td>
-<td><p>Extract and save LLM configuration by capturing all available parameters.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
+  <section id="uqlm-utils-response-generator-failed-response">
+<h1>uqlm.utils.response_generator.FAILED_RESPONSE<a class="headerlink" href="#uqlm-utils-response-generator-failed-response" title="Link to this heading">#</a></h1>
+<dl class="py data">
+<dt class="sig sig-object py" id="uqlm.utils.response_generator.FAILED_RESPONSE">
+<span class="sig-prename descclassname"><span class="pre">uqlm.utils.response_generator.</span></span><span class="sig-name descname"><span class="pre">FAILED_RESPONSE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Unable</span> <span class="pre">to</span> <span class="pre">get</span> <span class="pre">response'</span></em><a class="headerlink" href="#uqlm.utils.response_generator.FAILED_RESPONSE" title="Link to this definition">#</a></dt>
+<dd><p>Placeholder returned when all attempts to invoke the LLM fail, so each prompt still maps to exactly one response.</p>
+</dd></dl>
+
 </section>
 
 
@@ -901,20 +898,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="uqlm.utils.grader.LLMGrader.html"
+       href="uqlm.utils.response_generator.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">uqlm.utils.grader.LLMGrader</p>
+        <p class="prev-next-title">uqlm.utils.response_generator</p>
       </div>
     </a>
     <a class="right-next"
-       href="uqlm.utils.llm_config.load_llm_config.html"
+       href="uqlm.utils.response_generator.ResponseGenerator.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">uqlm.utils.llm_config.load_llm_config</p>
+        <p class="prev-next-title">uqlm.utils.response_generator.ResponseGenerator</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -930,9 +927,21 @@
 
 
   <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#uqlm.utils.response_generator.FAILED_RESPONSE"><code class="docutils literal notranslate"><span class="pre">FAILED_RESPONSE</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/_autosummary/uqlm.utils.llm_config.rst.txt">
+    <a href="../_sources/_autosummary/uqlm.utils.response_generator.FAILED_RESPONSE.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

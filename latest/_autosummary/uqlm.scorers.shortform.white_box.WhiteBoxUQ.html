@@ -790,6 +790,7 @@
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="uqlm.utils.response_generator.html">uqlm.utils.response_generator</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="uqlm.utils.response_generator.FAILED_RESPONSE.html">uqlm.utils.response_generator.FAILED_RESPONSE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="uqlm.utils.response_generator.ResponseGenerator.html">uqlm.utils.response_generator.ResponseGenerator</a></li>
 </ul>
 </details></li>
@@ -898,7 +899,7 @@ temperature and other relevant parameters to the constructor of their <cite>llm<
 <li><p><strong>max_calls_per_min</strong> (<em>int</em><em>, </em><em>default=None</em>) – Used to control rate limiting.</p></li>
 <li><p><strong>system_prompt</strong> (<em>str</em><em>, </em><em>default=None</em>) – Optional argument for user to provide custom system prompt. If prompts are list of strings and system_prompt is None,
 defaults to “You are a helpful assistant.”</p></li>
-<li><p><strong>scorers</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>default=None</em>) – Specifies which white-box UQ scorers to include. Must be subset of [“sequence_probability”, “min_probability”, “max_token_negentropy”, “mean_token_negentropy”, “probability_margin”, “monte_carlo_probability”, “consistency_and_confidence”, “semantic_negentropy”, “semantic_density”, “p_true”]. If None, defaults to [“sequence_probability”, “min_probability”].</p></li>
+<li><p><strong>scorers</strong> (<em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>default=None</em>) – Specifies which white-box UQ scorers to include. Must be subset of [“sequence_probability”, “min_probability”, “min_token_negentropy”, “mean_token_negentropy”, “probability_margin”, “monte_carlo_probability”, “consistency_and_confidence”, “semantic_negentropy”, “semantic_density”, “p_true”]. If None, defaults to [“sequence_probability”, “min_probability”].</p></li>
 <li><p><strong>sampling_temperature</strong> (<em>float</em><em>, </em><em>default=1.0</em>) – The ‘temperature’ parameter for llm model to generate sampled LLM responses. Must be greater than 0.</p></li>
 <li><p><strong>use_n_param</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Specifies whether to use <cite>n</cite> parameter for <cite>BaseChatModel</cite>. Not compatible with all
 <cite>BaseChatModel</cite> classes. If used, it speeds up the generation process substantially when num_responses &gt; 1.</p></li>
