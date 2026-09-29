@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from uqlm.nli.entropy_utils import normalize_cluster_probabilities
+import math
+
+import pytest
+
+from uqlm.nli.entropy_utils import compute_semantic_entropy, normalize_cluster_probabilities
 
 
 def test_normalize_cluster_probabilities_normal():
@@ -38,3 +42,13 @@ def test_normalize_cluster_probabilities_all_zeros():
 def test_normalize_cluster_probabilities_empty():
     result = normalize_cluster_probabilities([])
     assert result == []
+
+
+@pytest.mark.parametrize("probabilities", [[float("nan"), 0.5], [float("nan"), float("nan")]])
+def test_semantic_entropy_preserves_missing_probabilities(probabilities):
+    assert math.isnan(compute_semantic_entropy(probabilities))
+
+
+@pytest.mark.parametrize("probabilities, expected", [([0.0, 1.0], 0.0), ([0.5, 0.5], math.log(2))])
+def test_semantic_entropy_valid_probabilities(probabilities, expected):
+    assert compute_semantic_entropy(probabilities) == pytest.approx(expected)

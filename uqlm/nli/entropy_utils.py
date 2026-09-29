@@ -23,8 +23,10 @@ def normalize_entropy(entropy_values, num_responses):
 
 def compute_semantic_entropy(cluster_probabilities: List[float]) -> float:
     """
-    Helper function to compute semantic entropy score from cluster probabilities
+    Compute semantic entropy, preserving NaN for unavailable probabilities.
     """
+    if any(math.isnan(p) for p in cluster_probabilities):
+        return math.nan
     return abs(sum([p * math.log(p) if p > 0.0 else 0 for p in cluster_probabilities]))
 
 
