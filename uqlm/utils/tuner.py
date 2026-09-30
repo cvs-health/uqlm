@@ -187,7 +187,7 @@ class Tuner:
 
             # rprint("[blue]Optimizing threshold with grid search...")
             new_scores = self._update_scores(np.array(best_weights))
-            best_threshold = self.tune_threshold(y_scores=new_scores, correct_indicators=self.correct_indicators, thresh_objective=self.thresh_objective, fscore_beta=self.fscore_beta, progress_bar=self.progress_bar)
+            best_threshold = self.tune_threshold(y_scores=new_scores, correct_indicators=self.correct_indicators, thresh_objective=self.thresh_objective, fscore_beta=self.fscore_beta, bounds=self.thresh_bounds, step_size=self.step_size, progress_bar=self.progress_bar)
             return tuple(best_weights) + (best_threshold,)
 
     def _f_score(self, y_true, y_pred):
