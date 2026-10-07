@@ -26,8 +26,8 @@
 <p align="center">
   📄 <b>Publications:</b>
   <a href="https://www.jmlr.org/papers/v27/25-1557.html">JMLR (Software)</a> ·
-  <a href="https://openreview.net/pdf?id=WOFspd4lq5">TMLR (Ensemble UQ)</a> ·
-  <a href="https://openreview.net/pdf?id=gngp4Zz9Sj">TMLR (Long-Text UQ)</a> ·
+  <a href="https://arxiv.org/abs/2504.19254">TMLR (Ensemble UQ)</a> ·
+  <a href="https://arxiv.org/abs/2602.17431">TMLR (Long-Text UQ)</a> ·
   <a href="https://arxiv.org/abs/2605.28500">EMNLP (Code Generation UQ)</a>
 </p>
 
@@ -375,7 +375,7 @@ The `uqlm` software package is described in **[this paper](https://www.jmlr.org/
 }
 ```
 
-A technical description of the `uqlm` scorers and extensive experimental results are presented in **[this paper](https://openreview.net/pdf?id=WOFspd4lq5)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our framework or toolkit, please cite:
+A technical description of the `uqlm` scorers and extensive experimental results are presented in **[this paper](https://arxiv.org/abs/2504.19254)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our framework or toolkit, please cite:
 
 ```bibtex
 @article{
@@ -390,7 +390,7 @@ note={}
 }
 ```
 
-The long-text methods and experiment results are described in **[this paper](https://openreview.net/pdf?id=gngp4Zz9Sj)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our long-form UQ methods, please cite:
+The long-text methods and experiment results are described in **[this paper](https://arxiv.org/abs/2602.17431)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our long-form UQ methods, please cite:
 ```bibtex
 @article{
 bouchard2026finegrained,
