@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/uqlm_flow_ds_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/uqlm_flow_ds.png">
-    <img src="assets/images/uqlm_flow_ds.png" alt="UQLM Flow Diagram" />
+    <source media="(prefers-color-scheme: dark)" srcset="assets/images/horizontal_logo_dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/images/horizontal_logo.png">
+    <img src="assets/images/horizontal_logo.png" alt="uqlm" width="360" />
   </picture>
 </p>
 
@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://github.com/cvs-health/uqlm/actions"><img src="https://github.com/cvs-health/uqlm/actions/workflows/ci.yaml/badge.svg" alt="Build Status"></a>
   <a href="https://pypi.org/project/uqlm/"><img src="https://img.shields.io/pypi/v/uqlm" alt="PyPI version"></a>
-  <a href="https://pypi.org/project/uqlm/"><img src="https://img.shields.io/pypi/pyversions/uqlm" alt="Python Versions"></a>
+  <a href="https://pypi.org/project/uqlm/"><img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python Versions"></a>
   <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
   <a href="https://discord.gg/RjcrAPw43H"><img src="https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
 </p>
@@ -24,14 +24,14 @@
 </p>
 
 <p align="center">
-  📄 <b>Papers:</b>
-  <a href="https://www.jmlr.org/papers/v27/25-1557.html">JMLR</a> ·
+  📄 <b>Publications:</b>
+  <a href="https://www.jmlr.org/papers/v27/25-1557.html">JMLR (Software)</a> ·
   <a href="https://openreview.net/pdf?id=WOFspd4lq5">TMLR (Ensemble UQ)</a> ·
   <a href="https://openreview.net/pdf?id=gngp4Zz9Sj">TMLR (Long-Text UQ)</a> ·
-  <a href="https://arxiv.org/abs/2605.28500">EMNLP 2026 (Code Generation UQ)</a>
+  <a href="https://arxiv.org/abs/2605.28500">EMNLP (Code Generation UQ)</a>
 </p>
 
-UQLM is a Python library for Large Language Model (LLM) hallucination detection using state-of-the-art uncertainty quantification techniques.
+UQLM is a Python library for detecting hallucinations in Large Language Model (LLM) outputs using state-of-the-art uncertainty quantification techniques.
 
 ## Installation
 The latest version can be installed from PyPI:
@@ -41,7 +41,17 @@ pip install uqlm
 ```
 
 ## Hallucination Detection
-UQLM provides a suite of response-level scorers for quantifying the uncertainty of Large Language Model (LLM) outputs. Each scorer returns a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.  We categorize these scorers into different types:
+UQLM provides a suite of response-level scorers, each returning a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/images/uqlm_flow_ds_dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/images/uqlm_flow_ds.png">
+    <img src="assets/images/uqlm_flow_ds.png" alt="UQLM Flow Diagram" />
+  </picture>
+</p>
+
+We categorize these scorers into different types:
 
 
 
