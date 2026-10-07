@@ -360,7 +360,7 @@ Each notebook includes detailed explanations and code samples that you can adapt
 
 
 ## Citation
-The `uqlm` software package is described in this **[this paper](https://arxiv.org/abs/2507.06196)**, published in the **Journal of Machine Learning Research (JMLR)**. If you use the software, please cite:
+The `uqlm` software package is described in **[this paper](https://www.jmlr.org/papers/v27/25-1557.html)**, published in the **Journal of Machine Learning Research (JMLR)**. If you use the software, please cite:
 
 ```bibtex
 @article{JMLR:v27:25-1557,
