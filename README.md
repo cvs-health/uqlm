@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/horizontal_logo_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/horizontal_logo.png">
-    <img src="assets/images/horizontal_logo.png" alt="uqlm" width="360" />
+    <source media="(prefers-color-scheme: dark)" srcset="assets/images/uqlm_flow_ds_dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/images/uqlm_flow_ds.png">
+    <img src="assets/images/uqlm_flow_ds.png" alt="UQLM Flow Diagram" />
   </picture>
 </p>
 
@@ -32,14 +32,6 @@
 </p>
 
 UQLM is a Python library for Large Language Model (LLM) hallucination detection using state-of-the-art uncertainty quantification techniques.
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/uqlm_flow_ds_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/uqlm_flow_ds.png">
-    <img src="assets/images/uqlm_flow_ds.png" alt="UQLM Flow Diagram" />
-  </picture>
-</p>
 
 ## Installation
 The latest version can be installed from PyPI:
