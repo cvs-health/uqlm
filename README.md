@@ -1,12 +1,12 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/horizontal_logo_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/horizontal_logo.png">
-    <img src="assets/images/horizontal_logo.png" alt="uqlm" width="360" />
+    <source media="(prefers-color-scheme: dark)" srcset="assets/images/uqlm_flow_ds_dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/images/uqlm_flow_ds.png">
+    <img src="assets/images/uqlm_flow_ds.png" alt="UQLM Flow Diagram" />
   </picture>
 </p>
 
-<h3 align="center">Uncertainty Quantification for Language Models</h3>
+<h1 align="center">Uncertainty Quantification for Language Models</h1>
 
 <p align="center">
   <a href="https://github.com/cvs-health/uqlm/actions"><img src="https://github.com/cvs-health/uqlm/actions/workflows/ci.yaml/badge.svg" alt="Build Status"></a>
@@ -41,17 +41,7 @@ pip install uqlm
 ```
 
 ## Hallucination Detection
-UQLM provides a suite of response-level scorers, each returning a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.
-
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/uqlm_flow_ds_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/uqlm_flow_ds.png">
-    <img src="assets/images/uqlm_flow_ds.png" alt="UQLM Flow Diagram" />
-  </picture>
-</p>
-
-We categorize these scorers into different types:
+UQLM provides a suite of response-level scorers, each returning a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations. We categorize these scorers into different types:
 
 
 
