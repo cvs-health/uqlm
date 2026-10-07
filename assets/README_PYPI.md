@@ -1,49 +1,33 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/uqlm_flow_ds.png" />
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/horizontal_logo.png" alt="uqlm" width="360" />
 </p>
 
-
-<h1 align="center">uqlm: Uncertainty Quantification for Language Models</h1>
+<h3 align="center">Uncertainty Quantification for Language Models</h3>
 
 <p align="center">
-  <a href="https://github.com/cvs-health/uqlm/actions">
-    <img src="https://github.com/cvs-health/uqlm/actions/workflows/ci.yaml/badge.svg" alt="Build Status">
-  </a>
-  
-  <a href="https://pypi.org/project/uqlm/">
-    <img src="https://badge.fury.io/py/uqlm.svg" alt="PyPI version">
-  </a>
-  
-  <a href="https://cvs-health.github.io/uqlm/latest/index.html">
-    <img src="https://img.shields.io/badge/docs-latest-blue.svg" alt="Documentation Status">
-  </a>
-  <a href="https://pypi.org/project/uqlm/">
-    <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python Versions">
-  </a>
-  <a href="https://opensource.org/licenses/Apache-2.0">
-    <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
-  </a>
-  <a href="https://github.com/astral-sh/uv">
-    <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json" alt="uv">
-  </a>
-  <a href="https://github.com/astral-sh/ruff">
-    <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff">
-  </a>
+  <a href="https://github.com/cvs-health/uqlm/actions"><img src="https://github.com/cvs-health/uqlm/actions/workflows/ci.yaml/badge.svg" alt="Build Status"></a>
+  <a href="https://pypi.org/project/uqlm/"><img src="https://img.shields.io/pypi/v/uqlm" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/uqlm/"><img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python Versions"></a>
+  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
+  <a href="https://discord.gg/RjcrAPw43H"><img src="https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
 </p>
+
 <p align="center">
-  <a href="https://www.jmlr.org/papers/v27/25-1557.html">
-    <img src="https://img.shields.io/badge/JMLR-Published-112467?style=flat&style=for-the-badge&logo=semantic-scholar&logoColor=white" alt="JMLR Publication">
-  </a>
-  <a href="https://openreview.net/pdf?id=WOFspd4lq5">
-    <img src="https://img.shields.io/badge/TMLR-Published-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication">
-  </a>
-  <a href="https://arxiv.org/abs/2602.17431">
-    <img src="https://img.shields.io/badge/arXiv-LongTextUQ-B31B1B?logo=arXiv&logoColor=white" alt="arXiv">
-  </a>
+  <a href="https://cvs-health.github.io/uqlm/latest/index.html"><b>Documentation</b></a> &nbsp;·&nbsp;
+  <a href="https://github.com/cvs-health/uqlm/tree/main/examples"><b>Examples</b></a> &nbsp;·&nbsp;
+  <a href="https://github.com/cvs-health/uqlm#citation"><b>Citation</b></a> &nbsp;·&nbsp;
+  <a href="https://github.com/cvs-health/uqlm/blob/main/CONTRIBUTING.md"><b>Contributing</b></a>
 </p>
 
+<p align="center">
+  📄 <b>Publications:</b>
+  <a href="https://www.jmlr.org/papers/v27/25-1557.html">JMLR (Software)</a> ·
+  <a href="https://arxiv.org/abs/2504.19254">TMLR (Ensemble UQ)</a> ·
+  <a href="https://arxiv.org/abs/2602.17431">TMLR (Long-Text UQ)</a> ·
+  <a href="https://arxiv.org/abs/2605.28500">EMNLP (Code Generation UQ)</a>
+</p>
 
-UQLM is a Python library for Large Language Model (LLM) hallucination detection using state-of-the-art uncertainty quantification techniques. 
+UQLM is a Python library for detecting hallucinations in Large Language Model (LLM) outputs using state-of-the-art uncertainty quantification techniques.
 
 ## Installation
 The latest version can be installed from PyPI:
@@ -53,17 +37,23 @@ pip install uqlm
 ```
 
 ## Hallucination Detection
-UQLM provides a suite of response-level scorers for quantifying the uncertainty of Large Language Model (LLM) outputs. Each scorer returns a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.  We categorize these scorers into different types:
+UQLM provides a suite of response-level scorers, each returning a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/uqlm_flow_ds.png" alt="UQLM Flow Diagram" />
+</p>
+
+We categorize these scorers into different types:
 
 
 
 | Scorer Type            | Added Latency                                      | Added Cost                               | Compatibility                                             | Off-the-Shelf / Effort                                  |
 |------------------------|----------------------------------------------------|------------------------------------------|-----------------------------------------------------------|---------------------------------------------------------|
-| [Black-Box Scorers](#black-box-scorers-consistency-based)      | ⏱️ Medium-High (multiple generations & comparisons)           | 💸 High (multiple LLM calls)             | 🌍 Universal (works with any LLM)                         | ✅ Off-the-shelf |
-| [White-Box Scorers](#white-box-scorers-token-probability-based)      | ⚡ Minimal\* (token probabilities already returned)   | ✔️ None\* (no extra LLM calls)             | 🔒 Limited (requires access to token probabilities)       | ✅ Off-the-shelf            |
-| [LLM-as-a-Judge Scorers](#llm-as-a-judge-scorers) | ⏳ Low-Medium (additional judge calls add latency)    | 💵 Low-High (depends on number of judges)| 🌍 Universal (any LLM can serve as judge)                     |✅  Off-the-shelf        |
-| [Ensemble Scorers](#ensemble-scorers)       | 🔀 Flexible (combines various scorers)       | 🔀 Flexible (combines various scorers)      | 🔀 Flexible (combines various scorers)                    | ✅  Off-the-shelf (beginner-friendly); 🛠️ Can be tuned (best for advanced users)    |
-| [Long-Text Scorers](#long-text-scorers-claim-level)        | ⏱️ High-Very high (multiple generations & claim-level comparisons)       | 💸 High (multiple LLM calls)      | 🌍 Universal               | ✅ Off-the-shelf    |
+| [Black-Box Scorers](https://github.com/cvs-health/uqlm#black-box-scorers-consistency-based)      | ⏱️ Medium-High (multiple generations & comparisons)           | 💸 High (multiple LLM calls)             | 🌍 Universal (works with any LLM)                         | ✅ Off-the-shelf |
+| [White-Box Scorers](https://github.com/cvs-health/uqlm#white-box-scorers-token-probability-based)      | ⚡ Minimal\* (token probabilities already returned)   | ✔️ None\* (no extra LLM calls)             | 🔒 Limited (requires access to token probabilities)       | ✅ Off-the-shelf            |
+| [LLM-as-a-Judge Scorers](https://github.com/cvs-health/uqlm#llm-as-a-judge-scorers) | ⏳ Low-Medium (additional judge calls add latency)    | 💵 Low-High (depends on number of judges)| 🌍 Universal (any LLM can serve as judge)                     |✅  Off-the-shelf        |
+| [Ensemble Scorers](https://github.com/cvs-health/uqlm#ensemble-scorers)       | 🔀 Flexible (combines various scorers)       | 🔀 Flexible (combines various scorers)      | 🔀 Flexible (combines various scorers)                    | ✅  Off-the-shelf (beginner-friendly); 🛠️ Can be tuned (best for advanced users)    |
+| [Long-Text Scorers](https://github.com/cvs-health/uqlm#long-text-scorers-claim-level)        | ⏱️ High-Very high (multiple generations & claim-level comparisons)       | 💸 High (multiple LLM calls)      | 🌍 Universal               | ✅ Off-the-shelf    |
 
 
 <sup><sup> \*Does not apply to multi-generation white-box scorers, which have higher cost and latency. </sup></sup>
@@ -75,7 +65,7 @@ Below we provide illustrative code snippets and details about available scorers 
 These scorers assess uncertainty by measuring the consistency of multiple responses generated from the same prompt. They are compatible with any LLM, intuitive to use, and don't require access to internal model states or token probabilities.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/black_box_graphic.png" />
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/black_box_graphic.png" alt="Black Box Graphic" />
 </p>
 
 **Example Usage:**
@@ -95,7 +85,7 @@ results.to_df()
   <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/black_box_output4.png" />
 </p>
 
-Above, `use_best=True` implements mitigation so that the uncertainty-minimized responses is selected. Note that although we use `ChatOpenAI` in this example, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used. For a more detailed demo, refer to our [Black-Box UQ Demo](./examples/black_box_demo.ipynb).
+Above, `use_best=True` implements mitigation so that the uncertainty-minimized responses is selected. Note that although we use `ChatOpenAI` in this example, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used. For a more detailed demo, refer to our [Black-Box UQ Demo](https://github.com/cvs-health/uqlm/blob/main/examples/black_box_demo.ipynb). 
 
 
 **Available Scorers:**
@@ -106,14 +96,15 @@ Above, `use_best=True` implements mitigation so that the uncertainty-minimized r
 *   Entailment Probability ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175); [Lin et al., 2024](https://arxiv.org/abs/2305.19187); [Manakul et al., 2023](https://arxiv.org/abs/2303.08896))
 *   Exact Match ([Cole et al., 2023](https://arxiv.org/abs/2305.14613); [Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175))
 *   BERTScore ([Manakul et al., 2023](https://arxiv.org/abs/2303.08896); [Zheng et al., 2020](https://arxiv.org/abs/1904.09675))
-*   Cosine Similarity ([Shorinwa et al., 2024](https://arxiv.org/abs/2412.05563); [HuggingFace](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2))
+*   Cosine Similarity ([Shorinwa et al., 2024](https://arxiv.org/abs/2412.05563))
+*   Code-adapted scorers via [`CodeGenUQ`](https://github.com/cvs-health/uqlm#code-generation-uq).
 
 ### White-Box Scorers (Token-Probability-Based)
 
 These scorers leverage token probabilities to estimate uncertainty.  They offer single-generation scoring, which is significantly faster and cheaper than black-box methods, but require access to the LLM's internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/white_box_graphic.png" />
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/white_box_graphic.png" alt="White Box Graphic"/>
 </p>
 
 **Example Usage:**
@@ -161,7 +152,7 @@ Again, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/cha
 These scorers use one or more LLMs to evaluate the reliability of the original LLM's response.  They offer high customizability through prompt engineering and the choice of judge LLM(s).
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/judges_graphic.png" />
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/judges_graphic.png" alt="Judges Graphic" />
 </p>
 
 **Example Usage:**
@@ -183,7 +174,7 @@ results.to_df()
   <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/panel_output2.png" />
 </p>
 
-Note that although we use `ChatOllama` in this example, we can use any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) as judges. For a more detailed demo illustrating how to customize a panel of LLM judges, refer to our [LLM-as-a-Judge Demo](./examples/judges_demo.ipynb).
+Note that although we use `ChatOllama` in this example, we can use any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) as judges. For a more detailed demo illustrating how to customize a panel of LLM judges, refer to our [LLM-as-a-Judge Demo](https://github.com/cvs-health/uqlm/blob/main/examples/judges_demo.ipynb).
 
 
 **Available Scorers:**
@@ -195,10 +186,10 @@ Note that although we use `ChatOllama` in this example, we can use any [LangChai
 
 ### Ensemble Scorers
 
-These scorers leverage a weighted average of multiple individual scorers to provide a more robust uncertainty/confidence estimate. They offer high flexibility and customizability, allowing you to tailor the ensemble to specific use cases.
+These combine multiple individual scorers via weighted averaging to produce more robust uncertainty estimates. They are highly customizable for specific use cases and can be used off-the-shelf with fixed weights (unsupervised) or trained for optimal performance (supervised). The following workflow demonstrates the supervised training process. 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/uqensemble_generate_score.png" />
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/uqensemble_generate_score.png" alt="Uqensemble Generate Score" />
 </p>
 
 **Example Usage:**
@@ -233,27 +224,27 @@ results.to_df()
   <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/uqensemble_output2.png" />
 </p>
 
-As with the other examples, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used in place of `AzureChatOpenAI`. For more detailed demos, refer to our [Off-the-Shelf Ensemble Demo](./examples/ensemble_off_the_shelf_demo.ipynb) (quick start) or our [Ensemble Tuning Demo](./examples/ensemble_tuning_demo.ipynb) (advanced).
+As with the other examples, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used in place of `AzureChatOpenAI`. For more detailed demos, refer to our [Off-the-Shelf Ensemble Demo](https://github.com/cvs-health/uqlm/blob/main/examples/ensemble_off_the_shelf_demo.ipynb) (quick start) or our [Ensemble Tuning Demo](https://github.com/cvs-health/uqlm/blob/main/examples/ensemble_tuning_demo.ipynb) (advanced).
 
 
 **Available Scorers:**
 
 *   BS Detector ([Chen & Mueller, 2023](https://arxiv.org/abs/2308.16175))
-*   Generalized UQ Ensemble ([Bouchard & Chauhan, 2025](https://arxiv.org/abs/2504.19254))
+*   Supervised UQ Ensemble ([Bouchard & Chauhan, 2025](https://arxiv.org/abs/2504.19254))
+
 
 ### Long-Text Scorers (Claim-Level)
 
-These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of [black-box scorers](#black-box-scorers-consistency-based), long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses.
+These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of [black-box scorers](https://github.com/cvs-health/uqlm#black-box-scorers-consistency-based), long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/luq_example.png" />
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/luq_example.png" alt="LUQ Graphic" />
 </p>
-
 
 After scoring claims in the response, the response can be refined by removing claims with confidence scores less than a specified threshold and reconstructing the response from the retained claims. This approach allows for improved factual precision of long-text generations. 
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/uad_graphic.png" />
+  <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/uad_graphic.png" alt="UAD Graphic" />
 </p>
 
 **Example Usage:**
@@ -261,7 +252,7 @@ Below is a sample of code illustrating how to use the `LongTextUQ` class to cond
 
 ```python
 from langchain_openai import ChatOpenAI
-llm = ChatOpenAI(model="gpt-4o-mini")
+llm = ChatOpenAI(model="gpt-4o")
 
 from uqlm import LongTextUQ
 luq = LongTextUQ(llm=llm, scorers=["entailment"], response_refinement=True)
@@ -283,7 +274,7 @@ results_df
   <img src="https://raw.githubusercontent.com/cvs-health/uqlm/develop/assets/images/long_text_output.png" />
 </p>
 
-Above `response` and `entailment` reflect the original response and response-level confidence score, while `refined_response` and `refined_entailment` are the corresponding values after response refinement. The `claims_data` column includes granular data for each response, including claims, claim-level confidence scores, and whether each claim is retained in the response refinement process. We use `ChatOpenAI` in this example, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used. For a more detailed demo, refer to our [Long-Text UQ Demo](./examples/long_text_uq_demo.ipynb).
+Above `response` and `entailment` reflect the original response and response-level confidence score, while `refined_response` and `refined_entailment` are the corresponding values after response refinement. The `claims_data` column includes granular data for each response, including claims, claim-level confidence scores, and whether each claim is retained in the response refinement process. We use `ChatOpenAI` in this example, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/chat/) may be used. For a more detailed demo, refer to our [Long-Text UQ Demo](https://github.com/cvs-health/uqlm/blob/main/examples/long_text_uq_demo.ipynb).
 
 
 **Available Scorers:**
@@ -291,6 +282,29 @@ Above `response` and `entailment` reflect the original response and response-lev
 *   LUQ scorers ([Zhang et al., 2024](https://arxiv.org/abs/2403.20279); [Zhang et al., 2025](https://arxiv.org/abs/2410.13246))
 *   Graph-based scorers ([Jiang et al., 2024](https://arxiv.org/abs/2410.20783))
 *   Generalized long-form semantic entropy ([Farquhar et al., 2024](https://www.nature.com/articles/s41586-024-07421-0))
+
+
+### Code Generation UQ
+
+For code-generation tasks, UQLM provides `CodeGenUQ`, a specialized interface for predicting whether LLM-generated code is functionally correct without requiring execution. `CodeGenUQ` includes white-box scorers, code-adapted black-box scorers based on functional equivalence, and reflexive self-evaluation scorers. The white-box methods are the same token-probability-based scorers available through `WhiteBoxUQ`. 
+
+**Example Usage:**
+
+```python
+from langchain_openai import ChatOpenAI
+llm = ChatOpenAI(model="gpt-4o-mini")
+
+from uqlm import CodeGenUQ
+cguq = CodeGenUQ(
+    llm=llm,
+    scorers=["functional_equivalence_rate"]
+)
+
+results = await cguq.generate_and_score(prompts=prompts, num_responses=5)
+results.to_df()
+```
+
+For a more detailed demo, refer to our [`CodeGenUQ` Demo](https://github.com/cvs-health/uqlm/blob/main/examples/codegen_demo.ipynb). More details on code generation scorers are available in [Bouchard et al., 2026](https://arxiv.org/abs/2605.28500).
 
 ## Documentation
 Check out our [documentation site](https://cvs-health.github.io/uqlm/latest/index.html) for detailed instructions on using this package, including API reference and more.
@@ -312,23 +326,9 @@ The examples directory contains tutorials for:
 
 Each notebook includes detailed explanations and code samples that you can adapt to your specific use case.
 
+
 ## Citation
-A technical description of the `uqlm` scorers and extensive experimental results are presented in **[this paper](https://openreview.net/pdf?id=WOFspd4lq5)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our framework or toolkit, please cite:
-
-```bibtex
-@article{
-bouchard2025uncertainty,
-title={Uncertainty Quantification for Language Models: A Suite of Black-Box, White-Box, {LLM} Judge, and Ensemble Scorers},
-author={Dylan Bouchard and Mohit Singh Chauhan},
-journal={Transactions on Machine Learning Research},
-issn={2835-8856},
-year={2025},
-url={https://openreview.net/forum?id=WOFspd4lq5},
-note={}
-}
-```
-
-The `uqlm` software package is described in this **[this paper](https://arxiv.org/abs/2507.06196)**, published in the **Journal of Machine Learning Research (JMLR)**. If you use the software, please cite:
+The `uqlm` software package is described in **[this paper](https://www.jmlr.org/papers/v27/25-1557.html)**, published in the **Journal of Machine Learning Research (JMLR)**. If you use the software, please cite:
 
 ```bibtex
 @article{JMLR:v27:25-1557,
@@ -343,15 +343,44 @@ The `uqlm` software package is described in this **[this paper](https://arxiv.or
 }
 ```
 
-The long-text methods and experiment results are described in **this paper**, available as a preprint on arXiv. To cite:
+A technical description of the `uqlm` scorers and extensive experimental results are presented in **[this paper](https://arxiv.org/abs/2504.19254)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our framework or toolkit, please cite:
+
 ```bibtex
-@misc{bouchard2026finegraineduncertaintyquantificationlongform,
-      title={Fine-Grained Uncertainty Quantification for Long-Form Language Model Outputs: A Comparative Study}, 
-      author={Dylan Bouchard and Mohit Singh Chauhan and Viren Bajaj and David Skarbrevik},
+@article{
+bouchard2025uncertainty,
+title={Uncertainty Quantification for Language Models: A Suite of Black-Box, White-Box, {LLM} Judge, and Ensemble Scorers},
+author={Dylan Bouchard and Mohit Singh Chauhan},
+journal={Transactions on Machine Learning Research},
+issn={2835-8856},
+year={2025},
+url={https://openreview.net/forum?id=WOFspd4lq5},
+note={}
+}
+```
+
+The long-text methods and experiment results are described in **[this paper](https://arxiv.org/abs/2602.17431)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our long-form UQ methods, please cite:
+```bibtex
+@article{
+bouchard2026finegrained,
+title={Fine-Grained Uncertainty Quantification for Long-Form Language Model Outputs: A Comparative Study},
+author={Dylan Bouchard and Mohit Singh Chauhan and Viren Bajaj and David Skarbrevik},
+journal={Transactions on Machine Learning Research},
+issn={2835-8856},
+year={2026},
+url={https://openreview.net/forum?id=gngp4Zz9Sj},
+note={}
+}
+```
+
+The code-specific methods and experiment results are described in [**this paper**](https://arxiv.org/abs/2605.28500), accepted to **EMNLP 2026 (main conference)**. To cite:
+```bibtex
+@misc{bouchard2026functionalentropypredictingfunctional,
+      title={Functional Entropy: Predicting Functional Correctness in LLM-Generated Code with Uncertainty Quantification}, 
+      author={Dylan Bouchard and Mohit Singh Chauhan and Zeya Ahmad and Ho-Kyeong Ra},
       year={2026},
-      eprint={2602.17431},
+      eprint={2605.28500},
       archivePrefix={arXiv},
       primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2602.17431}, 
+      url={https://arxiv.org/abs/2605.28500}, 
 }
 ```
