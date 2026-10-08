@@ -75,3 +75,17 @@ def test_score_without_prompts_keeps_prompts_in_nli_enabled():
     # leaves the flag untouched.
     se_object.score(prompts=data["prompts"], responses=data["responses"], sampled_responses=data["sampled_responses"])
     assert se_object.prompts_in_nli is True
+
+
+@pytest.mark.parametrize("missing", [None, [], [{"logprob": float("nan")}]], ids=["none", "empty", "nan-token"])
+def test_missing_logprobs_do_not_produce_full_confidence(missing):
+    import math
+    from unittest.mock import MagicMock
+
+    scorer = SemanticEntropy(llm=None, nli=MagicMock(), use_best=False)
+    scorer.clusterer.evaluate = MagicMock(return_value=("A", [["A"], ["B"]], [0.5, 0.5], [[0], [1]]))
+    result = scorer.score(responses=["A"], sampled_responses=[["B"]], logprobs_results=[[{"logprob": math.log(0.5)}]], sampled_logprobs_results=[[missing]], show_progress_bars=False)
+
+    assert math.isnan(result.data["tokenprob_entropy_values"][0])
+    assert math.isnan(result.data["tokenprob_confidence_scores"][0])
+    assert result.data["discrete_confidence_scores"][0] == pytest.approx(0.0)

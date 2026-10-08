@@ -212,3 +212,12 @@ def test_tuned_weights_not_worse_than_uniform(objective):
         assert tuned_value <= uniform_value + 1e-9, f"{objective}: tuned weights scored worse ({tuned_value}) than uniform ({uniform_value})"
     else:
         assert tuned_value >= uniform_value - 1e-9, f"{objective}: tuned weights scored worse ({tuned_value}) than uniform ({uniform_value})"
+
+
+@pytest.mark.parametrize("n_scorers", [2, 4], ids=["grid", "optuna"])
+@pytest.mark.parametrize("bounds, step_size, expected", [((0.7, 0.9), 0.01, 0.7), ((0, 1), 0.3, 0.3)], ids=["bounds", "step-size"])
+def test_separate_threshold_search_honors_configuration(n_scorers, bounds, step_size, expected):
+    scores = [0.1, 0.2, 0.8, 0.9]
+    result = Tuner().tune_params(score_lists=[scores] * n_scorers, correct_indicators=[False, False, True, True], weights_objective="roc_auc", thresh_objective="accuracy_score", thresh_bounds=bounds, step_size=step_size, n_trials=2)
+
+    assert result["thresh"] == pytest.approx(expected)
