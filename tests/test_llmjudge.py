@@ -272,3 +272,26 @@ def test_parse_structured_response_exception(monkeypatch):
         assert np.isnan(score)
         assert explanation == "Parsing failed - using NaN"
         assert any("Failed to parse judge response" in str(warn.message) for warn in w)
+
+
+def test_keywords_to_scores_dict_parameter_is_honored(mock_llm):
+    """Regression for #469: a user-provided keywords dict must survive validation and drive extraction."""
+    from uqlm.judges.judge import KEYWORDS_TO_SCORES_DICT, LIKERT_TO_SCORES_DICT
+
+    custom = {0.0: ["no"], 1.0: ["yes"]}
+    judge = LLMJudge(llm=mock_llm, scoring_template="true_false", keywords_to_scores_dict=custom)
+    assert judge.keywords_to_scores_dict == custom
+    assert judge._extract_score_from_text("yes") == 1.0
+    assert judge._extract_score_from_text("no") == 0.0
+    # extraction is driven by the user's dict: the canned keywords no longer match
+    assert np.isnan(judge._extract_score_from_text("Correct"))
+
+    # the canned dictionary is still built when none is provided
+    default_judge = LLMJudge(llm=mock_llm, scoring_template="true_false")
+    assert default_judge.keywords_to_scores_dict == {round(k, 1): v for k, v in KEYWORDS_TO_SCORES_DICT.items() if k != 0.5}
+    likert_judge = LLMJudge(llm=mock_llm, scoring_template="likert")
+    assert likert_judge.keywords_to_scores_dict == {round(k, 2): v for k, v in LIKERT_TO_SCORES_DICT.items()}
+
+    # malformed user dicts fail loudly instead of silently never matching
+    with pytest.raises(ValueError, match="keywords_to_scores_dict must map numeric scores to lists of keyword strings"):
+        LLMJudge(llm=mock_llm, scoring_template="true_false", keywords_to_scores_dict={1.0: "yes"})

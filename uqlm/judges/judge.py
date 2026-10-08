@@ -238,10 +238,12 @@ class LLMJudge(ResponseGenerator):
 
     def _validate_inputs(self):
         """Validate inputs"""
-        if self.scoring_template in TEMPLATE_TO_INSTRUCTION:
-            # Store both standard and explanation templates for runtime selection
-            self.standard_instruction = TEMPLATE_TO_INSTRUCTION[self.scoring_template]
-            self.explanation_instruction = TEMPLATE_TO_INSTRUCTION_WITH_EXPLANATIONS[self.scoring_template]
+        if self.scoring_template not in TEMPLATE_TO_INSTRUCTION:
+            raise ValueError("""If provided, scoring_template must be one of 'true_false_uncertain', 'true_false', 'continuous', 'likert'""")
+        # Store both standard and explanation templates for runtime selection
+        self.standard_instruction = TEMPLATE_TO_INSTRUCTION[self.scoring_template]
+        self.explanation_instruction = TEMPLATE_TO_INSTRUCTION_WITH_EXPLANATIONS[self.scoring_template]
+        if self.keywords_to_scores_dict is None:
             # Choose the appropriate keywords dictionary based on template
             if self.scoring_template == "likert":
                 self.keywords_to_scores_dict = {round(k, 2): v for k, v in LIKERT_TO_SCORES_DICT.items()}
@@ -250,4 +252,8 @@ class LLMJudge(ResponseGenerator):
             if self.scoring_template == "true_false":  # drop uncertain option if binary
                 del self.keywords_to_scores_dict[0.5]
         else:
-            raise ValueError("""If provided, scoring_template must be one of 'true_false_uncertain', 'true_false', 'continuous', 'likert'""")
+            # A user-provided dictionary is the documented customization point (see `keywords_to_scores_dict`);
+            # validate its shape so a malformed dict fails loudly instead of silently never matching.
+            for key, keywords in self.keywords_to_scores_dict.items():
+                if isinstance(key, bool) or not isinstance(key, (int, float)) or not isinstance(keywords, list) or not all(isinstance(kw, str) for kw in keywords):
+                    raise ValueError("If provided, keywords_to_scores_dict must map numeric scores to lists of keyword strings")
