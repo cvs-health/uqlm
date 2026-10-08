@@ -86,6 +86,30 @@ def test_extract_single_answer_continuous(mock_llm, test_data):
     assert judge._extract_single_answer("0") == 0.0
 
 
+def test_continuous_decimal_answers_keep_their_scale(mock_llm):
+    """Regression for #468: decimal-bearing judge answers must keep their own scale.
+
+    The parser concatenated every digit of the response, so a 0-1 style answer
+    like "0.8" was read as "08" and silently divided down to 0.08, while a
+    decimal-bearing 0-100 answer like "85.5" collapsed to "855" and fell to NaN.
+    """
+    judge = LLMJudge(llm=mock_llm, scoring_template="continuous")
+    # 0-100 integer answers are unchanged
+    assert judge._extract_score_from_text("99") == 0.99
+    assert judge._extract_score_from_text("85") == 0.85
+    assert judge._extract_score_from_text("100") == 1.0
+    assert judge._extract_score_from_text("8") == 0.08
+    assert judge._extract_score_from_text("4") == 0.04
+    # explicit 0-1 decimal answers keep their own scale
+    assert judge._extract_score_from_text("0.8") == 0.8
+    assert judge._extract_score_from_text("0.5") == 0.5
+    assert judge._extract_score_from_text("1.0") == 1.0
+    assert judge._extract_score_from_text("0.9") == 0.9
+    assert judge._extract_score_from_text("0.05") == 0.05
+    # decimal-bearing 0-100 answers
+    assert judge._extract_score_from_text("85.5") == 0.855
+
+
 def test_extract_single_answer_true_false(mock_llm, test_data):
     """Test true/false score extraction"""
     judge = LLMJudge(llm=mock_llm, scoring_template="true_false")
