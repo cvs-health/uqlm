@@ -1,58 +1,37 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/uqlm_flow_ds_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/uqlm_flow_ds.png">
-    <img src="assets/images/uqlm_flow_ds.png" alt="UQLM Flow Diagram" />
+    <source media="(prefers-color-scheme: dark)" srcset="assets/images/horizontal_logo_dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/images/horizontal_logo.png">
+    <img src="assets/images/horizontal_logo.png" alt="uqlm" width="360" />
   </picture>
 </p>
 
-<h1 align="center">uqlm: Uncertainty Quantification for Language Models</h1>
+<h3 align="center">Uncertainty Quantification for Language Models</h3>
 
 <p align="center">
-  <a href="https://github.com/cvs-health/uqlm/actions">
-    <img src="https://github.com/cvs-health/uqlm/actions/workflows/ci.yaml/badge.svg" alt="Build Status">
-  </a>
-  
-  <a href="https://pypi.org/project/uqlm/">
-    <img src="https://badge.fury.io/py/uqlm.svg" alt="PyPI version">
-  </a>
-  
-  <a href="https://cvs-health.github.io/uqlm/latest/index.html">
-    <img src="https://img.shields.io/badge/docs-latest-blue.svg" alt="Documentation Status">
-  </a>
-  <a href="https://pypi.org/project/uqlm/">
-    <img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python Versions">
-  </a>
-  <a href="https://opensource.org/licenses/Apache-2.0">
-    <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License">
-  </a>
-  <a href="https://discord.gg/RjcrAPw43H">
-    <img src="https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=lightgrey" alt="Discord">
-  </a>
-  <a href="https://github.com/astral-sh/uv">
-    <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json" alt="uv">
-  </a>
-  <a href="https://github.com/astral-sh/ruff">
-    <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff">
-  </a>
-</p>
-<p align="center">
-  <a href="https://www.jmlr.org/papers/v27/25-1557.html">
-    <img src="https://img.shields.io/badge/JMLR-UQLM-112467?style=flat&style=for-the-badge&logo=semantic-scholar&logoColor=white" alt="JMLR Publication">
-  </a>
-  <a href="https://openreview.net/pdf?id=WOFspd4lq5">
-    <img src="https://img.shields.io/badge/TMLR-EnsembleUQ-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication">
-  </a>
-  </a>
-  <a href="https://openreview.net/pdf?id=gngp4Zz9Sj">
-    <img src="https://img.shields.io/badge/TMLR-LongTextUQ-4FA1CA?style=flat&logo=semantic-scholar&logoColor=white" alt="TMLR Publication 2">
-  </a>
-  <a href="https://arxiv.org/abs/2605.28500">
-    <img src="https://img.shields.io/badge/EMNLP-CodeGenUQ-0092CA?style=flat&logo=semantic-scholar&logoColor=white" alt="EMNLP Publication">
-  </a>
+  <a href="https://github.com/cvs-health/uqlm/actions"><img src="https://github.com/cvs-health/uqlm/actions/workflows/ci.yaml/badge.svg" alt="Build Status"></a>
+  <a href="https://pypi.org/project/uqlm/"><img src="https://img.shields.io/pypi/v/uqlm" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/uqlm/"><img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python Versions"></a>
+  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
+  <a href="https://discord.gg/RjcrAPw43H"><img src="https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
 </p>
 
-UQLM is a Python library for Large Language Model (LLM) hallucination detection using state-of-the-art uncertainty quantification techniques. 
+<p align="center">
+  <a href="https://cvs-health.github.io/uqlm/latest/index.html"><b>Documentation</b></a> &nbsp;·&nbsp;
+  <a href="examples/"><b>Examples</b></a> &nbsp;·&nbsp;
+  <a href="#citation"><b>Citation</b></a> &nbsp;·&nbsp;
+  <a href="CONTRIBUTING.md"><b>Contributing</b></a>
+</p>
+
+<p align="center">
+  📄 <b>Publications:</b>
+  <a href="https://www.jmlr.org/papers/v27/25-1557.html">JMLR (Software)</a> ·
+  <a href="https://arxiv.org/abs/2504.19254">TMLR (Ensemble UQ)</a> ·
+  <a href="https://arxiv.org/abs/2602.17431">TMLR (Long-Text UQ)</a> ·
+  <a href="https://arxiv.org/abs/2605.28500">EMNLP (Code Generation UQ)</a>
+</p>
+
+UQLM is a Python library for detecting hallucinations in Large Language Model (LLM) outputs using state-of-the-art uncertainty quantification techniques.
 
 ## Installation
 The latest version can be installed from PyPI:
@@ -62,7 +41,17 @@ pip install uqlm
 ```
 
 ## Hallucination Detection
-UQLM provides a suite of response-level scorers for quantifying the uncertainty of Large Language Model (LLM) outputs. Each scorer returns a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.  We categorize these scorers into different types:
+UQLM provides a suite of response-level scorers, each returning a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/images/uqlm_flow_ds_dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/images/uqlm_flow_ds.png">
+    <img src="assets/images/uqlm_flow_ds.png" alt="UQLM Flow Diagram" />
+  </picture>
+</p>
+
+We categorize these scorers into different types:
 
 
 
@@ -371,22 +360,7 @@ Each notebook includes detailed explanations and code samples that you can adapt
 
 
 ## Citation
-A technical description of the `uqlm` scorers and extensive experimental results are presented in **[this paper](https://openreview.net/pdf?id=WOFspd4lq5)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our framework or toolkit, please cite:
-
-```bibtex
-@article{
-bouchard2025uncertainty,
-title={Uncertainty Quantification for Language Models: A Suite of Black-Box, White-Box, {LLM} Judge, and Ensemble Scorers},
-author={Dylan Bouchard and Mohit Singh Chauhan},
-journal={Transactions on Machine Learning Research},
-issn={2835-8856},
-year={2025},
-url={https://openreview.net/forum?id=WOFspd4lq5},
-note={}
-}
-```
-
-The `uqlm` software package is described in this **[this paper](https://arxiv.org/abs/2507.06196)**, published in the **Journal of Machine Learning Research (JMLR)**. If you use the software, please cite:
+The `uqlm` software package is described in **[this paper](https://www.jmlr.org/papers/v27/25-1557.html)**, published in the **Journal of Machine Learning Research (JMLR)**. If you use the software, please cite:
 
 ```bibtex
 @article{JMLR:v27:25-1557,
@@ -401,7 +375,22 @@ The `uqlm` software package is described in this **[this paper](https://arxiv.or
 }
 ```
 
-The long-text methods and experiment results are described in **[this paper](https://openreview.net/pdf?id=gngp4Zz9Sj)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our long-form UQ methods, please cite:
+A technical description of the `uqlm` scorers and extensive experimental results are presented in **[this paper](https://arxiv.org/abs/2504.19254)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our framework or toolkit, please cite:
+
+```bibtex
+@article{
+bouchard2025uncertainty,
+title={Uncertainty Quantification for Language Models: A Suite of Black-Box, White-Box, {LLM} Judge, and Ensemble Scorers},
+author={Dylan Bouchard and Mohit Singh Chauhan},
+journal={Transactions on Machine Learning Research},
+issn={2835-8856},
+year={2025},
+url={https://openreview.net/forum?id=WOFspd4lq5},
+note={}
+}
+```
+
+The long-text methods and experiment results are described in **[this paper](https://arxiv.org/abs/2602.17431)**, published in **Transactions on Machine Learning Research (TMLR)**. If you use our long-form UQ methods, please cite:
 ```bibtex
 @article{
 bouchard2026finegrained,
