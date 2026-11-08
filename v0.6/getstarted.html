@@ -592,10 +592,10 @@ The five scorer categories differ in latency, cost, and compatibility:</p>
 </div></blockquote>
 <p>Below is a minimal example using the <code class="docutils literal notranslate"><span class="pre">BlackBoxUQ</span></code> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOpenAI</span>
-<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">)</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"gpt-4o-mini"</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlackBoxUQ</span>
-<span class="n">bbuq</span> <span class="o">=</span> <span class="n">BlackBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;semantic_negentropy&quot;</span><span class="p">],</span> <span class="n">use_best</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bbuq</span> <span class="o">=</span> <span class="n">BlackBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"semantic_negentropy"</span><span class="p">],</span> <span class="n">use_best</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
@@ -637,10 +637,10 @@ The five scorer categories differ in latency, cost, and compatibility:</p>
 </div></blockquote>
 <p>Below is a minimal example using the <code class="docutils literal notranslate"><span class="pre">WhiteBoxUQ</span></code> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
-<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">&#39;gemini-2.5-pro&#39;</span><span class="p">)</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s1">'gemini-2.5-pro'</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">WhiteBoxUQ</span>
-<span class="n">wbuq</span> <span class="o">=</span> <span class="n">WhiteBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;min_probability&quot;</span><span class="p">])</span>
+<span class="n">wbuq</span> <span class="o">=</span> <span class="n">WhiteBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"min_probability"</span><span class="p">])</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">)</span>
 <span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
@@ -665,9 +665,9 @@ The five scorer categories differ in latency, cost, and compatibility:</p>
 </div></blockquote>
 <p>Below is a minimal example using the <code class="docutils literal notranslate"><span class="pre">LLMPanel</span></code> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_ollama</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOllama</span>
-<span class="n">llama</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;llama3&quot;</span><span class="p">)</span>
-<span class="n">mistral</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;mistral&quot;</span><span class="p">)</span>
-<span class="n">qwen</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;qwen3&quot;</span><span class="p">)</span>
+<span class="n">llama</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"llama3"</span><span class="p">)</span>
+<span class="n">mistral</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"mistral"</span><span class="p">)</span>
+<span class="n">qwen</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"qwen3"</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMPanel</span>
 <span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llama</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">llama</span><span class="p">,</span> <span class="n">mistral</span><span class="p">,</span> <span class="n">qwen</span><span class="p">])</span>
@@ -693,7 +693,7 @@ The five scorer categories differ in latency, cost, and compatibility:</p>
 </div></blockquote>
 <p>Below is a minimal example using the <code class="docutils literal notranslate"><span class="pre">UQEnsemble</span></code> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">AzureChatOpenAI</span>
-<span class="n">llm</span> <span class="o">=</span> <span class="n">AzureChatOpenAI</span><span class="p">(</span><span class="n">deployment_name</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span> <span class="n">openai_api_type</span><span class="o">=</span><span class="s2">&quot;azure&quot;</span><span class="p">,</span> <span class="n">openai_api_version</span><span class="o">=</span><span class="s2">&quot;2024-12-01-preview&quot;</span><span class="p">)</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">AzureChatOpenAI</span><span class="p">(</span><span class="n">deployment_name</span><span class="o">=</span><span class="s2">"gpt-4o"</span><span class="p">,</span> <span class="n">openai_api_type</span><span class="o">=</span><span class="s2">"azure"</span><span class="p">,</span> <span class="n">openai_api_version</span><span class="o">=</span><span class="s2">"2024-12-01-preview"</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">UQEnsemble</span>
 <span class="c1">## ---Option 1: Off-the-Shelf Ensemble---</span>
@@ -702,8 +702,8 @@ The five scorer categories differ in latency, cost, and compatibility:</p>
 
 <span class="c1">## ---Option 2: Tuned Ensemble---</span>
 <span class="n">scorers</span> <span class="o">=</span> <span class="p">[</span> <span class="c1"># specify which scorers to include</span>
-   <span class="s2">&quot;exact_match&quot;</span><span class="p">,</span> <span class="s2">&quot;noncontradiction&quot;</span><span class="p">,</span> <span class="c1"># black-box scorers</span>
-   <span class="s2">&quot;min_probability&quot;</span><span class="p">,</span> <span class="c1"># white-box scorer</span>
+   <span class="s2">"exact_match"</span><span class="p">,</span> <span class="s2">"noncontradiction"</span><span class="p">,</span> <span class="c1"># black-box scorers</span>
+   <span class="s2">"min_probability"</span><span class="p">,</span> <span class="c1"># white-box scorer</span>
    <span class="n">llm</span> <span class="c1"># use same LLM as a judge</span>
 <span class="p">]</span>
 <span class="n">uqe</span> <span class="o">=</span> <span class="n">UQEnsemble</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="n">scorers</span><span class="p">)</span>
@@ -738,22 +738,22 @@ The five scorer categories differ in latency, cost, and compatibility:</p>
 </div></blockquote>
 <p>Below is a minimal example using the <code class="docutils literal notranslate"><span class="pre">LongTextUQ</span></code> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOpenAI</span>
-<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">)</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"gpt-4o"</span><span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LongTextUQ</span>
-<span class="n">luq</span> <span class="o">=</span> <span class="n">LongTextUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;entailment&quot;</span><span class="p">],</span> <span class="n">response_refinement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">luq</span> <span class="o">=</span> <span class="n">LongTextUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"entailment"</span><span class="p">],</span> <span class="n">response_refinement</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">luq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">results_df</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
 <span class="n">results_df</span>
 
 <span class="c1"># Preview the data for a specific claim in the first response</span>
-<span class="c1"># results_df[&quot;claims_data&quot;][0][0]</span>
+<span class="c1"># results_df["claims_data"][0][0]</span>
 <span class="c1"># Output:</span>
 <span class="c1"># {</span>
-<span class="c1">#   &#39;claim&#39;: &#39;Suthida Bajrasudhabimalalakshana was born on June 3, 1978.&#39;,</span>
-<span class="c1">#   &#39;removed&#39;: False,</span>
-<span class="c1">#   &#39;entailment&#39;: 0.9548099517822266</span>
+<span class="c1">#   'claim': 'Suthida Bajrasudhabimalalakshana was born on June 3, 1978.',</span>
+<span class="c1">#   'removed': False,</span>
+<span class="c1">#   'entailment': 0.9548099517822266</span>
 <span class="c1"># }</span>
 </pre></div>
 </div>

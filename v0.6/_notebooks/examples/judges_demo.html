@@ -571,7 +571,7 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load example dataset (ai2_arc)</span>
-<span class="n">ai2_arc</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">&quot;ai2_arc&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">75</span><span class="p">)</span>
+<span class="n">ai2_arc</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">"ai2_arc"</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">75</span><span class="p">)</span>
 <span class="n">ai2_arc</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -647,7 +647,7 @@ Dataset ready!
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define prompts</span>
-<span class="n">MCQ_INSTRUCTION</span> <span class="o">=</span> <span class="s2">&quot;You will be given a multiple choice question. Return only the letter of the response with no additional text or explanation.</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="n">MCQ_INSTRUCTION</span> <span class="o">=</span> <span class="s2">"You will be given a multiple choice question. Return only the letter of the response with no additional text or explanation.</span><span class="se">\n</span><span class="s2">"</span>
 <span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">MCQ_INSTRUCTION</span> <span class="o">+</span> <span class="n">prompt</span> <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">ai2_arc</span><span class="o">.</span><span class="n">question</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -661,10 +661,10 @@ Dataset ready!
 <span class="c1"># !{sys.executable} -m pip install langchain-ollama</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_ollama</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatOllama</span>
 
-<span class="n">ollama_llama</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;llama2&quot;</span><span class="p">)</span>
-<span class="n">ollama_mistral</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;mistral&quot;</span><span class="p">)</span>
-<span class="n">ollama_qwen</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;qwen3&quot;</span><span class="p">)</span>
-<span class="c1"># ollama_deepseek = ChatOllama(model=&quot;deepseek-r1&quot;)</span>
+<span class="n">ollama_llama</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"llama2"</span><span class="p">)</span>
+<span class="n">ollama_mistral</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"mistral"</span><span class="p">)</span>
+<span class="n">ollama_qwen</span> <span class="o">=</span> <span class="n">ChatOllama</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"qwen3"</span><span class="p">)</span>
+<span class="c1"># ollama_deepseek = ChatOllama(model="deepseek-r1")</span>
 </pre></div>
 </div>
 </div>
@@ -679,8 +679,8 @@ Dataset ready!
 <span class="c1"># !{sys.executable} -m pip install langchain-google-vertexai</span>
 <span class="c1"># from langchain_google_vertexai import ChatVertexAI</span>
 
-<span class="c1"># gemini_pro = ChatVertexAI(model_name=&quot;gemini-2.5-pro&quot;)</span>
-<span class="c1"># gemini_flash = ChatVertexAI(model_name=&quot;gemini-2.5-flash&quot;)</span>
+<span class="c1"># gemini_pro = ChatVertexAI(model_name="gemini-2.5-pro")</span>
+<span class="c1"># gemini_flash = ChatVertexAI(model_name="gemini-2.5-flash")</span>
 
 
 <span class="c1">## AzureChatOpenAI example</span>
@@ -693,9 +693,9 @@ Dataset ready!
 
 <span class="c1"># load_dotenv(find_dotenv())</span>
 <span class="c1"># original_llm = AzureChatOpenAI(</span>
-<span class="c1">#     deployment_name=&quot;gpt-4o&quot;,</span>
-<span class="c1">#     openai_api_type=&quot;azure&quot;,</span>
-<span class="c1">#     openai_api_version=&quot;2024-02-15-preview&quot;,</span>
+<span class="c1">#     deployment_name="gpt-4o",</span>
+<span class="c1">#     openai_api_type="azure",</span>
+<span class="c1">#     openai_api_version="2024-02-15-preview",</span>
 <span class="c1">#     temperature=1,  # User to set temperature</span>
 <span class="c1"># )</span>
 </pre></div>
@@ -765,7 +765,7 @@ Dataset ready!
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">judges</span> <span class="o">=</span> <span class="p">[</span><span class="n">ollama_mistral</span><span class="p">,</span> <span class="n">ollama_llama</span><span class="p">,</span> <span class="n">ollama_qwen</span><span class="p">]</span>
-<span class="n">additional_context</span> <span class="o">=</span> <span class="s2">&quot;You are an expert in general-knowledge reasoning questions. Your task is to evaluate the correctness of the proposed answers to the provided questions.&quot;</span>
+<span class="n">additional_context</span> <span class="o">=</span> <span class="s2">"You are an expert in general-knowledge reasoning questions. Your task is to evaluate the correctness of the proposed answers to the provided questions."</span>
 
 <span class="c1"># Option 1: With explanations</span>
 <span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">ollama_mistral</span><span class="p">,</span> <span class="n">judges</span><span class="o">=</span><span class="n">judges</span><span class="p">,</span> <span class="n">additional_context</span><span class="o">=</span><span class="n">additional_context</span><span class="p">,</span> <span class="n">explanations</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -953,14 +953,14 @@ Dataset ready!
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Populate correct answers and grade responses</span>
-<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ai2_arc</span><span class="o">.</span><span class="n">answer</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">"answer"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ai2_arc</span><span class="o">.</span><span class="n">answer</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">check_letter_match</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">answer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
 
-<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">check_letter_match</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">],</span> <span class="n">ai2_arc</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">])]</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">"response_correct"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">check_letter_match</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">result_df</span><span class="p">[</span><span class="s2">"response"</span><span class="p">],</span> <span class="n">ai2_arc</span><span class="p">[</span><span class="s2">"answer"</span><span class="p">])]</span>
 <span class="n">result_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1098,16 +1098,16 @@ Dataset ready!
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># evaluate precision, recall, and f1-score of Semantic Entropy&#39;s predictions of correctness</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># evaluate precision, recall, and f1-score of Semantic Entropy's predictions of correctness</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span>
 
 <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
-    <span class="n">y_pred</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">result_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;judge_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]]</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">result_df</span><span class="p">[</span><span class="sa">f</span><span class="s2">"judge_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">]]</span>
     <span class="n">y_true</span> <span class="o">=</span> <span class="n">result_df</span><span class="o">.</span><span class="n">response_correct</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Judge </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> precision: </span><span class="si">{</span><span class="n">precision_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Judge </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> recall: </span><span class="si">{</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Judge </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> f1-score: </span><span class="si">{</span><span class="n">f1_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Judge </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> precision: </span><span class="si">{</span><span class="n">precision_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Judge </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> recall: </span><span class="si">{</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Judge </span><span class="si">{</span><span class="n">ind</span><span class="si">}</span><span class="s2"> f1-score: </span><span class="si">{</span><span class="n">f1_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">" "</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

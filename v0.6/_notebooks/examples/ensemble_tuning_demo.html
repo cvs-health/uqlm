@@ -598,7 +598,7 @@
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load example dataset (svamp)</span>
-<span class="n">svamp</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">&quot;svamp&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">svamp</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">"svamp"</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
 <span class="n">svamp</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -684,7 +684,7 @@ Dataset ready!
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define prompts</span>
-<span class="n">MATH_INSTRUCTION</span> <span class="o">=</span> <span class="s2">&quot;When you solve this math problem only return the answer with no additional text.</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="n">MATH_INSTRUCTION</span> <span class="o">=</span> <span class="s2">"When you solve this math problem only return the answer with no additional text.</span><span class="se">\n</span><span class="s2">"</span>
 <span class="n">tune_prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">MATH_INSTRUCTION</span> <span class="o">+</span> <span class="n">prompt</span> <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">svamp_tune</span><span class="o">.</span><span class="n">question</span><span class="p">]</span>
 <span class="n">test_prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">MATH_INSTRUCTION</span> <span class="o">+</span> <span class="n">prompt</span> <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">svamp_test</span><span class="o">.</span><span class="n">question</span><span class="p">]</span>
 </pre></div>
@@ -705,7 +705,7 @@ Dataset ready!
 <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">AzureChatOpenAI</span>
 
 <span class="n">load_dotenv</span><span class="p">(</span><span class="n">find_dotenv</span><span class="p">())</span>
-<span class="n">gpt4o_mini</span> <span class="o">=</span> <span class="n">AzureChatOpenAI</span><span class="p">(</span><span class="n">deployment_name</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span> <span class="n">openai_api_type</span><span class="o">=</span><span class="s2">&quot;azure&quot;</span><span class="p">,</span> <span class="n">openai_api_version</span><span class="o">=</span><span class="s2">&quot;2024-02-15-preview&quot;</span><span class="p">)</span>
+<span class="n">gpt4o_mini</span> <span class="o">=</span> <span class="n">AzureChatOpenAI</span><span class="p">(</span><span class="n">deployment_name</span><span class="o">=</span><span class="s2">"gpt-4o-mini"</span><span class="p">,</span> <span class="n">openai_api_type</span><span class="o">=</span><span class="s2">"azure"</span><span class="p">,</span> <span class="n">openai_api_version</span><span class="o">=</span><span class="s2">"2024-02-15-preview"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -717,7 +717,7 @@ Dataset ready!
 <span class="c1"># !{sys.executable} -m pip install langchain-google-vertexai</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
 
-<span class="n">gemini_flash</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;gemini-2.5-flash&quot;</span><span class="p">)</span>
+<span class="n">gemini_flash</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">"gemini-2.5-flash"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -800,10 +800,10 @@ Dataset ready!
 <span class="n">uqe</span> <span class="o">=</span> <span class="n">UQEnsemble</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
 
 <span class="c1"># Using GPU acceleration</span>
-<span class="n">uqe</span> <span class="o">=</span> <span class="n">UQEnsemble</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">))</span>
+<span class="n">uqe</span> <span class="o">=</span> <span class="n">UQEnsemble</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cuda"</span><span class="p">))</span>
 
 <span class="c1"># Custom scorer list</span>
-<span class="n">uqe</span> <span class="o">=</span> <span class="n">BlackBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;bert_score&quot;</span><span class="p">,</span> <span class="s2">&quot;exact_match&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="p">])</span>
+<span class="n">uqe</span> <span class="o">=</span> <span class="n">BlackBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"bert_score"</span><span class="p">,</span> <span class="s2">"exact_match"</span><span class="p">,</span> <span class="n">llm</span><span class="p">])</span>
 
 <span class="c1"># High-throughput configuration with rate limiting</span>
 <span class="n">uqe</span> <span class="o">=</span> <span class="n">UQEnsemble</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">max_calls_per_min</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">use_n_param</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -817,12 +817,12 @@ Dataset ready!
 
 <span class="c1"># Set the torch device</span>
 <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>  <span class="c1"># NVIDIA GPU</span>
-    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cuda"</span><span class="p">)</span>
 <span class="k">elif</span> <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">mps</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>  <span class="c1"># macOS</span>
-    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;mps&quot;</span><span class="p">)</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"mps"</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>  <span class="c1"># CPU</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> device&quot;</span><span class="p">)</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>  <span class="c1"># CPU</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Using </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> device"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -839,10 +839,10 @@ Using cuda device
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">scorers</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;exact_match&quot;</span><span class="p">,</span>  <span class="c1"># Measures proportion of candidate responses that match original response (black-box)</span>
-    <span class="s2">&quot;noncontradiction&quot;</span><span class="p">,</span>  <span class="c1"># mean non-contradiction probability between candidate responses and original response (black-box)</span>
-    <span class="c1"># &quot;cosine_sim&quot;, # Cosine similarity between candidate responses and original response (black-box)</span>
-    <span class="s2">&quot;normalized_probability&quot;</span><span class="p">,</span>  <span class="c1"># length-normalized joint token probability (white-box)</span>
+    <span class="s2">"exact_match"</span><span class="p">,</span>  <span class="c1"># Measures proportion of candidate responses that match original response (black-box)</span>
+    <span class="s2">"noncontradiction"</span><span class="p">,</span>  <span class="c1"># mean non-contradiction probability between candidate responses and original response (black-box)</span>
+    <span class="c1"># "cosine_sim", # Cosine similarity between candidate responses and original response (black-box)</span>
+    <span class="s2">"normalized_probability"</span><span class="p">,</span>  <span class="c1"># length-normalized joint token probability (white-box)</span>
     <span class="n">gpt4o_mini</span><span class="p">,</span>  <span class="c1"># LLM-as-a-judge (self)</span>
     <span class="c1"># gemini_flash, # LLM-as-a-judge (separate LLM)</span>
 <span class="p">]</span>
@@ -901,7 +901,7 @@ Using cuda device
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tune_results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">uqe</span><span class="o">.</span><span class="n">tune</span><span class="p">(</span>
     <span class="n">prompts</span><span class="o">=</span><span class="n">tune_prompts</span><span class="p">,</span>  <span class="c1"># prompts for tuning (responses will be generated from these prompts)</span>
-    <span class="n">ground_truth_answers</span><span class="o">=</span><span class="n">svamp_tune</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">],</span>  <span class="c1"># correct answers to &#39;grade&#39; LLM responses against</span>
+    <span class="n">ground_truth_answers</span><span class="o">=</span><span class="n">svamp_tune</span><span class="p">[</span><span class="s2">"answer"</span><span class="p">],</span>  <span class="c1"># correct answers to 'grade' LLM responses against</span>
     <span class="n">grader_function</span><span class="o">=</span><span class="n">grade_response</span><span class="p">,</span>  <span class="c1"># grader function to grade responses against provided answers</span>
 <span class="p">)</span>
 </pre></div>
@@ -1107,12 +1107,12 @@ Using cuda device
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Save the tuned ensemble&#39;s config</span>
-<span class="n">uqe_tuned_config_file</span> <span class="o">=</span> <span class="s2">&quot;uqe_config_tuned.json&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Save the tuned ensemble's config</span>
+<span class="n">uqe_tuned_config_file</span> <span class="o">=</span> <span class="s2">"uqe_config_tuned.json"</span>
 <span class="n">uqe</span><span class="o">.</span><span class="n">save_config</span><span class="p">(</span><span class="n">uqe_tuned_config_file</span><span class="p">)</span>
 
 <span class="c1"># # Load the tuned ensemble from the config file</span>
-<span class="c1"># loaded_ensemble = UQEnsemble.load_config(&quot;uqe_config_tuned.json&quot;)</span>
+<span class="c1"># loaded_ensemble = UQEnsemble.load_config("uqe_config_tuned.json")</span>
 <span class="c1"># loaded_ensemble.component_names, loaded_ensemble.weights, loaded_ensemble.thresh</span>
 </pre></div>
 </div>
@@ -1188,7 +1188,7 @@ Using cuda device
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_result_df</span> <span class="o">=</span> <span class="n">test_results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
-<span class="n">test_result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">grade_response</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">test_result_df</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">],</span> <span class="n">svamp_test</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">])]</span>
+<span class="n">test_result_df</span><span class="p">[</span><span class="s2">"response_correct"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">grade_response</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">test_result_df</span><span class="p">[</span><span class="s2">"response"</span><span class="p">],</span> <span class="n">svamp_test</span><span class="p">[</span><span class="s2">"answer"</span><span class="p">])]</span>
 <span class="n">test_result_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1296,7 +1296,7 @@ Using cuda device
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;Baseline LLM accuracy: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">test_result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""Baseline LLM accuracy: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">test_result_df</span><span class="p">[</span><span class="s2">"response_correct"</span><span class="p">])</span><span class="si">}</span><span class="s2">"""</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1319,7 +1319,7 @@ performance of different uncertainty estimation methods.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_ranked_auc</span><span class="p">(</span><span class="n">uq_result</span><span class="o">=</span><span class="n">test_results</span><span class="p">,</span> <span class="n">correct_indicators</span><span class="o">=</span><span class="n">test_result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">metric_type</span><span class="o">=</span><span class="s2">&quot;auroc&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_ranked_auc</span><span class="p">(</span><span class="n">uq_result</span><span class="o">=</span><span class="n">test_results</span><span class="p">,</span> <span class="n">correct_indicators</span><span class="o">=</span><span class="n">test_result_df</span><span class="p">[</span><span class="s2">"response_correct"</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">metric_type</span><span class="o">=</span><span class="s2">"auroc"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1363,10 +1363,10 @@ performance of different uncertainty estimation methods.</p>
 <span class="n">best_threshold</span> <span class="o">=</span> <span class="n">uqe</span><span class="o">.</span><span class="n">thresh</span>
 
 <span class="c1"># Define score vector and corresponding correct indicators (i.e. ground truth)</span>
-<span class="n">y_scores</span> <span class="o">=</span> <span class="n">test_result_df</span><span class="p">[</span><span class="s2">&quot;ensemble_score&quot;</span><span class="p">]</span>  <span class="c1"># confidence score</span>
+<span class="n">y_scores</span> <span class="o">=</span> <span class="n">test_result_df</span><span class="p">[</span><span class="s2">"ensemble_score"</span><span class="p">]</span>  <span class="c1"># confidence score</span>
 <span class="n">correct_indicators</span> <span class="o">=</span> <span class="p">(</span><span class="n">test_result_df</span><span class="o">.</span><span class="n">response_correct</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span>  <span class="c1"># Whether responses is actually correct</span>
 <span class="n">y_pred</span> <span class="o">=</span> <span class="p">[(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">best_threshold</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">y_scores</span><span class="p">]</span>  <span class="c1"># predicts whether response is correct based on confidence score</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ensemble F1-optimal threshold: </span><span class="si">{</span><span class="n">best_threshold</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Ensemble F1-optimal threshold: </span><span class="si">{</span><span class="n">best_threshold</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1383,14 +1383,14 @@ Ensemble F1-optimal threshold: 0.74
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># print results</span>
-<span class="n">header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Metrics&#39;</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Ensemble&#39;</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">header</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Precision&#39;</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}{</span><span class="nb">round</span><span class="p">(</span><span class="n">precision_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">correct_indicators</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Recall&#39;</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}{</span><span class="nb">round</span><span class="p">(</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">correct_indicators</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;F1-score&#39;</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}{</span><span class="nb">round</span><span class="p">(</span><span class="n">f1_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">correct_indicators</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;F-1 optimal threshold&#39;</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}{</span><span class="n">best_threshold</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
+<span class="n">header</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'Metrics'</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">"</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'Ensemble'</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">"</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="n">header</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"-"</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'Precision'</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}{</span><span class="nb">round</span><span class="p">(</span><span class="n">precision_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">correct_indicators</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'Recall'</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}{</span><span class="nb">round</span><span class="p">(</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">correct_indicators</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'F1-score'</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}{</span><span class="nb">round</span><span class="p">(</span><span class="n">f1_score</span><span class="p">(</span><span class="n">y_true</span><span class="o">=</span><span class="n">correct_indicators</span><span class="p">,</span><span class="w"> </span><span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"-"</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'F-1 optimal threshold'</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}{</span><span class="n">best_threshold</span><span class="si">:</span><span class="s2">&lt;25</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>

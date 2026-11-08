@@ -630,7 +630,7 @@ judge <span class="math notranslate nohighlight">\(k\)</span> for response <span
 <span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">original_llm</span><span class="p">,</span>  <span class="c1"># LLM to generate responses</span>
     <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">gpt4</span><span class="p">,</span> <span class="n">claude</span><span class="p">,</span> <span class="n">gemini</span><span class="p">],</span>  <span class="c1"># Panel of judge LLMs</span>
-    <span class="n">scoring_templates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;true_false_uncertain&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span>  <span class="c1"># Same template for all</span>
+    <span class="n">scoring_templates</span><span class="o">=</span><span class="p">[</span><span class="s2">"true_false_uncertain"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span>  <span class="c1"># Same template for all</span>
     <span class="n">explanations</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Include judge reasoning</span>
 <span class="p">)</span>
 
@@ -639,15 +639,15 @@ judge <span class="math notranslate nohighlight">\(k\)</span> for response <span
 
 <span class="c1"># Access aggregated scores</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;avg&quot;</span><span class="p">])</span>     <span class="c1"># Average of all judges</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">])</span>  <span class="c1"># Median score</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;min&quot;</span><span class="p">])</span>     <span class="c1"># Most conservative</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">])</span>     <span class="c1"># Most optimistic</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"avg"</span><span class="p">])</span>     <span class="c1"># Average of all judges</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"median"</span><span class="p">])</span>  <span class="c1"># Median score</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"min"</span><span class="p">])</span>     <span class="c1"># Most conservative</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"max"</span><span class="p">])</span>     <span class="c1"># Most optimistic</span>
 
 <span class="c1"># Access individual judge scores</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;judge_1&quot;</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;judge_2&quot;</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;judge_3&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"judge_1"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"judge_2"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"judge_3"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Mixed Templates Example:</p>
@@ -657,7 +657,7 @@ judge <span class="math notranslate nohighlight">\(k\)</span> for response <span
 <span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">original_llm</span><span class="p">,</span>
     <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">gpt4</span><span class="p">,</span> <span class="n">claude</span><span class="p">,</span> <span class="n">gemini</span><span class="p">],</span>
-    <span class="n">scoring_templates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;true_false_uncertain&quot;</span><span class="p">,</span> <span class="s2">&quot;continuous&quot;</span><span class="p">,</span> <span class="s2">&quot;likert&quot;</span><span class="p">]</span>
+    <span class="n">scoring_templates</span><span class="o">=</span><span class="p">[</span><span class="s2">"true_false_uncertain"</span><span class="p">,</span> <span class="s2">"continuous"</span><span class="p">,</span> <span class="s2">"likert"</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">panel</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">)</span>

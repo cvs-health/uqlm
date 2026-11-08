@@ -584,12 +584,12 @@
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
 
-<span class="n">image_path</span> <span class="o">=</span> <span class="s2">&quot;../assets/images/cranberry_jam.png&quot;</span>
+<span class="n">image_path</span> <span class="o">=</span> <span class="s2">"../assets/images/cranberry_jam.png"</span>
 
 <span class="c1"># Encode image</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
     <span class="n">png_bytes</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-    <span class="n">encoded_png</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">png_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">encoded_png</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">png_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
 
 <span class="n">Image</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
 </pre></div>
@@ -610,11 +610,11 @@
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_core.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">HumanMessage</span>
 
-<span class="n">questions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;How many berries appear in the image&quot;</span><span class="p">,</span> <span class="s2">&quot;What color are the berries?&quot;</span><span class="p">,</span> <span class="s2">&quot;How many times does the letter R appear in this image?&quot;</span><span class="p">,</span> <span class="s2">&quot;How many times does the letter P appear in this image&quot;</span><span class="p">,</span> <span class="s2">&quot;How many words appear in this image?&quot;</span><span class="p">]</span>
+<span class="n">questions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"How many berries appear in the image"</span><span class="p">,</span> <span class="s2">"What color are the berries?"</span><span class="p">,</span> <span class="s2">"How many times does the letter R appear in this image?"</span><span class="p">,</span> <span class="s2">"How many times does the letter P appear in this image"</span><span class="p">,</span> <span class="s2">"How many words appear in this image?"</span><span class="p">]</span>
 
 <span class="n">prompts</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">questions</span><span class="p">:</span>
-    <span class="n">prompt</span> <span class="o">=</span> <span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">question</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;source_type&quot;</span><span class="p">:</span> <span class="s2">&quot;base64&quot;</span><span class="p">,</span> <span class="s2">&quot;mime_type&quot;</span><span class="p">:</span> <span class="s2">&quot;image/png&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">encoded_png</span><span class="p">}])</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">HumanMessage</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="p">[{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"text"</span><span class="p">,</span> <span class="s2">"text"</span><span class="p">:</span> <span class="n">question</span><span class="p">},</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="s2">"file"</span><span class="p">,</span> <span class="s2">"source_type"</span><span class="p">:</span> <span class="s2">"base64"</span><span class="p">,</span> <span class="s2">"mime_type"</span><span class="p">:</span> <span class="s2">"image/png"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">:</span> <span class="n">encoded_png</span><span class="p">}])</span>
     <span class="n">prompts</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">prompt</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -628,7 +628,7 @@
 <span class="c1"># !{sys.executable} -m pip install langchain-google-vertexai</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
 
-<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-2.5-flash-lite&quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"gemini-2.5-flash-lite"</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -660,12 +660,12 @@ AIMessage(content=&#39;3&#39;, additional_kwargs={}, response_metadata={&#39;is_
 
 <span class="c1"># Set the torch device</span>
 <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>  <span class="c1"># NVIDIA GPU</span>
-    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cuda"</span><span class="p">)</span>
 <span class="k">elif</span> <span class="n">torch</span><span class="o">.</span><span class="n">backends</span><span class="o">.</span><span class="n">mps</span><span class="o">.</span><span class="n">is_available</span><span class="p">():</span>  <span class="c1"># macOS</span>
-    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;mps&quot;</span><span class="p">)</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"mps"</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>  <span class="c1"># CPU</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> device&quot;</span><span class="p">)</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cpu"</span><span class="p">)</span>  <span class="c1"># CPU</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Using </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> device"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -684,7 +684,7 @@ Using cuda device
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlackBoxUQ</span>
 
-<span class="n">bbuq</span> <span class="o">=</span> <span class="n">BlackBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;noncontradiction&quot;</span><span class="p">],</span> <span class="n">system_prompt</span><span class="o">=</span><span class="s2">&quot;Answer as concisely as possible.&quot;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">use_best</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">bbuq</span> <span class="o">=</span> <span class="n">BlackBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"noncontradiction"</span><span class="p">],</span> <span class="n">system_prompt</span><span class="o">=</span><span class="s2">"Answer as concisely as possible."</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> <span class="n">use_best</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -729,10 +729,10 @@ future releases.")
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_colwidth&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_colwidth"</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 <span class="n">result_df</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
-<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">questions</span>
-<span class="n">result_df</span><span class="p">[[</span><span class="s2">&quot;question&quot;</span><span class="p">,</span> <span class="s2">&quot;response&quot;</span><span class="p">,</span> <span class="s2">&quot;sampled_responses&quot;</span><span class="p">,</span> <span class="s2">&quot;noncontradiction&quot;</span><span class="p">]]</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">"question"</span><span class="p">]</span> <span class="o">=</span> <span class="n">questions</span>
+<span class="n">result_df</span><span class="p">[[</span><span class="s2">"question"</span><span class="p">,</span> <span class="s2">"response"</span><span class="p">,</span> <span class="s2">"sampled_responses"</span><span class="p">,</span> <span class="s2">"noncontradiction"</span><span class="p">]]</span>
 </pre></div>
 </div>
 </div>

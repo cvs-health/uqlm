@@ -609,7 +609,7 @@ distinguishing between definitely wrong, uncertain, and definitely correct respo
 <span class="c1"># Initialize with ternary template (default)</span>
 <span class="n">judge</span> <span class="o">=</span> <span class="n">LLMJudge</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">judge_llm</span><span class="p">,</span>
-    <span class="n">scoring_template</span><span class="o">=</span><span class="s2">&quot;true_false_uncertain&quot;</span>
+    <span class="n">scoring_template</span><span class="o">=</span><span class="s2">"true_false_uncertain"</span>
 <span class="p">)</span>
 
 <span class="c1"># Score responses</span>
@@ -626,7 +626,7 @@ distinguishing between definitely wrong, uncertain, and definitely correct respo
 <span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">original_llm</span><span class="p">,</span>
     <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">judge_llm1</span><span class="p">,</span> <span class="n">judge_llm2</span><span class="p">,</span> <span class="n">judge_llm3</span><span class="p">],</span>
-    <span class="n">scoring_templates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;true_false_uncertain&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+    <span class="n">scoring_templates</span><span class="o">=</span><span class="p">[</span><span class="s2">"true_false_uncertain"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
 <span class="p">)</span>
 
 <span class="c1"># Generate and score</span>

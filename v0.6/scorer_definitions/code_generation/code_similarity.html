@@ -592,8 +592,8 @@
 
 <span class="n">code_uq</span> <span class="o">=</span> <span class="n">CodeGenUQ</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;cosine_sim&quot;</span><span class="p">,</span> <span class="s2">&quot;code_bleu&quot;</span><span class="p">],</span>
-    <span class="n">language</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"cosine_sim"</span><span class="p">,</span> <span class="s2">"code_bleu"</span><span class="p">],</span>
+    <span class="n">language</span><span class="o">=</span><span class="s2">"python"</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">code_uq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>

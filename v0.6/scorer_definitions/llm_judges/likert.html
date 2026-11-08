@@ -617,7 +617,7 @@ than ternary classification.</p>
 <span class="c1"># Initialize with likert template</span>
 <span class="n">judge</span> <span class="o">=</span> <span class="n">LLMJudge</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">judge_llm</span><span class="p">,</span>
-    <span class="n">scoring_template</span><span class="o">=</span><span class="s2">&quot;likert&quot;</span>
+    <span class="n">scoring_template</span><span class="o">=</span><span class="s2">"likert"</span>
 <span class="p">)</span>
 
 <span class="c1"># Score responses</span>
@@ -627,7 +627,7 @@ than ternary classification.</p>
 <span class="p">)</span>
 
 <span class="c1"># Scores will be one of: 0, 0.25, 0.5, 0.75, 1</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;scores&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">"scores"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Using with LLMPanel:</p>
@@ -637,7 +637,7 @@ than ternary classification.</p>
 <span class="n">panel</span> <span class="o">=</span> <span class="n">LLMPanel</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">original_llm</span><span class="p">,</span>
     <span class="n">judges</span><span class="o">=</span><span class="p">[</span><span class="n">judge_llm1</span><span class="p">,</span> <span class="n">judge_llm2</span><span class="p">],</span>
-    <span class="n">scoring_templates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;likert&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="n">scoring_templates</span><span class="o">=</span><span class="p">[</span><span class="s2">"likert"</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
 <span class="p">)</span>
 
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">panel</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">)</span>

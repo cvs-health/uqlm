@@ -605,15 +605,15 @@ with higher confidence in the response accuracy.</p>
 <span class="c1"># Initialize with semantic_sets_confidence scorer</span>
 <span class="n">bbuq</span> <span class="o">=</span> <span class="n">BlackBoxUQ</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;semantic_sets_confidence&quot;</span><span class="p">],</span>
-    <span class="n">nli_model_name</span><span class="o">=</span><span class="s2">&quot;microsoft/deberta-large-mnli&quot;</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"semantic_sets_confidence"</span><span class="p">],</span>
+    <span class="n">nli_model_name</span><span class="o">=</span><span class="s2">"microsoft/deberta-large-mnli"</span>
 <span class="p">)</span>
 
 <span class="c1"># Generate responses and compute scores</span>
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
 <span class="c1"># Access the semantic_sets_confidence scores</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">&quot;semantic_sets_confidence&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">"semantic_sets_confidence"</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>

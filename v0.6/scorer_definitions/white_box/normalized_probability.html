@@ -609,14 +609,14 @@ allowing fair comparison across responses of varying lengths.</p>
 <span class="c1"># Use sequence_probability (length-normalized by default) instead of normalized_probability</span>
 <span class="n">wbuq</span> <span class="o">=</span> <span class="n">WhiteBoxUQ</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sequence_probability&quot;</span><span class="p">]</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"sequence_probability"</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="c1"># Generate responses and compute scores</span>
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">)</span>
 
 <span class="c1"># Access the sequence_probability scores (equivalent to former normalized_probability)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">&quot;sequence_probability&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">"sequence_probability"</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>

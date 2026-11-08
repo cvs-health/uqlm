@@ -1105,9 +1105,12 @@ fields (e.g. the value of [cached properties][functools.cached_property]).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>update</strong> – Values to change/add in the new model. Note: the data is not validated
-before creating the new model. You should trust this data.</p></li>
-<li><p><strong>deep</strong> – Set to <cite>True</cite> to make a deep copy of the model.</p></li>
+<li><p><strong>update</strong> – A mapping of values to update the copied model. Updates are <em>not</em>
+applied recursively, and no validation is performed on updated values.
+Only the known fields are updated (if unknown keys are being passed and
+the model has [<cite>extra</cite>][pydantic.ConfigDict.extra] set to <cite>‘allow’</cite>, they
+are added as extra data).</p></li>
+<li><p><strong>deep</strong> – Whether a [deep copy][copy.deepcopy] of the model should be performed.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1121,7 +1124,7 @@ before creating the new model. You should trust this data.</p></li>
 <span class="sig-name descname"><span class="pre">model_dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'python'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by_alias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_unset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_none</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_computed_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_trip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warnings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">serialize_as_any</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polymorphic_serialization</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.longform.luq.baseclass.claims_scorer.ClaimScore.model_dump" title="Link to this definition">#</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span></p>
 </dd>
 </dl>
 <dl class="simple">
@@ -1206,7 +1209,7 @@ a [<cite>PydanticSerializationError</cite>][pydantic_core.PydanticSerializationE
 
 <dl class="py property">
 <dt class="sig sig-object py" id="uqlm.longform.luq.baseclass.claims_scorer.ClaimScore.model_extra">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_extra</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#uqlm.longform.luq.baseclass.claims_scorer.ClaimScore.model_extra" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_extra</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#uqlm.longform.luq.baseclass.claims_scorer.ClaimScore.model_extra" title="Link to this definition">#</a></dt>
 <dd><p>Get extra fields set during validation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1232,15 +1235,17 @@ a [<cite>PydanticSerializationError</cite>][pydantic_core.PydanticSerializationE
 
 <dl class="py method">
 <dt class="sig sig-object py" id="uqlm.longform.luq.baseclass.claims_scorer.ClaimScore.model_json_schema">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_json_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by_alias=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_template='#/$defs/{model}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_generator=&lt;class</span> <span class="pre">'pydantic.json_schema.GenerateJsonSchema'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode='validation'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">union_format='any_of'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.longform.luq.baseclass.claims_scorer.ClaimScore.model_json_schema" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_json_schema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by_alias=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_template='#/$defs/{model}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_generator=&lt;class</span> <span class="pre">'pydantic.json_schema.GenerateJsonSchema'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode='validation'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">union_format='any_of'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.longform.luq.baseclass.claims_scorer.ClaimScore.model_json_schema" title="Link to this definition">#</a></dt>
 <dd><p>Generates a JSON schema for a model class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</span></p>
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>by_alias</strong> – Whether to use attribute aliases or not.</p></li>
+<li><p><strong>by_alias</strong> – Whether to use field aliases as keys in the generated JSON Schema. If <cite>None</cite> (the default),
+aliases are used unless disabled by the configuration (i.e. <cite>validate_by_alias=False</cite> for validation
+schemas). An explicit value takes precedence over the configuration.</p></li>
 <li><p><strong>ref_template</strong> – The reference template.</p></li>
 <li><p><strong>union_format</strong> – <p>The format to use when combining schemas from unions together. Can be one of:</p>
 <ul>
@@ -1327,6 +1332,10 @@ If rebuilding _was_ required, returns <cite>True</cite> if rebuilding was succes
 <dt class="sig sig-object py" id="uqlm.longform.luq.baseclass.claims_scorer.ClaimScore.model_validate">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">model_validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by_alias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">by_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#uqlm.longform.luq.baseclass.claims_scorer.ClaimScore.model_validate" title="Link to this definition">#</a></dt>
 <dd><p>Validate a pydantic model instance.</p>
+<p>If validation fails, the resulting [<cite>ValidationError</cite>][pydantic_core.ValidationError] reports the
+rejected locations and values. [Logfire](../integrations/logfire.md) can retain the complete validation
+input and surrounding trace context for production debugging (see
+[Troubleshooting validation errors](../errors/troubleshooting.md)).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
@@ -1365,6 +1374,10 @@ See the [<cite>extra</cite> configuration value][pydantic.ConfigDict.extra] for 
 </dd>
 </dl>
 <p>Validate the given JSON data against the Pydantic model.</p>
+<p>A [<cite>ValidationError</cite>][pydantic_core.ValidationError] raised here reports the rejected locations and
+values, but may not retain the complete source document. Recording validations with
+[Logfire](../integrations/logfire.md) keeps the complete JSON input alongside the error — see
+[Troubleshooting validation errors](../errors/troubleshooting.md).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

@@ -609,14 +609,14 @@ original response.</p>
 <span class="c1"># Initialize with exact_match scorer</span>
 <span class="n">bbuq</span> <span class="o">=</span> <span class="n">BlackBoxUQ</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;exact_match&quot;</span><span class="p">]</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"exact_match"</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="c1"># Generate responses and compute scores</span>
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">bbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
 <span class="c1"># Access the exact_match scores</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">&quot;exact_match&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">"exact_match"</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>
