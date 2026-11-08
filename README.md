@@ -28,7 +28,7 @@
   <a href="https://www.jmlr.org/papers/v27/25-1557.html">JMLR (Software)</a> ·
   <a href="https://arxiv.org/abs/2504.19254">TMLR (Ensemble UQ)</a> ·
   <a href="https://arxiv.org/abs/2602.17431">TMLR (Long-Text UQ)</a> ·
-  <a href="https://arxiv.org/abs/2605.28500">EMNLP (Code Generation UQ)</a>
+  <a href="https://aclanthology.org/2026.emnlp-main.8/">EMNLP (Code Generation UQ)</a>
 </p>
 
 UQLM is a Python library for detecting hallucinations in Large Language Model (LLM) outputs using state-of-the-art uncertainty quantification techniques.
@@ -404,15 +404,27 @@ note={}
 }
 ```
 
-The code-specific methods and experiment results are described in [**this paper**](https://arxiv.org/abs/2605.28500), accepted to **EMNLP 2026 (main conference)**. To cite:
+The code-specific methods and experiment results are described in [**this paper**](https://aclanthology.org/2026.emnlp-main.8/), accepted to **EMNLP 2026 (main conference)**. To cite:
 ```bibtex
-@misc{bouchard2026functionalentropypredictingfunctional,
-      title={Functional Entropy: Predicting Functional Correctness in LLM-Generated Code with Uncertainty Quantification}, 
-      author={Dylan Bouchard and Mohit Singh Chauhan and Zeya Ahmad and Ho-Kyeong Ra},
-      year={2026},
-      eprint={2605.28500},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2605.28500}, 
+@inproceedings{bouchard-etal-2026-functional,
+    title = "Functional Entropy: Predicting Functional Correctness in {LLM}-Generated Code with Uncertainty Quantification",
+    author = "Bouchard, Dylan  and
+      Chauhan, Mohit Singh  and
+      Ahmad, Zeya  and
+      Ra, Ho-Kyeong",
+    editor = "Lee, Hung-Yi  and
+      Dev, Sunipa  and
+      Li, Junyi Jessy  and
+      Elliott, Desmond",
+    booktitle = "Proceedings of the 2026 Conference on Empirical Methods in Natural Language Processing",
+    month = oct,
+    year = "2026",
+    address = "Budapest, Hungary",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2026.emnlp-main.8/",
+    doi = "10.18653/2026.emnlp-main.8",
+    pages = "195--217",
+    ISBN = "979-8-89176-459-0",
+    abstract = "Large language models have shown impressive capabilities in code generation, yet they often produce functionally incorrect code. Uncertainty quantification (UQ) methods have emerged as a promising approach for detecting hallucinations in natural language generation, but their effectiveness for code generation tasks remains underexplored. We systematically evaluate how UQ techniques transfer to code generation across three programming languages, five LLMs, and over 1,700 problems. We find that some token-probability-based methods generalize effectively without modification, while sampling-based methods relying on natural language inference (NLI) fail because NLI models cannot distinguish functionally different code, causing most responses to collapse into a single semantic cluster. To address this, we introduce \textit{functional equivalence methods}, a family of code-specific methods that replace NLI-based semantic equivalence with an LLM-based functional equivalence assessment, including functional entropy, a code-specific analog of semantic entropy. Functional equivalence methods achieve top AUROC in 11 out of 15 model-benchmark combinations and the best calibration across most settings, consistently outperforming both NLI-based counterparts and all other methods evaluated."
 }
 ```
