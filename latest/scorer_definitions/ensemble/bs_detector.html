@@ -629,12 +629,12 @@ used by default.</p>
 
 <span class="c1"># Access ensemble scores</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ensemble_scores&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"ensemble_scores"</span><span class="p">])</span>
 
 <span class="c1"># Individual component scores are also available</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;noncontradiction&quot;</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;exact_match&quot;</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;judge_1&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"noncontradiction"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"exact_match"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"judge_1"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Custom Weights:</p>
@@ -643,7 +643,7 @@ used by default.</p>
 <span class="c1"># Modify weights</span>
 <span class="n">bsd</span> <span class="o">=</span> <span class="n">UQEnsemble</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;noncontradiction&quot;</span><span class="p">,</span> <span class="s2">&quot;exact_match&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="p">],</span>  <span class="c1"># Same components</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"noncontradiction"</span><span class="p">,</span> <span class="s2">"exact_match"</span><span class="p">,</span> <span class="n">llm</span><span class="p">],</span>  <span class="c1"># Same components</span>
     <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>  <span class="c1"># Custom weights</span>
 <span class="p">)</span>
 

@@ -618,7 +618,7 @@ token <span class="math notranslate nohighlight">\(t_j\)</span> be denoted as <s
 <span class="c1"># Initialize with mean_token_negentropy scorer</span>
 <span class="n">wbuq</span> <span class="o">=</span> <span class="n">WhiteBoxUQ</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mean_token_negentropy&quot;</span><span class="p">],</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"mean_token_negentropy"</span><span class="p">],</span>
     <span class="n">top_k_logprobs</span><span class="o">=</span><span class="mi">15</span>  <span class="c1"># Number of top logprobs to use</span>
 <span class="p">)</span>
 
@@ -626,7 +626,7 @@ token <span class="math notranslate nohighlight">\(t_j\)</span> be denoted as <s
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">)</span>
 
 <span class="c1"># Access the mean_token_negentropy scores</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">&quot;mean_token_negentropy&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">"mean_token_negentropy"</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>

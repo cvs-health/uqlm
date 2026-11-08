@@ -611,7 +611,7 @@ sampled) is <span class="math notranslate nohighlight">\(m+1\)</span>. The divis
 <span class="c1"># Initialize with semantic_negentropy scorer (token-probability-based)</span>
 <span class="n">wbuq</span> <span class="o">=</span> <span class="n">WhiteBoxUQ</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;semantic_negentropy&quot;</span><span class="p">],</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"semantic_negentropy"</span><span class="p">],</span>
     <span class="n">sampling_temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="n">length_normalize</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">)</span>
@@ -620,7 +620,7 @@ sampled) is <span class="math notranslate nohighlight">\(m+1\)</span>. The divis
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
 <span class="c1"># Access the semantic_negentropy scores</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">&quot;semantic_negentropy&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">"semantic_negentropy"</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>

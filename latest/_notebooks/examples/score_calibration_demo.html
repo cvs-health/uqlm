@@ -572,10 +572,10 @@
 <span class="n">n_prompts</span> <span class="o">=</span> <span class="n">n_train</span> <span class="o">+</span> <span class="n">n_test</span>
 
 <span class="c1"># Load example dataset for prompts/answers (optional, for context)</span>
-<span class="n">nq_open</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">&quot;nq_open&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n_prompts</span><span class="p">)</span>
+<span class="n">nq_open</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">"nq_open"</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n_prompts</span><span class="p">)</span>
 
 <span class="c1"># Define prompts</span>
-<span class="n">QA_INSTRUCTION</span> <span class="o">=</span> <span class="s2">&quot;You will be given a question. Return only the answer as concisely as possible without providing an explanation.</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="n">QA_INSTRUCTION</span> <span class="o">=</span> <span class="s2">"You will be given a question. Return only the answer as concisely as possible without providing an explanation.</span><span class="se">\n</span><span class="s2">"</span>
 <span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span><span class="n">QA_INSTRUCTION</span> <span class="o">+</span> <span class="n">prompt</span> <span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="n">nq_open</span><span class="o">.</span><span class="n">question</span><span class="p">]</span>
 <span class="n">train_prompts</span> <span class="o">=</span> <span class="n">prompts</span><span class="p">[:</span><span class="n">n_train</span><span class="p">]</span>
 <span class="n">test_prompts</span> <span class="o">=</span> <span class="n">prompts</span><span class="p">[</span><span class="o">-</span><span class="n">n_test</span><span class="p">:]</span>
@@ -601,7 +601,7 @@ Dataset ready!
 <span class="c1"># !{sys.executable} -m pip install langchain-google-vertexai</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
 
-<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-2.5-flash&quot;</span><span class="p">)</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"gemini-2.5-flash"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -610,7 +610,7 @@ Dataset ready!
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">wbuq</span> <span class="o">=</span> <span class="n">WhiteBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;normalized_probability&quot;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">wbuq</span> <span class="o">=</span> <span class="n">WhiteBoxUQ</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"normalized_probability"</span><span class="p">])</span>
 <span class="n">uq_result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">train_prompts</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -634,12 +634,12 @@ prompts/questions, be sure to update the grading method accordingly</strong>.</p
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># set up the LLM grader to grade LLM responses against the ground truth answer key (we need these grades for calibration)</span>
-<span class="n">gemini_flash_lite</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-2.5-flash-lite&quot;</span><span class="p">)</span>
+<span class="n">gemini_flash_lite</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"gemini-2.5-flash-lite"</span><span class="p">)</span>
 <span class="n">grader</span> <span class="o">=</span> <span class="n">LLMGrader</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">gemini_flash_lite</span><span class="p">)</span>
 
 <span class="c1"># Convert to dataframe and grade responses against correct answers</span>
 <span class="n">result_df</span> <span class="o">=</span> <span class="n">uq_result</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
-<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">grader</span><span class="o">.</span><span class="n">grade_responses</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[:</span><span class="n">n_train</span><span class="p">],</span> <span class="n">responses</span><span class="o">=</span><span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="n">answers</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[:</span><span class="n">n_train</span><span class="p">])</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">"response_correct"</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">grader</span><span class="o">.</span><span class="n">grade_responses</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">"question"</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[:</span><span class="n">n_train</span><span class="p">],</span> <span class="n">responses</span><span class="o">=</span><span class="n">result_df</span><span class="p">[</span><span class="s2">"response"</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="n">answers</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">"answer"</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[:</span><span class="n">n_train</span><span class="p">])</span>
 <span class="n">result_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -725,7 +725,7 @@ prompts/questions, be sure to update the grading method accordingly</strong>.</p
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sc</span> <span class="o">=</span> <span class="n">ScoreCalibrator</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;isotonic&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sc</span> <span class="o">=</span> <span class="n">ScoreCalibrator</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"isotonic"</span><span class="p">)</span>
 <span class="n">sc</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">uq_result</span><span class="o">=</span><span class="n">uq_result</span><span class="p">,</span> <span class="n">correct_indicators</span><span class="o">=</span><span class="n">result_df</span><span class="o">.</span><span class="n">response_correct</span><span class="p">)</span>
 
 <span class="n">results_df</span> <span class="o">=</span> <span class="n">uq_result</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
@@ -936,7 +936,7 @@ prompts/questions, be sure to update the grading method accordingly</strong>.</p
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Grade responses against correct answers for test set</span>
-<span class="n">test_result_df</span><span class="p">[</span><span class="s2">&quot;response_correct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">grader</span><span class="o">.</span><span class="n">grade_responses</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">&quot;question&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[</span><span class="o">-</span><span class="n">n_test</span><span class="p">:],</span> <span class="n">responses</span><span class="o">=</span><span class="n">test_result_df</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="n">answers</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[</span><span class="o">-</span><span class="n">n_test</span><span class="p">:])</span>
+<span class="n">test_result_df</span><span class="p">[</span><span class="s2">"response_correct"</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">grader</span><span class="o">.</span><span class="n">grade_responses</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">"question"</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[</span><span class="o">-</span><span class="n">n_test</span><span class="p">:],</span> <span class="n">responses</span><span class="o">=</span><span class="n">test_result_df</span><span class="p">[</span><span class="s2">"response"</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">(),</span> <span class="n">answers</span><span class="o">=</span><span class="n">nq_open</span><span class="p">[</span><span class="s2">"answer"</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[</span><span class="o">-</span><span class="n">n_test</span><span class="p">:])</span>
 
 <span class="n">test_metrics</span> <span class="o">=</span> <span class="n">evaluate_calibration</span><span class="p">(</span><span class="n">test_result</span><span class="p">,</span> <span class="n">test_result_df</span><span class="o">.</span><span class="n">response_correct</span><span class="p">)</span>
 <span class="n">test_metrics</span>

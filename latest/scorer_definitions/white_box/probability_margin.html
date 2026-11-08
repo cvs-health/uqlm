@@ -615,7 +615,7 @@ the response, while a low margin suggests the model was uncertain between altern
 <span class="c1"># Initialize with probability_margin scorer</span>
 <span class="n">wbuq</span> <span class="o">=</span> <span class="n">WhiteBoxUQ</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;probability_margin&quot;</span><span class="p">],</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"probability_margin"</span><span class="p">],</span>
     <span class="n">top_k_logprobs</span><span class="o">=</span><span class="mi">5</span>  <span class="c1"># At least 2 required</span>
 <span class="p">)</span>
 
@@ -623,7 +623,7 @@ the response, while a low margin suggests the model was uncertain between altern
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">)</span>
 
 <span class="c1"># Access the probability_margin scores</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">&quot;probability_margin&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">"probability_margin"</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>

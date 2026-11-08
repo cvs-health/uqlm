@@ -576,7 +576,7 @@ are below:</p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load example dataset (FactScore)</span>
-<span class="n">factscore</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">&quot;factscore&quot;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">15</span><span class="p">)[[</span><span class="s2">&quot;hundredw_prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;wikipedia_text&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;hundredw_prompt&quot;</span><span class="p">:</span> <span class="s2">&quot;prompt&quot;</span><span class="p">})</span>
+<span class="n">factscore</span> <span class="o">=</span> <span class="n">load_example_dataset</span><span class="p">(</span><span class="s2">"factscore"</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">15</span><span class="p">)[[</span><span class="s2">"hundredw_prompt"</span><span class="p">,</span> <span class="s2">"wikipedia_text"</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"hundredw_prompt"</span><span class="p">:</span> <span class="s2">"prompt"</span><span class="p">})</span>
 <span class="n">factscore</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -655,8 +655,8 @@ Dataset ready!
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">langchain_google_vertexai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatVertexAI</span>
 
-<span class="n">gemini_flash</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-2.5-flash&quot;</span><span class="p">)</span>
-<span class="n">gemini_flash_lite</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;gemini-2.5-flash-lite&quot;</span><span class="p">)</span>
+<span class="n">gemini_flash</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"gemini-2.5-flash"</span><span class="p">)</span>
+<span class="n">gemini_flash_lite</span> <span class="o">=</span> <span class="n">ChatVertexAI</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"gemini-2.5-flash-lite"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -744,9 +744,9 @@ Dataset ready!
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">claimqa</span> <span class="o">=</span> <span class="n">LongTextQA</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">gemini_flash</span><span class="p">,</span>
     <span class="n">question_generator_llm</span><span class="o">=</span><span class="n">gemini_flash</span><span class="p">,</span>
-    <span class="n">aggregation</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>  <span class="c1"># switch to &#39;min&#39; for more conservative scoring</span>
+    <span class="n">aggregation</span><span class="o">=</span><span class="s2">"mean"</span><span class="p">,</span>  <span class="c1"># switch to 'min' for more conservative scoring</span>
     <span class="n">response_refinement</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># whether to filter out low-confidence claims</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;noncontradiction&quot;</span><span class="p">],</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"noncontradiction"</span><span class="p">],</span>
     <span class="c1"># max_calls_per_min=1000,</span>
 <span class="p">)</span>
 </pre></div>
@@ -1161,8 +1161,8 @@ claim_filtering_scorer is not specified for response_refinement. Defaulting to n
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># grade original responses against the answer key using the grader</span>
-<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;claim_grades&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">grader</span><span class="o">.</span><span class="n">grade_claims</span><span class="p">(</span><span class="n">claim_sets</span><span class="o">=</span><span class="n">claims_data_lists</span><span class="p">[</span><span class="s2">&quot;claim&quot;</span><span class="p">],</span> <span class="n">answers</span><span class="o">=</span><span class="n">factscore</span><span class="p">[</span><span class="s2">&quot;wikipedia_text&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
-<span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">factscore</span><span class="p">[</span><span class="s2">&quot;wikipedia_text&quot;</span><span class="p">]</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">"claim_grades"</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">grader</span><span class="o">.</span><span class="n">grade_claims</span><span class="p">(</span><span class="n">claim_sets</span><span class="o">=</span><span class="n">claims_data_lists</span><span class="p">[</span><span class="s2">"claim"</span><span class="p">],</span> <span class="n">answers</span><span class="o">=</span><span class="n">factscore</span><span class="p">[</span><span class="s2">"wikipedia_text"</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span>
+<span class="n">result_df</span><span class="p">[</span><span class="s2">"answer"</span><span class="p">]</span> <span class="o">=</span> <span class="n">factscore</span><span class="p">[</span><span class="s2">"wikipedia_text"</span><span class="p">]</span>
 <span class="n">result_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1266,10 +1266,10 @@ claim_filtering_scorer is not specified for response_refinement. Defaulting to n
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">all_claim_scores</span><span class="p">,</span> <span class="n">all_claim_grades</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result_df</span><span class="p">)):</span>
-    <span class="n">all_claim_scores</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">claims_data_lists</span><span class="p">[</span><span class="s2">&quot;noncontradiction&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
-    <span class="n">all_claim_grades</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;claim_grades&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">all_claim_scores</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">claims_data_lists</span><span class="p">[</span><span class="s2">"noncontradiction"</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">all_claim_grades</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">result_df</span><span class="p">[</span><span class="s2">"claim_grades"</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;Baseline LLM accuracy: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">all_claim_grades</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""Baseline LLM accuracy: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">all_claim_grades</span><span class="p">)</span><span class="si">}</span><span class="s2">"""</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1300,14 +1300,14 @@ Baseline LLM accuracy: 0.6322751322751323
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;darkorange&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;ROC curve (AUC = </span><span class="si">{</span><span class="n">roc_auc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;navy&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"darkorange"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"ROC curve (AUC = </span><span class="si">{</span><span class="n">roc_auc</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">"navy"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">])</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;False Positive Rate&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;True Positive Rate&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Receiver Operating Characteristic (ROC) Curve&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"False Positive Rate"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"True Positive Rate"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"Receiver Operating Characteristic (ROC) Curve"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">"lower right"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1324,7 +1324,7 @@ Baseline LLM accuracy: 0.6322751322751323
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_model_accuracies</span><span class="p">(</span><span class="n">scores</span><span class="o">=</span><span class="n">all_claim_scores</span><span class="p">,</span> <span class="n">correct_indicators</span><span class="o">=</span><span class="n">all_claim_grades</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;LLM Accuracy by Claim Confidence Threshold&quot;</span><span class="p">,</span> <span class="n">display_percentage</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_model_accuracies</span><span class="p">(</span><span class="n">scores</span><span class="o">=</span><span class="n">all_claim_scores</span><span class="p">,</span> <span class="n">correct_indicators</span><span class="o">=</span><span class="n">all_claim_grades</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"LLM Accuracy by Claim Confidence Threshold"</span><span class="p">,</span> <span class="n">display_percentage</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1347,8 +1347,8 @@ Baseline LLM accuracy: 0.6322751322751323
         <span class="n">filtered_grades</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grade</span><span class="p">)</span>
         <span class="n">filtered_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Baseline LLM factual precision: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">all_claim_grades</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;UAD-Improved LLM factual precision: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">filtered_grades</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Baseline LLM factual precision: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">all_claim_grades</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"UAD-Improved LLM factual precision: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">filtered_grades</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

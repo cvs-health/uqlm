@@ -650,9 +650,9 @@ LLM-as-a-Judge scorers with configurable weights.</p>
 <span class="n">ensemble</span> <span class="o">=</span> <span class="n">UQEnsemble</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
     <span class="n">scorers</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">&quot;semantic_negentropy&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;noncontradiction&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;cosine_sim&quot;</span><span class="p">,</span>
+        <span class="s2">"semantic_negentropy"</span><span class="p">,</span>
+        <span class="s2">"noncontradiction"</span><span class="p">,</span>
+        <span class="s2">"cosine_sim"</span><span class="p">,</span>
         <span class="n">judge_llm</span>  <span class="c1"># LLM-as-a-Judge component</span>
     <span class="p">],</span>
     <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>  <span class="c1"># Custom weights</span>
@@ -660,7 +660,7 @@ LLM-as-a-Judge scorers with configurable weights.</p>
 
 <span class="c1"># Generate and score</span>
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span> <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">&quot;ensemble_scores&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">"ensemble_scores"</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Weight tuning example:</p>
@@ -669,7 +669,7 @@ LLM-as-a-Judge scorers with configurable weights.</p>
 <span class="c1"># Initialize ensemble (weights will be tuned)</span>
 <span class="n">ensemble</span> <span class="o">=</span> <span class="n">UQEnsemble</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;semantic_negentropy&quot;</span><span class="p">,</span> <span class="s2">&quot;noncontradiction&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="p">]</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"semantic_negentropy"</span><span class="p">,</span> <span class="s2">"noncontradiction"</span><span class="p">,</span> <span class="n">llm</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="c1"># Tune weights using labeled data</span>
@@ -677,8 +677,8 @@ LLM-as-a-Judge scorers with configurable weights.</p>
     <span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">,</span>
     <span class="n">ground_truth_answers</span><span class="o">=</span><span class="n">answers</span><span class="p">,</span>
     <span class="n">num_responses</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-    <span class="n">weights_objective</span><span class="o">=</span><span class="s2">&quot;roc_auc&quot;</span><span class="p">,</span>
-    <span class="n">thresh_objective</span><span class="o">=</span><span class="s2">&quot;fbeta_score&quot;</span><span class="p">,</span>
+    <span class="n">weights_objective</span><span class="o">=</span><span class="s2">"roc_auc"</span><span class="p">,</span>
+    <span class="n">thresh_objective</span><span class="o">=</span><span class="s2">"fbeta_score"</span><span class="p">,</span>
     <span class="n">n_trials</span><span class="o">=</span><span class="mi">100</span>
 <span class="p">)</span>
 
@@ -686,14 +686,14 @@ LLM-as-a-Judge scorers with configurable weights.</p>
 <span class="n">ensemble</span><span class="o">.</span><span class="n">print_ensemble_weights</span><span class="p">()</span>
 
 <span class="c1"># Save configuration for later use</span>
-<span class="n">ensemble</span><span class="o">.</span><span class="n">save_config</span><span class="p">(</span><span class="s2">&quot;my_ensemble_config.json&quot;</span><span class="p">)</span>
+<span class="n">ensemble</span><span class="o">.</span><span class="n">save_config</span><span class="p">(</span><span class="s2">"my_ensemble_config.json"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Loading a saved configuration:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">uqlm</span><span class="w"> </span><span class="kn">import</span> <span class="n">UQEnsemble</span>
 
 <span class="c1"># Load previously tuned ensemble</span>
-<span class="n">ensemble</span> <span class="o">=</span> <span class="n">UQEnsemble</span><span class="o">.</span><span class="n">load_config</span><span class="p">(</span><span class="s2">&quot;my_ensemble_config.json&quot;</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
+<span class="n">ensemble</span> <span class="o">=</span> <span class="n">UQEnsemble</span><span class="o">.</span><span class="n">load_config</span><span class="p">(</span><span class="s2">"my_ensemble_config.json"</span><span class="p">,</span> <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">)</span>
 
 <span class="c1"># Use with new data</span>
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ensemble</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">new_prompts</span><span class="p">)</span>

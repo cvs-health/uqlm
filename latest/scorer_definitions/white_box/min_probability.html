@@ -603,14 +603,14 @@ specific parts, even if most of the response is generated with high confidence.<
 <span class="c1"># Initialize with min_probability scorer</span>
 <span class="n">wbuq</span> <span class="o">=</span> <span class="n">WhiteBoxUQ</span><span class="p">(</span>
     <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span>
-    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;min_probability&quot;</span><span class="p">]</span>
+    <span class="n">scorers</span><span class="o">=</span><span class="p">[</span><span class="s2">"min_probability"</span><span class="p">]</span>
 <span class="p">)</span>
 
 <span class="c1"># Generate responses and compute scores</span>
 <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">wbuq</span><span class="o">.</span><span class="n">generate_and_score</span><span class="p">(</span><span class="n">prompts</span><span class="o">=</span><span class="n">prompts</span><span class="p">)</span>
 
 <span class="c1"># Access the min_probability scores</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">&quot;min_probability&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s2">"min_probability"</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>
