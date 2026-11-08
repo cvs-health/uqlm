@@ -1,9 +1,5 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/horizontal_logo_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/horizontal_logo.png">
-    <img src="assets/images/horizontal_logo.png" alt="uqlm" width="360" />
-  </picture>
+  <img src="assets/images/horizontal_logo_card.png" alt="uqlm" width="360" />
 </p>
 
 <h3 align="center">Uncertainty Quantification for Language Models</h3>
@@ -44,11 +40,7 @@ pip install uqlm
 UQLM provides a suite of response-level scorers, each returning a confidence score between 0 and 1, where higher scores indicate a lower likelihood of errors or hallucinations.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/uqlm_flow_ds_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/uqlm_flow_ds.png">
-    <img src="assets/images/uqlm_flow_ds.png" alt="UQLM Flow Diagram" />
-  </picture>
+  <img src="assets/images/uqlm_flow_ds_card.png" alt="UQLM Flow Diagram" />
 </p>
 
 We categorize these scorers into different types:
@@ -73,11 +65,7 @@ Below we provide illustrative code snippets and details about available scorers 
 These scorers assess uncertainty by measuring the consistency of multiple responses generated from the same prompt. They are compatible with any LLM, intuitive to use, and don't require access to internal model states or token probabilities.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/black_box_graphic_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/black_box_graphic.png">
-    <img src="assets/images/black_box_graphic.png" alt="Black Box Graphic" />
-  </picture>
+  <img src="assets/images/black_box_graphic_card.png" alt="Black Box Graphic" />
 </p>
 
 **Example Usage:**
@@ -116,11 +104,7 @@ Above, `use_best=True` implements mitigation so that the uncertainty-minimized r
 These scorers leverage token probabilities to estimate uncertainty.  They offer single-generation scoring, which is significantly faster and cheaper than black-box methods, but require access to the LLM's internal probabilities, meaning they are not necessarily compatible with all LLMs/APIs.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/white_box_graphic_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/white_box_graphic.png">
-    <img src="assets/images/white_box_graphic.png" alt="White Box Graphic"/>
-  </picture>
+  <img src="assets/images/white_box_graphic_card.png" alt="White Box Graphic" />
 </p>
 
 **Example Usage:**
@@ -168,11 +152,7 @@ Again, any [LangChain Chat Model](https://js.langchain.com/docs/integrations/cha
 These scorers use one or more LLMs to evaluate the reliability of the original LLM's response.  They offer high customizability through prompt engineering and the choice of judge LLM(s).
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/judges_graphic_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/judges_graphic.png">
-    <img src="assets/images/judges_graphic.png" alt="Judges Graphic" />
-  </picture>
+  <img src="assets/images/judges_graphic_card.png" alt="Judges Graphic" />
 </p>
 
 **Example Usage:**
@@ -209,11 +189,7 @@ Note that although we use `ChatOllama` in this example, we can use any [LangChai
 These combine multiple individual scorers via weighted averaging to produce more robust uncertainty estimates. They are highly customizable for specific use cases and can be used off-the-shelf with fixed weights (unsupervised) or trained for optimal performance (supervised). The following workflow demonstrates the supervised training process. 
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/uqensemble_generate_score_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/uqensemble_generate_score.png">
-    <img src="assets/images/uqensemble_generate_score.png" alt="Uqensemble Generate Score" />
-  </picture>
+  <img src="assets/images/uqensemble_generate_score_card.png" alt="Uqensemble Generate Score" />
 </p>
 
 **Example Usage:**
@@ -262,21 +238,13 @@ As with the other examples, any [LangChain Chat Model](https://js.langchain.com/
 These scorers take a fine-grained approach and score confidence/uncertainty at the claim or sentence level. An extension of [black-box scorers](#black-box-scorers-consistency-based), long-text scorers sample multiple responses to the same prompt, decompose the original response into claims or sentences, and evaluate consistency of each original claim/sentence with the sampled responses.
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/luq_example_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/luq_example.png">
-    <img src="assets/images/luq_example.png" alt="LUQ Graphic" />
-  </picture>
+  <img src="assets/images/luq_example_card.png" alt="LUQ Graphic" />
 </p>
 
 After scoring claims in the response, the response can be refined by removing claims with confidence scores less than a specified threshold and reconstructing the response from the retained claims. This approach allows for improved factual precision of long-text generations. 
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/images/uad_graphic_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/images/uad_graphic.png">
-    <img src="assets/images/uad_graphic.png" alt="UAD Graphic" />
-  </picture>
+  <img src="assets/images/uad_graphic_card.png" alt="UAD Graphic" />
 </p>
 
 **Example Usage:**
