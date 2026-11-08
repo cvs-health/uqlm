@@ -38,7 +38,7 @@ dependencies = [
     "numpy>=2.3.1; python_version >= '3.13'",
     "scipy>=1.15.0,<2.0.0; python_version >= '3.13'",
     "matplotlib>=3.10.0,<4.0.0",
-    "optuna>=4.0.0,<5.0.0",
+    "optuna>=4.0.0,<6.0.0",
     "bert-score>=0.3.0,<0.4.0",
     "pandas>=2.3.0,<3.0.0",
     "sentence-transformers>=3.4,<6.0",
