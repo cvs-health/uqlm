@@ -8,8 +8,17 @@
 
 # Disable MPS on macOS to prevent OOM failures during local test runs.
 # (PyTorch will fall back to CPU.)
+import functools
+
 import torch
 
+
+@functools.lru_cache
+def _mps_disabled() -> bool:
+    return False
+
+
+# Keep the lru_cache wrapper: torch._dynamo reads `is_available.__wrapped__` at import.
 if hasattr(torch.backends, "mps"):
-    torch.backends.mps.is_available = lambda: False
-    torch.backends.mps.is_built = lambda: False
+    torch.backends.mps.is_available = _mps_disabled
+    torch.backends.mps.is_built = _mps_disabled
