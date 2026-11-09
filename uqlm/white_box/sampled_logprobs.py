@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+import warnings
+
 from typing import List, Dict, Any, Optional
 import numpy as np
 from rich.progress import Progress
@@ -113,11 +115,24 @@ class SampledLogprobsScorer(LogprobsScorer):
     def monte_carlo_probability(self, responses: List[str], logprobs_results: List[List[Dict[str, Any]]], sampled_logprobs_results: List[List[List[Dict[str, Any]]]]) -> List[float]:
         monte_carlo_scores = []
         score_fn = self._norm_prob if self.length_normalize else self._seq_prob
+        unusable_sets = 0
+        total_sets = 0
+        affected_responses = []
         for i in range(len(responses)):
             all_logprobs_response_i = [logprobs_results[i]] + sampled_logprobs_results[i]
             all_sampled_sequence_probs_response_i = self._compute_single_generation_scores(all_logprobs_response_i, score_fn)
-            monte_carlo_sequence_prob_i = np.mean(all_sampled_sequence_probs_response_i)
+            total_sets += len(all_sampled_sequence_probs_response_i)
+            unusable = sum(1 for prob in all_sampled_sequence_probs_response_i if np.isnan(prob))
+            if unusable:
+                unusable_sets += unusable
+                affected_responses.append(i)
+            # A logprob set whose payload is missing is NaN by contract. Aggregate
+            # over the usable sets so one dropped payload doesn't destroy the
+            # estimate built from the remaining samples.
+            monte_carlo_sequence_prob_i = np.nanmean(all_sampled_sequence_probs_response_i)
             monte_carlo_scores.append(monte_carlo_sequence_prob_i)
+        if unusable_sets:
+            warnings.warn(f"Logprobs were unavailable for {unusable_sets} of {total_sets} logprob sets (responses: {affected_responses[:10]}); Monte Carlo probability for those responses is averaged over their usable sets only, so their effective sample count is reduced.")
         return monte_carlo_scores
 
     def compute_semantic_negentropy(self, responses: List[str], prompts: List[str], sampled_responses: List[List[str]], logprobs_results: List[List[Dict[str, Any]]], sampled_logprobs_results: List[List[List[Dict[str, Any]]]], progress_bar: Optional[Progress] = None) -> List[float]:
