@@ -15,6 +15,7 @@
 
 import contextlib
 import io
+import re
 
 import numpy as np
 import pandas as pd
@@ -210,10 +211,15 @@ class LLMJudge(ResponseGenerator):
         Used for both structured responses and backward compatibility.
         """
         if self.scoring_template == "continuous":
-            # Extract all digits and decimal points
-            score = "".join(c for c in response if c.isdigit())
-            if len(score) > 0:
-                score_val = float(score)
+            # Parse the first numeric token instead of concatenating digits: concatenation destroys the
+            # decimal point, so "0.8" was indistinguishable from "8" (silently mis-scaled to 0.08) and
+            # "85.5" collapsed to "855" (NaN). A decimal token <= 1.0 is an explicit 0-1 answer and keeps
+            # its own scale; integer answers stay on the 0-100 scale the template instructs.
+            match = re.search(r"\d+(?:\.\d+)?", response)
+            if match:
+                score_val = float(match.group())
+                if "." in match.group() and 0.0 <= score_val <= 1.0:
+                    return score_val  # already normalized
                 if 0.0 <= score_val <= 100.0:
                     return score_val / 100.0  # normalize
             return np.nan
