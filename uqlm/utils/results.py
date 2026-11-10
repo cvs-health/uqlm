@@ -28,12 +28,11 @@ class UQResult:
         """
         data = result.get("data")
         if "prompts" in data:  # move prompts to front if exists
-            prompts = data.pop("prompts")
-            data = {"prompts": prompts, **data}
+            data = {"prompts": data["prompts"], **data}
 
         self.data = data
         self.metadata = result.get("metadata")
-        self.result_dict = result
+        self.result_dict = {**result, "data": data}
 
     def to_dict(self) -> Dict[str, Any]:
         """
