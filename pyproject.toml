@@ -55,6 +55,7 @@ documentation = "https://cvs-health.github.io/uqlm/latest/index.html"
 
 [project.optional-dependencies]
 accelerate = ["accelerate>=0.26.0"]
+token-spans = ["llm-token-visualizer>=0.7.0"]
 
 [dependency-groups]
 dev = [
@@ -84,6 +85,7 @@ test = [
     "pytest-asyncio>=0.25.3,<1.5.0",
     "pytest-cov>=6,<8",
     "pytest-rerunfailures>=16.0,<17.0",
+    "llm-token-visualizer>=0.7.0",
 ]
 
 [build-system]

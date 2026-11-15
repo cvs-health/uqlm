@@ -3563,6 +3563,21 @@ wheels = [
 ]
 
 [[package]]
+name = "llm-token-visualizer"
+version = "0.7.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a9/89/f7b995d3f700d6722c7202306afacf2b40a68e422797273399aad805f948/llm_token_visualizer-0.7.0.tar.gz", hash = "sha256:176a16f021d4e336e33dc64f7410ee91ab971d18e0f3c8f7845c8ddcda162305", size = 132064, upload-time = "2026-11-15T16:11:34.064Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/92/95/86f300b8b40cf54d97ed552312950e0735b09bbf302615f63db300a5d928/llm_token_visualizer-0.7.0-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:7f9507a5fe0c0a9b5af253be1209c49421a9551197084de88d5bcfbfccb79b66", size = 405870, upload-time = "2026-11-15T16:11:24.215Z" },
+    { url = "https://files.pythonhosted.org/packages/e2/d1/f179da320c27897d5671104f98c3d67323d755a76bfaf48b68d731416ffc/llm_token_visualizer-0.7.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:cf2457f3af67c68c56125fe50971b7f3718b4daa47d8dad90e6d31bc95c611dc", size = 396422, upload-time = "2026-11-15T16:11:25.702Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/ff/085d71f16de1b72191e98b0fc2000b1bb1a08763ff1aa0889a27814167d9/llm_token_visualizer-0.7.0-cp39-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:6da809a7df6132e5c9325bb9c0d14c1e6206a39925acfe55443a5b316d021879", size = 436482, upload-time = "2026-11-15T16:11:27.04Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/37/adad595c56a009aba7d5fee0a849111d2875a4e471558d51eb3f4e349245/llm_token_visualizer-0.7.0-cp39-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:2fe221f5991566d3d02418990243a13599b02a7d64607c9f51e6bde76019be3b", size = 451829, upload-time = "2026-11-15T16:11:28.739Z" },
+    { url = "https://files.pythonhosted.org/packages/d6/d0/4af992c2248320edcd479d353dd9584071c0418b0969ac9c94bd6e055b2f/llm_token_visualizer-0.7.0-cp39-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:4e72c1daf6ea5a078d2123be09cd9cf1d2cb5a5f115f56b21e7861937726a3d2", size = 613709, upload-time = "2026-11-15T16:11:30.213Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/75/cf7b2daf81ed0af06dde35701294d89ded624ddf6163c939f7d3a8c8d4e8/llm_token_visualizer-0.7.0-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:f4ffcf777922896bc2838d200f63d1243b5aa03ef44e4ab8467b6e0b3351a262", size = 654649, upload-time = "2026-11-15T16:11:31.489Z" },
+    { url = "https://files.pythonhosted.org/packages/cd/c7/656b7044a7ac0803374471763cde9e59563855d368fbdf0c4b4da3c21d8c/llm_token_visualizer-0.7.0-cp39-abi3-win_amd64.whl", hash = "sha256:9deb45b6eeedd9c5783b699819de1a3fc6b10e27d4b4898db73572e7bf0e724c", size = 293727, upload-time = "2026-11-15T16:11:32.73Z" },
+]
+
+[[package]]
 name = "mako"
 version = "1.4.3"
 source = { registry = "https://pypi.org/simple" }
@@ -8522,6 +8537,9 @@ dependencies = [
 accelerate = [
     { name = "accelerate" },
 ]
+token-spans = [
+    { name = "llm-token-visualizer" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -8550,6 +8568,7 @@ test = [
     { name = "ipykernel", version = "7.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "langchain-google-vertexai" },
     { name = "langchain-openai" },
+    { name = "llm-token-visualizer" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
@@ -8564,6 +8583,7 @@ requires-dist = [
     { name = "ipywidgets", specifier = ">=8.1.7,<9.0.0" },
     { name = "langchain", specifier = ">=0.3.7" },
     { name = "langchain-model-profiles", specifier = ">=0.0.3" },
+    { name = "llm-token-visualizer", marker = "extra == 'token-spans'", specifier = ">=0.7.0" },
     { name = "matplotlib", specifier = ">=3.10.0,<4.0.0" },
     { name = "numpy", marker = "python_full_version < '3.13'", specifier = ">=1.26.4,<2.0.0" },
     { name = "numpy", marker = "python_full_version >= '3.13'", specifier = ">=2.3.1" },
@@ -8578,7 +8598,7 @@ requires-dist = [
     { name = "torch", specifier = ">=2.6.0" },
     { name = "transformers", specifier = ">=4.45.2,<5.0.0" },
 ]
-provides-extras = ["accelerate"]
+provides-extras = ["accelerate", "token-spans"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -8604,6 +8624,7 @@ test = [
     { name = "ipykernel", specifier = ">=6.29.5,<8.0.0" },
     { name = "langchain-google-vertexai", specifier = ">=2.0.8" },
     { name = "langchain-openai", specifier = ">=0.2.6" },
+    { name = "llm-token-visualizer", specifier = ">=0.7.0" },
     { name = "pytest", specifier = ">=8.3.5,<10.0.0" },
     { name = "pytest-asyncio", specifier = ">=0.25.3,<1.5.0" },
     { name = "pytest-cov", specifier = ">=6,<8" },
