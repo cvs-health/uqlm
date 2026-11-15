@@ -128,3 +128,46 @@ async def test_whiteboxuq_top_logprobs_full(monkeypatch):
 
     results = await wbuq.generate_and_score(prompts=PROMPTS, show_progress_bars=False)
     assert "mean_token_negentropy" in results.data
+
+
+@pytest.mark.asyncio
+async def test_whiteboxuq_low_confidence_spans(monkeypatch):
+    pytest.importorskip("llm_token_visualizer")
+    import math
+
+    # "The 1998 Tour de France was won by Marco Pantani." with the model hesitating on the name
+    tokens = [("The", 0.99), (" 1998", 0.98), (" Tour", 0.99), (" de", 0.99), (" France", 0.99), (" was", 0.95), (" won", 0.97), (" by", 0.99), (" Marco", 0.41), (" Pantani", 0.98), (".", 0.99)]
+    logprobs = [{"token": t, "logprob": math.log(p), "top_logprobs": []} for t, p in tokens]
+    logprobs[8]["top_logprobs"] = [{"token": " Marco", "logprob": math.log(0.41)}, {"token": " Jan", "logprob": math.log(0.38)}, {"token": " Bjarne", "logprob": math.log(0.12)}]
+    failed = [{"token": "UNABLE TO GET LOGPROBS", "logprob": float("nan"), "top_logprobs": []}]
+
+    wbuq = WhiteBoxUQ(llm=mock_object, scorers=["sequence_probability", "min_probability"])
+
+    async def mock_generate_original_responses(*args, **kwargs):
+        wbuq.logprobs = [logprobs, MOCKED_LOGPROBS[0], failed, None]
+        return ["The 1998 Tour de France was won by Marco Pantani.", MOCKED_RESPONSES[0], "", ""]
+
+    monkeypatch.setattr(wbuq, "generate_original_responses", mock_generate_original_responses)
+    results = await wbuq.generate_and_score(prompts=PROMPTS[:4], show_progress_bars=False)
+
+    # min_probability says the first answer is doubtful; the spans say where and what else the model considered
+    assert results.data["min_probability"][0] == pytest.approx(0.41)
+    spans = wbuq.low_confidence_spans()
+    assert spans == wbuq.low_confidence_spans(results.data["logprob"])
+    assert len(spans[0]) == 1
+    span = spans[0][0]
+    assert span["text"] == " Marco"
+    assert "The 1998 Tour de France was won by Marco Pantani."[span["start"] : span["end"]] == " Marco"
+    assert span["min_prob"] == pytest.approx(0.41)
+    assert [alt for alt, _ in span["alternatives"]] == [" Marco", " Jan", " Bjarne"]
+    assert spans[1] == []
+    assert spans[2] is None
+    assert spans[3] is None
+    assert wbuq.low_confidence_spans(threshold=0.3)[0] == []
+
+
+def test_whiteboxuq_low_confidence_spans_requires_logprobs():
+    pytest.importorskip("llm_token_visualizer")
+    wbuq = WhiteBoxUQ(llm=mock_object)
+    with pytest.raises(ValueError, match="No logprobs available"):
+        wbuq.low_confidence_spans()

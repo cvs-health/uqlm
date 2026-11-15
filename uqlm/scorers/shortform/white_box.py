@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from typing import Any, Dict, List, Optional, Union
+import numpy as np
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage
 
@@ -202,6 +203,50 @@ class WhiteBoxUQ(ShortFormUQ):
             data.update(p_true_scores_dict)
         result = {"data": data, "metadata": {"temperature": None if not self.llm else self.llm.temperature}}
         return UQResult(result)
+
+    def low_confidence_spans(self, logprobs_results: Optional[List[List[Dict[str, Any]]]] = None, threshold: float = 0.5) -> List[Optional[List[Dict[str, Any]]]]:
+        """
+        Locate the low-confidence spans behind each response's white-box score, using the same token logprobs
+        (no additional LLM calls). Requires the optional `llm-token-visualizer` package: `pip install 'uqlm[token-spans]'`.
+
+        Parameters
+        ----------
+        logprobs_results : list of logprobs_result, default=None
+            Token logprobs for each response, as stored in `UQResult.data["logprob"]`. If None, uses the logprobs
+            from the most recent call to `generate_and_score`.
+
+        threshold : float, default=0.5
+            A word is flagged when one of its tokens has a probability strictly below this value. Neighbouring
+            flagged words are merged into one span.
+
+        Returns
+        -------
+        list of (list of dict or None)
+            For each response, the low-confidence spans in order. Each span is a dict with its text, character offsets
+            (`start`, `end`), `min_prob`, `weakest_token`, and the `alternatives` the model weighed at that token
+            (populated when `top_k_logprobs` scorers are used). None where a response has no usable logprobs.
+        """
+        try:
+            import llm_token_visualizer
+        except ImportError:
+            raise ImportError("`low_confidence_spans` requires the `llm-token-visualizer` package. Install it with `pip install llm-token-visualizer` or `pip install 'uqlm[token-spans]'`.")
+        if logprobs_results is None:
+            logprobs_results = getattr(self, "logprobs", None)
+        if logprobs_results is None:
+            raise ValueError("No logprobs available. Provide `logprobs_results` or call `generate_and_score` first.")
+
+        spans = []
+        for logprobs in logprobs_results:
+            if not logprobs or any(token.get("logprob") is None or np.isnan(token["logprob"]) for token in logprobs):
+                spans.append(None)
+                continue
+            try:
+                result = llm_token_visualizer.score(logprobs, threshold)
+            except llm_token_visualizer.LogprobsError:
+                spans.append(None)
+                continue
+            spans.append([span.to_dict() for span in result.spans()])
+        return spans
 
     def _validate_scorers(self, scorers: List[str], top_k_logprobs: int) -> None:
         """Validate and store scorer list"""
