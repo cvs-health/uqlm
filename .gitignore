@@ -141,6 +141,11 @@ dmypy.json
 # download data
 **/BLEURT-20/
 
+# RagAgent example generated caches — rebuilt by corpus.py / retriever.py on first run
+examples/integration/RagAgent/wikipedia_corpus.json
+examples/integration/RagAgent/embeddings_*.npy
+examples/integration/RagAgent/faiss_*.index
+
 # for dev
 /experiments
 
